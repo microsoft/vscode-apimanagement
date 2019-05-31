@@ -1,0 +1,393 @@
+{
+    "name": "vscode-apimanagement",
+    "displayName": "Azure API Managment",
+    "description": "An Azure API Management extension for Visual Studio Code.",
+    "version": "0.0.1-alpha",
+    "publisher": "ms-azuretools",
+    "icon": "resources/azure-apim.png",
+    "aiKey": "AIF-d9b70cd4-b9f9-4d70-929b-a071c400b217",
+    "engines": {
+        "vscode": "^1.31.0"
+    },
+    "categories": [
+        "Azure"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/Microsoft/vscode-apimanagement"
+    },
+    "galleryBanner": {
+        "color": "#0072c6",
+        "theme": "dark"
+    },
+    "keywords": [
+        "Azure",
+        "API Management",
+        "APIM",
+        "OpenAPI",
+        "swagger"
+    ],
+    "preview": true,
+    "activationEvents": [
+        "onCommand:extension.Refresh",
+        "onCommand:extension.selectSubscriptions",
+        "onView:azureApiManagement",
+        "onLanguage:policy",
+        "onCommand:extension.createService",
+        "onCommand:extension.deleteService",
+        "onCommand:extension.copySubscriptionKey",
+        "onCommand:extension.deleteApi",
+        "onCommand:extension.deleteOperation",
+        "onCommand:extension.importOpenApiByFile",
+        "onCommand:extension.importOpenApiByLink",
+        "onCommand:extension.testOperation",
+        "onCommand:extension.openInPortal",
+        "onCommand:extension.showApi",
+        "onCommand:extension.showArmApi",
+        "onCommand:extension.showArmApiOperation",
+        "onCommand:extension.showServicePolicy",
+        "onCommand:extension.showApiPolicy",
+        "onCommand:extension.showOperationPolicy"
+    ],
+    "main": "main",
+    "contributes": {
+        "snippets": [
+            {
+                "language": "policy",
+                "path": "./snippets.json"
+            },
+            {
+                "language": "aspnetcorerazor",
+                "path": "./snippets.json"
+            }
+        ],
+        "languages": [
+            {
+                "id": "policy",
+                "aliases": [
+                    "APIM Policy",
+                    "policy"
+                ],
+                "extensions": [
+                    ".policy"
+                ],
+                "configuration": "./language-configuration.json"
+            }
+        ],
+        "grammars": [
+            {
+                "language": "policy",
+                "scopeName": "source.policy",
+                "path": "./syntaxes/policy.tmLanguage.json"
+            }
+        ],
+        "commands": [
+            {
+                "command": "extension.createService",
+                "title": "%azApim.createService%",
+                "category": "Azure API Management"
+            },
+            {
+                "command": "extension.deleteService",
+                "title": "%azApim.deleteService%",
+                "category": "Azure API Management"
+            },
+            {
+                "command": "extension.copySubscriptionKey",
+                "title": "%azApim.copySubscriptionKey%",
+                "category": "Azure API Management"
+            },
+            {
+                "command": "extension.deleteApi",
+                "title": "%azApim.deleteApi%",
+                "category": "Azure API Management"
+            },
+            {
+                "command": "extension.deleteOperation",
+                "title": "%azApim.deleteOperation%",
+                "category": "Azure API Management"
+            },
+            {
+                "command": "extension.importOpenApiByFile",
+                "title": "%azApim.importOpenApiByFile%",
+                "category": "Azure API Management"
+            },
+            {
+                "command": "extension.importOpenApiByLink",
+                "title": "%azApim.importOpenApiByLink%",
+                "category": "Azure API Management"
+            },
+            {
+                "command": "extension.testOperation",
+                "title": "%azApim.testOperation%",
+                "category": "Azure API Management"
+            },
+            {
+                "command": "extension.openInPortal",
+                "title": "%azApim.openInPortal%",
+                "category": "Azure API Management"
+            },
+            {
+                "command": "extension.selectSubscriptions",
+                "title": "Select Subscription...",
+                "icon": {
+                    "light": "resources/light/filter.svg",
+                    "dark": "resources/dark/filter.svg"
+                }
+            },
+            {
+                "command": "extension.Refresh",
+                "title": "Refresh",
+                "category": "Azure Api Management",
+                "icon": {
+                    "light": "resources/light/refresh.svg",
+                    "dark": "resources/dark/refresh.svg"
+                }
+            },
+            {
+                "command": "extension.LoadMore",
+                "title": "Load More",
+                "category": "Azure Api Management",
+                "icon": {
+                    "light": "resources/light/refresh.svg",
+                    "dark": "resources/dark/refresh.svg"
+                }
+            },
+            {
+                "command": "extension.showApi",
+                "title": "%azApim.showApi%",
+                "category": "Azure API Management"
+            },
+            {
+                "command": "extension.showArmApi",
+                "title": "%azApim.showArmApi%",
+                "category": "Azure API Management"
+            },
+            {
+                "command": "extension.showArmApiOperation",
+                "title": "%azApim.showArmApiOperation%",
+                "category": "Azure API Management"
+            },
+            {
+                "command": "extension.showServicePolicy",
+                "title": "%azApim.showServicePolicy%",
+                "category": "Azure API Management"
+            },
+            {
+                "command": "extension.showApiPolicy",
+                "title": "%azApim.showApiPolicy%",
+                "category": "Azure API Management"
+            },
+            {
+                "command": "extension.showOperationPolicy",
+                "title": "%azApim.showOperationPolicy%",
+                "category": "Azure API Management"
+            }
+        ],
+        "viewsContainers": {
+            "activitybar": [
+                {
+                    "id": "azure",
+                    "title": "Azure",
+                    "icon": "resources/azure.svg"
+                }
+            ]
+        },
+        "views": {
+            "azure": [
+                {
+                    "id": "azureApiManagement",
+                    "name": "Api Management",
+                    "when": "config.apim.showExplorer == true"
+                }
+            ],
+            "debug": [
+                {
+                    "id": "apim.loadedScriptsExplorer.jsLogpoints",
+                    "name": "LOADED SCRIPTS",
+                    "when": "inDebugMode && debugType == 'jsLogpoints'"
+                }
+            ]
+        },
+        "menus": {
+            "editor/title": [],
+            "commandPalette": [
+                {
+                    "command": "extension.Refresh",
+                    "when": "never"
+                },
+                {
+                    "command": "extension.LoadMore",
+                    "when": "never"
+                }
+            ],
+            "view/title": [
+                {
+                    "command": "extension.Refresh",
+                    "when": "view == azureApiManagement",
+                    "group": "navigation@1"
+                }
+            ],
+            "view/item/context": [
+                {
+                    "command": "extension.selectSubscriptions",
+                    "when": "view == azureApiManagement && viewItem == azureextensionui.azureSubscription",
+                    "group": "inline"
+                },
+                {
+                    "command": "extension.Refresh",
+                    "when": "view == azureApiManagement && viewItem == azureextensionui.azureSubscription",
+                    "group": "3@1"
+                },
+                {
+                    "command": "extension.createService",
+                    "when": "view == azureApiManagement && viewItem == azureextensionui.azureSubscription",
+                    "group": "1@1"
+                },
+                {
+                    "command": "extension.openInPortal",
+                    "when": "view == azureApiManagement && viewItem == azureextensionui.azureSubscription",
+                    "group": "2@1"
+                },
+                {
+                    "command": "extension.openInPortal",
+                    "when": "view == azureApiManagement && viewItem == azureApiManagementService",
+                    "group": "1@1"
+                },
+                {
+                    "command": "extension.copySubscriptionKey",
+                    "when": "view == azureApiManagement && viewItem == azureApiManagementService",
+                    "group": "2@1"
+                },
+                {
+                    "command": "extension.deleteService",
+                    "when": "view == azureApiManagement && viewItem == azureApiManagementService",
+                    "group": "2@2"
+                },
+                {
+                    "command": "extension.Refresh",
+                    "when": "view == azureApiManagement && viewItem == azureApiManagementService",
+                    "group": "3@1"
+                },
+                {
+                    "command": "extension.importOpenApiByFile",
+                    "when": "view == azureApiManagement && viewItem == azureApiManagementApis",
+                    "group": "1@1"
+                },
+                {
+                    "command": "extension.importOpenApiByLink",
+                    "when": "view == azureApiManagement && viewItem == azureApiManagementApis",
+                    "group": "1@2"
+                },
+                {
+                    "command": "extension.Refresh",
+                    "when": "view == azureApiManagement && viewItem == azureApiManagementApis",
+                    "group": "2@1"
+                },
+                {
+                    "command": "extension.showApi",
+                    "when": "view == azureApiManagement && viewItem == azureApiManagementApi",
+                    "group": "1@1"
+                },
+                {
+                    "command": "extension.deleteApi",
+                    "when": "view == azureApiManagement && viewItem == azureApiManagementApi",
+                    "group": "1@2"
+                },
+                {
+                    "command": "extension.Refresh",
+                    "when": "view == azureApiManagement && viewItem == azureApiManagementApi",
+                    "group": "2@1"
+                },
+                {
+                    "command": "extension.Refresh",
+                    "when": "view == azureApiManagement && viewItem == azureApiManagementOperations",
+                    "group": "1@1"
+                },
+                {
+                    "command": "extension.deleteOperation",
+                    "when": "view == azureApiManagement && viewItem == azureApiManagementApiOperation",
+                    "group": "1@2"
+                },
+                {
+                    "command": "extension.testOperation",
+                    "when": "view == azureApiManagement && viewItem == azureApiManagementApiOperation",
+                    "group": "1@1"
+                }
+            ]
+        },
+        "configuration": [
+            {
+                "title": "Azure API Management",
+                "properties": {
+                    "apim.showExplorer": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "%azApim.showExplorer%"
+                    },
+                    "apim.showSavePrompt": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "%azApim.showSavePrompt%"
+                    },
+                    "apim.advancedCreation": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "%azApim.advancedCreationDescription%"
+                    }
+                }
+            }
+        ]
+    },
+    "scripts": {
+        "vscode:prepublish": "npm run webpack-prod",
+        "build": "tsc -p ./",
+        "compile": "tsc -watch -p ./",
+        "package": "vsce package",
+        "lint": "tslint --project tsconfig.json -e src/*.d.ts -t verbose",
+        "lint-fix": "tslint --project tsconfig.json -t verbose --fix",
+        "postinstall": "node ./node_modules/vscode/bin/install",
+        "pretest": "npm run build && npm run webpack",
+        "test": "gulp test",
+        "watch": "tsc -watch -p ./",
+        "all": "npm i && npm run lint && npm test",
+        "webpack": "npm run build && gulp webpack-dev",
+        "webpack-prod": "npm run build && gulp webpack-prod",
+        "webpack-profile": "webpack --profile --json --mode production > webpack-stats.json && echo Use http://webpack.github.io/analyse to analyze the stats"
+    },
+    "devDependencies": {
+        "@types/fs-extra": "^4.0.3",
+        "@types/gulp": "^4.0.6",
+        "@types/mocha": "^2.2.42",
+        "@types/node": "^8.10.25",
+        "@types/request": "^2.47.0",
+        "@types/request-promise": "^4.1.43",
+        "@types/swagger-parser": "^4.0.3",
+        "tslint": "^5.7.0",
+        "typescript": "^3.3.1",
+        "ts-node": "^7.0.1",
+        "tslint-microsoft-contrib": "5.0.1",
+        "vscode-extension-telemetry": "^0.0.18",
+        "gulp": "^4.0.0",
+        "vsce": "^1.59.0",
+        "vscode": "^1.1.33",
+        "vscode-azureextensiondev": "0.1.8",
+        "webpack": "4.29.6",
+        "webpack-cli": "^3.3.0"
+    },
+    "dependencies": {
+        "vscode-azureextensionui": "^0.23.3",
+        "swagger-parser": "^6.0.5",
+        "vscode-nls": "^4.1.0",
+        "azure-arm-apimanagement": "^5.1.0",
+        "azure-arm-resource": "^3.0.0-preview",
+        "fs-extra": "^4.0.2",
+        "opn": "^5.3.0",
+        "request": "^2.83.0",
+        "request-promise": "^4.2.2"
+    },
+    "extensionDependencies": [
+        "ms-vscode.azure-account",
+        "humao.rest-client"
+    ]
+}

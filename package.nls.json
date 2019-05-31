@@ -1,0 +1,20 @@
+{
+    "azApim.openInPortal": "Open in Portal",
+    "azApim.importOpenApiByFile": "Import from OpenAPI file",
+    "azApim.importOpenApiByLink": "Import from OpenAPI link",
+    "azApim.showExplorer": "Show or hide the Azure API Management Explorer.",
+    "azApim.showSavePrompt": "Show warning dialog on remote file uploading.",
+    "azApim.createService": "Create API Management in Azure",
+    "azApim.deleteService": "Delete API Management",
+    "azApim.copySubscriptionKey" : "Copy Subscription Key",
+    "azApim.showApi": "Edit OpenAPI",
+    "azApim.showArmApi": "Edit API",
+    "azApim.showArmApiOperation": "Edit Operation",
+    "azApim.showServicePolicy": "Edit Global policy",
+    "azApim.showApiPolicy": "Edit API policy",
+    "azApim.showOperationPolicy": "Edit Operation policy",
+    "azApim.deleteApi": "Delete API",
+    "azApim.deleteOperation": "Delete Operation",
+    "azApim.testOperation": "Test Operation",
+    "azApim.advancedCreationDescription":"Enables advanced creation of Azure API Management Instance, which will prompt for several additional values instead of using a default."
+}

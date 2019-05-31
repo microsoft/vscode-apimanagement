@@ -1,0 +1,407 @@
+{
+	"information_for_contributors": [
+		"This file has been converted from https://github.com/atom/language-xml/blob/master/grammars/xml.cson",
+		"If you want to provide a fix or improvement, please create a pull request against the original repository.",
+		"Once accepted there, we are happy to receive an update request."
+	],
+	"version": "https://github.com/atom/language-xml/commit/7bc75dfe779ad5b35d9bf4013d9181864358cb49",
+	"name": "APIM Policy",
+	"scopeName": "source.policy",
+	"patterns": [
+		{
+			"begin": "(<\\?)\\s*([-_a-zA-Z0-9]+)",
+			"captures": {
+				"1": {
+					"name": "punctuation.definition.tag.policy"
+				},
+				"2": {
+					"name": "entity.name.tag.policy"
+				}
+			},
+			"end": "(\\?>)",
+			"name": "meta.tag.preprocessor.policy",
+			"patterns": [
+				{
+					"match": " ([a-zA-Z-]+)",
+					"name": "entity.other.attribute-name.policy"
+				},
+				{
+					"include": "#doublequotedString"
+				},
+				{
+					"include": "#singlequotedString"
+				}
+			]
+		},
+		{
+			"begin": "(<!)(DOCTYPE)\\s+([:a-zA-Z_][:a-zA-Z0-9_.-]*)",
+			"captures": {
+				"1": {
+					"name": "punctuation.definition.tag.policy"
+				},
+				"2": {
+					"name": "keyword.other.doctype.policy"
+				},
+				"3": {
+					"name": "variable.language.documentroot.policy"
+				}
+			},
+			"end": "\\s*(>)",
+			"name": "meta.tag.sgml.doctype.policy",
+			"patterns": [
+				{
+					"include": "#internalSubset"
+				}
+			]
+		},
+		{
+			"include": "#comments"
+		},
+		{
+			"begin": "(<)((?:([-_a-zA-Z0-9]+)(:))?([-_a-zA-Z0-9:]+))(?=(\\s[^>]*)?></\\2>)",
+			"beginCaptures": {
+				"1": {
+					"name": "punctuation.definition.tag.policy"
+				},
+				"2": {
+					"name": "entity.name.tag.policy"
+				},
+				"3": {
+					"name": "entity.name.tag.namespace.policy"
+				},
+				"4": {
+					"name": "punctuation.separator.namespace.policy"
+				},
+				"5": {
+					"name": "entity.name.tag.localname.policy"
+				}
+			},
+			"end": "(>)(</)((?:([-_a-zA-Z0-9]+)(:))?([-_a-zA-Z0-9:]+))(>)",
+			"endCaptures": {
+				"1": {
+					"name": "punctuation.definition.tag.policy"
+				},
+				"2": {
+					"name": "punctuation.definition.tag.policy"
+				},
+				"3": {
+					"name": "entity.name.tag.policy"
+				},
+				"4": {
+					"name": "entity.name.tag.namespace.policy"
+				},
+				"5": {
+					"name": "punctuation.separator.namespace.policy"
+				},
+				"6": {
+					"name": "entity.name.tag.localname.policy"
+				},
+				"7": {
+					"name": "punctuation.definition.tag.policy"
+				}
+			},
+			"name": "meta.tag.no-content.policy",
+			"patterns": [
+				{
+					"include": "#tagStuff"
+				}
+			]
+		},
+		{
+			"begin": "(</?)(?:([-\\w\\.]+)((:)))?([-\\w\\.:]+)",
+			"captures": {
+				"1": {
+					"name": "punctuation.definition.tag.policy"
+				},
+				"2": {
+					"name": "entity.name.tag.namespace.policy"
+				},
+				"3": {
+					"name": "entity.name.tag.policy"
+				},
+				"4": {
+					"name": "punctuation.separator.namespace.policy"
+				},
+				"5": {
+					"name": "entity.name.tag.localname.policy"
+				}
+			},
+			"end": "(/?>)",
+			"name": "meta.tag.policy",
+			"patterns": [
+				{
+					"include": "#tagStuff"
+				}
+			]
+		},
+		{
+			"include": "#entity"
+		},
+		{
+			"include": "#bare-ampersand"
+		},
+		{
+			"begin": "<%@",
+			"beginCaptures": {
+				"0": {
+					"name": "punctuation.section.embedded.begin.policy"
+				}
+			},
+			"end": "%>",
+			"endCaptures": {
+				"0": {
+					"name": "punctuation.section.embedded.end.policy"
+				}
+			},
+			"name": "source.java-props.embedded.policy",
+			"patterns": [
+				{
+					"match": "page|include|taglib",
+					"name": "keyword.other.page-props.policy"
+				}
+			]
+		},
+		{
+			"begin": "@({|\\()",
+			"beginCaptures": {
+				"0": {
+					"name": "punctuation.section.embedded.begin.policy"
+				}
+			},
+			"end": "(}|\\))",
+			"endCaptures": {
+				"0": {
+					"name": "punctuation.section.embedded.end.policy"
+				}
+			},
+			"name": "source.csharp.embedded.policy",
+			"patterns": [
+				{
+					"include": "source.cs"
+				}
+			]
+		},
+		{
+			"begin": "<!\\[CDATA\\[",
+			"beginCaptures": {
+				"0": {
+					"name": "punctuation.definition.string.begin.policy"
+				}
+			},
+			"end": "]]>",
+			"endCaptures": {
+				"0": {
+					"name": "punctuation.definition.string.end.policy"
+				}
+			},
+			"name": "string.unquoted.cdata.policy"
+		}
+	],
+	"repository": {
+		"EntityDecl": {
+			"begin": "(<!)(ENTITY)\\s+(%\\s+)?([:a-zA-Z_][:a-zA-Z0-9_.-]*)(\\s+(?:SYSTEM|PUBLIC)\\s+)?",
+			"captures": {
+				"1": {
+					"name": "punctuation.definition.tag.policy"
+				},
+				"2": {
+					"name": "keyword.other.entity.policy"
+				},
+				"3": {
+					"name": "punctuation.definition.entity.policy"
+				},
+				"4": {
+					"name": "variable.language.entity.policy"
+				},
+				"5": {
+					"name": "keyword.other.entitytype.policy"
+				}
+			},
+			"end": "(>)",
+			"patterns": [
+				{
+					"include": "#doublequotedString"
+				},
+				{
+					"include": "#singlequotedString"
+				}
+			]
+		},
+		"bare-ampersand": {
+			"match": "&",
+			"name": "invalid.illegal.bad-ampersand.policy"
+		},
+		"doublequotedString": {
+			"begin": "\"",
+			"beginCaptures": {
+				"0": {
+					"name": "punctuation.definition.string.begin.policy"
+				}
+			},
+			"end": "\"",
+			"endCaptures": {
+				"0": {
+					"name": "punctuation.definition.string.end.policy"
+				}
+			},
+			"name": "string.quoted.double.policy",
+			"patterns": [
+				{
+					"include": "#entity"
+				},
+				{
+					"include": "#bare-ampersand"
+				},
+				{
+					"begin": "@({|\\()",
+					"beginCaptures": {
+						"0": {
+							"name": "punctuation.section.embedded.begin.policy"
+						}
+					},
+					"end": "(}|\\))",
+					"endCaptures": {
+						"0": {
+							"name": "punctuation.section.embedded.end.policy"
+						}
+					},
+					"name": "source.csharp.embedded.policy",
+					"patterns": [
+						{
+							"include": "source.cs"
+						}
+					]
+				}
+			]
+		},
+		"entity": {
+			"captures": {
+				"1": {
+					"name": "punctuation.definition.constant.policy"
+				},
+				"3": {
+					"name": "punctuation.definition.constant.policy"
+				}
+			},
+			"match": "(&)([:a-zA-Z_][:a-zA-Z0-9_.-]*|#[0-9]+|#x[0-9a-fA-F]+)(;)",
+			"name": "constant.character.entity.policy"
+		},
+		"internalSubset": {
+			"begin": "(\\[)",
+			"captures": {
+				"1": {
+					"name": "punctuation.definition.constant.policy"
+				}
+			},
+			"end": "(\\])",
+			"name": "meta.internalsubset.policy",
+			"patterns": [
+				{
+					"include": "#EntityDecl"
+				},
+				{
+					"include": "#parameterEntity"
+				},
+				{
+					"include": "#comments"
+				}
+			]
+		},
+		"parameterEntity": {
+			"captures": {
+				"1": {
+					"name": "punctuation.definition.constant.policy"
+				},
+				"3": {
+					"name": "punctuation.definition.constant.policy"
+				}
+			},
+			"match": "(%)([:a-zA-Z_][:a-zA-Z0-9_.-]*)(;)",
+			"name": "constant.character.parameter-entity.policy"
+		},
+		"singlequotedString": {
+			"begin": "'",
+			"beginCaptures": {
+				"0": {
+					"name": "punctuation.definition.string.begin.policy"
+				}
+			},
+			"end": "'",
+			"endCaptures": {
+				"0": {
+					"name": "punctuation.definition.string.end.policy"
+				}
+			},
+			"name": "string.quoted.single.policy",
+			"patterns": [
+				{
+					"include": "#entity"
+				},
+				{
+					"include": "#bare-ampersand"
+				}
+			]
+		},
+		"tagStuff": {
+			"patterns": [
+				{
+					"captures": {
+						"1": {
+							"name": "entity.other.attribute-name.namespace.policy"
+						},
+						"2": {
+							"name": "entity.other.attribute-name.policy"
+						},
+						"3": {
+							"name": "punctuation.separator.namespace.policy"
+						},
+						"4": {
+							"name": "entity.other.attribute-name.localname.policy"
+						}
+					},
+					"match": "(?:^|\\s+)(?:([-\\w.]+)((:)))?([-\\w.:]+)\\s*="
+				},
+				{
+					"include": "#doublequotedString"
+				},
+				{
+					"include": "#singlequotedString"
+				}
+			]
+		},
+		"comments": {
+			"patterns": [
+				{
+					"begin": "<%--",
+					"captures": {
+						"0": {
+							"name": "punctuation.definition.comment.policy"
+						},
+						"end": "--%>",
+						"name": "comment.block.policy"
+					}
+				},
+				{
+					"begin": "<!--",
+					"captures": {
+						"0": {
+							"name": "punctuation.definition.comment.policy"
+						}
+					},
+					"end": "-->",
+					"name": "comment.block.policy",
+					"patterns": [
+						{
+							"begin": "--(?!>)",
+							"captures": {
+								"0": {
+									"name": "invalid.illegal.bad-comments-or-CDATA.policy"
+								}
+							}
+						}
+					]
+				}
+			]
+		}
+	}
+}
