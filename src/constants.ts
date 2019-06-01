@@ -3,6 +3,7 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+export const extensionName = 'vscode-azureapim';
 export const extensionPrefix: string = 'apim';
 export const doubleClickDebounceDelay = 500; //milliseconds
 export const topItemCount: number = 20;

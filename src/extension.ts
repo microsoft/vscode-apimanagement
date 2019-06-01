@@ -30,6 +30,7 @@ import { OperationPolicyTreeItem } from './explorer/OperationPolicyTreeItem';
 import { ServicePolicyTreeItem } from './explorer/ServicePolicyTreeItem';
 import { ServiceTreeItem } from './explorer/ServiceTreeItem';
 import { ext } from './extensionVariables';
+import { createTempExtensionDir } from './utils/fsUtil';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -75,6 +76,8 @@ export function activateInternal(context: vscode.ExtensionContext) {
     });
 
     registerEditors(context);
+
+    createTempExtensionDir();
 }
 
 function registerEditors(context: vscode.ExtensionContext) : void {

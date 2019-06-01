@@ -6,7 +6,7 @@
 import * as vscode from 'vscode';
 import { ApiOperationTreeItem } from "../explorer/ApiOperationTreeItem";
 import { ext } from '../extensionVariables';
-import { createTemporaryFile } from "../utils/createTemporaryFile";
+import { createTemporaryFile } from "../utils/fsUtil";
 import { nameUtil } from '../utils/nameUtil';
 import { writeToEditor } from '../utils/vscodeUtils';
 

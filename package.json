@@ -53,32 +53,8 @@
     "contributes": {
         "snippets": [
             {
-                "language": "policy",
-                "path": "./snippets.json"
-            },
-            {
                 "language": "aspnetcorerazor",
                 "path": "./snippets.json"
-            }
-        ],
-        "languages": [
-            {
-                "id": "policy",
-                "aliases": [
-                    "APIM Policy",
-                    "policy"
-                ],
-                "extensions": [
-                    ".policy"
-                ],
-                "configuration": "./language-configuration.json"
-            }
-        ],
-        "grammars": [
-            {
-                "language": "policy",
-                "scopeName": "source.policy",
-                "path": "./syntaxes/policy.tmLanguage.json"
             }
         ],
         "commands": [

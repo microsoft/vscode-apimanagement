@@ -9,7 +9,7 @@ import * as vscode from 'vscode';
 import { DialogResponses, IActionContext, UserCancelledError } from 'vscode-azureextensionui';
 import { ext } from '../../extensionVariables';
 import { localize } from "../../localize";
-import { createTemporaryFile } from '../../utils/createTemporaryFile';
+import { createTemporaryFile } from '../../utils/fsUtil';
 import { writeToEditor } from '../../utils/vscodeUtils';
 
 // tslint:disable-next-line:no-unsafe-any
