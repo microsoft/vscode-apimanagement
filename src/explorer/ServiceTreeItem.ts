@@ -6,6 +6,7 @@
 import { ApiManagementClient, ApiManagementModels } from "azure-arm-apimanagement";
 import { ProgressLocation, window } from "vscode";
 import { AzureParentTreeItem, AzureTreeItem, DialogResponses, ISubscriptionRoot, UserCancelledError } from "vscode-azureextensionui";
+import { localize } from "../localize";
 import { getResourceGroupFromId } from "../utils/azure";
 import { nodeUtils } from '../utils/nodeUtils';
 import { nonNullProp } from "../utils/nonNull";
@@ -16,7 +17,6 @@ import { ApiTreeItem } from "./ApiTreeItem";
 import { IServiceTreeRoot } from "./IServiceTreeRoot";
 import { OperationPolicyTreeItem } from "./OperationPolicyTreeItem";
 import { ServicePolicyTreeItem } from "./ServicePolicyTreeItem";
-import { localize } from "../localize";
 
 export class ServiceTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
 

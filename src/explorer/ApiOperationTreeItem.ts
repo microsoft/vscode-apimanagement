@@ -6,13 +6,13 @@
 import { ApiManagementModels } from "azure-arm-apimanagement";
 import { ProgressLocation, window } from "vscode";
 import { AzureParentTreeItem, AzureTreeItem, DialogResponses, ISubscriptionRoot, UserCancelledError } from "vscode-azureextensionui";
+import { localize } from "../localize";
 import { OperationConsole } from "../operationConsole/OperationConsole";
 import { nodeUtils } from "../utils/nodeUtils";
 import { nonNullProp } from "../utils/nonNull";
 import { IApiTreeRoot } from "./IApiTreeRoot";
 import { IOperationTreeRoot } from "./IOperationTreeRoot";
 import { OperationPolicyTreeItem } from "./OperationPolicyTreeItem";
-import { localize } from "../localize";
 
 export class ApiOperationTreeItem extends AzureParentTreeItem<IOperationTreeRoot> {
     public static contextValue: string = 'azureApiManagementApiOperation';

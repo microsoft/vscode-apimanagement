@@ -97,6 +97,7 @@ export class OpenApiEditor extends Editor<ApiTreeItem> {
         return `Saving will update the API '${context.apiContract.name}'.`;
     }
 
+    // tslint:disable-next-line:no-any
     private async requestOpenAPIDocument(context: ApiTreeItem, exportFormat: string, exportAcceptHeader: string) : Promise<any> {
         const requestOptions: WebResource = new WebResource();
         requestOptions.headers = {
