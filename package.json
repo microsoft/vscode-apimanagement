@@ -51,6 +51,16 @@
     ],
     "main": "main",
     "contributes": {
+        "jsonValidation": [
+            {
+                "fileMatch": "/*-api-arm.json",
+                "url": "./resources/schemas/ApiCreateOrUpdateParameter.json"
+            },
+            {
+                "fileMatch": "/*-operation-arm.json",
+                "url": "./resources/schemas/OperationUpdateContract.json"
+            }
+        ],
         "snippets": [
             {
                 "language": "aspnetcorerazor",

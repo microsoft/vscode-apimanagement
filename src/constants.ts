@@ -71,3 +71,5 @@ export const emptyPolicyXml =
         <base />
     </on-error>
 </policies>`;
+
+export const sessionFolderKey = "currentSessionWorkingFolder";

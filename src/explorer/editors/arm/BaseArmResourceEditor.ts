@@ -45,7 +45,7 @@ export abstract class BaseArmResourceEditor<TRoot extends IServiceTreeRoot> exte
     }
 
     public async getFilename(context: AzureTreeItem<TRoot>): Promise<string> {
-        return `${nameUtil(context.root)}-arm.json`;
+        return `${nameUtil(context.root)}-${this.entityType.toLowerCase()}-arm.json`;
     }
 
     public async getSize(): Promise<number> {
