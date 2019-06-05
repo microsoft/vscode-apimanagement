@@ -4,7 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 export const extensionName = 'vscode-azureapim';
-export const extensionPrefix: string = 'apim';
+export const extensionPrefix: string = 'azureApiManagement';
 export const doubleClickDebounceDelay = 500; //milliseconds
 export const topItemCount: number = 20;
 
@@ -15,7 +15,7 @@ export const openApiExport = "openapi%2Bjson";
 export const openApiAcceptHeader = "application/vnd.oai.openapi+json";
 export const swaggerAcceptHeader = "application/vnd.swagger.doc+json";
 
-export const showSavePromptConfigKey = "apim.showSavePrompt";
+export const showSavePromptConfigKey = "azureApiManagement.showSavePrompt";
 
 export const policyFormat = "rawxml";
 

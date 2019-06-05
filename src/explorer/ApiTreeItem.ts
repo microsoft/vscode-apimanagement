@@ -7,8 +7,8 @@ import { ApiManagementModels } from "azure-arm-apimanagement";
 import { ProgressLocation, window } from "vscode";
 import { AzureParentTreeItem, AzureTreeItem, DialogResponses, ISubscriptionRoot, UserCancelledError } from "vscode-azureextensionui";
 import { localize } from "../localize";
-import { nodeUtils } from "../utils/nodeUtils";
 import { nonNullProp } from "../utils/nonNull";
+import { treeUtils } from "../utils/treeUtils";
 import { ApiOperationsTreeItem } from "./ApiOperationsTreeItem";
 import { ApiOperationTreeItem } from "./ApiOperationTreeItem";
 import { ApiPolicyTreeItem } from "./ApiPolicyTreeItem";
@@ -19,7 +19,7 @@ import { OperationPolicyTreeItem } from "./OperationPolicyTreeItem";
 export class ApiTreeItem extends AzureParentTreeItem<IApiTreeRoot> {
     public static contextValue: string = 'azureApiManagementApi';
     public contextValue: string = ApiTreeItem.contextValue;
-    public readonly commandId: string = 'extension.showArmApi';
+    public readonly commandId: string = 'azureApiManagement.showArmApi';
     public readonly policyTreeItem: ApiPolicyTreeItem;
 
     private _name: string;
@@ -27,7 +27,7 @@ export class ApiTreeItem extends AzureParentTreeItem<IApiTreeRoot> {
     private _root: IApiTreeRoot;
     private readonly _operationsTreeItem: ApiOperationsTreeItem;
 
-    private constructor(
+    constructor(
         parent: AzureParentTreeItem,
         public readonly apiContract: ApiManagementModels.ApiContract,
         apiVersion?: string) {
@@ -58,14 +58,7 @@ export class ApiTreeItem extends AzureParentTreeItem<IApiTreeRoot> {
     }
 
     public get iconPath(): { light: string, dark: string } {
-        return nodeUtils.getThemedIconPath('api');
-    }
-
-    public static async create(
-        parent: AzureParentTreeItem,
-        api: ApiManagementModels.ApiContract,
-        apiVersion?: string): Promise<ApiTreeItem> {
-        return new ApiTreeItem(parent, api, apiVersion);
+        return treeUtils.getThemedIconPath('api');
     }
 
     public async loadMoreChildrenImpl(): Promise<AzureTreeItem<IApiTreeRoot>[]> {

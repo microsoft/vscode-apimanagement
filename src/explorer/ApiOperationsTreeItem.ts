@@ -7,18 +7,18 @@ import { ApiManagementModels } from "azure-arm-apimanagement";
 import { AzureParentTreeItem, AzureTreeItem, createTreeItemsWithErrorHandling } from "vscode-azureextensionui";
 import { topItemCount } from "../constants";
 import { localize } from "../localize";
-import { nodeUtils } from "../utils/nodeUtils";
+import { treeUtils } from "../utils/treeUtils";
 import { ApiOperationTreeItem } from "./ApiOperationTreeItem";
 import { IApiTreeRoot } from "./IApiTreeRoot";
 
 export class ApiOperationsTreeItem extends AzureParentTreeItem<IApiTreeRoot> {
     public get iconPath(): { light: string, dark: string } {
-        return nodeUtils.getThemedIconPath('list');
+        return treeUtils.getThemedIconPath('list');
     }
     public static contextValue: string = 'azureApiManagementOperations';
     public label: string = "Operations";
     public contextValue: string = ApiOperationsTreeItem.contextValue;
-    public readonly childTypeLabel: string = localize('azApim.Operation', 'Operation');
+    public readonly childTypeLabel: string = localize('azureApiManagement.Operation', 'Operation');
     private _nextLink: string | undefined;
 
     public hasMoreChildrenImpl(): boolean {
@@ -40,7 +40,7 @@ export class ApiOperationsTreeItem extends AzureParentTreeItem<IApiTreeRoot> {
             this,
             operationCollection,
             "invalidApiManagementApiOperation",
-            async (op: ApiManagementModels.OperationContract) => await ApiOperationTreeItem.create(this, op),
+            async (op: ApiManagementModels.OperationContract) => new ApiOperationTreeItem(this, op),
             (op: ApiManagementModels.OperationContract) => {
                 return op.name;
             });

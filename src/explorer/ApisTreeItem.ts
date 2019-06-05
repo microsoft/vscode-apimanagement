@@ -10,7 +10,7 @@ import { topItemCount } from "../constants";
 import { localize } from "../localize";
 import { IOpenApiImportObject } from "../openApi/OpenApiImportObject";
 import { processError } from "../utils/errorUtil";
-import { nodeUtils } from "../utils/nodeUtils";
+import { treeUtils } from "../utils/treeUtils";
 import { ApiTreeItem } from "./ApiTreeItem";
 import { ApiVersionSetTreeItem } from "./ApiVersionSetTreeItem";
 import { IServiceTreeRoot } from "./IServiceTreeRoot";
@@ -18,12 +18,12 @@ import { IServiceTreeRoot } from "./IServiceTreeRoot";
 export class ApisTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
 
     public get iconPath(): { light: string, dark: string } {
-        return nodeUtils.getThemedIconPath('list');
+        return treeUtils.getThemedIconPath('list');
     }
     public static contextValue: string = 'azureApiManagementApis';
     public label: string = "APIs";
     public contextValue: string = ApisTreeItem.contextValue;
-    public readonly childTypeLabel: string = localize('azApim.Api', 'API');
+    public readonly childTypeLabel: string = localize('azureApiManagement.Api', 'API');
     private _nextLink: string | undefined;
 
     public hasMoreChildrenImpl(): boolean {
@@ -59,7 +59,7 @@ export class ApisTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
                         return undefined;
                     }
                 } else {
-                    return await ApiTreeItem.create(this, api);
+                    return new ApiTreeItem(this, api);
                 }
             },
             (api: ApiManagementModels.ApiContract) => {
@@ -98,7 +98,7 @@ export class ApisTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
 
                 const options = { ifMatch: "*" };
                 const api = await this.root.client.api.createOrUpdate(this.root.resourceGroupName, this.root.serviceName, apiName, openApiImportPayload, options);
-                return ApiTreeItem.create(this, api);
+                return new ApiTreeItem(this, api);
             } catch (error) {
                throw new Error(processError(error, localize("createAPIFailed", `Failed to create the API ${userOptions.apiName}`)));
             }

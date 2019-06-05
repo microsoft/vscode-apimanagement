@@ -8,8 +8,8 @@ import { ProgressLocation, window } from "vscode";
 import { AzureParentTreeItem, AzureTreeItem, DialogResponses, ISubscriptionRoot, UserCancelledError } from "vscode-azureextensionui";
 import { localize } from "../localize";
 import { getResourceGroupFromId } from "../utils/azure";
-import { nodeUtils } from '../utils/nodeUtils';
 import { nonNullProp } from "../utils/nonNull";
+import { treeUtils } from '../utils/treeUtils';
 import { ApiOperationTreeItem } from "./ApiOperationTreeItem";
 import { ApiPolicyTreeItem } from "./ApiPolicyTreeItem";
 import { ApisTreeItem } from "./ApisTreeItem";
@@ -25,7 +25,7 @@ export class ServiceTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
     }
 
     public get iconPath(): { light: string, dark: string } {
-        return nodeUtils.getThemedIconPath('apim');
+        return treeUtils.getThemedIconPath('apim');
     }
 
     public get id(): string {
@@ -39,7 +39,7 @@ export class ServiceTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
 
     private _root: IServiceTreeRoot;
 
-    private constructor(
+    constructor(
         parent: AzureParentTreeItem,
         public readonly apiManagementClient: ApiManagementClient,
         public readonly apiManagementService: ApiManagementModels.ApiManagementServiceResource) {
@@ -48,13 +48,6 @@ export class ServiceTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
         this._root = this.createRoot(parent.root, apiManagementClient);
         this.servicePolicyTreeItem = new ServicePolicyTreeItem(this);
         this.apisTreeItem = new ApisTreeItem(this);
-    }
-
-    public static async create(
-        parent: AzureParentTreeItem,
-        client: ApiManagementClient,
-        service: ApiManagementModels.ApiManagementServiceResource): Promise<ServiceTreeItem> {
-        return new ServiceTreeItem(parent, client, service);
     }
 
     public async loadMoreChildrenImpl(): Promise<AzureTreeItem<IServiceTreeRoot>[]> {

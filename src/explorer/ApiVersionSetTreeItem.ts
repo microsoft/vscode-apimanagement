@@ -5,8 +5,8 @@
 
 import { ApiContract, ApiVersionSetContractDetails } from "azure-arm-apimanagement/lib/models";
 import { AzureParentTreeItem, AzureTreeItem } from "vscode-azureextensionui";
-import { nodeUtils } from "../utils/nodeUtils";
 import { nonNullProp, nonNullValue } from "../utils/nonNull";
+import { treeUtils } from "../utils/treeUtils";
 import { ApiTreeItem } from "./ApiTreeItem";
 import { IServiceTreeRoot } from "./IServiceTreeRoot";
 
@@ -28,7 +28,11 @@ export class ApiVersionSetTreeItem extends AzureParentTreeItem<IServiceTreeRoot>
     }
 
     public get label() : string {
-        return `${nonNullProp(this._apiVersionSet, "name")} (Version Set)`;
+        return nonNullProp(this._apiVersionSet, "name");
+    }
+
+    public get description() : string {
+        return 'Version Set';
     }
 
     public hasMoreChildrenImpl(): boolean {
@@ -36,11 +40,11 @@ export class ApiVersionSetTreeItem extends AzureParentTreeItem<IServiceTreeRoot>
     }
 
     public get iconPath(): { light: string, dark: string } {
-        return nodeUtils.getThemedIconPath('list');
+        return treeUtils.getThemedIconPath('list');
     }
 
     public async loadMoreChildrenImpl(): Promise<AzureTreeItem<IServiceTreeRoot>[]> {
-        const apis = this._apis.map(async (api) => ApiTreeItem.create(this, api, api.apiVersion ? api.apiVersion : "Original"));
+        const apis = this._apis.map(async (api) => new ApiTreeItem(this, api, api.apiVersion ? api.apiVersion : "Original"));
         return Promise.all(apis);
     }
 

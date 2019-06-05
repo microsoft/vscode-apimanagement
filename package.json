@@ -2,7 +2,7 @@
     "name": "vscode-apimanagement",
     "displayName": "Azure API Managment",
     "description": "An Azure API Management extension for Visual Studio Code.",
-    "version": "0.0.1-alpha",
+    "version": "0.1.0-alpha",
     "publisher": "ms-azuretools",
     "icon": "resources/azure-apim.png",
     "aiKey": "AIF-d9b70cd4-b9f9-4d70-929b-a071c400b217",
@@ -29,25 +29,25 @@
     ],
     "preview": true,
     "activationEvents": [
-        "onCommand:extension.Refresh",
-        "onCommand:extension.selectSubscriptions",
-        "onView:azureApiManagement",
+        "onCommand:azureApiManagement.Refresh",
+        "onCommand:azureApiManagement.selectSubscriptions",
+        "onView:azureApiManagementExplorer",
         "onLanguage:policy",
-        "onCommand:extension.createService",
-        "onCommand:extension.deleteService",
-        "onCommand:extension.copySubscriptionKey",
-        "onCommand:extension.deleteApi",
-        "onCommand:extension.deleteOperation",
-        "onCommand:extension.importOpenApiByFile",
-        "onCommand:extension.importOpenApiByLink",
-        "onCommand:extension.testOperation",
-        "onCommand:extension.openInPortal",
-        "onCommand:extension.showApi",
-        "onCommand:extension.showArmApi",
-        "onCommand:extension.showArmApiOperation",
-        "onCommand:extension.showServicePolicy",
-        "onCommand:extension.showApiPolicy",
-        "onCommand:extension.showOperationPolicy"
+        "onCommand:azureApiManagement.createService",
+        "onCommand:azureApiManagement.deleteService",
+        "onCommand:azureApiManagement.copySubscriptionKey",
+        "onCommand:azureApiManagement.deleteApi",
+        "onCommand:azureApiManagement.deleteOperation",
+        "onCommand:azureApiManagement.importOpenApiByFile",
+        "onCommand:azureApiManagement.importOpenApiByLink",
+        "onCommand:azureApiManagement.testOperation",
+        "onCommand:azureApiManagement.openInPortal",
+        "onCommand:azureApiManagement.showApi",
+        "onCommand:azureApiManagement.showArmApi",
+        "onCommand:azureApiManagement.showArmApiOperation",
+        "onCommand:azureApiManagement.showServicePolicy",
+        "onCommand:azureApiManagement.showApiPolicy",
+        "onCommand:azureApiManagement.showOperationPolicy"
     ],
     "main": "main",
     "contributes": {
@@ -69,52 +69,52 @@
         ],
         "commands": [
             {
-                "command": "extension.createService",
-                "title": "%azApim.createService%",
+                "command": "azureApiManagement.createService",
+                "title": "%azureApiManagement.createService%",
                 "category": "Azure API Management"
             },
             {
-                "command": "extension.deleteService",
-                "title": "%azApim.deleteService%",
+                "command": "azureApiManagement.deleteService",
+                "title": "%azureApiManagement.deleteService%",
                 "category": "Azure API Management"
             },
             {
-                "command": "extension.copySubscriptionKey",
-                "title": "%azApim.copySubscriptionKey%",
+                "command": "azureApiManagement.copySubscriptionKey",
+                "title": "%azureApiManagement.copySubscriptionKey%",
                 "category": "Azure API Management"
             },
             {
-                "command": "extension.deleteApi",
-                "title": "%azApim.deleteApi%",
+                "command": "azureApiManagement.deleteApi",
+                "title": "%azureApiManagement.deleteApi%",
                 "category": "Azure API Management"
             },
             {
-                "command": "extension.deleteOperation",
-                "title": "%azApim.deleteOperation%",
+                "command": "azureApiManagement.deleteOperation",
+                "title": "%azureApiManagement.deleteOperation%",
                 "category": "Azure API Management"
             },
             {
-                "command": "extension.importOpenApiByFile",
-                "title": "%azApim.importOpenApiByFile%",
+                "command": "azureApiManagement.importOpenApiByFile",
+                "title": "%azureApiManagement.importOpenApiByFile%",
                 "category": "Azure API Management"
             },
             {
-                "command": "extension.importOpenApiByLink",
-                "title": "%azApim.importOpenApiByLink%",
+                "command": "azureApiManagement.importOpenApiByLink",
+                "title": "%azureApiManagement.importOpenApiByLink%",
                 "category": "Azure API Management"
             },
             {
-                "command": "extension.testOperation",
-                "title": "%azApim.testOperation%",
+                "command": "azureApiManagement.testOperation",
+                "title": "%azureApiManagement.testOperation%",
                 "category": "Azure API Management"
             },
             {
-                "command": "extension.openInPortal",
-                "title": "%azApim.openInPortal%",
+                "command": "azureApiManagement.openInPortal",
+                "title": "%azureApiManagement.openInPortal%",
                 "category": "Azure API Management"
             },
             {
-                "command": "extension.selectSubscriptions",
+                "command": "azureApiManagement.selectSubscriptions",
                 "title": "Select Subscription...",
                 "icon": {
                     "light": "resources/light/filter.svg",
@@ -122,7 +122,7 @@
                 }
             },
             {
-                "command": "extension.Refresh",
+                "command": "azureApiManagement.Refresh",
                 "title": "Refresh",
                 "category": "Azure Api Management",
                 "icon": {
@@ -131,7 +131,7 @@
                 }
             },
             {
-                "command": "extension.LoadMore",
+                "command": "azureApiManagement.LoadMore",
                 "title": "Load More",
                 "category": "Azure Api Management",
                 "icon": {
@@ -140,33 +140,33 @@
                 }
             },
             {
-                "command": "extension.showApi",
-                "title": "%azApim.showApi%",
+                "command": "azureApiManagement.showApi",
+                "title": "%azureApiManagement.showApi%",
                 "category": "Azure API Management"
             },
             {
-                "command": "extension.showArmApi",
-                "title": "%azApim.showArmApi%",
+                "command": "azureApiManagement.showArmApi",
+                "title": "%azureApiManagement.showArmApi%",
                 "category": "Azure API Management"
             },
             {
-                "command": "extension.showArmApiOperation",
-                "title": "%azApim.showArmApiOperation%",
+                "command": "azureApiManagement.showArmApiOperation",
+                "title": "%azureApiManagement.showArmApiOperation%",
                 "category": "Azure API Management"
             },
             {
-                "command": "extension.showServicePolicy",
-                "title": "%azApim.showServicePolicy%",
+                "command": "azureApiManagement.showServicePolicy",
+                "title": "%azureApiManagement.showServicePolicy%",
                 "category": "Azure API Management"
             },
             {
-                "command": "extension.showApiPolicy",
-                "title": "%azApim.showApiPolicy%",
+                "command": "azureApiManagement.showApiPolicy",
+                "title": "%azureApiManagement.showApiPolicy%",
                 "category": "Azure API Management"
             },
             {
-                "command": "extension.showOperationPolicy",
-                "title": "%azApim.showOperationPolicy%",
+                "command": "azureApiManagement.showOperationPolicy",
+                "title": "%azureApiManagement.showOperationPolicy%",
                 "category": "Azure API Management"
             }
         ],
@@ -182,16 +182,9 @@
         "views": {
             "azure": [
                 {
-                    "id": "azureApiManagement",
+                    "id": "azureApiManagementExplorer",
                     "name": "Api Management",
-                    "when": "config.apim.showExplorer == true"
-                }
-            ],
-            "debug": [
-                {
-                    "id": "apim.loadedScriptsExplorer.jsLogpoints",
-                    "name": "LOADED SCRIPTS",
-                    "when": "inDebugMode && debugType == 'jsLogpoints'"
+                    "when": "config.azureApiManagement.showExplorer == true"
                 }
             ]
         },
@@ -199,105 +192,105 @@
             "editor/title": [],
             "commandPalette": [
                 {
-                    "command": "extension.Refresh",
+                    "command": "azureApiManagement.Refresh",
                     "when": "never"
                 },
                 {
-                    "command": "extension.LoadMore",
+                    "command": "azureApiManagement.LoadMore",
                     "when": "never"
                 }
             ],
             "view/title": [
                 {
-                    "command": "extension.Refresh",
-                    "when": "view == azureApiManagement",
+                    "command": "azureApiManagement.Refresh",
+                    "when": "view == azureApiManagementExplorer",
                     "group": "navigation@1"
                 }
             ],
             "view/item/context": [
                 {
-                    "command": "extension.selectSubscriptions",
-                    "when": "view == azureApiManagement && viewItem == azureextensionui.azureSubscription",
+                    "command": "azureApiManagement.selectSubscriptions",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureextensionui.azureSubscription",
                     "group": "inline"
                 },
                 {
-                    "command": "extension.Refresh",
-                    "when": "view == azureApiManagement && viewItem == azureextensionui.azureSubscription",
+                    "command": "azureApiManagement.Refresh",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureextensionui.azureSubscription",
                     "group": "3@1"
                 },
                 {
-                    "command": "extension.createService",
-                    "when": "view == azureApiManagement && viewItem == azureextensionui.azureSubscription",
-                    "group": "1@1"
-                },
-                {
-                    "command": "extension.openInPortal",
-                    "when": "view == azureApiManagement && viewItem == azureextensionui.azureSubscription",
+                    "command": "azureApiManagement.createService",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureextensionui.azureSubscription",
                     "group": "2@1"
                 },
                 {
-                    "command": "extension.openInPortal",
-                    "when": "view == azureApiManagement && viewItem == azureApiManagementService",
+                    "command": "azureApiManagement.openInPortal",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureextensionui.azureSubscription",
                     "group": "1@1"
                 },
                 {
-                    "command": "extension.copySubscriptionKey",
-                    "when": "view == azureApiManagement && viewItem == azureApiManagementService",
+                    "command": "azureApiManagement.openInPortal",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementService",
+                    "group": "1@1"
+                },
+                {
+                    "command": "azureApiManagement.copySubscriptionKey",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementService",
                     "group": "2@1"
                 },
                 {
-                    "command": "extension.deleteService",
-                    "when": "view == azureApiManagement && viewItem == azureApiManagementService",
+                    "command": "azureApiManagement.deleteService",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementService",
                     "group": "2@2"
                 },
                 {
-                    "command": "extension.Refresh",
-                    "when": "view == azureApiManagement && viewItem == azureApiManagementService",
+                    "command": "azureApiManagement.Refresh",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementService",
                     "group": "3@1"
                 },
                 {
-                    "command": "extension.importOpenApiByFile",
-                    "when": "view == azureApiManagement && viewItem == azureApiManagementApis",
+                    "command": "azureApiManagement.importOpenApiByFile",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApis",
                     "group": "1@1"
                 },
                 {
-                    "command": "extension.importOpenApiByLink",
-                    "when": "view == azureApiManagement && viewItem == azureApiManagementApis",
+                    "command": "azureApiManagement.importOpenApiByLink",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApis",
                     "group": "1@2"
                 },
                 {
-                    "command": "extension.Refresh",
-                    "when": "view == azureApiManagement && viewItem == azureApiManagementApis",
+                    "command": "azureApiManagement.Refresh",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApis",
                     "group": "2@1"
                 },
                 {
-                    "command": "extension.showApi",
-                    "when": "view == azureApiManagement && viewItem == azureApiManagementApi",
+                    "command": "azureApiManagement.showApi",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApi",
                     "group": "1@1"
                 },
                 {
-                    "command": "extension.deleteApi",
-                    "when": "view == azureApiManagement && viewItem == azureApiManagementApi",
+                    "command": "azureApiManagement.deleteApi",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApi",
                     "group": "1@2"
                 },
                 {
-                    "command": "extension.Refresh",
-                    "when": "view == azureApiManagement && viewItem == azureApiManagementApi",
+                    "command": "azureApiManagement.Refresh",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApi",
                     "group": "2@1"
                 },
                 {
-                    "command": "extension.Refresh",
-                    "when": "view == azureApiManagement && viewItem == azureApiManagementOperations",
+                    "command": "azureApiManagement.Refresh",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementOperations",
                     "group": "1@1"
                 },
                 {
-                    "command": "extension.deleteOperation",
-                    "when": "view == azureApiManagement && viewItem == azureApiManagementApiOperation",
+                    "command": "azureApiManagement.deleteOperation",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApiOperation",
                     "group": "1@2"
                 },
                 {
-                    "command": "extension.testOperation",
-                    "when": "view == azureApiManagement && viewItem == azureApiManagementApiOperation",
+                    "command": "azureApiManagement.testOperation",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApiOperation",
                     "group": "1@1"
                 }
             ]
@@ -306,20 +299,20 @@
             {
                 "title": "Azure API Management",
                 "properties": {
-                    "apim.showExplorer": {
+                    "azureApiManagement.showExplorer": {
                         "type": "boolean",
                         "default": true,
-                        "description": "%azApim.showExplorer%"
+                        "description": "%azureApiManagement.showExplorer%"
                     },
-                    "apim.showSavePrompt": {
+                    "azureApiManagement.showSavePrompt": {
                         "type": "boolean",
                         "default": true,
-                        "description": "%azApim.showSavePrompt%"
+                        "description": "%azureApiManagement.showSavePrompt%"
                     },
-                    "apim.advancedCreation": {
+                    "azureApiManagement.advancedCreation": {
                         "type": "boolean",
                         "default": false,
-                        "description": "%azApim.advancedCreationDescription%"
+                        "description": "%azureApiManagement.advancedCreationDescription%"
                     }
                 }
             }

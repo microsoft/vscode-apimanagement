@@ -44,35 +44,23 @@ export function activateInternal(context: vscode.ExtensionContext) {
 
     registerUIExtensionVariables(ext);
 
-    const tree = new AzureTreeDataProvider(ApiManagementProvider, 'extension.LoadMore');
+    const tree = new AzureTreeDataProvider(ApiManagementProvider, 'azureApiManagement.LoadMore');
     ext.tree = tree;
     context.subscriptions.push(tree);
-    context.subscriptions.push(vscode.window.registerTreeDataProvider('azureApiManagement', tree));
+    context.subscriptions.push(vscode.window.registerTreeDataProvider('azureApiManagementExplorer', tree));
 
-    context.subscriptions.push(vscode.commands.registerCommand('extension.Refresh', async (node?: AzureTreeItem) => await tree.refresh(node)));
-    context.subscriptions.push(vscode.commands.registerCommand('extension.selectSubscriptions', () => vscode.commands.executeCommand("azure-account.selectSubscriptions")));
-    context.subscriptions.push(vscode.commands.registerCommand('extension.LoadMore', async (node: AzureTreeItem) => await tree.loadMore(node)));
-    // context.subscriptions.push(vscode.commands.registerCommand('extension.LoadMore', async (node: IAzureNode) => await tree.loadMore(node)));
-
-    registerCommand('extension.openInPortal', async (node?: AzureTreeItem) => {
-        await openInPortal(node);
-    });
-
-    registerCommand('extension.createService', createService);
-    registerCommand('extension.copySubscriptionKey', copySubscriptionKey);
-    registerCommand('extension.deleteService', async (node?: AzureParentTreeItem) => await deleteNode(ServiceTreeItem.contextValue, node));
-    registerCommand('extension.deleteApi', async (node?: AzureTreeItem) => await deleteNode(ApiTreeItem.contextValue, node));
-    registerCommand('extension.deleteOperation', async (node?: AzureTreeItem) => await deleteNode(ApiOperationTreeItem.contextValue, node));
-
-    registerCommand('extension.testOperation', testOperation);
-
-    registerCommand('extension.importOpenApiByFile', async (node?: ApisTreeItem) => {
-        await importOpenApi(node, false);
-    });
-
-    registerCommand('extension.importOpenApiByLink', async (node?: ApisTreeItem) => {
-        await importOpenApi(node, true);
-    });
+    registerCommand('azureApiManagement.Refresh', async (node?: AzureTreeItem) => await tree.refresh(node));
+    registerCommand('azureApiManagement.selectSubscriptions', () => vscode.commands.executeCommand("azure-account.selectSubscriptions"));
+    registerCommand('azureApiManagement.LoadMore', async (node: AzureTreeItem) => await tree.loadMore(node));
+    registerCommand('azureApiManagement.openInPortal', async (node?: AzureTreeItem) => { await openInPortal(node); });
+    registerCommand('azureApiManagement.createService', createService);
+    registerCommand('azureApiManagement.copySubscriptionKey', copySubscriptionKey);
+    registerCommand('azureApiManagement.deleteService', async (node?: AzureParentTreeItem) => await deleteNode(ServiceTreeItem.contextValue, node));
+    registerCommand('azureApiManagement.deleteApi', async (node?: AzureTreeItem) => await deleteNode(ApiTreeItem.contextValue, node));
+    registerCommand('azureApiManagement.deleteOperation', async (node?: AzureTreeItem) => await deleteNode(ApiOperationTreeItem.contextValue, node));
+    registerCommand('azureApiManagement.testOperation', testOperation);
+    registerCommand('azureApiManagement.importOpenApiByFile', async (node?: ApisTreeItem) => { await importOpenApi(node, false); });
+    registerCommand('azureApiManagement.importOpenApiByLink', async (node?: ApisTreeItem) => { await importOpenApi(node, true); });
 
     registerEditors(context);
 }
@@ -80,9 +68,9 @@ export function activateInternal(context: vscode.ExtensionContext) {
 function registerEditors(context: vscode.ExtensionContext) : void {
     const apiResourceEditor: ApiResourceEditor = new ApiResourceEditor();
     context.subscriptions.push(apiResourceEditor);
-    registerEvent('extension.ApiResourceEditor.onDidSaveTextDocument', vscode.workspace.onDidSaveTextDocument, async function (this: IActionContext, doc: vscode.TextDocument): Promise<void> { await apiResourceEditor.onDidSaveTextDocument(this, context.globalState, doc); });
+    registerEvent('azureApiManagement.ApiResourceEditor.onDidSaveTextDocument', vscode.workspace.onDidSaveTextDocument, async function (this: IActionContext, doc: vscode.TextDocument): Promise<void> { await apiResourceEditor.onDidSaveTextDocument(this, context.globalState, doc); });
 
-    registerCommand('extension.showArmApi', async (node?: ApiTreeItem) => {
+    registerCommand('azureApiManagement.showArmApi', async (node?: ApiTreeItem) => {
         if (!node) {
             node = <ApiTreeItem>await ext.tree.showTreeItemPicker(ApiTreeItem.contextValue);
         }
@@ -91,9 +79,9 @@ function registerEditors(context: vscode.ExtensionContext) : void {
 
     const operationResourceEditor: OperationResourceEditor = new OperationResourceEditor();
     context.subscriptions.push(operationResourceEditor);
-    registerEvent('extension.OperationResourceEditor.onDidSaveTextDocument', vscode.workspace.onDidSaveTextDocument, async function (this: IActionContext, doc: vscode.TextDocument): Promise<void> { await operationResourceEditor.onDidSaveTextDocument(this, context.globalState, doc); });
+    registerEvent('azureApiManagement.OperationResourceEditor.onDidSaveTextDocument', vscode.workspace.onDidSaveTextDocument, async function (this: IActionContext, doc: vscode.TextDocument): Promise<void> { await operationResourceEditor.onDidSaveTextDocument(this, context.globalState, doc); });
 
-    registerCommand('extension.showArmApiOperation', async (node?: ApiOperationTreeItem) => {
+    registerCommand('azureApiManagement.showArmApiOperation', async (node?: ApiOperationTreeItem) => {
         if (!node) {
             node = <ApiOperationTreeItem>await ext.tree.showTreeItemPicker(ApiOperationTreeItem.contextValue);
         }
@@ -102,9 +90,9 @@ function registerEditors(context: vscode.ExtensionContext) : void {
 
     const apiEditor: OpenApiEditor = new OpenApiEditor();
     context.subscriptions.push(apiEditor);
-    registerEvent('extension.apiEditor.onDidSaveTextDocument', vscode.workspace.onDidSaveTextDocument, async function (this: IActionContext, doc: vscode.TextDocument): Promise<void> { await apiEditor.onDidSaveTextDocument(this, context.globalState, doc); });
+    registerEvent('azureApiManagement.apiEditor.onDidSaveTextDocument', vscode.workspace.onDidSaveTextDocument, async function (this: IActionContext, doc: vscode.TextDocument): Promise<void> { await apiEditor.onDidSaveTextDocument(this, context.globalState, doc); });
 
-    registerCommand('extension.showApi', async (node?: ApiTreeItem) => {
+    registerCommand('azureApiManagement.showApi', async (node?: ApiTreeItem) => {
         if (!node) {
             node = <ApiTreeItem>await ext.tree.showTreeItemPicker(ApiTreeItem.contextValue);
         }
@@ -113,9 +101,9 @@ function registerEditors(context: vscode.ExtensionContext) : void {
 
     const servicePolicyEditor: ServicePolicyEditor = new ServicePolicyEditor();
     context.subscriptions.push(servicePolicyEditor);
-    registerEvent('extension.servicePolicyEditor.onDidSaveTextDocument', vscode.workspace.onDidSaveTextDocument, async function (this: IActionContext, doc: vscode.TextDocument): Promise<void> { await servicePolicyEditor.onDidSaveTextDocument(this, context.globalState, doc); });
+    registerEvent('azureApiManagement.servicePolicyEditor.onDidSaveTextDocument', vscode.workspace.onDidSaveTextDocument, async function (this: IActionContext, doc: vscode.TextDocument): Promise<void> { await servicePolicyEditor.onDidSaveTextDocument(this, context.globalState, doc); });
 
-    registerCommand('extension.showServicePolicy', async (node?: ServicePolicyTreeItem) => {
+    registerCommand('azureApiManagement.showServicePolicy', async (node?: ServicePolicyTreeItem) => {
         if (!node) {
             const serviceNode = <ServiceTreeItem>await ext.tree.showTreeItemPicker(ServiceTreeItem.contextValue);
             node = serviceNode.servicePolicyTreeItem;
@@ -125,9 +113,9 @@ function registerEditors(context: vscode.ExtensionContext) : void {
 
     const apiPolicyEditor: ApiPolicyEditor = new ApiPolicyEditor();
     context.subscriptions.push(apiPolicyEditor);
-    registerEvent('extension.apiPolicyEditor.onDidSaveTextDocument', vscode.workspace.onDidSaveTextDocument, async function (this: IActionContext, doc: vscode.TextDocument): Promise<void> { await apiPolicyEditor.onDidSaveTextDocument(this, context.globalState, doc); });
+    registerEvent('azureApiManagement.apiPolicyEditor.onDidSaveTextDocument', vscode.workspace.onDidSaveTextDocument, async function (this: IActionContext, doc: vscode.TextDocument): Promise<void> { await apiPolicyEditor.onDidSaveTextDocument(this, context.globalState, doc); });
 
-    registerCommand('extension.showApiPolicy', async (node?: ApiPolicyTreeItem) => {
+    registerCommand('azureApiManagement.showApiPolicy', async (node?: ApiPolicyTreeItem) => {
         if (!node) {
             const apiNode = <ApiTreeItem>await ext.tree.showTreeItemPicker(ApiTreeItem.contextValue);
             node = apiNode.policyTreeItem;
@@ -137,9 +125,9 @@ function registerEditors(context: vscode.ExtensionContext) : void {
 
     const operationPolicyEditor: OperationPolicyEditor = new OperationPolicyEditor();
     context.subscriptions.push(operationPolicyEditor);
-    registerEvent('extension.operationPolicyEditor.onDidSaveTextDocument', vscode.workspace.onDidSaveTextDocument, async function (this: IActionContext, doc: vscode.TextDocument): Promise<void> { await operationPolicyEditor.onDidSaveTextDocument(this, context.globalState, doc); });
+    registerEvent('azureApiManagement.operationPolicyEditor.onDidSaveTextDocument', vscode.workspace.onDidSaveTextDocument, async function (this: IActionContext, doc: vscode.TextDocument): Promise<void> { await operationPolicyEditor.onDidSaveTextDocument(this, context.globalState, doc); });
 
-    registerCommand('extension.showOperationPolicy', async (node?: OperationPolicyTreeItem) => {
+    registerCommand('azureApiManagement.showOperationPolicy', async (node?: OperationPolicyTreeItem) => {
         if (!node) {
             const operationNode = <ApiOperationTreeItem>await ext.tree.showTreeItemPicker(ApiOperationTreeItem.contextValue);
             node = operationNode.policyTreeItem;

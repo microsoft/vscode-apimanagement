@@ -8,7 +8,7 @@ import { AzureParentTreeItem, AzureTreeDataProvider, AzureTreeItem } from 'vscod
 import { ext } from '../extensionVariables';
 import { localize } from '../localize';
 
-export namespace nodeUtils {
+export namespace treeUtils {
     export interface IThemedIconPath {
         light: string;
         dark: string;

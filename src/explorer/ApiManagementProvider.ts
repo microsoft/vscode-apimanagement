@@ -18,7 +18,7 @@ import { getWorkspaceSetting, updateGlobalSetting } from '../vsCodeConfig/settin
 import { ServiceTreeItem } from './ServiceTreeItem';
 
 export class ApiManagementProvider extends SubscriptionTreeItem {
-    public readonly childTypeLabel: string = localize('azApim.ApimService', 'API Management Service');
+    public readonly childTypeLabel: string = localize('azureApiManagement.ApimService', 'API Management Service');
 
     private _nextLink: string | undefined;
 
@@ -54,7 +54,7 @@ export class ApiManagementProvider extends SubscriptionTreeItem {
             this,
             apiManagementServiceList,
             "invalidApiManagementService",
-            async (service: ApiManagementModels.ApiManagementServiceResource) => await ServiceTreeItem.create(this, client, service),
+            async (service: ApiManagementModels.ApiManagementServiceResource) => new ServiceTreeItem(this, client, service),
             (service: ApiManagementModels.ApiManagementServiceResource) => {
                 return service.name;
             });
@@ -128,6 +128,6 @@ export class ApiManagementProvider extends SubscriptionTreeItem {
         }
 
         const service: ApiManagementModels.ApiManagementServiceResource = nonNullProp(wizardContext, 'service');
-        return await ServiceTreeItem.create(this, client, service);
+        return new ServiceTreeItem(this, client, service);
     }
 }

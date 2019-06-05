@@ -8,8 +8,8 @@ import { ProgressLocation, window } from "vscode";
 import { AzureParentTreeItem, AzureTreeItem, DialogResponses, ISubscriptionRoot, UserCancelledError } from "vscode-azureextensionui";
 import { localize } from "../localize";
 import { OperationConsole } from "../operationConsole/OperationConsole";
-import { nodeUtils } from "../utils/nodeUtils";
 import { nonNullProp } from "../utils/nonNull";
+import { treeUtils } from "../utils/treeUtils";
 import { IApiTreeRoot } from "./IApiTreeRoot";
 import { IOperationTreeRoot } from "./IOperationTreeRoot";
 import { OperationPolicyTreeItem } from "./OperationPolicyTreeItem";
@@ -17,7 +17,7 @@ import { OperationPolicyTreeItem } from "./OperationPolicyTreeItem";
 export class ApiOperationTreeItem extends AzureParentTreeItem<IOperationTreeRoot> {
     public static contextValue: string = 'azureApiManagementApiOperation';
     public contextValue: string = ApiOperationTreeItem.contextValue;
-    public readonly commandId: string = 'extension.showArmApiOperation';
+    public readonly commandId: string = 'azureApiManagement.showArmApiOperation';
     public readonly policyTreeItem: OperationPolicyTreeItem;
 
     private _name: string;
@@ -28,7 +28,7 @@ export class ApiOperationTreeItem extends AzureParentTreeItem<IOperationTreeRoot
     }
 
     public get iconPath(): { light: string, dark: string } {
-        return nodeUtils.getThemedIconPath('op');
+        return treeUtils.getThemedIconPath('op');
     }
 
     public get label() : string {
@@ -40,7 +40,7 @@ export class ApiOperationTreeItem extends AzureParentTreeItem<IOperationTreeRoot
     }
 
     private _root: IOperationTreeRoot;
-    private constructor(
+    constructor(
         parent: AzureParentTreeItem,
         public readonly operationContract: ApiManagementModels.OperationContract) {
         super(parent);
@@ -50,12 +50,6 @@ export class ApiOperationTreeItem extends AzureParentTreeItem<IOperationTreeRoot
 
         this._label = `[${nonNullProp(this.operationContract, 'method')}] ${nonNullProp(this.operationContract, 'displayName')}`;
         this._name = nonNullProp(this.operationContract, 'name');
-    }
-
-    public static async create(
-        parent: AzureParentTreeItem,
-        operation: ApiManagementModels.OperationContract): Promise<ApiOperationTreeItem> {
-        return new ApiOperationTreeItem(parent, operation);
     }
 
     public async loadMoreChildrenImpl(): Promise<AzureTreeItem<IOperationTreeRoot>[]> {

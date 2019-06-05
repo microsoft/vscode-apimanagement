@@ -4,16 +4,16 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { AzureTreeItem } from "vscode-azureextensionui";
-import { nodeUtils } from "../utils/nodeUtils";
+import { treeUtils } from "../utils/treeUtils";
 import { IOperationTreeRoot } from "./IOperationTreeRoot";
 
 export class OperationPolicyTreeItem extends AzureTreeItem<IOperationTreeRoot> {
 
     public get iconPath(): { light: string, dark: string } {
-        return nodeUtils.getThemedIconPath('policy');
+        return treeUtils.getThemedIconPath('policy');
     }
     public static contextValue: string = 'azureApiManagementOperationPolicy';
     public label: string = "Policy";
     public contextValue: string = OperationPolicyTreeItem.contextValue;
-    public readonly commandId: string = 'extension.showOperationPolicy';
+    public readonly commandId: string = 'azureApiManagement.showOperationPolicy';
 }

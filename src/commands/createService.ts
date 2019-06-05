@@ -5,12 +5,12 @@
 
 import { AzureParentTreeItem, AzureTreeItem, IActionContext, SubscriptionTreeItem } from 'vscode-azureextensionui';
 import { ext } from '../extensionVariables';
-import { nodeUtils } from '../utils/nodeUtils';
+import { treeUtils } from '../utils/treeUtils';
 
 export async function createService(this: IActionContext, subscription?: AzureParentTreeItem | string, resourceGroup?: string): Promise<string> {
     let node: AzureParentTreeItem;
     if (typeof subscription === 'string') {
-        node = await nodeUtils.getSubscriptionNode(ext.tree, subscription);
+        node = await treeUtils.getSubscriptionNode(ext.tree, subscription);
     } else if (!subscription) {
         node = <AzureParentTreeItem>await ext.tree.showTreeItemPicker(SubscriptionTreeItem.contextValue);
     } else {

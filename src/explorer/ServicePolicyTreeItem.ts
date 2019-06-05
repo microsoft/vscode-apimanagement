@@ -4,16 +4,16 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { AzureTreeItem } from "vscode-azureextensionui";
-import { nodeUtils } from "../utils/nodeUtils";
+import { treeUtils } from "../utils/treeUtils";
 import { IServiceTreeRoot } from "./IServiceTreeRoot";
 
 export class ServicePolicyTreeItem extends AzureTreeItem<IServiceTreeRoot> {
 
     public get iconPath(): { light: string, dark: string } {
-        return nodeUtils.getThemedIconPath('policy');
+        return treeUtils.getThemedIconPath('policy');
     }
     public static contextValue: string = 'azureApiManagementServicePolicy';
     public label: string = "Policy";
     public contextValue: string = ServicePolicyTreeItem.contextValue;
-    public readonly commandId: string = 'extension.showServicePolicy';
+    public readonly commandId: string = 'azureApiManagement.showServicePolicy';
 }
