@@ -369,7 +369,6 @@
         "request-promise": "^4.2.2"
     },
     "extensionDependencies": [
-        "ms-vscode.azure-account",
-        "humao.rest-client"
+        "ms-vscode.azure-account"
     ]
 }
