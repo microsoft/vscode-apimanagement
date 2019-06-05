@@ -1,0 +1,186 @@
+{
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "definitions": {
+        "OperationUpdateContract": {
+            "type": "object",
+            "properties": {
+                "templateParameters": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ParameterContract"
+                    },
+                    "description": "Collection of URL template parameters."
+                },
+                "description": {
+                    "type": "string",
+                    "description": "Description of the operation. May include HTML formatting tags."
+                },
+                "request": {
+                    "$ref": "#/definitions/RequestContract",
+                    "description": "An entity containing request details."
+                },
+                "responses": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ResponseContract"
+                    },
+                    "description": "Array of Operation responses."
+                },
+                "policies": {
+                    "type": "string",
+                    "description": "Operation Policies"
+                },
+                "displayName": {
+                    "type": "string",
+                    "description": "Operation Name."
+                },
+                "method": {
+                    "type": "string",
+                    "description": "A Valid HTTP Operation Method. Typical Http Methods like GET, PUT, POST but not limited by\nonly them."
+                },
+                "urlTemplate": {
+                    "type": "string",
+                    "description": "Relative URL template identifying the target resource for this operation. May include\nparameters. Example: /customers/{cid}/orders/{oid}/?date={date}"
+                }
+            },
+            "additionalProperties": false,
+            "description": "Api Operation Update Contract details."
+        },
+        "ParameterContract": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "Parameter name."
+                },
+                "description": {
+                    "type": "string",
+                    "description": "Parameter description."
+                },
+                "type": {
+                    "type": "string",
+                    "description": "Parameter type."
+                },
+                "defaultValue": {
+                    "type": "string",
+                    "description": "Default parameter value."
+                },
+                "required": {
+                    "type": "boolean",
+                    "description": "Specifies whether parameter is required or not."
+                },
+                "values": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "Parameter values."
+                }
+            },
+            "required": [
+                "name",
+                "type"
+            ],
+            "additionalProperties": false,
+            "description": "Operation parameters details."
+        },
+        "RequestContract": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string",
+                    "description": "Operation request description."
+                },
+                "queryParameters": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ParameterContract"
+                    },
+                    "description": "Collection of operation request query parameters."
+                },
+                "headers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ParameterContract"
+                    },
+                    "description": "Collection of operation request headers."
+                },
+                "representations": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/RepresentationContract"
+                    },
+                    "description": "Collection of operation request representations."
+                }
+            },
+            "additionalProperties": false,
+            "description": "Operation request details."
+        },
+        "RepresentationContract": {
+            "type": "object",
+            "properties": {
+                "contentType": {
+                    "type": "string",
+                    "description": "Specifies a registered or custom content type for this representation, e.g. application/xml."
+                },
+                "sample": {
+                    "type": "string",
+                    "description": "An example of the representation."
+                },
+                "schemaId": {
+                    "type": "string",
+                    "description": "Schema identifier. Applicable only if 'contentType' value is neither\n'application/x-www-form-urlencoded' nor 'multipart/form-data'."
+                },
+                "typeName": {
+                    "type": "string",
+                    "description": "Type name defined by the schema. Applicable only if 'contentType' value is neither\n'application/x-www-form-urlencoded' nor 'multipart/form-data'."
+                },
+                "formParameters": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ParameterContract"
+                    },
+                    "description": "Collection of form parameters. Required if 'contentType' value is either\n'application/x-www-form-urlencoded' or 'multipart/form-data'.."
+                }
+            },
+            "required": [
+                "contentType"
+            ],
+            "additionalProperties": false,
+            "description": "Operation request/response representation details."
+        },
+        "ResponseContract": {
+            "type": "object",
+            "properties": {
+                "statusCode": {
+                    "type": "number",
+                    "description": "Operation response HTTP status code."
+                },
+                "description": {
+                    "type": "string",
+                    "description": "Operation response description."
+                },
+                "representations": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/RepresentationContract"
+                    },
+                    "description": "Collection of operation response representations."
+                },
+                "headers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ParameterContract"
+                    },
+                    "description": "Collection of operation response headers."
+                }
+            },
+            "required": [
+                "statusCode"
+            ],
+            "additionalProperties": false,
+            "description": "Operation response details."
+        }
+    },
+    "$ref": "#/definitions/OperationUpdateContract"
+}

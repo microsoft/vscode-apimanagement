@@ -1,0 +1,97 @@
+// A launch configuration that compiles the extension and then opens it inside a new window
+// Use IntelliSense to learn about possible attributes.
+// Hover to view descriptions of existing attributes.
+// For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+{
+	"version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch Extension",
+            "type": "extensionHost",
+            "request": "launch",
+            "runtimeExecutable": "${execPath}",
+            "args": [
+                "--extensionDevelopmentPath=${workspaceFolder}"
+            ],
+            "stopOnEntry": false,
+            "sourceMaps": true,
+            // outFiles is used for locating generated JavaScript files, see https://code.visualstudio.com/docs/nodejs/nodejs-debugging#_source-maps
+            "outFiles": [
+                "${workspaceFolder}/**/*.js"
+            ],
+            "preLaunchTask": "npm: webpack",
+            "env": {
+                "DEBUGTELEMETRY": "1",
+                "NODE_DEBUG": ""
+            }
+        },
+        {
+            "name": "Launch Extension (no build)",
+            "type": "extensionHost",
+            "request": "launch",
+            "runtimeExecutable": "${execPath}",
+            "args": [
+                "--extensionDevelopmentPath=${workspaceFolder}"
+            ],
+            "stopOnEntry": false,
+            "sourceMaps": true,
+            // outFiles is used for locating generated JavaScript files, see https://code.visualstudio.com/docs/nodejs/nodejs-debugging#_source-maps
+            "outFiles": [
+                "${workspaceFolder}/**/*.js"
+            ],
+            "env": {
+                "DEBUGTELEMETRY": "1",
+                "NODE_DEBUG": ""
+            }
+        },
+        {
+            "name": "Launch Tests",
+            "type": "extensionHost",
+            "request": "launch",
+            "runtimeExecutable": "${execPath}",
+            "args": [
+                "--extensionDevelopmentPath=${workspaceFolder}",
+                "--extensionTestsPath=${workspaceFolder}/out/test"
+            ],
+            "stopOnEntry": false,
+            "sourceMaps": true,
+            "outFiles": [
+                "${workspaceFolder}/out/**/*.js"
+            ],
+            "preLaunchTask": "npm: compile",
+            "env": {
+                "AZCODE_APIM_IGNORE_BUNDLE": "1",
+                "MOCHA_grep": "", // RegExp of tests to run (empty for all)
+                "MOCHA_enableTimeouts": "0", // Disable time-outs
+                "DEBUGTELEMETRY": "1",
+                "NODE_DEBUG": "",
+                "ENABLE_LONG_RUNNING_TESTS": "",
+                "FUNC_PATH": "func"
+            }
+        },
+        {
+            "name": "Launch Tests (webpack)",
+            "type": "extensionHost",
+            "request": "launch",
+            "runtimeExecutable": "${execPath}",
+            "args": [
+                "--extensionDevelopmentPath=${workspaceFolder}",
+                "--extensionTestsPath=${workspaceFolder}/dist/test"
+            ],
+            "stopOnEntry": false,
+            "sourceMaps": true,
+            "outFiles": [
+                "${workspaceFolder}/dist/**/*.js"
+            ],
+            "preLaunchTask": "npm: webpack",
+            "env": {
+                "MOCHA_grep": "", // RegExp of tests to run (empty for all)
+                "MOCHA_enableTimeouts": "0", // Disable time-outs
+                "DEBUGTELEMETRY": "1",
+                "NODE_DEBUG": "",
+                "ENABLE_LONG_RUNNING_TESTS": "",
+                "FUNC_PATH": "func"
+            }
+        }
+    ]
+}
