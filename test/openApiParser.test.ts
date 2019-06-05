@@ -1047,7 +1047,7 @@ const openApi2_0 : any = {
   }
 };
 
-// Converted to json https://github.com/OAI/OpenAPI-Specification/blob/master/examples/v3.0/petstore.yaml 
+// Converted to json https://github.com/OAI/OpenAPI-Specification/blob/master/examples/v3.0/petstore.yaml
 const openApi3_0 : any = {
   "openapi": "3.0.0",
   "servers": [
