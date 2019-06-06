@@ -6,7 +6,6 @@
 import * as assert from 'assert';
 import { getNameFromId, getResourceGroupFromId, getSubscriptionFromId } from '../extension.bundle';
 
-// tslint:disable: no-use-before-declare
 // tslint:disable: no-unsafe-any
 suite("Azure Resource Util", () => {
     const resourceId: string = "/subscriptions/a59d7183-f4a0-4b15-8ecc-9542203d3c54/resourceGroups/apim-rg/providers/Microsoft.ApiManagement/service/apim-service";

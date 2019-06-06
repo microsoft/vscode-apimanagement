@@ -9,7 +9,6 @@ import { IApiTreeRoot } from '../src/explorer/IApiTreeRoot';
 import { IOperationTreeRoot } from '../src/explorer/IOperationTreeRoot';
 import { IServiceTreeRoot } from '../src/explorer/IServiceTreeRoot';
 
-// tslint:disable: no-use-before-declare
 // tslint:disable: no-unsafe-any
 suite("Name Util", () => {
     test("ServiceRoot", async () => {

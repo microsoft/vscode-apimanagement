@@ -8,7 +8,6 @@ import { IOpenApiImportObject, OpenApiParser } from '../extension.bundle';
 import { assertThrowsAsync } from './assertThrowsAsync';
 import {openApi2_0, openApi3_0} from './testData';
 
-// tslint:disable: no-use-before-declare
 // tslint:disable: no-unsafe-any
 suite("Open API Parser", () => {
   test("Parse OpenAPI Json 2.0", async () => {
