@@ -8,7 +8,8 @@ import { ApiManagementClient, ApiManagementModels } from 'azure-arm-apimanagemen
 import { ResourceManagementClient } from 'azure-arm-resource';
 import { IHookCallbackContext, ISuiteCallbackContext } from 'mocha';
 import * as vscode from 'vscode';
-import { ApiManagementProvider, AzureTreeDataProvider, ext, getRandomHexString, TestAzureAccount, TestUserInput } from '../extension.bundle';
+import { AzureParentTreeItem } from 'vscode-azureextensionui';
+import { ApiManagementProvider, AzureTreeDataProvider, ext, getRandomHexString, TestAzureAccount, TestUserInput, treeUtils } from '../extension.bundle';
 import { longRunningTestsEnabled } from './global.test';
 import { runWithApimSetting } from './runWithSetting';
 
@@ -28,6 +29,8 @@ suite('Create Azure Resources', async function (this: ISuiteCallbackContext): Pr
         this.timeout(120 * 1000);
         await testAccount.signIn();
         ext.tree = new AzureTreeDataProvider(ApiManagementProvider, 'azureApiManagement.startTesting', undefined, testAccount);
+        const rootNode : AzureParentTreeItem = await treeUtils.getRootNode(ext.tree);
+        rootNode.root.userId = "vscodeapimtest@microsoft.com"; // userId doesnt exist for service principal.
         apiManagementClient = getApiManagementClient(testAccount);
     });
 
@@ -56,8 +59,8 @@ suite('Create Azure Resources', async function (this: ISuiteCallbackContext): Pr
         await runWithApimSetting('advancedCreation', undefined, async () => {
             ext.ui = new TestUserInput([resourceName1]);
             await vscode.commands.executeCommand('azureApiManagement.createService');
-            const createdApp: ApiManagementModels.ApiManagementServiceResource = await apiManagementClient.apiManagementService.get(resourceName1, resourceName1);
-            assert.ok(createdApp);
+            const createdService: ApiManagementModels.ApiManagementServiceResource = await apiManagementClient.apiManagementService.get(resourceName1, resourceName1);
+            assert.ok(createdService);
         });
     });
 });
