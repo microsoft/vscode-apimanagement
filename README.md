@@ -1,3 +1,5 @@
+[![Build Status](https://dev.azure.com/ms-azuretools/AzCode/_apis/build/status/Nightly/vscode-apimanagement-nightly?branchName=master)](https://dev.azure.com/ms-azuretools/AzCode/_build/latest?definitionId=21&branchName=master)
+
 # Azure API Management Extension for Visual Studio Code (Preview)
 
 Expose, publish, and manage microservices architectures as APIs. Quickly create consistent and modern API gateways for existing back-end services hosted anywhere.
