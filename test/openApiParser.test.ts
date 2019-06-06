@@ -5,12 +5,37 @@
 
 import * as assert from 'assert';
 import { IOpenApiImportObject, OpenApiParser } from '../extension.bundle';
+import { assertThrowsAsync } from './assertThrowsAsync';
+
+// tslint:disable: no-use-before-declare
+// tslint:disable: no-unsafe-any
+suite("Open API Parser", () => {
+  test("Parse OpenAPI Json 2.0", async () => {
+    const parsedOpenAPI: IOpenApiImportObject = await new OpenApiParser().parse(openApi2_0);
+    assert.deepEqual(parsedOpenAPI.sourceDocument, openApi2_0);
+    assert.equal(parsedOpenAPI.importFormat, "swagger-json");
+    assert.equal(parsedOpenAPI.version, "2.0");
+  });
+
+  test("Parse OpenAPI Json > 3.0", async () => {
+    const parsedOpenAPI: IOpenApiImportObject = await new OpenApiParser().parse(openApi3_0);
+    assert.deepEqual(parsedOpenAPI.sourceDocument, openApi3_0);
+    assert.equal(parsedOpenAPI.importFormat, "openapi+json");
+    assert.equal(parsedOpenAPI.version, "3.0.0");
+  });
+
+  test("Invalid OpenAPI", async () => {
+    // tslint:disable-next-line:no-any
+    const invalidSwagger : any = {};
+    await assertThrowsAsync(async () => new OpenApiParser().parse(invalidSwagger), /Could not parse the OpenAPI document./);
+  });
+});
 
 // https://petstore.swagger.io/v2/swagger.json
 // tslint:disable:object-literal-key-quotes
 // tslint:disable:no-http-string
 // tslint:disable:no-any
-const openApi2_0 : any = {
+const openApi2_0: any = {
   "swagger": "2.0",
   "info": {
     "description": "This is a sample server Petstore server.  You can find out more about Swagger at [http://swagger.io](http://swagger.io) or on [irc.freenode.net, #swagger](http://swagger.io/irc/).  For this sample, you can use the api key `special-key` to test the authorization filters.",
@@ -1048,7 +1073,7 @@ const openApi2_0 : any = {
 };
 
 // Converted to json https://github.com/OAI/OpenAPI-Specification/blob/master/examples/v3.0/petstore.yaml
-const openApi3_0 : any = {
+const openApi3_0: any = {
   "openapi": "3.0.0",
   "servers": [
     {
@@ -2103,17 +2128,3 @@ const openApi3_0 : any = {
     }
   }
 };
-
-suite("Open API Parser", () => {
-    test("parseOpenApi (2.0 Json)", async () => {
-// tslint:disable-next-line: no-unsafe-any
-        const parsedOpenAPI : IOpenApiImportObject = await new OpenApiParser().parse(openApi2_0);
-        assert.deepEqual(parsedOpenAPI.sourceDocument, openApi2_0);
-    });
-
-    test("parseOpenApi (3.0 Json)", async () => {
-// tslint:disable-next-line: no-unsafe-any
-      const parsedOpenAPI : IOpenApiImportObject = await new OpenApiParser().parse(openApi3_0);
-      assert.deepEqual(parsedOpenAPI.sourceDocument, openApi3_0);
-  });
-});
