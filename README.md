@@ -12,8 +12,23 @@ Expose, publish, and manage microservices architectures as APIs. Quickly create 
 4. Sign in to your Azure Account by clicking Sign in to Azure…
     >  If you don't already have an Azure Account, click "Create a Free Azure Account".
 
-## Create your first API
-Coming soon...
+## Features
+* Create API Management instance
+  * Using Defaults (sku-consumption, region-westus) or Advanced option through VSCode Settings
+* Create API and Operations by Importing OpenAPI 2.0(swagger) or OpenAPI 3.0 specification
+  * Import through local file or link
+  * Only Json format supported
+* Open API Managment instance in Azure portal
+* Edit API properties
+* Edit Operation properties
+    > Intellisense/Completions for the API/Operation properties
+* Edit API/Operations via OpenAPI specification
+* Edit Global-Scope/API-Scope/Operation-Scope policies
+    > Snippets support and syntax highlighting (leveraging Razor VSCode tooling)
+* Test Operation
+    > Copy subscription key for testing
+* Delete API Management instance, API or Operation
+* Command pallete support
 
 ## Contributing
 
