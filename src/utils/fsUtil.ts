@@ -25,12 +25,15 @@ export async function createTemporaryFile(fileName: string): Promise<string> {
 export function getSessionWorkingFolderName() : string {
     let sessionFolderName = ext.context.globalState.get(sessionFolderKey);
     if (!sessionFolderName) {
-        const randomFolderNameLength: number = 12;
-        const buffer: Buffer = crypto.randomBytes(Math.ceil(randomFolderNameLength / 2));
-        sessionFolderName = buffer.toString('hex').slice(0, randomFolderNameLength);
+        sessionFolderName = getRandomHexString();
         ext.outputChannel.appendLine(`Session working folder:${sessionFolderName}`);
         ext.context.globalState.update(sessionFolderKey, sessionFolderName);
     }
 
     return <string>sessionFolderName;
+}
+
+export function getRandomHexString(length: number = 10): string {
+    const buffer: Buffer = crypto.randomBytes(Math.ceil(length / 2));
+    return buffer.toString('hex').slice(0, length);
 }

@@ -65,8 +65,7 @@
                 "MOCHA_enableTimeouts": "0", // Disable time-outs
                 "DEBUGTELEMETRY": "1",
                 "NODE_DEBUG": "",
-                "ENABLE_LONG_RUNNING_TESTS": "",
-                "FUNC_PATH": "func"
+                "ENABLE_LONG_RUNNING_TESTS": ""
             }
         },
         {
@@ -89,8 +88,7 @@
                 "MOCHA_enableTimeouts": "0", // Disable time-outs
                 "DEBUGTELEMETRY": "1",
                 "NODE_DEBUG": "",
-                "ENABLE_LONG_RUNNING_TESTS": "",
-                "FUNC_PATH": "func"
+                "ENABLE_LONG_RUNNING_TESTS": ""
             }
         }
     ]
