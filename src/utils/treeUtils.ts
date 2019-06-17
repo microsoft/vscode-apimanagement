@@ -4,7 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import * as path from 'path';
-import { AzureParentTreeItem, AzureTreeDataProvider, AzureTreeItem } from 'vscode-azureextensionui';
+import { AzureParentTreeItem, AzureTreeDataProvider, AzureTreeItem, RootTreeItem } from 'vscode-azureextensionui';
 import { ext } from '../extensionVariables';
 import { localize } from '../localize';
 
@@ -36,5 +36,10 @@ export namespace treeUtils {
         } else {
             throw new Error(localize('noMatchingSubscription', 'Failed to find a subscription matching id "{0}".', subscriptionId));
         }
+    }
+
+    export async function getRootNode(tree: AzureTreeDataProvider): Promise<AzureParentTreeItem> {
+        // is there a better way than querying children?
+        return <AzureParentTreeItem>(await tree.getChildren()).find((n: AzureParentTreeItem) => n instanceof RootTreeItem);
     }
 }
