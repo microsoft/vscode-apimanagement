@@ -47,7 +47,10 @@
         "onCommand:azureApiManagement.showArmApiOperation",
         "onCommand:azureApiManagement.showServicePolicy",
         "onCommand:azureApiManagement.showApiPolicy",
-        "onCommand:azureApiManagement.showOperationPolicy"
+        "onCommand:azureApiManagement.showOperationPolicy",
+        "onCommand:azureApiManagement.createNamedValue",
+        "onCommand:azureApiManagement.deleteNamedValue",
+        "onCommand:azureApiManagement.updateNamedValue"
     ],
     "main": "main",
     "contributes": {
@@ -167,6 +170,21 @@
             {
                 "command": "azureApiManagement.showOperationPolicy",
                 "title": "%azureApiManagement.showOperationPolicy%",
+                "category": "Azure API Management"
+            },
+            {
+                "command": "azureApiManagement.createNamedValue",
+                "title": "%azureApiManagement.createNamedValue%",
+                "category": "Azure API Management"
+            },
+            {
+                "command": "azureApiManagement.deleteNamedValue",
+                "title": "%azureApiManagement.deleteNamedValue%",
+                "category": "Azure API Management"
+            },
+            {
+                "command": "azureApiManagement.updateNamedValue",
+                "title": "%azureApiManagement.updateNamedValue%",
                 "category": "Azure API Management"
             }
         ],
@@ -291,6 +309,21 @@
                 {
                     "command": "azureApiManagement.testOperation",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApiOperation",
+                    "group": "1@1"
+                },
+                {
+                    "command": "azureApiManagement.createNamedValue",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementNamedValues",
+                    "group": "1@1"
+                },
+                {
+                    "command": "azureApiManagement.deleteNamedValue",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementNamedValue",
+                    "group": "1@2"
+                },
+                {
+                    "command": "azureApiManagement.updateNamedValue",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementNamedValue",
                     "group": "1@1"
                 }
             ]

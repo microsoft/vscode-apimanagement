@@ -12,6 +12,7 @@ import { copySubscriptionKey } from './commands/copySubscriptionKey';
 import { createService } from './commands/createService';
 import { deleteNode } from './commands/deleteNode';
 import { importOpenApi } from './commands/importOpenApi';
+import { createNamedValue, updateNamedValue } from './commands/manageNamedValue';
 import { openInPortal } from './commands/openInPortal';
 import { testOperation } from './commands/testOperation';
 import { doubleClickDebounceDelay } from './constants';
@@ -26,6 +27,8 @@ import { OpenApiEditor } from './explorer/editors/openApi/OpenApiEditor';
 import { ApiPolicyEditor } from './explorer/editors/policy/ApiPolicyEditor';
 import { OperationPolicyEditor } from './explorer/editors/policy/OperationPolicyEditor';
 import { ServicePolicyEditor } from './explorer/editors/policy/ServicePolicyEditor';
+import { NamedValuesTreeItem } from './explorer/NamedValuesTreeItem';
+import { NamedValueTreeItem } from './explorer/NamedValueTreeItem';
 import { OperationPolicyTreeItem } from './explorer/OperationPolicyTreeItem';
 import { ServicePolicyTreeItem } from './explorer/ServicePolicyTreeItem';
 import { ServiceTreeItem } from './explorer/ServiceTreeItem';
@@ -61,6 +64,9 @@ export function activateInternal(context: vscode.ExtensionContext) {
     registerCommand('azureApiManagement.testOperation', testOperation);
     registerCommand('azureApiManagement.importOpenApiByFile', async (node?: ApisTreeItem) => { await importOpenApi(node, false); });
     registerCommand('azureApiManagement.importOpenApiByLink', async (node?: ApisTreeItem) => { await importOpenApi(node, true); });
+    registerCommand('azureApiManagement.createNamedValue', async (node?: NamedValuesTreeItem) => { await createNamedValue(node); });
+    registerCommand('azureApiManagement.deleteNamedValue', async (node?: AzureTreeItem) => await deleteNode(NamedValueTreeItem.contextValue, node));
+    registerCommand('azureApiManagement.updateNamedValue', updateNamedValue);
 
     registerEditors(context);
 }

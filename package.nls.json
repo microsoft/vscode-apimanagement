@@ -16,5 +16,8 @@
     "azureApiManagement.deleteApi": "Delete API",
     "azureApiManagement.deleteOperation": "Delete Operation",
     "azureApiManagement.testOperation": "Test Operation",
-    "azureApiManagement.advancedCreationDescription":"Enables advanced creation of Azure API Management Instance, which will prompt for several additional values instead of using a default."
+    "azureApiManagement.advancedCreationDescription":"Enables advanced creation of Azure API Management Instance, which will prompt for several additional values instead of using a default.",
+    "azureApiManagement.createNamedValue": "Create Named value",
+    "azureApiManagement.deleteNamedValue": "Delete Named value",
+    "azureApiManagement.updateNamedValue": "Edit Named value"
 }
