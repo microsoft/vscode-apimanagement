@@ -42,6 +42,10 @@ export class ProductTreeItem extends AzureParentTreeItem<IProductTreeRoot> {
         return this._root;
     }
 
+    public get iconPath(): { light: string, dark: string } {
+        return treeUtils.getThemedIconPath('product');
+    }
+
     public hasMoreChildrenImpl(): boolean {
         return false;
     }
