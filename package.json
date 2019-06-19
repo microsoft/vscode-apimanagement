@@ -45,9 +45,13 @@
         "onCommand:azureApiManagement.showApi",
         "onCommand:azureApiManagement.showArmApi",
         "onCommand:azureApiManagement.showArmApiOperation",
+        "onCommand:azureApiManagement.showArmProduct",
         "onCommand:azureApiManagement.showServicePolicy",
         "onCommand:azureApiManagement.showApiPolicy",
-        "onCommand:azureApiManagement.showOperationPolicy"
+        "onCommand:azureApiManagement.showOperationPolicy",
+        "onCommand:azureApiManagement.addApiToProduct",
+        "onCommand:azureApiManagement.removeApiFromProduct",
+        "onCommand:azureApiManagement.showProductPolicy"
     ],
     "main": "main",
     "contributes": {
@@ -155,6 +159,11 @@
                 "category": "Azure API Management"
             },
             {
+                "command": "azureApiManagement.showArmProduct",
+                "title": "%azureApiManagement.showArmProduct%",
+                "category": "Azure API Management"
+            },
+            {
                 "command": "azureApiManagement.showServicePolicy",
                 "title": "%azureApiManagement.showServicePolicy%",
                 "category": "Azure API Management"
@@ -167,6 +176,21 @@
             {
                 "command": "azureApiManagement.showOperationPolicy",
                 "title": "%azureApiManagement.showOperationPolicy%",
+                "category": "Azure API Management"
+            },
+            {
+                "command": "azureApiManagement.addApiToProduct",
+                "title": "%azureApiManagement.addApiToProduct%",
+                "category": "Azure API Management"
+            },
+            {
+                "command": "azureApiManagement.removeApiFromProduct",
+                "title": "%azureApiManagement.removeApiFromProduct%",
+                "category": "Azure API Management"
+            },
+            {
+                "command": "azureApiManagement.showProductPolicy",
+                "title": "%azureApiManagement.showProductPolicy%",
                 "category": "Azure API Management"
             }
         ],
@@ -291,6 +315,16 @@
                 {
                     "command": "azureApiManagement.testOperation",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApiOperation",
+                    "group": "1@1"
+                },
+                {
+                    "command": "azureApiManagement.addApiToProduct",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementProductApis",
+                    "group": "1@1"
+                },
+                {
+                    "command": "azureApiManagement.removeApiFromProduct",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementProductApi",
                     "group": "1@1"
                 }
             ]
