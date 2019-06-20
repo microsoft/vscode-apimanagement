@@ -5,10 +5,15 @@
 
 import { IApiTreeRoot } from "../explorer/IApiTreeRoot";
 import { IOperationTreeRoot } from "../explorer/IOperationTreeRoot";
+import { IProductTreeRoot } from "../explorer/IProductTreeRoot";
 import { IServiceTreeRoot } from "../explorer/IServiceTreeRoot";
 
-export function nameUtil(root: IServiceTreeRoot | IApiTreeRoot | IOperationTreeRoot): string {
+export function nameUtil(root: IServiceTreeRoot | IApiTreeRoot | IOperationTreeRoot | IProductTreeRoot): string {
     let name = root.serviceName;
+
+    if (isProductRoot(root)) {
+        name = `${name}-${root.productName}`;
+    }
 
     if (isApiRoot(root)) {
         name = `${name}-${root.apiName}`;
@@ -21,10 +26,14 @@ export function nameUtil(root: IServiceTreeRoot | IApiTreeRoot | IOperationTreeR
     return name;
 }
 
-function isApiRoot(root:  IServiceTreeRoot | IApiTreeRoot | IOperationTreeRoot): root is IApiTreeRoot {
+function isApiRoot(root:  IServiceTreeRoot | IApiTreeRoot | IOperationTreeRoot | IProductTreeRoot): root is IApiTreeRoot {
     return (<IApiTreeRoot>root).apiName !== undefined;
 }
 
-function isOperationRoot(root:  IServiceTreeRoot |IApiTreeRoot | IOperationTreeRoot): root is IOperationTreeRoot {
+function isOperationRoot(root:  IServiceTreeRoot |IApiTreeRoot | IOperationTreeRoot | IProductTreeRoot): root is IOperationTreeRoot {
     return (<IOperationTreeRoot>root).opName !== undefined;
+}
+
+function isProductRoot(root:  IServiceTreeRoot |IApiTreeRoot | IOperationTreeRoot | IProductTreeRoot): root is IProductTreeRoot {
+    return (<IProductTreeRoot>root).productName !== undefined;
 }

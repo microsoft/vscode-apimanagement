@@ -16,6 +16,9 @@ import { ApisTreeItem } from "./ApisTreeItem";
 import { ApiTreeItem } from "./ApiTreeItem";
 import { IServiceTreeRoot } from "./IServiceTreeRoot";
 import { OperationPolicyTreeItem } from "./OperationPolicyTreeItem";
+import { ProductPolicyTreeItem } from "./ProductPolicyTreeItem";
+import { ProductsTreeItem } from "./ProductsTreeItem";
+import { ProductTreeItem } from "./ProductTreeItem";
 import { ServicePolicyTreeItem } from "./ServicePolicyTreeItem";
 
 export class ServiceTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
@@ -36,6 +39,7 @@ export class ServiceTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
     public contextValue: string = ServiceTreeItem.contextValue;
     public readonly apisTreeItem: ApisTreeItem;
     public readonly servicePolicyTreeItem: ServicePolicyTreeItem;
+    public readonly productsTreeItem: ProductsTreeItem;
 
     private _root: IServiceTreeRoot;
 
@@ -48,10 +52,11 @@ export class ServiceTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
         this._root = this.createRoot(parent.root, apiManagementClient);
         this.servicePolicyTreeItem = new ServicePolicyTreeItem(this);
         this.apisTreeItem = new ApisTreeItem(this);
+        this.productsTreeItem = new ProductsTreeItem(this);
     }
 
     public async loadMoreChildrenImpl(): Promise<AzureTreeItem<IServiceTreeRoot>[]> {
-        return [this.apisTreeItem, this.servicePolicyTreeItem];
+        return [this.apisTreeItem, this.productsTreeItem, this.servicePolicyTreeItem];
     }
 
     public hasMoreChildrenImpl(): boolean {
@@ -85,8 +90,12 @@ export class ServiceTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
             || expectedContextValue === ApiOperationTreeItem.contextValue
             || expectedContextValue === OperationPolicyTreeItem.contextValue) {
             return this.apisTreeItem;
+        } else if (expectedContextValue === ProductTreeItem.contextValue
+            ||  expectedContextValue === ProductPolicyTreeItem.contextValue) {
+                return this.productsTreeItem;
+        } else {
+            return undefined;
         }
-        return undefined;
     }
 
     private createRoot(subRoot: ISubscriptionRoot, client: ApiManagementClient): IServiceTreeRoot {
