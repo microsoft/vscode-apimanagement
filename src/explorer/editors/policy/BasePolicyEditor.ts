@@ -27,15 +27,14 @@ export abstract class BasePolicyEditor<TRoot extends IServiceTreeRoot> extends E
         try {
             return await this.getPolicy(context);
         } catch (error) {
-// tslint:disable-next-line: no-unsafe-any
-            ext.outputChannel.appendLine(error);
+// tslint:disable: no-unsafe-any
             const err: IParsedError = parseError(error);
             if (err.errorType.toLocaleLowerCase() === 'notfound' || err.errorType.toLowerCase() === 'resourcenotfound') {
                 return this.getDefaultPolicy();
             } else {
+                ext.outputChannel.appendLine(error);
                 let errorMessage = err.message;
                 if (err.errorType.toLowerCase() === 'validationerror') {
-                    // tslint:disable-next-line: no-unsafe-any
                     errorMessage = errorUtil(error.response.body);
                 }
                 ext.outputChannel.appendLine(errorMessage);
