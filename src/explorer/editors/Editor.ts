@@ -79,6 +79,8 @@ export abstract class Editor<ContextT> implements vscode.Disposable {
                     await globalState.update(this.showSavePromptKey, true);
                 } else if (result === DialogResponses.dontUpload) {
                     throw new UserCancelledError();
+                } else if (!result) {
+                    throw new UserCancelledError();
                 }
             }
             await this.updateRemote(context, doc);
