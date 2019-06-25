@@ -19,7 +19,7 @@ suite('Create Azure Resources', async function (this: ISuiteCallbackContext): Pr
     const resourceGroupsToDelete: string[] = [];
     const testAccount: TestAzureAccount = new TestAzureAccount();
     let apiManagementClient: ApiManagementClient;
-    const resourceName1: string = getRandomHexString().toLowerCase();
+    const resourceName1: string = `vscode-${getRandomHexString().toLowerCase()}`;
 
     suiteSetup(async function (this: IHookCallbackContext): Promise<void> {
         if (!longRunningTestsEnabled) {
