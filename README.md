@@ -2,7 +2,7 @@
 
 # Azure API Management Extension for Visual Studio Code (Preview)
 
-Use the Azure API Management extension to perform common management operation on your Azure API Management service instances without switching away from Visual Studio Code.
+Use the Azure API Management extension to perform common management operations on your Azure API Management service instances without switching away from Visual Studio Code.
 
 [Azure API Management](https://aka.ms/apimrocks) is a fully managed service that helps customers to securely expose their APIs to external and internal consumers. API Management serves as a facade and a front door for the API implementations and enables their frictionless consumption by developers. Visit [this page](https://aka.ms/apimlove) for more information and resources related to Azure API Management.
 
