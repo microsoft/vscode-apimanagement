@@ -2,54 +2,61 @@
 
 # Azure API Management Extension for Visual Studio Code (Preview)
 
-[Azure API Management](https://aka.ms/apimrocks) is a fully managed service that enables customers to publish, secure, transform, maintain, and monitor APIs. Use the Azure API Management extension for VS Code to quickly manage your service instances and APIs.
+Use the Azure API Management extension to perform common management operation on your Azure API Management service instances without switching away from Visual Studio Code.
 
-Visit [this page](https://aka.ms/apimlove) for more information about Azure API Management.
+[Azure API Management](https://aka.ms/apimrocks) is a fully managed service that helps customers to securely expose their APIs to external and internal consumers. API Management serves as a facade and a front door for the API implementations and enables their frictionless consumption by developers. Visit [this page](https://aka.ms/apimlove) for more information and resources related to Azure API Management.
 
 ## Main Features
 
-* Create/delete an API Management instance
-* Create an API by importing an OpenAPI 2.0(swagger) or OpenAPI 3.0 specification
-* Edit APIs and operations in Azure Resource Manager format or OpenAPI specification format
-* Edit policies at any scope
-* Associate an API with a product
-* Test an API using REST Client
-* Command Palette support for most features
+-   Create and delete an API Management instance
+-   Create an API by importing its OpenAPI specification
+-   Edit APIs and operations in Azure Resource Manager or OpenAPI formats
+-   Edit policies at any scope
+-   Associate an API with a product
+-   Test an API using [REST Client](https://marketplace.visualstudio.com/items?itemName=humao.rest-client)
+-   Command Palette support for most features
 
 ## Create an API Management instance using defaults
+
 ![Create-simple](resources/create-default.gif)
 
-## Create an API Management instance using advanced options
+## Create an API Management instance using custom options
+
 ![Create-advanced](resources/create-advanced.gif)
 
 ## Create an API by importing an OpenAPI specification
-Please note: only JSON format is supported currently. 
+
+Please note: only JSON format is supported currently.
 ![Import-OAS](resources/import-oas.gif)
 
 ## Edit an API in Azure Resource Manager format
+
 ![Edit-JSON](resources/edit-json.gif)
 
-## Edit an API in OpenAPI specification format
+## Edit an API in OpenAPI format
+
 ![Edit-OAS](resources/edit-oas.gif)
 
 ## Edit policies
+
 ![Edit-Policy](resources/policy.gif)
 
 ## Test an API
+
 ![Test-API](resources/test-api.gif)
 
 ## Contributing
 
 There are several ways you can contribute to this repo:
 
-* **Ideas, feature requests and bugs**: We are open to all ideas and we want to get rid of bugs! Use the [Issues](https://github.com/Microsoft/vscode-apimanagement/issues) section to either report a new issue, provide your ideas or contribute to existing threads.
-* **Documentation**: Found a typo or strangely worded sentences? Submit a PR!
-* **Code**: Contribute bug fixes, features or design changes:
-  * Clone the repository locally and open in VS Code.
-  * Install [TSLint for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=ms-vscode.vscode-typescript-tslint-plugin).
-  * Open the terminal (press `` CTRL+` ``) and run `npm install`.
-  * To build, press `F1` and type in `Tasks: Run Build Task`.
-  * Debug: press `F5` to start debugging the extension.
+-   **Ideas, feature requests and bugs**: We are open to all ideas and we want to get rid of bugs! Use the [Issues](https://github.com/Microsoft/vscode-apimanagement/issues) section to either report a new issue, share your ideas, or contribute to ongoing discussions.
+-   **Documentation**: Found a typo or an awkwardly worded sentence? Submit a PR!
+-   **Code**: Contribute bug fixes, features, or design changes:
+    -   Clone the repository locally and open in Visual Studio Code.
+    -   Install [TSLint for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=ms-vscode.vscode-typescript-tslint-plugin).
+    -   Open the terminal (press `` CTRL+` ``) and run `npm install`.
+    -   To build, press `F1` and type in `Tasks: Run Build Task`.
+    -   Debug: press `F5` to start debugging the extension.
 
 ### Legal
 
