@@ -19,6 +19,7 @@ export class NamedValuesTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
     public static contextValue: string = 'azureApiManagementNamedValues';
     public label: string = "Named values";
     public contextValue: string = NamedValuesTreeItem.contextValue;
+    public readonly childTypeLabel: string = localize('azureApiManagement.NamedValue', 'Named value');
     private _nextLink: string | undefined;
 
     public hasMoreChildrenImpl(): boolean {
