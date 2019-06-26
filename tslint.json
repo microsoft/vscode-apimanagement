@@ -2,7 +2,7 @@
     "extends": "tslint-microsoft-contrib",
     "rules": {
         "file-header": [
-            true,
+            false,
             {
               "match": "Copyright \\d{4}",
               "allow-single-line-comments": true,

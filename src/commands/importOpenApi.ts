@@ -112,7 +112,7 @@ function validateApiName(apiName: string): string | undefined {
         return localize("apiNameMaxLength", 'API name cannot be more than 256 characters long.');
     }
     if (apiName.match(/^[^*#&+:<>?]+$/) === null) {
-        return localize("apiNameMaxLength", 'Invalid API Name.');
+        return localize("apiNameInvalid", 'Invalid API Name.');
     }
 
     return undefined;
