@@ -18,6 +18,9 @@ import { IServiceTreeRoot } from "./IServiceTreeRoot";
 import { NamedValuesTreeItem } from "./NamedValuesTreeItem";
 import { NamedValueTreeItem } from "./NamedValueTreeItem";
 import { OperationPolicyTreeItem } from "./OperationPolicyTreeItem";
+import { ProductPolicyTreeItem } from "./ProductPolicyTreeItem";
+import { ProductsTreeItem } from "./ProductsTreeItem";
+import { ProductTreeItem } from "./ProductTreeItem";
 import { ServicePolicyTreeItem } from "./ServicePolicyTreeItem";
 
 export class ServiceTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
@@ -39,6 +42,7 @@ export class ServiceTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
     public readonly apisTreeItem: ApisTreeItem;
     public readonly servicePolicyTreeItem: ServicePolicyTreeItem;
     public readonly namedValuesTreeItem: NamedValuesTreeItem;
+    public readonly productsTreeItem: ProductsTreeItem;
 
     private _root: IServiceTreeRoot;
 
@@ -51,11 +55,12 @@ export class ServiceTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
         this._root = this.createRoot(parent.root, apiManagementClient);
         this.servicePolicyTreeItem = new ServicePolicyTreeItem(this);
         this.apisTreeItem = new ApisTreeItem(this);
+        this.productsTreeItem = new ProductsTreeItem(this);
         this.namedValuesTreeItem = new NamedValuesTreeItem(this);
     }
 
     public async loadMoreChildrenImpl(): Promise<AzureTreeItem<IServiceTreeRoot>[]> {
-        return [this.apisTreeItem, this.namedValuesTreeItem, this.servicePolicyTreeItem];
+        return [this.apisTreeItem, this.namedValuesTreeItem, this.productsTreeItem, this.servicePolicyTreeItem];
     }
 
     public hasMoreChildrenImpl(): boolean {
@@ -91,6 +96,9 @@ export class ServiceTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
             return this.apisTreeItem;
         } else if (expectedContextValue === NamedValueTreeItem.contextValue) {
             return this.namedValuesTreeItem;
+        } else if (expectedContextValue === ProductTreeItem.contextValue
+            ||  expectedContextValue === ProductPolicyTreeItem.contextValue) {
+                return this.productsTreeItem;
         } else {
             return undefined;
         }

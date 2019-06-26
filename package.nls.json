@@ -19,5 +19,9 @@
     "azureApiManagement.advancedCreationDescription":"Enables advanced creation of Azure API Management Instance, which will prompt for several additional values instead of using a default.",
     "azureApiManagement.createNamedValue": "Create Named value",
     "azureApiManagement.deleteNamedValue": "Delete Named value",
-    "azureApiManagement.updateNamedValue": "Edit Named value"
+    "azureApiManagement.updateNamedValue": "Edit Named value",
+    "azureApiManagement.addApiToProduct": "Add API to Product",
+    "azureApiManagement.removeApiFromProduct": "Remove API from Product",
+    "azureApiManagement.showProductPolicy": "Edit Product policy",
+    "azureApiManagement.showArmProduct": "Edit Product"
 }
