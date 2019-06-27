@@ -9,10 +9,11 @@ Use the Azure API Management extension to perform common management operations o
 ## Main Features
 
 -   Create and delete an API Management instance
--   Create an API by importing its OpenAPI specification
+-   Create an API by importing an OpenAPI specification
 -   Edit APIs and operations in Azure Resource Manager or OpenAPI formats
 -   Edit policies at any scope
 -   Associate an API with a product
+-   Create, delete, and edit Named Values
 -   Test an API using [REST Client](https://marketplace.visualstudio.com/items?itemName=humao.rest-client)
 -   Command Palette support for most features
 
@@ -44,6 +45,10 @@ Please note: only JSON format is supported currently.
 ## Test an API
 
 ![Test-API](resources/test-api.gif)
+
+## Create and edit a Named Value
+
+![Named-Values](resources/namedvalues.gif)
 
 ## Contributing
 
