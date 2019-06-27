@@ -9,6 +9,7 @@ import { AzureParentTreeItem, AzureTreeItem, DialogResponses, UserCancelledError
 import { localize } from "../localize";
 import { processError } from "../utils/errorUtil";
 import { nonNullProp } from "../utils/nonNull";
+import { treeUtils } from "../utils/treeUtils";
 import { IServiceTreeRoot } from "./IServiceTreeRoot";
 
 export class NamedValueTreeItem extends AzureTreeItem<IServiceTreeRoot> {
@@ -25,6 +26,10 @@ export class NamedValueTreeItem extends AzureTreeItem<IServiceTreeRoot> {
 
     public get label() : string {
         return this._label;
+    }
+
+    public get iconPath(): { light: string, dark: string } {
+        return treeUtils.getThemedIconPath('namedvalue');
     }
 
     public async deleteTreeItemImpl(): Promise<void> {
