@@ -1,6 +1,6 @@
 {
     "name": "vscode-apimanagement",
-    "displayName": "Azure API Managment",
+    "displayName": "Azure API Management",
     "description": "An Azure API Management extension for Visual Studio Code.",
     "version": "0.1.1-alpha",
     "publisher": "ms-azuretools",
