@@ -1,6 +1,14 @@
 # Change Log
 All notable changes to the "Azure Api Managment VS Code" extension will be documented in this file.
 
+## [0.1.1 - 2019-06-28]
+
+### Added
+- Marketplace badges to readme.
+
+### Fixed
+- Display name of extension.
+
 ## [0.1.0 - 2019-06-27]
 
 ### Added
