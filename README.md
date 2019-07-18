@@ -7,6 +7,10 @@ Use the Azure API Management extension to perform common management operations o
 
 [Azure API Management](https://aka.ms/apimrocks) is a fully managed service that helps customers to securely expose their APIs to external and internal consumers. API Management serves as a facade and a front door for the API implementations and enables their frictionless consumption by developers. Visit [this page](https://aka.ms/apimlove) for more information and resources related to Azure API Management.
 
+## Requirements
+
+All you need is an Azure Subscription to get started. If you don't have one, [click here](https://azure.microsoft.com/en-us/free/) for a free subscription with $200 in Azure credits!
+
 ## Main Features
 
 -   Create and delete an API Management instance
@@ -50,6 +54,20 @@ Please note: only JSON format is supported currently.
 ## Create and edit a Named Value
 
 ![Named-Values](resources/namedvalues.gif)
+
+## Intellisense for Policy Expressions.
+
+Try instructions [here](https://github.com/microsoft/vscode-apimanagement/issues/37#issuecomment-508945164).
+
+## Managing Azure Subscriptions
+
+If you are not signed in to Azure, you will see a "Sign in to Azure..." link. Alternatively, you can select "View->Command Palette" in the VS Code menu, and search for "Azure: Sign In".
+
+If you don't have an Azure Account, you can sign up for one today for free and receive $200 in credits by selecting "Create a Free Azure Account..." or selecting "View->Command Palette" and searching for "Azure: Create an Account".
+
+You may sign out of Azure by selecting "View->Command Palette" and searching for "Azure: Sign Out".
+
+To select which subscriptions show up in the extension's explorer, click on the "Select Subscriptions..." button on any subscription node (indicated by a "filter" icon when you hover over it), or select "View->Command Palette" and search for "Azure: Select Subscriptions". Note that this selection affects all VS Code extensions that support the [Azure Account and Sign-In](https://github.com/Microsoft/vscode-azure-account) extension.
 
 ## Contributing
 
