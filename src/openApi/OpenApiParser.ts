@@ -70,6 +70,9 @@ export class OpenApiParser {
             const oai30 = <IOpenApi30>source;
 
             oai30.servers = oai30.servers.map(item => {
+                if (proxyHostName.split("://").length > 0) {
+                    return { url: `${proxyHostName}${basePath}` };
+                }
                 return { url: `${item.url.split("://")[0]}://${proxyHostName}${basePath}` };
             });
         }
