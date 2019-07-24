@@ -4,8 +4,6 @@
 *--------------------------------------------------------------------------------------------*/
 
 import * as vscode from 'vscode';
-import { ext } from '../extensionVariables';
-import { localize } from '../localize';
 import { getDefaultWorkspacePath } from './fsUtil';
 
 // tslint:disable-next-line:export-name
