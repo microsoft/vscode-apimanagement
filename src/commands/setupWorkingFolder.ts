@@ -10,35 +10,42 @@ import { ext } from '../extensionVariables';
 import { localize } from '../localize';
 import { cpUtils } from '../utils/cpUtils';
 import { dotnetUtils } from '../utils/dotnetUtils';
+import { checkCsharpExtensionInstalled } from '../utils/extensionUtil';
 import { getDefaultWorkspacePath } from '../utils/fsUtil';
 
 export async function setupWorkingFolder(this: IActionContext): Promise<void> {
-   const workingFolderPath = getDefaultWorkspacePath();
+    ext.outputChannel.appendLine(localize("folderInitialized", "Initialization started..."));
+    ext.outputChannel.show();
+    // make sure dotnet tools are installed.
+    await dotnetUtils.validateDotnetInstalled(this);
 
-   // cleanup the directory, incase it was previously setup or used.
-   await fse.emptyDir(workingFolderPath);
+    // check vscode csharp extension is installed.
+    checkCsharpExtensionInstalled(this);
 
-   // make sure dotnet tools are installed.
-   await dotnetUtils.validateDotnetInstalled(this);
+    const workingFolderPath = getDefaultWorkspacePath();
 
-   // run dotnet new webapp to create a dummy empty asp.net webapp project to work with razor files.
-   await cpUtils.executeCommand(
-       ext.outputChannel,
-       workingFolderPath,
-       'dotnet',
-       'new',
-       'web');
+    // cleanup the directory, incase it was previously setup or used.
+    await fse.emptyDir(workingFolderPath);
 
-   // Copy the supporting files.
-   await fse.copy(ext.context.asAbsolutePath(path.join('resources', 'projectFiles')), workingFolderPath, { overwrite: true, recursive: false });
+    // run dotnet new webapp to create a dummy empty asp.net webapp project to work with razor files.
+    await cpUtils.executeCommand(
+        ext.outputChannel,
+        workingFolderPath,
+        'dotnet',
+        'new',
+        'web');
 
-   // run dotnet build atleast once to get the intellisense working in razor files.
-   await cpUtils.executeCommand(
-    ext.outputChannel,
-    workingFolderPath,
-    'dotnet',
-    'build');
+    // Copy the supporting files.
+    await fse.copy(ext.context.asAbsolutePath(path.join('resources', 'projectFiles')), workingFolderPath, { overwrite: true, recursive: false });
 
-   ext.outputChannel.appendLine(localize("folderInitialized", "Working folder initialization completed.", workingFolderPath));
-   ext.outputChannel.show();
+    // run dotnet build atleast once to get the intellisense working in razor files.
+    await cpUtils.executeCommand(
+        ext.outputChannel,
+        workingFolderPath,
+        'dotnet',
+        'build');
+
+    ext.outputChannel.appendLine(localize("folderInitialized", "Initialization completed!"));
+    ext.outputChannel.appendLine(localize("closePolicyFiles", "Please close and reopen any open policy files."));
+    ext.outputChannel.show();
 }
