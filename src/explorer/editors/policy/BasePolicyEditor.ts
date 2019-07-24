@@ -11,6 +11,7 @@ import { ext } from "../../../extensionVariables";
 import { localize } from "../../../localize";
 import { errorUtil, processError } from "../../../utils/errorUtil";
 import { nameUtil } from "../../../utils/nameUtil";
+import { promptOpenWorkingFolder } from "../../../utils/vscodeUtils";
 import { IServiceTreeRoot } from "../../IServiceTreeRoot";
 import { Editor } from "../Editor";
 
@@ -63,5 +64,10 @@ export abstract class BasePolicyEditor<TRoot extends IServiceTreeRoot> extends E
     }
     public async getSaveConfirmationText(): Promise<string> {
         return localize("saveConfirmation", "Do you want to upload changes to cloud?");
+    }
+
+    public async showEditor(context: AzureTreeItem<TRoot>, sizeLimit?: number /* in Megabytes */): Promise<void> {
+        await super.showEditor(context, sizeLimit);
+        await promptOpenWorkingFolder();
     }
 }

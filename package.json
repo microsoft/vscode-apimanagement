@@ -392,6 +392,11 @@
                         "type": "boolean",
                         "default": false,
                         "description": "%azureApiManagement.advancedCreationDescription%"
+                    },
+                    "azureApiManagement.showOpenWorkingFolderPrompt": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "%azureApiManagement.showOpenWorkingFolderPrompt%"
                     }
                 }
             }

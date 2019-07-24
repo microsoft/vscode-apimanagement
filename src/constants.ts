@@ -19,6 +19,8 @@ export const swaggerAcceptHeader = "application/vnd.swagger.doc+json";
 
 export const showSavePromptConfigKey = "azureApiManagement.showSavePrompt";
 
+export const showOpenWorkingFolderPromptConfigKey = "azureApiManagement.showOpenWorkingFolderPrompt";
+
 export const policyFormat = "rawxml";
 
 export const emptyGlobalPolicyXml =
