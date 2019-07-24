@@ -54,7 +54,9 @@
         "onCommand:azureApiManagement.updateNamedValue",
         "onCommand:azureApiManagement.addApiToProduct",
         "onCommand:azureApiManagement.removeApiFromProduct",
-        "onCommand:azureApiManagement.showProductPolicy"
+        "onCommand:azureApiManagement.showProductPolicy",
+        "onCommand:azureApiManagement.openWorkingFolder",
+        "onCommand:azureApiManagement.setupWorkingFolder"
     ],
     "main": "main",
     "contributes": {
@@ -209,6 +211,16 @@
             {
                 "command": "azureApiManagement.showProductPolicy",
                 "title": "%azureApiManagement.showProductPolicy%",
+                "category": "Azure API Management"
+            },
+            {
+                "command": "azureApiManagement.openWorkingFolder",
+                "title": "%azureApiManagement.openWorkingFolder%",
+                "category": "Azure API Management"
+            },
+            {
+                "command": "azureApiManagement.setupWorkingFolder",
+                "title": "%azureApiManagement.setupWorkingFolder%",
                 "category": "Azure API Management"
             }
         ],

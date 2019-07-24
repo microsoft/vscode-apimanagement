@@ -23,5 +23,7 @@
     "azureApiManagement.addApiToProduct": "Add API to Product",
     "azureApiManagement.removeApiFromProduct": "Remove API from Product",
     "azureApiManagement.showProductPolicy": "Edit Product policy",
-    "azureApiManagement.showArmProduct": "Edit Product"
+    "azureApiManagement.showArmProduct": "Edit Product",
+    "azureApiManagement.openWorkingFolder": "Open Working Folder",
+    "azureApiManagement.setupWorkingFolder": "Setup Working Folder"
 }

@@ -4,6 +4,9 @@
 *--------------------------------------------------------------------------------------------*/
 
 import * as vscode from 'vscode';
+import { ext } from '../extensionVariables';
+import { localize } from '../localize';
+import { getDefaultWorkspacePath } from './fsUtil';
 
 // tslint:disable-next-line:export-name
 export async function writeToEditor(editor: vscode.TextEditor, data: string): Promise<void> {
@@ -14,4 +17,18 @@ export async function writeToEditor(editor: vscode.TextEditor, data: string): Pr
         }
         editBuilder.insert(new vscode.Position(0, 0), data);
     });
+}
+
+export function workingFolderOpenedInWorkspace(): boolean {
+    let folderInWorkspace: boolean = true;
+    if (vscode.workspace.workspaceFolders !== undefined
+        && vscode.workspace.workspaceFolders.length > 0) {
+        const folder = vscode.workspace.workspaceFolders.find((w) => w.uri.fsPath === getDefaultWorkspacePath());
+        if (!folder) {
+            folderInWorkspace = false;
+        }
+    } else {
+        folderInWorkspace = false;
+    }
+    return folderInWorkspace;
 }

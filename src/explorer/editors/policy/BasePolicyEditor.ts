@@ -13,6 +13,7 @@ import { errorUtil, processError } from "../../../utils/errorUtil";
 import { nameUtil } from "../../../utils/nameUtil";
 import { IServiceTreeRoot } from "../../IServiceTreeRoot";
 import { Editor } from "../Editor";
+import { promptOpenWorkingFolder } from "../../../utils/vscodeUtils";
 
 export abstract class BasePolicyEditor<TRoot extends IServiceTreeRoot> extends Editor<AzureTreeItem<TRoot>> {
     constructor() {
