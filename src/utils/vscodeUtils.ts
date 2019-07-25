@@ -6,7 +6,7 @@
 import * as fse from 'fs-extra';
 import * as path from 'path';
 import * as vscode from 'vscode';
-import { extensionName, showOpenWorkingFolderPromptConfigKey } from '../constants';
+import { extensionName, advancedPolicyAuthoringExperienceConfigKey } from '../constants';
 import { ext } from '../extensionVariables';
 import { localize } from '../localize';
 import { getDefaultWorkspacePath } from './fsUtil';
@@ -23,32 +23,47 @@ export async function writeToEditor(editor: vscode.TextEditor, data: string): Pr
 }
 
 export async function promptOpenWorkingFolder(): Promise<void> {
-    const showPrompt: boolean | undefined = vscode.workspace.getConfiguration().get(showOpenWorkingFolderPromptConfigKey);
+    const showPrompt: boolean | undefined = vscode.workspace.getConfiguration().get(advancedPolicyAuthoringExperienceConfigKey);
     if (showPrompt) {
         const dontAskAgain: vscode.MessageItem = { title: localize('dontAskAgain', "Don't Ask Again") };
         if (!workingFolderOpenedInWorkspace()) {
-            const message: string = localize('openFolderInWorkspace', 'For better policy authoring experience open folder "{0}".', getDefaultWorkspacePath());
-            const btn: vscode.MessageItem = { title: localize('openFolder', 'Open Folder') };
-            // tslint:disable-next-line: no-floating-promises
-            ext.ui.showWarningMessage(message, btn, dontAskAgain).then(async result => {
-                if (result === btn) {
-                    vscode.commands.executeCommand("azureApiManagement.openWorkingFolder");
-                } else if (result === dontAskAgain) {
-                    await vscode.workspace.getConfiguration().update(showOpenWorkingFolderPromptConfigKey, false, vscode.ConfigurationTarget.Global);
-                }
-            });
+            if (!await workingFolderInitialized()) {
+                const message: string = localize('initializeAndOpenFolderInWorkspace', 'For advanced policy authoring experience, initialize and open extension workspace folder "{0}".', getDefaultWorkspacePath());
+                const btn: vscode.MessageItem = { title: localize('initializeAndOpenFolder', 'Initialize and Open') };
+                // tslint:disable-next-line: no-floating-promises
+                ext.ui.showWarningMessage(message, btn, dontAskAgain).then(async result => {
+                    if (result === btn) {
+                        // Initialize and Open folder
+                        vscode.commands.executeCommand("azureApiManagement.initializeExtensionWorkspaceFolder")
+                        .then(() => {
+                            vscode.commands.executeCommand("azureApiManagement.openExtensionWorkspaceFolder");
+                        });
+                    } else if (result === dontAskAgain) {
+                        await vscode.workspace.getConfiguration().update(advancedPolicyAuthoringExperienceConfigKey, false, vscode.ConfigurationTarget.Global);
+                    }
+                });
+            } else {
+                const message: string = localize('openFolderInWorkspace', 'For advanved policy authoring experience, open extension workspace folder "{0}".', getDefaultWorkspacePath());
+                const btn: vscode.MessageItem = { title: localize('openFolder', 'Open Folder') };
+                // tslint:disable-next-line: no-floating-promises
+                ext.ui.showWarningMessage(message, btn, dontAskAgain).then(async result => {
+                    if (result === btn) {
+                        vscode.commands.executeCommand("azureApiManagement.openExtensionWorkspaceFolder");
+                    } else if (result === dontAskAgain) {
+                        await vscode.workspace.getConfiguration().update(advancedPolicyAuthoringExperienceConfigKey, false, vscode.ConfigurationTarget.Global);
+                    }
+                });
+            }
         } else {
-            const workingFolderPath = getDefaultWorkspacePath();
-            const projFileExists = await fse.pathExists(path.join(workingFolderPath, `${extensionName}.csproj`));
-            if (!projFileExists) {
-                const message: string = localize('setupWorkingFolder', 'Folder has not been initialized with required content to improve policy authoring experience.');
+            if (!await workingFolderInitialized()) {
+                const message: string = localize('setupWorkingFolder', 'For advanved policy authoring experience, initialize extension workspace folder "{0}".', getDefaultWorkspacePath());
                 const btn: vscode.MessageItem = { title: localize('initialize', 'Initialize') };
                 // tslint:disable-next-line: no-floating-promises
                 ext.ui.showWarningMessage(message, btn, dontAskAgain).then(async result => {
                     if (result === btn) {
-                        vscode.commands.executeCommand("azureApiManagement.setupWorkingFolder");
+                        vscode.commands.executeCommand("azureApiManagement.initializeExtensionWorkspaceFolder");
                     } else if (result === dontAskAgain) {
-                        await vscode.workspace.getConfiguration().update(showOpenWorkingFolderPromptConfigKey, false, vscode.ConfigurationTarget.Global);
+                        await vscode.workspace.getConfiguration().update(advancedPolicyAuthoringExperienceConfigKey, false, vscode.ConfigurationTarget.Global);
                     }
                 });
             }
@@ -68,4 +83,9 @@ export function workingFolderOpenedInWorkspace(): boolean {
         folderInWorkspace = false;
     }
     return folderInWorkspace;
+}
+
+async function workingFolderInitialized() : Promise<boolean> {
+    const workingFolderPath = getDefaultWorkspacePath();
+    return await fse.pathExists(path.join(workingFolderPath, `${extensionName}.csproj`));
 }

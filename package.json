@@ -214,13 +214,13 @@
                 "category": "Azure API Management"
             },
             {
-                "command": "azureApiManagement.openWorkingFolder",
-                "title": "%azureApiManagement.openWorkingFolder%",
+                "command": "azureApiManagement.openExtensionWorkspaceFolder",
+                "title": "%azureApiManagement.openExtensionWorkspaceFolder%",
                 "category": "Azure API Management"
             },
             {
-                "command": "azureApiManagement.setupWorkingFolder",
-                "title": "%azureApiManagement.setupWorkingFolder%",
+                "command": "azureApiManagement.initializeExtensionWorkspaceFolder",
+                "title": "%azureApiManagement.initializeExtensionWorkspaceFolder%",
                 "category": "Azure API Management"
             }
         ],
@@ -393,10 +393,10 @@
                         "default": false,
                         "description": "%azureApiManagement.advancedCreationDescription%"
                     },
-                    "azureApiManagement.showOpenWorkingFolderPrompt": {
+                    "azureApiManagement.advancedPolicyAuthoringExperience": {
                         "type": "boolean",
-                        "default": true,
-                        "description": "%azureApiManagement.showOpenWorkingFolderPrompt%"
+                        "default": false,
+                        "description": "%azureApiManagement.advancedPolicyAuthoringExperience%"
                     }
                 }
             }

@@ -24,7 +24,7 @@
     "azureApiManagement.removeApiFromProduct": "Remove API from Product",
     "azureApiManagement.showProductPolicy": "Edit Product policy",
     "azureApiManagement.showArmProduct": "Edit Product",
-    "azureApiManagement.openWorkingFolder": "Open Working Folder",
-    "azureApiManagement.setupWorkingFolder": "Setup Working Folder",
-    "azureApiManagement.showOpenWorkingFolderPrompt": "Show prompt to open or initialize working folder during policy editing."
+    "azureApiManagement.openExtensionWorkspaceFolder": "Open extension workspace folder",
+    "azureApiManagement.initializeExtensionWorkspaceFolder": "Initialize extension workspace folder",
+    "azureApiManagement.advancedPolicyAuthoringExperience": "(Experimental Feature) Enables advanced policy authoring experience."
 }

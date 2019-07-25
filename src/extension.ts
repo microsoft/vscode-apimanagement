@@ -79,8 +79,8 @@ export function activateInternal(context: vscode.ExtensionContext) {
     registerCommand('azureApiManagement.removeApiFromProduct', async (node?: AzureTreeItem) => await deleteNode(ProductApiTreeItem.contextValue, node));
     registerCommand('azureApiManagement.addApiToProduct', async (node?: ProductApisTreeItem) => { await addApiToProduct(node); });
 
-    registerCommand('azureApiManagement.openWorkingFolder', openWorkingFolder);
-    registerCommand('azureApiManagement.setupWorkingFolder', setupWorkingFolder);
+    registerCommand('azureApiManagement.openExtensionWorkspaceFolder', openWorkingFolder);
+    registerCommand('azureApiManagement.initializeExtensionWorkspaceFolder', setupWorkingFolder);
 
     registerEditors(context);
 }
