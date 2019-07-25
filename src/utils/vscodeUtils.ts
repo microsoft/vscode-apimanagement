@@ -6,7 +6,7 @@
 import * as fse from 'fs-extra';
 import * as path from 'path';
 import * as vscode from 'vscode';
-import { extensionName, advancedPolicyAuthoringExperienceConfigKey } from '../constants';
+import { advancedPolicyAuthoringExperienceConfigKey, extensionName } from '../constants';
 import { ext } from '../extensionVariables';
 import { localize } from '../localize';
 import { getDefaultWorkspacePath } from './fsUtil';
