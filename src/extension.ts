@@ -15,6 +15,8 @@ import { deleteNode } from './commands/deleteNode';
 import { importOpenApi } from './commands/importOpenApi';
 import { createNamedValue, updateNamedValue } from './commands/manageNamedValue';
 import { openInPortal } from './commands/openInPortal';
+import { openWorkingFolder } from './commands/openWorkingFolder';
+import { setupWorkingFolder } from './commands/setupWorkingFolder';
 import { testOperation } from './commands/testOperation';
 import { doubleClickDebounceDelay } from './constants';
 import { ApiManagementProvider } from './explorer/ApiManagementProvider';
@@ -76,6 +78,9 @@ export function activateInternal(context: vscode.ExtensionContext) {
     registerCommand('azureApiManagement.updateNamedValue', updateNamedValue);
     registerCommand('azureApiManagement.removeApiFromProduct', async (node?: AzureTreeItem) => await deleteNode(ProductApiTreeItem.contextValue, node));
     registerCommand('azureApiManagement.addApiToProduct', async (node?: ProductApisTreeItem) => { await addApiToProduct(node); });
+
+    registerCommand('azureApiManagement.openExtensionWorkspaceFolder', openWorkingFolder);
+    registerCommand('azureApiManagement.initializeExtensionWorkspaceFolder', setupWorkingFolder);
 
     registerEditors(context);
 }

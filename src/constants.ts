@@ -3,6 +3,8 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+export const isWindows: boolean = /^win/.test(process.platform);
+
 export const extensionName = 'vscode-azureapim';
 export const extensionPrefix: string = 'azureApiManagement';
 export const doubleClickDebounceDelay = 500; //milliseconds
@@ -16,6 +18,8 @@ export const openApiAcceptHeader = "application/vnd.oai.openapi+json";
 export const swaggerAcceptHeader = "application/vnd.swagger.doc+json";
 
 export const showSavePromptConfigKey = "azureApiManagement.showSavePrompt";
+
+export const advancedPolicyAuthoringExperienceConfigKey = "azureApiManagement.advancedPolicyAuthoringExperience";
 
 export const policyFormat = "rawxml";
 
