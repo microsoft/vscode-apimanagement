@@ -38,6 +38,14 @@ export async function setupWorkingFolder(this: IActionContext): Promise<void> {
     // Copy the supporting files.
     await fse.copy(ext.context.asAbsolutePath(path.join('resources', 'projectFiles')), workingFolderPath, { overwrite: true, recursive: false });
 
+    await cpUtils.executeCommand(
+        ext.outputChannel,
+        workingFolderPath,
+        'dotnet',
+        'add',
+        'package',
+        'Newtonsoft.Json');
+
     // run dotnet build atleast once to get the intellisense working in razor files.
     await cpUtils.executeCommand(
         ext.outputChannel,
