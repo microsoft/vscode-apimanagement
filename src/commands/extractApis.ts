@@ -6,18 +6,17 @@
 import * as fse from 'fs-extra';
 import * as path from 'path';
 import { OpenDialogOptions, Uri, workspace } from "vscode";
-import { ApisTreeItem } from "../explorer/ApisTreeItem";
+import { ApiTreeItem } from '../explorer/ApiTreeItem';
 import { ServiceTreeItem } from '../explorer/ServiceTreeItem';
 import { ext } from '../extensionVariables';
 //import { localize } from '../localize';
 import { cpUtils } from '../utils/cpUtils';
 import { getDefaultWorkspacePath } from '../utils/fsUtil';
+import { AzureTreeItem } from 'vscode-azureextensionui';
 
-
-export async function extractApis(node?: ApisTreeItem): Promise<void> {
+export async function extractSingleApi(node?: ApiTreeItem): Promise<void> {
     if (!node) {
-        const serviceNode = <ServiceTreeItem>await ext.tree.showTreeItemPicker(ServiceTreeItem.contextValue);
-        node = serviceNode.apisTreeItem;
+        node = <ApiTreeItem>await ext.tree.showTreeItemPicker(ApiTreeItem.contextValue);
     }
 
     const uris = await askDocument();
@@ -29,49 +28,75 @@ export async function extractApis(node?: ApisTreeItem): Promise<void> {
         await fse.emptyDir(templatesFolder);
     }
 
-    // const destinationApiName = await askDestinationApimName();
-    // const linkedBaseUrl = await askParams("linkedBaseUrl");
-    // const policyUrl = await askParams("policyUrl");
-    // const queryString = await askParams("queryString");
-
-    const destinationApiName = "";
-    const linkedBaseUrl = "";
-    const policyUrl = "";
-    const queryString = "";
     const sourceApimName = node.root.serviceName;
     const resourceGroup = node.root.resourceGroupName;
+    const apiName = node.apiContract.name;
 
-    // generate split templates
-    var fileContent = {
+    var singleApiJson = {
         "sourceApimName": sourceApimName,
-        "destinationApimName": destinationApiName,
+        "destinationApimName": "",
         "resourceGroup": resourceGroup,
         "fileFolder": templatesFolder,
+        "apiName": apiName,
+        "linkedTemplatesBaseUrl": "",
+        "linkedTemplatesUrlQueryString": "",
+        "policyXMLBaseUrl": ""
+    }
+
+    const filePathSingleApi = uri.fsPath.concat("/extractor.json");
+    fse.writeFile(filePathSingleApi, JSON.stringify(singleApiJson));
+    runExtractor(filePathSingleApi);
+}
+
+
+export async function extractApis(node?: AzureTreeItem): Promise<void> {
+    if (!node) {
+        node  = <ServiceTreeItem>await ext.tree.showTreeItemPicker(ServiceTreeItem.contextValue);
+    }
+
+    const uris = await askDocument();
+    const uri = uris[0];
+    const templatesFolder = uri.fsPath.concat("\\templates");
+    if (!fse.existsSync(templatesFolder)) {
+        await fse.mkdir(templatesFolder);
+    } else {
+        await fse.emptyDir(templatesFolder);
+    }
+
+    const fullId = node.id == undefined ? "" : node.id;
+    var apiParams = fullId.split("/");
+
+    // generate split templates
+    var splitApisJson = {
+        "sourceApimName": apiParams[8],
+        "destinationApimName": "",
+        "resourceGroup": apiParams[4],
+        "fileFolder": templatesFolder,
         "splitAPIs": "true",
-        "linkedTemplatesBaseUrl": linkedBaseUrl,
-        "linkedTemplatesUrlQueryString": queryString,
-        "policyXMLBaseUrl": policyUrl
+        "linkedTemplatesBaseUrl": "",
+        "linkedTemplatesUrlQueryString": "",
+        "policyXMLBaseUrl": ""
     };
 
     const filePathSplit = uri.fsPath.concat("/extractor.json");
-    fse.writeFile(filePathSplit, JSON.stringify(fileContent));
+    fse.writeFile(filePathSplit, JSON.stringify(splitApisJson));
     runExtractor(filePathSplit);
 
     //generate linked templates
     const masterFolderPath = templatesFolder.concat("\\linkedFolder");
 
-    var fileContentMaster = {
-        "sourceApimName": sourceApimName,
-        "destinationApimName": destinationApiName,
-        "resourceGroup": resourceGroup,
+    var linkedApiJson = {
+        "sourceApimName": apiParams[8],
+        "destinationApimName": "",
+        "resourceGroup": apiParams[4],
         "fileFolder": masterFolderPath,
-        "linkedTemplatesBaseUrl": linkedBaseUrl,
-        "linkedTemplatesUrlQueryString": queryString,
-        "policyXMLBaseUrl": policyUrl
+        "linkedTemplatesBaseUrl": "",
+        "linkedTemplatesUrlQueryString": "",
+        "policyXMLBaseUrl": ""
     };
 
     const filePathLinked = uri.fsPath.concat("/extractorMaster.json");
-    fse.writeFile(filePathLinked, JSON.stringify(fileContentMaster));
+    fse.writeFile(filePathLinked, JSON.stringify(linkedApiJson));
     runExtractor(filePathLinked);
 }
 
@@ -94,7 +119,7 @@ async function askDocument(): Promise<Uri[]> {
         canSelectFiles: false,
         canSelectFolders: true,
         canSelectMany: false,
-        openLabel: "Folder to put templates",
+        openLabel: "Extract",
         filters: {
             JSON: ["json"]
         }
@@ -105,36 +130,3 @@ async function askDocument(): Promise<Uri[]> {
     }
     return await ext.ui.showOpenDialog(openDialogOptions);
 }
-
-// async function askParams(notification: string): Promise<string> {
-//     const apiNamePrompt: string = localize('apiNamePrompt', notification);
-//     return (await ext.ui.showInputBox({
-//         prompt: apiNamePrompt,
-//         validateInput: async (value: string): Promise<string | undefined> => {
-//             value = value ? value.trim() : '';
-//             return undefined;
-//         }
-//     })).trim();
-// }
-
-// async function askDestinationApimName(): Promise<string> {
-//     const apiNamePrompt: string = localize('apiNamePrompt', 'Enter destination API management service name.');
-//     return (await ext.ui.showInputBox({
-//         prompt: apiNamePrompt,
-//         validateInput: async (value: string): Promise<string | undefined> => {
-//             value = value ? value.trim() : '';
-//             return validateApimname(value);
-//         }
-//     })).trim();
-// }
-
-// function validateApimname(apimName: string): string | undefined {
-//     if (apimName.length > 256) {
-//         return localize("apimNameMaxLength", 'Apim name cannot be more than 256 characters long.');
-//     }
-//     if (apimName.match(/^[^*#&+:<>?]+$/) === null) {
-//         return localize("apimNameInvalid", 'Invalid Apim Name.');
-//     }
-
-//     return undefined;
-// }
