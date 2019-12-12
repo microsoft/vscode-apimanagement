@@ -56,7 +56,8 @@
         "onCommand:azureApiManagement.removeApiFromProduct",
         "onCommand:azureApiManagement.showProductPolicy",
         "onCommand:azureApiManagement.openWorkingFolder",
-        "onCommand:azureApiManagement.setupWorkingFolder"
+        "onCommand:azureApiManagement.setupWorkingFolder",
+        "onCommand:azureApiManagement.extractApis"
     ],
     "main": "main",
     "contributes": {
@@ -222,6 +223,11 @@
                 "command": "azureApiManagement.initializeExtensionWorkspaceFolder",
                 "title": "%azureApiManagement.initializeExtensionWorkspaceFolder%",
                 "category": "Azure API Management"
+            },
+            {
+                "command": "azureApiManagement.extractApis",
+                "title": "%azureApiManagement.extractApis%",
+                "category": "Azure API Management"
             }
         ],
         "viewsContainers": {
@@ -311,6 +317,11 @@
                     "command": "azureApiManagement.importOpenApiByLink",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApis",
                     "group": "1@2"
+                },
+                {
+                    "command": "azureApiManagement.extractApis",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApis",
+                    "group": "1@3"
                 },
                 {
                     "command": "azureApiManagement.Refresh",

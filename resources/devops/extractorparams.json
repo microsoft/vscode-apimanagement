@@ -1,0 +1,10 @@
+{
+  "sourceApimName": "devportal-lrp",
+  "destinationApimName": "Devops-lrp",
+  "resourceGroup": "Api-Default-West-US",
+  "fileFolder": "/Users/rupliu/devOpsDev/GeneratedTemplatesExtractor",
+  "mutipleAPIs": "    blankapi,    swagger-petstore   ",
+  "linkedTemplatesBaseUrl": "https://devportaldb.blob.core.windows.net/templates",
+  "linkedTemplatesUrlQueryString": "?sv=2019-02-02&ss=bfqt&srt=sco&sp=rwdlacup&se=2019-12-06T08:57:06Z&st=2019-12-06T00:57:06Z&spr=https&sig=ZPybg19bW5GUYHAb09rlVChnbCd3Yn3YFoLnRoT9JS4%3D",
+  "policyXMLBaseUrl": "https://devportaldb.blob.core.windows.net/templates"
+}

@@ -12,6 +12,7 @@ import { addApiToProduct } from './commands/addApiToProduct';
 import { copySubscriptionKey } from './commands/copySubscriptionKey';
 import { createService } from './commands/createService';
 import { deleteNode } from './commands/deleteNode';
+import { extractApis } from './commands/extractAPIs';
 import { importOpenApi } from './commands/importOpenApi';
 import { createNamedValue, updateNamedValue } from './commands/manageNamedValue';
 import { openInPortal } from './commands/openInPortal';
@@ -78,6 +79,7 @@ export function activateInternal(context: vscode.ExtensionContext) {
     registerCommand('azureApiManagement.updateNamedValue', updateNamedValue);
     registerCommand('azureApiManagement.removeApiFromProduct', async (node?: AzureTreeItem) => await deleteNode(ProductApiTreeItem.contextValue, node));
     registerCommand('azureApiManagement.addApiToProduct', async (node?: ProductApisTreeItem) => { await addApiToProduct(node); });
+    registerCommand('azureApiManagement.extractApis', async (node?: ApisTreeItem) => await extractApis(node));
 
     registerCommand('azureApiManagement.openExtensionWorkspaceFolder', openWorkingFolder);
     registerCommand('azureApiManagement.initializeExtensionWorkspaceFolder', setupWorkingFolder);
