@@ -5,11 +5,11 @@
 
 import * as fse from 'fs-extra';
 import * as path from 'path';
-import { OpenDialogOptions, Uri, workspace } from "vscode";
+import { OpenDialogOptions, Uri, workspace, window, ProgressLocation } from "vscode";
 import { ApiTreeItem } from '../explorer/ApiTreeItem';
 import { ServiceTreeItem } from '../explorer/ServiceTreeItem';
 import { ext } from '../extensionVariables';
-//import { localize } from '../localize';
+import { localize } from '../localize';
 import { cpUtils } from '../utils/cpUtils';
 import { getDefaultWorkspacePath } from '../utils/fsUtil';
 import { AzureTreeItem } from 'vscode-azureextensionui';
@@ -45,13 +45,23 @@ export async function extractSingleApi(node?: ApiTreeItem): Promise<void> {
 
     const filePathSingleApi = uri.fsPath.concat("/extractor.json");
     fse.writeFile(filePathSingleApi, JSON.stringify(singleApiJson));
-    runExtractor(filePathSingleApi);
+    window.withProgress(
+        {
+            location: ProgressLocation.Notification,
+            title: localize("Extract Api", `Extract API '${apiName}' to '${templatesFolder}'`),
+            cancellable: false
+        },
+        async () => { await runExtractor(filePathSingleApi); }
+    ).then(
+        () => {
+            window.showInformationMessage(localize("Extract Api", `Extract Api '${apiName}' completed!`));
+        });
 }
 
 
 export async function extractApis(node?: AzureTreeItem): Promise<void> {
     if (!node) {
-        node  = <ServiceTreeItem>await ext.tree.showTreeItemPicker(ServiceTreeItem.contextValue);
+        node = <ServiceTreeItem>await ext.tree.showTreeItemPicker(ServiceTreeItem.contextValue);
     }
 
     const uris = await askDocument();
@@ -80,7 +90,6 @@ export async function extractApis(node?: AzureTreeItem): Promise<void> {
 
     const filePathSplit = uri.fsPath.concat("/extractor.json");
     fse.writeFile(filePathSplit, JSON.stringify(splitApisJson));
-    runExtractor(filePathSplit);
 
     //generate linked templates
     const masterFolderPath = templatesFolder.concat("\\linkedFolder");
@@ -97,7 +106,21 @@ export async function extractApis(node?: AzureTreeItem): Promise<void> {
 
     const filePathLinked = uri.fsPath.concat("/extractorMaster.json");
     fse.writeFile(filePathLinked, JSON.stringify(linkedApiJson));
-    runExtractor(filePathLinked);
+    
+    window.withProgress(
+        {
+            location: ProgressLocation.Notification,
+            title: localize("Extract Apis", `Extract all APIs from service '${apiParams[8]}' to '${templatesFolder}'`),
+            cancellable: false
+        },
+        async () => {
+            await runExtractor(filePathLinked);
+            await runExtractor(filePathSplit);
+        }
+    ).then(
+        () => {
+            window.showInformationMessage(localize("Extract Apis", `Extract all APIs from '${apiParams[8]}' completed!`));
+        });
 }
 
 async function runExtractor(filePath: string) {
