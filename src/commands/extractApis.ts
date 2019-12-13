@@ -13,37 +13,21 @@ import { localize } from '../localize';
 import { cpUtils } from '../utils/cpUtils';
 import { getDefaultWorkspacePath } from '../utils/fsUtil';
 import { AzureTreeItem } from 'vscode-azureextensionui';
+import * as Constants from '../constants';
 
 export async function extractSingleApi(node?: ApiTreeItem): Promise<void> {
     if (!node) {
         node = <ApiTreeItem>await ext.tree.showTreeItemPicker(ApiTreeItem.contextValue);
     }
-
-    const uris = await askDocument();
-    const uri = uris[0];
-    const templatesFolder = uri.fsPath.concat("\\templates");
-    if (!fse.existsSync(templatesFolder)) {
-        await fse.mkdir(templatesFolder);
-    } else {
-        await fse.emptyDir(templatesFolder);
-    }
-
+    const uris = await askDocument(true);
+    const templatesFolder = await createTemplatesFolder(uris);
     const sourceApimName = node.root.serviceName;
     const resourceGroup = node.root.resourceGroupName;
-    const apiName = node.apiContract.name;
+    const apiName = node.apiContract.name == null ? "" : node.apiContract.name;
 
-    var singleApiJson = {
-        "sourceApimName": sourceApimName,
-        "destinationApimName": "",
-        "resourceGroup": resourceGroup,
-        "fileFolder": templatesFolder,
-        "apiName": apiName,
-        "linkedTemplatesBaseUrl": "",
-        "linkedTemplatesUrlQueryString": "",
-        "policyXMLBaseUrl": ""
-    }
+    var singleApiJson = genSingleApiJsonObj(sourceApimName, resourceGroup, templatesFolder, apiName);
 
-    const filePathSingleApi = uri.fsPath.concat("/extractor.json");
+    const filePathSingleApi = uris[0].fsPath.concat("/", apiName, ".json");
     fse.writeFile(filePathSingleApi, JSON.stringify(singleApiJson));
     window.withProgress(
         {
@@ -58,55 +42,50 @@ export async function extractSingleApi(node?: ApiTreeItem): Promise<void> {
         });
 }
 
+export async function extractWithConfig(node?: AzureTreeItem): Promise<void> {
+    if (!node) {
+        node = <ServiceTreeItem>await ext.tree.showTreeItemPicker(ServiceTreeItem.contextValue);
+    }
+    const pathUris = await askDocument(false);
+    const configPath = pathUris[0].fsPath;
+
+    window.withProgress(
+        {
+            location: ProgressLocation.Notification,
+            title: localize("Extract Api", `Start run extractor on config file '${configPath}'!`),
+            cancellable: false
+        },
+        async () => { await runExtractor(configPath); }
+    ).then(
+        () => {
+            window.showInformationMessage(localize("Extract Api", `Extracting completed!`));
+        });
+}
 
 export async function extractApis(node?: AzureTreeItem): Promise<void> {
     if (!node) {
         node = <ServiceTreeItem>await ext.tree.showTreeItemPicker(ServiceTreeItem.contextValue);
     }
 
-    const uris = await askDocument();
-    const uri = uris[0];
-    const templatesFolder = uri.fsPath.concat("\\templates");
-    if (!fse.existsSync(templatesFolder)) {
-        await fse.mkdir(templatesFolder);
-    } else {
-        await fse.emptyDir(templatesFolder);
-    }
-
+    const uris = await askDocument(true);
+    const templatesFolder = await createTemplatesFolder(uris);
     const fullId = node.id == undefined ? "" : node.id;
     var apiParams = fullId.split("/");
 
     // generate split templates
-    var splitApisJson = {
-        "sourceApimName": apiParams[8],
-        "destinationApimName": "",
-        "resourceGroup": apiParams[4],
-        "fileFolder": templatesFolder,
-        "splitAPIs": "true",
-        "linkedTemplatesBaseUrl": "",
-        "linkedTemplatesUrlQueryString": "",
-        "policyXMLBaseUrl": ""
-    };
+    var splitApisJson = genSplitApisJsonObj(apiParams[8], apiParams[4], templatesFolder);
 
-    const filePathSplit = uri.fsPath.concat("/extractor.json");
+    const filePathSplit = uris[0].fsPath.concat(Constants.extractorSplitJsonFile);
     fse.writeFile(filePathSplit, JSON.stringify(splitApisJson));
 
     //generate linked templates
-    const masterFolderPath = templatesFolder.concat("\\linkedFolder");
+    const masterFolderPath = templatesFolder.concat(Constants.linkedFolder);
 
-    var linkedApiJson = {
-        "sourceApimName": apiParams[8],
-        "destinationApimName": "",
-        "resourceGroup": apiParams[4],
-        "fileFolder": masterFolderPath,
-        "linkedTemplatesBaseUrl": "",
-        "linkedTemplatesUrlQueryString": "",
-        "policyXMLBaseUrl": ""
-    };
+    var linkedApiJson = genLinkedApisJsonObj(apiParams[8], apiParams[4], masterFolderPath);
 
-    const filePathLinked = uri.fsPath.concat("/extractorMaster.json");
+    const filePathLinked = uris[0].fsPath.concat(Constants.extractorMasterJsonFile);
     fse.writeFile(filePathLinked, JSON.stringify(linkedApiJson));
-    
+
     window.withProgress(
         {
             location: ProgressLocation.Notification,
@@ -123,9 +102,22 @@ export async function extractApis(node?: AzureTreeItem): Promise<void> {
         });
 }
 
+async function createTemplatesFolder(uris: Uri[]): Promise<string> {
+    const uri = uris[0];
+    const templatesFolder = uri.fsPath.concat(Constants.templatesFolder);
+    if (!fse.existsSync(templatesFolder)) {
+        await fse.mkdir(templatesFolder);
+    } else {
+        await fse.emptyDir(templatesFolder);
+    }
+    return templatesFolder;
+}
+
 async function runExtractor(filePath: string) {
     const workingFolderPath = getDefaultWorkspacePath();
     await fse.copy(ext.context.asAbsolutePath(path.join('resources', 'devops')), workingFolderPath, { overwrite: true, recursive: false });
+
+    ext.outputChannel.show();
 
     await cpUtils.executeCommand(
         ext.outputChannel,
@@ -137,10 +129,15 @@ async function runExtractor(filePath: string) {
     );
 }
 
-async function askDocument(): Promise<Uri[]> {
+async function askDocument(isFolder: boolean): Promise<Uri[]> {
+    if (isFolder) {
+        window.showInformationMessage(localize("Extract Api", `Please specify the folder for generating templates.`));
+    } else {
+        window.showInformationMessage(localize("Extract Api with config file", `Please specify the config file to use.`));
+    }
     const openDialogOptions: OpenDialogOptions = {
-        canSelectFiles: false,
-        canSelectFolders: true,
+        canSelectFiles: !isFolder,
+        canSelectFolders: isFolder,
         canSelectMany: false,
         openLabel: "Extract",
         filters: {
@@ -152,4 +149,42 @@ async function askDocument(): Promise<Uri[]> {
         openDialogOptions.defaultUri = Uri.file(rootPath);
     }
     return await ext.ui.showOpenDialog(openDialogOptions);
+}
+
+function genSingleApiJsonObj(sourceApimName: string, resourceGroup: string, templatesFolder: string, apiName: string) {
+    return {
+        "sourceApimName": sourceApimName,
+        "destinationApimName": "",
+        "resourceGroup": resourceGroup,
+        "fileFolder": templatesFolder,
+        "apiName": apiName,
+        "linkedTemplatesBaseUrl": "",
+        "linkedTemplatesUrlQueryString": "",
+        "policyXMLBaseUrl": ""
+    };
+}
+
+function genSplitApisJsonObj(sourceApimName: string, resourceGroup: string, templatesFolder: string) {
+    return {
+        "sourceApimName": sourceApimName,
+        "destinationApimName": "",
+        "resourceGroup": resourceGroup,
+        "fileFolder": templatesFolder,
+        "splitAPIs": "true",
+        "linkedTemplatesBaseUrl": "",
+        "linkedTemplatesUrlQueryString": "",
+        "policyXMLBaseUrl": ""
+    };
+}
+
+function genLinkedApisJsonObj(sourceApimName: string, resourceGroup: string, masterFolderPath: string) {
+    return {
+        "sourceApimName": sourceApimName,
+        "destinationApimName": "",
+        "resourceGroup": resourceGroup,
+        "fileFolder": masterFolderPath,
+        "linkedTemplatesBaseUrl": "",
+        "linkedTemplatesUrlQueryString": "",
+        "policyXMLBaseUrl": ""
+    };
 }

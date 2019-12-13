@@ -28,5 +28,6 @@
     "azureApiManagement.initializeExtensionWorkspaceFolder": "Initialize extension workspace folder",
     "azureApiManagement.advancedPolicyAuthoringExperience": "(Experimental Feature) Enables advanced policy authoring experience.",
     "azureApiManagement.extractApis": "Extract",
-    "azureApiManagement.extractSingleApi": "Extract"
+    "azureApiManagement.extractSingleApi": "Extract",
+    "azureApiManagement.extractWithConfig": "Extract with config file"
 }
