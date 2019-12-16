@@ -20,7 +20,6 @@ export async function importOpenApi(node?: ApisTreeItem, importUsingLink: boolea
         const serviceNode = <ServiceTreeItem>await ext.tree.showTreeItemPicker(ServiceTreeItem.contextValue);
         node = serviceNode.apisTreeItem;
     }
-
     let documentString: string | undefined;
     if (!importUsingLink) {
         const uris = await askDocument();
