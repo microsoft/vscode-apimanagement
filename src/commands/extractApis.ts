@@ -122,7 +122,7 @@ async function runExtractor(filePath: string) {
     await cpUtils.executeCommand(
         ext.outputChannel,
         workingFolderPath,
-        'apimtemplate.exe',
+        'apimtemplate',
         'extract',
         '--extractorConfig',
         filePath
