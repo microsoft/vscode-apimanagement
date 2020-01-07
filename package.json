@@ -57,8 +57,8 @@
         "onCommand:azureApiManagement.showProductPolicy",
         "onCommand:azureApiManagement.openWorkingFolder",
         "onCommand:azureApiManagement.setupWorkingFolder",
-        "onCommand:azureApiManagement.extractApis",
-        "onCommand:azureApiManagement.extractSingleApi"
+        "onCommand:azureApiManagement.extractService",
+        "onCommand:azureApiManagement.extractApi"
     ],
     "main": "main",
     "contributes": {
@@ -226,13 +226,13 @@
                 "category": "Azure API Management"
             },
             {
-                "command": "azureApiManagement.extractApis",
-                "title": "%azureApiManagement.extractApis%",
+                "command": "azureApiManagement.extractService",
+                "title": "%azureApiManagement.extractService%",
                 "category": "Azure API Management"
             },
             {
-                "command": "azureApiManagement.extractSingleApi",
-                "title": "%azureApiManagement.extractSingleApi%",
+                "command": "azureApiManagement.extractApi",
+                "title": "%azureApiManagement.extractApi%",
                 "category": "Azure API Management"
             }
         ],
@@ -310,7 +310,7 @@
                     "group": "2@2"
                 },
                 {
-                    "command": "azureApiManagement.extractApis",
+                    "command": "azureApiManagement.extractService",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementService",
                     "group": "3@1"
                 },
@@ -345,7 +345,7 @@
                     "group": "1@2"
                 },
                 {
-                    "command": "azureApiManagement.extractSingleApi",
+                    "command": "azureApiManagement.extractApi",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApi",
                     "group": "1@3"
                 },
