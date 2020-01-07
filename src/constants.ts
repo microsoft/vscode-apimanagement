@@ -17,6 +17,10 @@ export const openApiExport = "openapi%2Bjson";
 export const openApiAcceptHeader = "application/vnd.oai.openapi+json";
 export const swaggerAcceptHeader = "application/vnd.swagger.doc+json";
 
+// constants for extractor
+export const templatesFolder = "\\templates";
+export const extractorMasterJsonFile = "/extractorMaster.json";
+
 export const showSavePromptConfigKey = "azureApiManagement.showSavePrompt";
 
 export const advancedPolicyAuthoringExperienceConfigKey = "azureApiManagement.advancedPolicyAuthoringExperience";
