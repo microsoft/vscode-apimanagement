@@ -19,7 +19,6 @@ export const swaggerAcceptHeader = "application/vnd.swagger.doc+json";
 
 // constants for extractor
 export const templatesFolder = "\\templates";
-export const extractorMasterJsonFile = "/extractorMaster.json";
 
 export const showSavePromptConfigKey = "azureApiManagement.showSavePrompt";
 

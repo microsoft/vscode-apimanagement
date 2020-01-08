@@ -27,6 +27,6 @@
     "azureApiManagement.openExtensionWorkspaceFolder": "Open extension workspace folder",
     "azureApiManagement.initializeExtensionWorkspaceFolder": "Initialize extension workspace folder",
     "azureApiManagement.advancedPolicyAuthoringExperience": "(Experimental Feature) Enables advanced policy authoring experience.",
-    "azureApiManagement.extractService": "Extract service ARM templates",
-    "azureApiManagement.extractApi": "Extract API ARM templates"
+    "azureApiManagement.extractService": "Extract configurations into ARM Templates",
+    "azureApiManagement.extractApi": "Extract configurations into ARM Templates"
 }

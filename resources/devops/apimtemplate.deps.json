@@ -1,12 +1,11 @@
 {
   "runtimeTarget": {
-    "name": ".NETCoreApp,Version=v2.1/linux-x64",
+    "name": ".NETCoreApp,Version=v2.1",
     "signature": ""
   },
   "compilationOptions": {},
   "targets": {
-    ".NETCoreApp,Version=v2.1": {},
-    ".NETCoreApp,Version=v2.1/linux-x64": {
+    ".NETCoreApp,Version=v2.1": {
       "apimtemplate/1.0.0": {
         "dependencies": {
           "Colors.Net": "1.1.0",
