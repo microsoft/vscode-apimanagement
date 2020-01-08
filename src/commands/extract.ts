@@ -38,6 +38,7 @@ async function extract(node: ApiTreeItem | ServiceTreeItem, apiName?: string): P
     const sourceApimName = node.root.serviceName;
     const resourceGroup = node.root.resourceGroupName;
     const extractConfig = generateExtractConfig(sourceApimName, resourceGroup, templatesFolder, apiName);
+    const subscriptionId = node.root.subscriptionId;
 
     let configFile = "";
     let noticeContent = "";
@@ -59,8 +60,9 @@ async function extract(node: ApiTreeItem | ServiceTreeItem, apiName?: string): P
             cancellable: false
         },
         async () => {
+            await dotnetUtils.checkAzInstalled();
             await dotnetUtils.checkDotnetInstalled();
-            await runExtractor(configFile);
+            await runExtractor(configFile, subscriptionId);
         }
     ).then(
         () => {
@@ -79,9 +81,26 @@ async function createTemplatesFolder(uris: Uri[]): Promise<string> {
     return templatesFolder;
 }
 
-async function runExtractor(filePath: string): Promise<void> {
+async function runExtractor(filePath: string, subscriptionId: string): Promise<void> {
     const workingFolderPath = ext.context.asAbsolutePath(path.join('resources', 'devops'));
     ext.outputChannel.show();
+
+    await cpUtils.executeCommand(
+        ext.outputChannel,
+        workingFolderPath,
+        'az',
+        'login'
+    );
+
+    await cpUtils.executeCommand(
+        ext.outputChannel,
+        workingFolderPath,
+        'az',
+        'account',
+        'set',
+        '--subscription',
+        subscriptionId
+    );
 
     await cpUtils.executeCommand(
         ext.outputChannel,
