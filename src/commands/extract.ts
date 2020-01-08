@@ -19,31 +19,7 @@ export async function extractService(node?: ServiceTreeItem): Promise<void> {
         node = <ServiceTreeItem>await ext.tree.showTreeItemPicker(ServiceTreeItem.contextValue);
     }
 
-    const uris = await askFolder();
-    const templatesFolder = await createTemplatesFolder(uris);
-    const sourceApimName = node.root.serviceName;
-    const resourceGroup = node.root.resourceGroupName;
-
-    //generate linked templates
-    const extractConfig = generateExtractConfig(sourceApimName, resourceGroup, templatesFolder);
-    const configFile = path.join(uris[0].fsPath, `${sourceApimName}.json`);
-
-    await fse.writeFile(configFile, extractConfig);
-
-    window.withProgress(
-        {
-            location: ProgressLocation.Notification,
-            title: localize("Extracting", `Extracting service '${sourceApimName}' to '${templatesFolder}'`),
-            cancellable: false
-        },
-        async () => {
-            await dotnetUtils.checkDotnetInstalled();
-            await runExtractor(configFile);
-        }
-    ).then(
-        () => {
-            window.showInformationMessage(localize("Extracted", `Extraction completed!`));
-        });
+    await extract(node);
 }
 
 export async function extractAPI(node?: ApiTreeItem): Promise<void> {
@@ -51,21 +27,35 @@ export async function extractAPI(node?: ApiTreeItem): Promise<void> {
         node = <ApiTreeItem>await ext.tree.showTreeItemPicker(ApiTreeItem.contextValue);
     }
 
+    const apiName = node.apiContract.name === undefined ? "" : node.apiContract.name;
+
+    await extract(node, apiName);
+}
+
+async function extract(node: ApiTreeItem | ServiceTreeItem, apiName?: string): Promise<void> {
     const uris = await askFolder();
     const templatesFolder = await createTemplatesFolder(uris);
     const sourceApimName = node.root.serviceName;
     const resourceGroup = node.root.resourceGroupName;
-    const apiName = node.apiContract.name == null ? "" : node.apiContract.name;
     const extractConfig = generateExtractConfig(sourceApimName, resourceGroup, templatesFolder, apiName);
 
-    const configFile = path.join(uris[0].fsPath, `${apiName}.json`);
+    let configFile = "";
+    let noticeContent = "";
+
+    if (apiName) {
+        configFile = path.join(uris[0].fsPath, `${apiName}.json`);
+        noticeContent = `Extracting API ARM template '${apiName}' to '${templatesFolder}'`;
+    } else {
+        configFile = path.join(uris[0].fsPath, `${sourceApimName}.json`);
+        noticeContent = `Extracting service '${sourceApimName}' to '${templatesFolder}'`;
+    }
 
     await fse.writeFile(configFile, extractConfig);
 
     window.withProgress(
         {
             location: ProgressLocation.Notification,
-            title: localize("Extracting", `Extracting API ARM template '${apiName}' to '${templatesFolder}'`),
+            title: localize("Extracting", noticeContent),
             cancellable: false
         },
         async () => {
@@ -90,7 +80,6 @@ async function createTemplatesFolder(uris: Uri[]): Promise<string> {
 }
 
 async function runExtractor(filePath: string): Promise<void> {
-
     const workingFolderPath = ext.context.asAbsolutePath(path.join('resources', 'devops'));
     ext.outputChannel.show();
 
@@ -121,7 +110,7 @@ async function askFolder(): Promise<Uri[]> {
 }
 
 function generateExtractConfig(sourceApimName: string, resourceGroup: string, fileFolder: string, apiName?: string): string {
-    const jsonObj = {
+    const extractorConfig = {
         sourceApimName: sourceApimName,
         destinationApimName: "",
         resourceGroup: resourceGroup,
@@ -132,5 +121,5 @@ function generateExtractConfig(sourceApimName: string, resourceGroup: string, fi
         policyXMLBaseUrl: ""
     };
 
-    return JSON.stringify(jsonObj);
+    return JSON.stringify(extractorConfig);
 }
