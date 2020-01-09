@@ -1,6 +1,14 @@
 # Change Log
 All notable changes to the "Azure Api Managment VS Code" extension will be documented in this file.
 
+## [0.1.2 - 2020-01-06]
+
+### Added
+- Experimental Intellisense support for policy editing.
+
+### Fixed
+- Remove repeating protocol segments from OpenApi file.
+
 ## [0.1.1 - 2019-06-28]
 
 ### Added
