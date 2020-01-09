@@ -62,7 +62,7 @@ Please note: only JSON format is supported currently.
 
 ## Intellisense for Policy Expressions.
 
-Try instructions [here](https://github.com/microsoft/vscode-apimanagement/issues/37#issuecomment-508945164).
+Follow instructions [here](https://github.com/microsoft/vscode-apimanagement/issues/37#issuecomment-516551741).
 
 ## Managing Azure Subscriptions
 
