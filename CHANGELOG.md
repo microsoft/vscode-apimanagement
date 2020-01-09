@@ -5,6 +5,7 @@ All notable changes to the "Azure Api Managment VS Code" extension will be docum
 
 ### Added
 - Experimental Intellisense support for policy editing.
+- Integrate [DevOps ResourceKit](https://github.com/Azure/azure-api-management-devops-resource-kit) Extract functionality.
 
 ### Fixed
 - Remove repeating protocol segments from OpenApi file.
