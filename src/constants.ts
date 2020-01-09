@@ -18,7 +18,7 @@ export const openApiAcceptHeader = "application/vnd.oai.openapi+json";
 export const swaggerAcceptHeader = "application/vnd.swagger.doc+json";
 
 // constants for extractor
-export const templatesFolder = "\\templates";
+export const templatesFolder = "templates";
 
 export const showSavePromptConfigKey = "azureApiManagement.showSavePrompt";
 

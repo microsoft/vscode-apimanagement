@@ -73,7 +73,7 @@ async function extract(node: ApiTreeItem | ServiceTreeItem, apiName?: string): P
 
 async function createTemplatesFolder(uris: Uri[]): Promise<string> {
     const uri = uris[0];
-    const templatesFolder = uri.fsPath.concat(Constants.templatesFolder);
+    const templatesFolder = path.join(uri.fsPath, Constants.templatesFolder);
     if (!fse.existsSync(templatesFolder)) {
         await fse.mkdir(templatesFolder);
     } else {
@@ -110,7 +110,7 @@ async function runExtractor(filePath: string, subscriptionId: string): Promise<v
         'apimtemplate.dll',
         'extract',
         '--extractorConfig',
-        filePath
+        `"${filePath}"`
     );
 }
 
