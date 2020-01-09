@@ -21,6 +21,7 @@ All you need is an Azure Subscription to get started. If you don't have one, [cl
 -   Create, delete, and edit Named Values
 -   Test an API using [REST Client](https://marketplace.visualstudio.com/items?itemName=humao.rest-client)
 -   Command Palette support for most features
+-   Extract API and service configurations into ARM templates
 
 ## Create an API Management instance using defaults
 
@@ -54,6 +55,10 @@ Please note: only JSON format is supported currently.
 ## Create and edit a Named Value
 
 ![Named-Values](resources/namedvalues.gif)
+
+## Extract Service or API
+
+![Extract](resources/extract.gif)
 
 ## Intellisense for Policy Expressions.
 

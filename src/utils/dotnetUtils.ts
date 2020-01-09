@@ -36,4 +36,19 @@ export namespace dotnetUtils {
             throw new Error(message);
         }
     }
+
+    export async function checkDotnetInstalled(): Promise<void> {
+        if (!await isDotnetInstalled()) {
+            const message: string = localize('dotnetNotInstalled', 'You must have the .NET CLI installed to perform this operation.');
+
+            // don't wait
+            vscode.window.showErrorMessage(message, DialogResponses.learnMore).then(async (result) => {
+                if (result === DialogResponses.learnMore) {
+                    await openUrl('https://aka.ms/AA4ac70');
+                }
+            });
+
+            throw new Error(message);
+        }
+    }
 }
