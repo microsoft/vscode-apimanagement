@@ -11,6 +11,7 @@ import { ApiTreeItem } from '../explorer/ApiTreeItem';
 import { ServiceTreeItem } from '../explorer/ServiceTreeItem';
 import { ext } from '../extensionVariables';
 import { localize } from '../localize';
+import { azUtils } from '../utils/azUtils';
 import { cpUtils } from '../utils/cpUtils';
 import { dotnetUtils } from '../utils/dotnetUtils';
 
@@ -60,7 +61,7 @@ async function extract(node: ApiTreeItem | ServiceTreeItem, apiName?: string): P
             cancellable: false
         },
         async () => {
-            await dotnetUtils.checkAzInstalled();
+            await azUtils.checkAzInstalled();
             await dotnetUtils.checkDotnetInstalled();
             await runExtractor(configFile, subscriptionId);
         }
