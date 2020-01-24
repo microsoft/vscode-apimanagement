@@ -13,6 +13,8 @@ import { copySubscriptionKey } from './commands/copySubscriptionKey';
 import { createService } from './commands/createService';
 import { deleteNode } from './commands/deleteNode';
 import { extractAPI, extractService } from './commands/extract';
+import { importFunctionApps } from './commands/importFunction/importFunctionApp';
+import { importFunctionAppToApi } from './commands/importFunction/importFunctionApp';
 import { importOpenApi } from './commands/importOpenApi';
 import { createNamedValue, updateNamedValue } from './commands/manageNamedValue';
 import { openInPortal } from './commands/openInPortal';
@@ -81,6 +83,8 @@ export function activateInternal(context: vscode.ExtensionContext) {
     registerCommand('azureApiManagement.addApiToProduct', async (node?: ProductApisTreeItem) => { await addApiToProduct(node); });
     registerCommand('azureApiManagement.extractService', async (node: ServiceTreeItem) => await extractService(node));
     registerCommand('azureApiManagement.extractApi', async (node: ApiTreeItem) => await extractAPI(node));
+    registerCommand('azureApiManagement.importFunctionApps', async (node: ApisTreeItem) => await importFunctionApps(node));
+    registerCommand('azureApiManagement.importFunctionAppToApi', async (node: ApiTreeItem) => await importFunctionAppToApi(node));
 
     registerCommand('azureApiManagement.openExtensionWorkspaceFolder', openWorkingFolder);
     registerCommand('azureApiManagement.initializeExtensionWorkspaceFolder', setupWorkingFolder);
