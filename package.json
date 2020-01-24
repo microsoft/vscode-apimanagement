@@ -59,7 +59,8 @@
         "onCommand:azureApiManagement.setupWorkingFolder",
         "onCommand:azureApiManagement.extractService",
         "onCommand:azureApiManagement.extractApi",
-        "onCommand:azureApiManagement.importFunctionApps"
+        "onCommand:azureApiManagement.importFunctionApps",
+        "onCommand:azureApiManagement.importFunctionAppToApi"
     ],
     "main": "main",
     "contributes": {
@@ -240,6 +241,11 @@
                 "command": "azureApiManagement.importFunctionApps",
                 "title": "%azureApiManagement.importFunctionApps%",
                 "category": "Azure API Management"
+            },
+            {
+                "command": "azureApiManagement.importFunctionAppToApi",
+                "title": "%azureApiManagement.importFunctionAppToApi%",
+                "category": "Azure API Management"
             }
         ],
         "viewsContainers": {
@@ -359,6 +365,11 @@
                     "command": "azureApiManagement.extractApi",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApi",
                     "group": "2@1"
+                },
+                {
+                    "command": "azureApiManagement.importFunctionAppToApi",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApi",
+                    "group": "2@2"
                 },
                 {
                     "command": "azureApiManagement.Refresh",
