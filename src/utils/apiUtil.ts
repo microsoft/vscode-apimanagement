@@ -7,11 +7,23 @@ import * as Constants from "../constants";
 import { ext } from "../extensionVariables";
 import { localize } from "../localize";
 
-export namespace apiUtils {
+export namespace apiUtil {
     export async function askApiName(): Promise<string> {
         const apiNamePrompt: string = localize('apiNamePrompt', 'Enter API Name.');
         return (await ext.ui.showInputBox({
             prompt: apiNamePrompt,
+            validateInput: async (value: string): Promise<string | undefined> => {
+                value = value ? value.trim() : '';
+                return validateApiName(value);
+            }
+        })).trim();
+    }
+
+    export async function askApiNameWithDefaultValue(defaultName: string): Promise<string> {
+        const apiNamePrompt: string = localize('apiNamePrompt', `Enter API Name. Otherwise default as ${defaultName}`);
+        return (await ext.ui.showInputBox({
+            prompt: apiNamePrompt,
+            value: defaultName,
             validateInput: async (value: string): Promise<string | undefined> => {
                 value = value ? value.trim() : '';
                 return validateApiName(value);

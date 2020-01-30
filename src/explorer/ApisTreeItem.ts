@@ -71,7 +71,7 @@ export class ApisTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
     public async createChildImpl(showCreatingTreeItem: (label: string) => void, userOptions?: { apiName: string, document?: IOpenApiImportObject, apiContract?: ApiContract }): Promise<ApiTreeItem> {
         if (userOptions) {
             if (userOptions.document) {
-                return await this.createApiWithDocument(showCreatingTreeItem, userOptions.apiName, userOptions.document);
+                return await this.createApiFromOpenApi(showCreatingTreeItem, userOptions.apiName, userOptions.document);
             } else if (userOptions.apiContract) {
                 return await this.createApiWithApiContract(showCreatingTreeItem, userOptions.apiName, userOptions.apiContract);
             }
@@ -79,7 +79,7 @@ export class ApisTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
         throw Error("Missing one or more userOptions when creating new Api");
     }
 
-    private async createApiWithDocument(showCreatingTreeItem: (label: string) => void, apiName: string, document?: IOpenApiImportObject): Promise<ApiTreeItem> {
+    private async createApiFromOpenApi(showCreatingTreeItem: (label: string) => void, apiName: string, document?: IOpenApiImportObject): Promise<ApiTreeItem> {
         if (document && apiName) {
             showCreatingTreeItem(apiName);
             try {

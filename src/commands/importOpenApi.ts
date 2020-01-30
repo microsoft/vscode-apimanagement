@@ -11,7 +11,7 @@ import { ext } from "../extensionVariables";
 import { localize } from "../localize";
 import { IOpenApiImportObject } from "../openApi/OpenApiImportObject";
 import { OpenApiParser } from '../openApi/OpenApiParser';
-import { apiUtils } from '../utils/apiUtils';
+import { apiUtil } from '../utils/apiUtil';
 import { processError } from '../utils/errorUtil';
 import { requestUtil } from '../utils/requestUtil';
 
@@ -36,7 +36,7 @@ export async function importOpenApi(node?: ApisTreeItem, importUsingLink: boolea
     if (documentString !== undefined && documentString.trim() !== "") {
         const documentJson = JSON.parse(documentString);
         const document = await parseDocument(documentJson);
-        const apiName = await apiUtils.askApiName();
+        const apiName = await apiUtil.askApiName();
         window.withProgress(
             {
                 location: ProgressLocation.Notification,

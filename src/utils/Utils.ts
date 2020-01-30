@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { Parameter } from "../models/parameter";
+import { Parameter } from "../models/Parameter/parameter";
 
 export namespace Utils {
 
