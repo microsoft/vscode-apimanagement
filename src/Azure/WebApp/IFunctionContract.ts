@@ -54,3 +54,27 @@ export interface IFunctionConfigItem {
     methods?: string[];
     route?: string;
 }
+
+export interface IFunctionKeys {
+    masterKey: string;
+    functionKeys: {
+        [name: string]: string
+    };
+    systemKeys: {
+        [name: string]: string
+    };
+}
+
+export interface IFunctionKeyProperty {
+    name?: string;
+    value?: string;
+}
+
+export interface IFunctionHostKeyResponse {
+    id?: string;
+    name?: string;
+    // tslint:disable-next-line: no-reserved-keywords
+    type?: string;
+    location?: string;
+    properties: IFunctionKeyProperty;
+}

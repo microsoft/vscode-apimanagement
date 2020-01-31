@@ -3,29 +3,31 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { WebResource } from "ms-rest";
+import { HttpMethods, WebResource } from "ms-rest";
 import { ServiceClientCredentials } from "ms-rest";
 import * as request from 'request-promise';
 import { appendExtensionUserAgent } from "vscode-azureextensionui";
-import { IFunctionHostKeyResponse } from "../models/Function/Function";
 import { signRequest } from "./signRequest";
 
 export type nRequest = WebResource & request.RequestPromiseOptions;
 
-export async function requestUtil(url: string, credentials?: ServiceClientCredentials): Promise<string> {
+export async function requestUtil<T>(url: string, credentials?: ServiceClientCredentials, method?: HttpMethods): Promise<T> {
     const requestOptions: WebResource = new WebResource();
     requestOptions.headers = {
         ['User-Agent']: appendExtensionUserAgent()
     };
     requestOptions.url = url;
+    if (method) {
+        requestOptions.method = method;
+    }
     if (credentials) {
         await signRequest(requestOptions, credentials);
     }
     // tslint:disable-next-line: await-promise
     const response = await request(requestOptions).promise();
-    return <string>(response);
+    return <T>(response);
 }
 
-export async function sendRequest(httpReq: nRequest): Promise<IFunctionHostKeyResponse> {
-    return await <Thenable<IFunctionHostKeyResponse>>request(httpReq).promise();
+export async function sendRequest<T>(httpReq: nRequest): Promise<T> {
+    return await <Thenable<T>>request(httpReq).promise();
 }

@@ -8,16 +8,17 @@ import { WebSiteManagementClient } from "azure-arm-website";
 import { Site, WebAppCollection } from "azure-arm-website/lib/models";
 import { ProgressLocation, window } from "vscode";
 import xml = require("xml");
-import * as Constants from "../constants";
-import { ApisTreeItem } from "../explorer/ApisTreeItem";
-import { ApiTreeItem } from "../explorer/ApiTreeItem";
-import { ServiceTreeItem } from "../explorer/ServiceTreeItem";
-import { ext } from "../extensionVariables";
-import { localize } from "../localize";
-import { FunctionService } from "../models/Function/FunctionService";
-import { IFunctionContract } from "../models/Function/IFunctionContract";
-import { apiUtil } from "../utils/apiUtil";
-import { Utils } from "../utils/Utils";
+import { FunctionAppService } from "../../Azure/WebApp/FunctionAppService";
+import { IFunctionContract } from "../../Azure/WebApp/IFunctionContract";
+import * as Constants from "../../constants";
+import { ApisTreeItem } from "../../explorer/ApisTreeItem";
+import { ApiTreeItem } from "../../explorer/ApiTreeItem";
+import { ServiceTreeItem } from "../../explorer/ServiceTreeItem";
+import { ext } from "../../extensionVariables";
+import { localize } from "../../localize";
+import { apiUtil } from "../../utils/apiUtil";
+import { nonNullOrEmptyValue } from "../../utils/nonNull";
+import { parseUrlTemplate } from "./parseUrlTemplate";
 
 export async function importFunctionAppToApi(node?: ApiTreeItem): Promise<void> {
     if (!node) {
@@ -26,26 +27,31 @@ export async function importFunctionAppToApi(node?: ApiTreeItem): Promise<void> 
 
     ext.outputChannel.show();
     ext.outputChannel.appendLine(localize("importFunctionApp", `Import function app to api ${node.root.apiName} started...`));
-    const client = FunctionService.getClient(node);
+
+    const funcAppService = new FunctionAppService();
+    const client = funcAppService.getClient(node.root.credentials, node.root.subscriptionId, node.root.environment);
     const allfunctionApps = await listFunctionApps(client);
     const functionApp = await pickFunctionApp(allfunctionApps);
-    const baseUrlToAppSite = `${node.root.environment.resourceManagerEndpointUrl}/subscriptions/${node.root.subscriptionId}/resourceGroups/${functionApp.site.resourceGroup}/providers/Microsoft.Web/sites/${functionApp.label}`;
-    const pickedFuncs = await pickFunctions(node, baseUrlToAppSite);
+    const funcName = nonNullOrEmptyValue(functionApp.name);
+    const funcAppResourceGroup = nonNullOrEmptyValue(functionApp.resourceGroup);
+    const functionAppBaseUrl = funcAppService.getSiteUrl(node.root.environment.resourceManagerEndpointUrl, node.root.subscriptionId, funcAppResourceGroup, funcName);
+    const pickedFuncs = await pickFunctions(node, functionAppBaseUrl, funcAppService);
     window.withProgress(
         {
             location: ProgressLocation.Notification,
-            title: localize("importFunctionApp", `Importing FunctionApp '${String(functionApp.site.name)}' to API Management service ${node.root.serviceName} ...`),
+            title: localize("importFunctionApp", `Importing FunctionApp '${funcName}' to API Management service ${node.root.serviceName} ...`),
             cancellable: false
         },
         async () => {
             if (node) {
-                await addOperationsToExistingApi(node, apiUtil.genApiId(node.root.apiName), baseUrlToAppSite, pickedFuncs, String(functionApp.site.name), node.root.apiName);
+                const apiId = apiUtil.genApiId(node.root.apiName);
+                await addOperationsToExistingApi(node, apiId, functionAppBaseUrl, pickedFuncs, funcName, node.root.apiName, funcAppService);
             }
         }
     ).then(async () => {
         // tslint:disable-next-line:no-non-null-assertion
         await node!.refresh();
-        window.showInformationMessage(localize("importFunctionApp", `Imported FunctionApp '${String(functionApp.site.name)}' to API Management succesfully.`));
+        window.showInformationMessage(localize("importFunctionApp", `Imported FunctionApp '${funcName}' to API Management succesfully.`));
     });
 }
 
@@ -57,38 +63,42 @@ export async function importFunctionApp(node?: ApisTreeItem): Promise<void> {
 
     ext.outputChannel.show();
     ext.outputChannel.appendLine(localize("importFunctionApp", "Import function app started!"));
-    const client = FunctionService.getClient(node);
+
+    const funcAppService = new FunctionAppService();
+    const client = funcAppService.getClient(node.root.credentials, node.root.subscriptionId, node.root.environment);
 
     // Pick function app
     const allfunctionApps = await listFunctionApps(client);
     const functionApp = await pickFunctionApp(allfunctionApps);
-    const baseUrlToAppSite = `${node.root.environment.resourceManagerEndpointUrl}/subscriptions/${node.root.subscriptionId}/resourceGroups/${functionApp.site.resourceGroup}/providers/Microsoft.Web/sites/${functionApp.label}`;
-    const pickedFuncs = await pickFunctions(node, baseUrlToAppSite);
-    const apiName = await getNewApiName(functionApp.label);
+    const funcName = nonNullOrEmptyValue(functionApp.name);
+    const funcAppResourceGroup = nonNullOrEmptyValue(functionApp.resourceGroup);
+    const functionAppBaseUrl = funcAppService.getSiteUrl(node.root.environment.resourceManagerEndpointUrl, node.root.subscriptionId, funcAppResourceGroup, funcName);
+    const pickedFuncs = await pickFunctions(node, functionAppBaseUrl, funcAppService);
+    const apiName = await apiUtil.askApiName(funcName);
     const apiId = apiUtil.genApiId(apiName);
 
     window.withProgress(
         {
             location: ProgressLocation.Notification,
-            title: localize("importFunctionApp", `Importing FunctionApp '${String(functionApp.site.name)}' to API Management service ${node.root.serviceName} ...`),
+            title: localize("importFunctionApp", `Importing FunctionApp '${funcName}' to API Management service ${node.root.serviceName} ...`),
             cancellable: false
         },
         async () => {
             if (node) {
-                //window.showInformationMessage(localize("importingFuntionApp", apiId));
-                const nApi = await createApiFromFunctionApp(apiId, functionApp.site, apiName);
-                await node.createChild({ apiName: String(functionApp.site.name), apiContract: nApi });
-                await addOperationsToExistingApi(node, apiId, baseUrlToAppSite, pickedFuncs, String(functionApp.site.name), apiName);
+                const nApi = await createApiFromFunctionApp(apiId, functionApp, apiName);
+                await node.createChild({ apiName, apiContract: nApi });
+                ext.outputChannel.appendLine(localize("importFunctionApp", `New api with name ${apiName} created...`));
+                await addOperationsToExistingApi(node, apiId, functionAppBaseUrl, pickedFuncs, funcName, apiName, funcAppService);
             }
         }
     ).then(async () => {
         // tslint:disable-next-line:no-non-null-assertion
         await node!.refresh();
-        window.showInformationMessage(localize("importFunctionApp", `Imported FunctionApp '${String(functionApp.site.name)}' to API Management succesfully.`));
+        window.showInformationMessage(localize("importFunctionApp", `Imported FunctionApp '${funcName}' to API Management succesfully.`));
     });
 }
 
-async function addOperationsToExistingApi(node: ApiTreeItem | ApisTreeItem, apiId: string, baseUrl: string, funcs: IFunctionContract[], funcAppName: string, apiName: string): Promise<void> {
+async function addOperationsToExistingApi(node: ApiTreeItem | ApisTreeItem, apiId: string, baseUrl: string, funcs: IFunctionContract[], funcAppName: string, apiName: string, funcAppService: FunctionAppService): Promise<void> {
     ext.outputChannel.appendLine(localize("importFunctionApp", "Creating operations for each selected function..."));
     let allOperations: OperationContract[] = [];
     let functionAppBase: string = "";
@@ -96,9 +106,9 @@ async function addOperationsToExistingApi(node: ApiTreeItem | ApisTreeItem, apiI
         ext.outputChannel.appendLine(localize("importFunctionApp", `Creating operation for function ${func.name}...`));
         const bindings = func.properties.config.bindings.find(b => !b.direction || b.direction === Constants.HttpTriggerDirectionContract.in);
         const trigger = func.properties.name;
-        const route = bindings && bindings.route ? String(bindings.route) : trigger;
+        const route = bindings && bindings.route ? nonNullOrEmptyValue(bindings.route) : trigger;
         if (functionAppBase === "") {
-            functionAppBase = bindings && bindings.route ? getFunctionAppBase(func.properties.invoke_url_template, String(bindings.route)) : getFunctionAppBase(func.properties.invoke_url_template, trigger);
+            functionAppBase = bindings && bindings.route ? getFunctionAppBase(func.properties.invoke_url_template, nonNullOrEmptyValue(bindings.route)) : getFunctionAppBase(func.properties.invoke_url_template, trigger);
         }
         if (bindings && bindings.methods && bindings.methods.length > 0) {
             bindings.methods.forEach(element => {
@@ -119,10 +129,10 @@ async function addOperationsToExistingApi(node: ApiTreeItem | ApisTreeItem, apiI
         }
         for (const operation of allOperations) {
             ext.outputChannel.appendLine(localize("importFunctionApp", `Creating new operations to Api...`));
-            await node.root.client.apiOperation.createOrUpdate(node.root.resourceGroupName, node.root.serviceName, apiName, String(operation.name), operation);
+            await node.root.client.apiOperation.createOrUpdate(node.root.resourceGroupName, node.root.serviceName, apiName, nonNullOrEmptyValue(operation.name), operation);
         }
         ext.outputChannel.appendLine(localize("importFunctionApp", `Get host key from function app ${funcAppName}...`));
-        const hostKey = await FunctionService.addFuncHostKey(baseUrl, node.root.credentials, node.root.serviceName);
+        const hostKey = await funcAppService.addFuncHostKey(baseUrl, node.root.credentials, node.root.serviceName);
         const propertyId = apiUtil.displayNameToIdentifier(`${funcAppName}-key`);
         ext.outputChannel.appendLine(localize("importFunctionApp", `Create new property to store the function host key ${propertyId}...`));
         await createPropertyItem(node, propertyId, hostKey);
@@ -136,7 +146,7 @@ async function addOperationsToExistingApi(node: ApiTreeItem | ApisTreeItem, apiI
         await setAppBackendEntity(backendId, funcAppName, functionAppBase, backendCredentials, node);
         for (const operation of allOperations) {
             ext.outputChannel.appendLine(localize("importFunctionApp", `Create policy for operations ${operation.name}...`));
-            await node.root.client.apiOperationPolicy.createOrUpdate(node.root.resourceGroupName, node.root.serviceName, apiName, String(operation.name), {
+            await node.root.client.apiOperationPolicy.createOrUpdate(node.root.resourceGroupName, node.root.serviceName, apiName, nonNullOrEmptyValue(operation.name), {
                 format: "rawxml",
                 value: createApiOperationXmlPolicy(backendId)
             });
@@ -148,7 +158,7 @@ async function addOperationsToExistingApi(node: ApiTreeItem | ApisTreeItem, apiI
 function filteredExistingOperations(apiId: string, existingOperations: string[], allOperations: OperationContract[]): OperationContract[] {
     const resOperations: OperationContract[] = [];
     for (const operation of allOperations) {
-        const opName = String(operation.name);
+        const opName = nonNullOrEmptyValue(operation.name);
         if (existingOperations.includes(opName)) {
             ext.outputChannel.appendLine(localize("importFunctionApp", `Resolving conflict operations... ${opName}`));
             const appdNum = genUniqueOperationName(opName, existingOperations);
@@ -184,14 +194,13 @@ async function getAllOperations(node: ApiTreeItem): Promise<string[]> {
     const operations: OperationCollection = await node.root.client.apiOperation.listByApi(node.root.resourceGroupName, node.root.serviceName, node.root.apiName);
     const operationsNames: string[] = [];
     operations.forEach(ele => {
-        operationsNames.push(String(ele.name));
+        operationsNames.push(nonNullOrEmptyValue(ele.name));
     });
     return operationsNames;
 }
 
-async function pickFunctions(node: ApiTreeItem | ApisTreeItem, baseUrl: string): Promise<
-    IFunctionContract[]> {
-    const allFunctions = await FunctionService.listAllFunctions(baseUrl, node.root.credentials);
+async function pickFunctions(node: ApiTreeItem | ApisTreeItem, baseUrl: string, funcAppService: FunctionAppService): Promise<IFunctionContract[]> {
+    const allFunctions = await funcAppService.listAllFunctions(baseUrl, node.root.credentials);
     const importableFuncs = await filterFunctions(allFunctions);
 
     // Pick functions to import
@@ -204,15 +213,14 @@ async function listFunctionApps(client: WebSiteManagementClient): Promise<Site[]
     // Get all webapps
     ext.outputChannel.appendLine(localize("importFunctionApp", "Get function apps..."));
     const allWebApps: WebAppCollection = await client.webApps.list();
+    // tslint:disable-next-line: no-unsafe-any
     return allWebApps.filter((ele) => !!ele.kind && ele.kind.includes('functionapp'));
 }
 
-async function pickFunctionApp(functionApps: Site[]): Promise<{
-    label: string;
-    site: Site;
-}> {
+async function pickFunctionApp(functionApps: Site[]): Promise<Site> {
     // Pick function app
-    return await ext.ui.showQuickPick(functionApps.map((s) => { return { label: String(s.name), site: s }; }), { canPickMany: false });
+    const funcApp = await ext.ui.showQuickPick(functionApps.map((s) => { return { label: nonNullOrEmptyValue(s.name), site: s }; }), { canPickMany: false });
+    return funcApp.site;
 }
 
 // Create policy for imported operation
@@ -271,7 +279,7 @@ async function createPropertyItem(node: ApisTreeItem | ApiTreeItem, propertyId: 
 // create new operation for each function and method
 function getNewOperation(apiId: string, method: string, name: string, route: string, displayName: string): OperationContract {
     const operationId = apiUtil.displayNameToIdentifier(name);
-    const cleanUrl = Utils.parseUrlTemplate(route);
+    const cleanUrl = parseUrlTemplate(route);
     return {
         id: `${apiId}/operations/${operationId}`,
         name: operationId,
@@ -300,19 +308,8 @@ async function createApiFromFunctionApp(apiId: string, funcApp: Site, apiName: s
     };
 }
 
-// Get new api id
-async function getNewApiName(func: string): Promise<string> {
-    const inputName = await apiUtil.askApiNameWithDefaultValue(func);
-    if (inputName === undefined && inputName === "") {
-        return func;
-    } else {
-        return inputName;
-    }
-}
-
 // Find all importable functions
 async function filterFunctions(functions: IFunctionContract[]): Promise<IFunctionContract[]> {
-    // tslint:disable-next-line: no-unsafe-any
     return functions.filter(element =>
         (element.properties.config !== undefined && element.properties.config.bindings !== undefined &&
             !!element.properties.config.bindings.find(ele =>
