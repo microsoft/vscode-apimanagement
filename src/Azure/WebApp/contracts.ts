@@ -70,7 +70,7 @@ export interface IFunctionKeyProperty {
     value?: string;
 }
 
-export interface IFunctionHostKeyResponse {
+export interface IFunctionHostKeyContract {
     id?: string;
     name?: string;
     // tslint:disable-next-line: no-reserved-keywords

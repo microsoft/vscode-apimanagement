@@ -29,6 +29,6 @@
     "azureApiManagement.advancedPolicyAuthoringExperience": "(Experimental Feature) Enables advanced policy authoring experience.",
     "azureApiManagement.extractService": "Extract Service",
     "azureApiManagement.extractApi": "Extract API",
-    "azureApiManagement.importFunctionApp": "Import Function App",
-    "azureApiManagement.importFunctionAppToApi": "Import Function App"
+    "azureApiManagement.importFunctionApp": "Create from Azure Functions",
+    "azureApiManagement.importFunctionAppToApi": "Import Azure Functions"
 }

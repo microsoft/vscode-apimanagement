@@ -8,8 +8,8 @@ import { WebSiteManagementClient } from "azure-arm-website";
 import { Site, WebAppCollection } from "azure-arm-website/lib/models";
 import { ProgressLocation, window } from "vscode";
 import xml = require("xml");
-import { FunctionAppService } from "../../Azure/WebApp/FunctionAppService";
-import { IFunctionContract } from "../../Azure/WebApp/IFunctionContract";
+import { IFunctionContract } from "../../azure/webApp/contracts";
+import { FunctionAppService } from "../../azure/webApp/FunctionAppService";
 import * as Constants from "../../constants";
 import { ApisTreeItem } from "../../explorer/ApisTreeItem";
 import { ApiTreeItem } from "../../explorer/ApiTreeItem";
@@ -17,6 +17,7 @@ import { ServiceTreeItem } from "../../explorer/ServiceTreeItem";
 import { ext } from "../../extensionVariables";
 import { localize } from "../../localize";
 import { apiUtil } from "../../utils/apiUtil";
+import { azureClientUtil } from "../../utils/azureClientUtil";
 import { nonNullOrEmptyValue } from "../../utils/nonNull";
 import { parseUrlTemplate } from "./parseUrlTemplate";
 
@@ -28,14 +29,12 @@ export async function importFunctionAppToApi(node?: ApiTreeItem): Promise<void> 
     ext.outputChannel.show();
     ext.outputChannel.appendLine(localize("importFunctionApp", `Import function app to api ${node.root.apiName} started...`));
 
-    const funcAppService = new FunctionAppService();
-    const client = funcAppService.getClient(node.root.credentials, node.root.subscriptionId, node.root.environment);
-    const allfunctionApps = await listFunctionApps(client);
-    const functionApp = await pickFunctionApp(allfunctionApps);
+    const functionApp = await getPickedFunctionApp(node);
     const funcName = nonNullOrEmptyValue(functionApp.name);
     const funcAppResourceGroup = nonNullOrEmptyValue(functionApp.resourceGroup);
-    const functionAppBaseUrl = funcAppService.getSiteUrl(node.root.environment.resourceManagerEndpointUrl, node.root.subscriptionId, funcAppResourceGroup, funcName);
-    const pickedFuncs = await pickFunctions(node, functionAppBaseUrl, funcAppService);
+
+    const funcAppService = new FunctionAppService(node.root.credentials, node.root.environment.resourceManagerEndpointUrl, node.root.subscriptionId, funcAppResourceGroup, funcName);
+    const pickedFuncs = await pickFunctions(funcAppService);
     window.withProgress(
         {
             location: ProgressLocation.Notification,
@@ -45,7 +44,7 @@ export async function importFunctionAppToApi(node?: ApiTreeItem): Promise<void> 
         async () => {
             if (node) {
                 const apiId = apiUtil.genApiId(node.root.apiName);
-                await addOperationsToExistingApi(node, apiId, functionAppBaseUrl, pickedFuncs, funcName, node.root.apiName, funcAppService);
+                await addOperationsToExistingApi(node, apiId, pickedFuncs, funcName, node.root.apiName, funcAppService);
             }
         }
     ).then(async () => {
@@ -64,16 +63,12 @@ export async function importFunctionApp(node?: ApisTreeItem): Promise<void> {
     ext.outputChannel.show();
     ext.outputChannel.appendLine(localize("importFunctionApp", "Import function app started!"));
 
-    const funcAppService = new FunctionAppService();
-    const client = funcAppService.getClient(node.root.credentials, node.root.subscriptionId, node.root.environment);
-
-    // Pick function app
-    const allfunctionApps = await listFunctionApps(client);
-    const functionApp = await pickFunctionApp(allfunctionApps);
+    const functionApp = await getPickedFunctionApp(node);
     const funcName = nonNullOrEmptyValue(functionApp.name);
     const funcAppResourceGroup = nonNullOrEmptyValue(functionApp.resourceGroup);
-    const functionAppBaseUrl = funcAppService.getSiteUrl(node.root.environment.resourceManagerEndpointUrl, node.root.subscriptionId, funcAppResourceGroup, funcName);
-    const pickedFuncs = await pickFunctions(node, functionAppBaseUrl, funcAppService);
+
+    const funcAppService = new FunctionAppService(node.root.credentials, node.root.environment.resourceManagerEndpointUrl, node.root.subscriptionId, funcAppResourceGroup, funcName);
+    const pickedFuncs = await pickFunctions(funcAppService);
     const apiName = await apiUtil.askApiName(funcName);
     const apiId = apiUtil.genApiId(apiName);
 
@@ -85,10 +80,10 @@ export async function importFunctionApp(node?: ApisTreeItem): Promise<void> {
         },
         async () => {
             if (node) {
-                const nApi = await createApiFromFunctionApp(apiId, functionApp, apiName);
+                const nApi = await constructApiFromFunctionApp(apiId, functionApp, apiName);
                 await node.createChild({ apiName, apiContract: nApi });
                 ext.outputChannel.appendLine(localize("importFunctionApp", `New api with name ${apiName} created...`));
-                await addOperationsToExistingApi(node, apiId, functionAppBaseUrl, pickedFuncs, funcName, apiName, funcAppService);
+                await addOperationsToExistingApi(node, apiId, pickedFuncs, funcName, apiName, funcAppService);
             }
         }
     ).then(async () => {
@@ -98,7 +93,13 @@ export async function importFunctionApp(node?: ApisTreeItem): Promise<void> {
     });
 }
 
-async function addOperationsToExistingApi(node: ApiTreeItem | ApisTreeItem, apiId: string, baseUrl: string, funcs: IFunctionContract[], funcAppName: string, apiName: string, funcAppService: FunctionAppService): Promise<void> {
+async function getPickedFunctionApp(node: ApiTreeItem | ApisTreeItem): Promise<Site> {
+    const client = azureClientUtil.getClient(node.root.credentials, node.root.subscriptionId, node.root.environment);
+    const allfunctionApps = await listFunctionApps(client);
+    return await pickFunctionApp(allfunctionApps);
+}
+
+async function addOperationsToExistingApi(node: ApiTreeItem | ApisTreeItem, apiId: string, funcs: IFunctionContract[], funcAppName: string, apiName: string, funcAppService: FunctionAppService): Promise<void> {
     ext.outputChannel.appendLine(localize("importFunctionApp", "Creating operations for each selected function..."));
     let allOperations: OperationContract[] = [];
     let functionAppBase: string = "";
@@ -132,7 +133,7 @@ async function addOperationsToExistingApi(node: ApiTreeItem | ApisTreeItem, apiI
             await node.root.client.apiOperation.createOrUpdate(node.root.resourceGroupName, node.root.serviceName, apiName, nonNullOrEmptyValue(operation.name), operation);
         }
         ext.outputChannel.appendLine(localize("importFunctionApp", `Get host key from function app ${funcAppName}...`));
-        const hostKey = await funcAppService.addFuncHostKey(baseUrl, node.root.credentials, node.root.serviceName);
+        const hostKey = await funcAppService.addFuncHostKeyForApim(node.root.serviceName);
         const propertyId = apiUtil.displayNameToIdentifier(`${funcAppName}-key`);
         ext.outputChannel.appendLine(localize("importFunctionApp", `Create new property to store the function host key ${propertyId}...`));
         await createPropertyItem(node, propertyId, hostKey);
@@ -199,8 +200,8 @@ async function getAllOperations(node: ApiTreeItem): Promise<string[]> {
     return operationsNames;
 }
 
-async function pickFunctions(node: ApiTreeItem | ApisTreeItem, baseUrl: string, funcAppService: FunctionAppService): Promise<IFunctionContract[]> {
-    const allFunctions = await funcAppService.listAllFunctions(baseUrl, node.root.credentials);
+async function pickFunctions(funcAppService: FunctionAppService): Promise<IFunctionContract[]> {
+    const allFunctions = await funcAppService.listAllFunctions();
     const importableFuncs = await filterFunctions(allFunctions);
 
     // Pick functions to import
@@ -296,7 +297,7 @@ function getFunctionAppBase(invokeUrlTemplate: string, route: string): string {
     return uri.endsWith("/") ? uri.substr(0, uri.length - 1) : uri;
 }
 
-async function createApiFromFunctionApp(apiId: string, funcApp: Site, apiName: string): Promise<ApiContract> {
+async function constructApiFromFunctionApp(apiId: string, funcApp: Site, apiName: string): Promise<ApiContract> {
     ext.outputChannel.appendLine(localize("importFunctionApp", `Create Api for the function app ${funcApp.name}...`));
     return {
         description: `Import from "${funcApp.name}" Function App`,

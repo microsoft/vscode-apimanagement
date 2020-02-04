@@ -18,8 +18,10 @@ export const openApiAcceptHeader = "application/vnd.oai.openapi+json";
 export const swaggerAcceptHeader = "application/vnd.swagger.doc+json";
 
 export const functionAppApiVersion = "2019-08-01";
+// this api version for function app support creating function key
+export const functionAppCreateKeyApiVersion = "2018-11-01";
 export const invalidIdCharRegEx = "[^A-Za-z0-9]";
-export const maxIdLength = 80;
+export const maxApiNameLength = 80;
 export const HttpTriggerType = "httpTrigger";
 export enum HttpTriggerDirectionContract {
     in = "in",

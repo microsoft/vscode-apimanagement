@@ -4,6 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { ParameterContract } from "azure-arm-apimanagement/lib/models";
+
 export function parseUrlTemplate(uriTemplate: string): {
     parameters: ParameterContract[],
     urlTemplate: string
