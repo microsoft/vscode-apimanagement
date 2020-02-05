@@ -6,7 +6,7 @@ import { WebSiteManagementClient } from "azure-arm-website";
 import { ServiceClientCredentials } from "ms-rest";
 import { AzureEnvironment } from 'ms-rest-azure';
 import { createAzureClient } from "vscode-azureextensionui";
-import { IAzureClientInfo } from "../Azure/AzureClientInfo";
+import { IAzureClientInfo } from "../azure/AzureClientInfo";
 
 export namespace azureClientUtil {
     export function getClient(credentials: ServiceClientCredentials, subscriptionId: string, environment: AzureEnvironment): WebSiteManagementClient {
