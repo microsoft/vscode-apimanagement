@@ -3,13 +3,11 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ServiceClientCredentials, WebResource } from "ms-rest";
-import { appendExtensionUserAgent } from "vscode-azureextensionui";
+import { ServiceClientCredentials } from "ms-rest";
 import * as Constants from "../../constants";
 import { nonNullOrEmptyValue } from "../../utils/nonNull";
-import { nRequest, requestUtil, sendRequest } from "../../utils/requestUtil";
-import { signRequest } from "../../utils/signRequest";
-import { IFunctionHostKeyContract, IFunctionKeys } from "./contracts";
+import { requestUtil } from "../../utils/requestUtil";
+import { IFunctionHostKeyContract, IFunctionKeys, IWebAppContract } from "./contracts";
 import { IFunctionContract } from "./contracts";
 
 export class FunctionAppService {
@@ -47,6 +45,22 @@ export class FunctionAppService {
         return await this.createFuncHostKey(funcAppKeyName);
     }
 
+    // Update function app config
+    public async linkAPIMToFuncApp(resourceGroup: string, serviceName: string, apiName: string): Promise<void> {
+        const webAppConfig: IWebAppContract = await this.getFuncAppConfig();
+        webAppConfig.properties.apiManagementConfig.id = `/subscriptions/${this.subscriptionId}/resourceGroups/${resourceGroup}/providers/Microsoft.ApiManagement/service/${serviceName}/apis/${apiName}`;
+        const webConfigUrl = `${this.baseUrl}/config/web?api-version=${Constants.functionAppApiVersion}`;
+        await requestUtil(webConfigUrl, this.credentials, "PUT", webAppConfig);
+    }
+
+    // Get function app config
+    private async getFuncAppConfig(): Promise<IWebAppContract> {
+        const webConfigUrl = `${this.baseUrl}/config/web?api-version=${Constants.functionAppApiVersion}`;
+        const res: string =  await requestUtil(webConfigUrl, this.credentials, "GET");
+        const result = JSON.parse(res);
+        return <IWebAppContract>result;
+    }
+
     // Get function hostkey
     private async getFuncHostKeys(): Promise<IFunctionKeys> {
         const url = `${this.baseUrl}/host/default/listkeys?api-version=${Constants.functionAppApiVersion}`;
@@ -60,21 +74,8 @@ export class FunctionAppService {
 
     // Create function hostkey for our apim service
     private async createFuncHostKey(funcKeyName: string): Promise<string> {
-        // create new webresource
-        const options = new WebResource();
-        options.method = "PUT";
-        options.url = `${this.baseUrl}/host/default/functionkeys/${funcKeyName}?api-version=${Constants.functionAppCreateKeyApiVersion}`;
-        options.headers = {
-            ['User-Agent']: appendExtensionUserAgent()
-        };
-        await signRequest(options, this.credentials);
-        // send request to get new function hostkey
-        const funKeyRequest = <nRequest>options;
-        funKeyRequest.body = {
-            properties: {}
-        };
-        funKeyRequest.json = true;
-        const response: IFunctionHostKeyContract = await sendRequest(funKeyRequest);
+        const funcKeyUrl = `${this.baseUrl}/host/default/functionkeys/${funcKeyName}?api-version=${Constants.functionAppCreateKeyApiVersion}`;
+        const response: IFunctionHostKeyContract = await requestUtil(funcKeyUrl, this.credentials, "PUT", {properties: {}});
         return nonNullOrEmptyValue(response.properties.value);
     }
 }

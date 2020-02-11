@@ -45,6 +45,8 @@ export async function importFunctionAppToApi(node?: ApiTreeItem): Promise<void> 
             if (node) {
                 const apiId = apiUtil.genApiId(node.root.apiName);
                 await addOperationsToExistingApi(node, apiId, pickedFuncs, funcName, node.root.apiName, funcAppService);
+                ext.outputChannel.appendLine(localize("importFunctionApp", `Linking API Management instance to Function App...`));
+                await funcAppService.linkAPIMToFuncApp(node.root.resourceGroupName, node.root.serviceName, node.root.apiName);
             }
         }
     ).then(async () => {
@@ -84,6 +86,8 @@ export async function importFunctionApp(node?: ApisTreeItem): Promise<void> {
                 await node.createChild({ apiName, apiContract: nApi });
                 ext.outputChannel.appendLine(localize("importFunctionApp", `New API with name ${apiName} created...`));
                 await addOperationsToExistingApi(node, apiId, pickedFuncs, funcName, apiName, funcAppService);
+                ext.outputChannel.appendLine(localize("importFunctionApp", `Linking API Management instance to Function App...`));
+                await funcAppService.linkAPIMToFuncApp(node.root.resourceGroupName, node.root.serviceName, apiName);
             }
         }
     ).then(async () => {

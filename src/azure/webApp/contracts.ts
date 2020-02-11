@@ -78,3 +78,20 @@ export interface IFunctionHostKeyContract {
     location?: string;
     properties: IFunctionKeyProperty;
 }
+
+export interface IWebAppContract {
+    id: string;
+    name: string;
+    // tslint:disable-next-line: no-reserved-keywords
+    type?: string;
+    location?: string;
+    properties: IWebAppProperties;
+}
+
+export interface IWebAppProperties {
+    apiManagementConfig: IApimConfig;
+}
+
+export interface IApimConfig {
+    id: string;
+}

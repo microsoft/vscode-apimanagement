@@ -11,7 +11,8 @@ import { signRequest } from "./signRequest";
 
 export type nRequest = WebResource & request.RequestPromiseOptions;
 
-export async function requestUtil<T>(url: string, credentials?: ServiceClientCredentials, method?: HttpMethods): Promise<T> {
+// tslint:disable-next-line: no-any
+export async function requestUtil<T>(url: string, credentials?: ServiceClientCredentials, method?: HttpMethods, body?: any): Promise<T> {
     const requestOptions: WebResource = new WebResource();
     requestOptions.headers = {
         ['User-Agent']: appendExtensionUserAgent()
@@ -23,9 +24,16 @@ export async function requestUtil<T>(url: string, credentials?: ServiceClientCre
     if (credentials) {
         await signRequest(requestOptions, credentials);
     }
-    // tslint:disable-next-line: await-promise
-    const response = await request(requestOptions).promise();
-    return <T>(response);
+    if (method !== "PUT") {
+        // tslint:disable-next-line: await-promise
+        const response = await request(requestOptions).promise();
+        return <T>(response);
+    } else {
+        const newRequest = <nRequest>requestOptions;
+        newRequest.body = body;
+        newRequest.json = true;
+        return await sendRequest(newRequest);
+    }
 }
 
 export async function sendRequest<T>(httpReq: nRequest): Promise<T> {
