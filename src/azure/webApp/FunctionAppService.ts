@@ -46,9 +46,11 @@ export class FunctionAppService {
     }
 
     // Update function app config
-    public async linkAPIMToFuncApp(resourceGroup: string, serviceName: string, apiName: string): Promise<void> {
+    public async updateSiteConfigAPIM(resourceGroup: string, serviceName: string, apiName: string): Promise<void> {
         const webAppConfig: IWebAppContract = await this.getFuncAppConfig();
-        webAppConfig.properties.apiManagementConfig.id = `/subscriptions/${this.subscriptionId}/resourceGroups/${resourceGroup}/providers/Microsoft.ApiManagement/service/${serviceName}/apis/${apiName}`;
+        if (webAppConfig.properties.apiManagementConfig.id === undefined) {
+            webAppConfig.properties.apiManagementConfig.id = `/subscriptions/${this.subscriptionId}/resourceGroups/${resourceGroup}/providers/Microsoft.ApiManagement/service/${serviceName}/apis/${apiName}`;
+        }
         const webConfigUrl = `${this.baseUrl}/config/web?api-version=${Constants.functionAppApiVersion}`;
         await requestUtil(webConfigUrl, this.credentials, "PUT", webAppConfig);
     }
