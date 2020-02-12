@@ -8,6 +8,7 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import { AzureParentTreeItem, AzureTreeDataProvider, AzureTreeItem, AzureUserInput, createTelemetryReporter, IActionContext, registerCommand, registerEvent, registerUIExtensionVariables } from 'vscode-azureextensionui';
+import { addApiToGateway } from './commands/addApiToGateway';
 import { addApiToProduct } from './commands/addApiToProduct';
 import { copySubscriptionKey } from './commands/copySubscriptionKey';
 import { createService } from './commands/createService';
@@ -35,6 +36,8 @@ import { ApiPolicyEditor } from './explorer/editors/policy/ApiPolicyEditor';
 import { OperationPolicyEditor } from './explorer/editors/policy/OperationPolicyEditor';
 import { ProductPolicyEditor } from './explorer/editors/policy/ProductPolicyEditor';
 import { ServicePolicyEditor } from './explorer/editors/policy/ServicePolicyEditor';
+import { GatewayApisTreeItem } from './explorer/GatewayApisTreeItem';
+import { GatewayApiTreeItem } from './explorer/GatewayApiTreeItem';
 import { NamedValuesTreeItem } from './explorer/NamedValuesTreeItem';
 import { NamedValueTreeItem } from './explorer/NamedValueTreeItem';
 import { OperationPolicyTreeItem } from './explorer/OperationPolicyTreeItem';
@@ -81,6 +84,8 @@ export function activateInternal(context: vscode.ExtensionContext) {
     registerCommand('azureApiManagement.updateNamedValue', updateNamedValue);
     registerCommand('azureApiManagement.removeApiFromProduct', async (node?: AzureTreeItem) => await deleteNode(ProductApiTreeItem.contextValue, node));
     registerCommand('azureApiManagement.addApiToProduct', async (node?: ProductApisTreeItem) => { await addApiToProduct(node); });
+    registerCommand('azureApiManagement.removeApiFromGateway', async (node?: AzureTreeItem) => await deleteNode(GatewayApiTreeItem.contextValue, node));
+    registerCommand('azureApiManagement.addApiToGateway', async (node?: GatewayApisTreeItem) => { await addApiToGateway(node); });
     registerCommand('azureApiManagement.extractService', async (node: ServiceTreeItem) => await extractService(node));
     registerCommand('azureApiManagement.extractApi', async (node: ApiTreeItem) => await extractAPI(node));
     registerCommand('azureApiManagement.importFunctionApp', async (node: ApisTreeItem) => await importFunctionApp(node));

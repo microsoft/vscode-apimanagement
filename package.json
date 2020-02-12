@@ -54,6 +54,8 @@
         "onCommand:azureApiManagement.updateNamedValue",
         "onCommand:azureApiManagement.addApiToProduct",
         "onCommand:azureApiManagement.removeApiFromProduct",
+        "onCommand:azureApiManagement.addApiToGateway",
+        "onCommand:azureApiManagement.removeApiFromGateway",
         "onCommand:azureApiManagement.showProductPolicy",
         "onCommand:azureApiManagement.openWorkingFolder",
         "onCommand:azureApiManagement.setupWorkingFolder",
@@ -212,6 +214,17 @@
                 "title": "%azureApiManagement.removeApiFromProduct%",
                 "category": "Azure API Management"
             },
+            {
+                "command": "azureApiManagement.addApiToGateway",
+                "title": "%azureApiManagement.addApiToGateway%",
+                "category": "Azure API Management"
+            },
+            {
+                "command": "azureApiManagement.removeApiFromGateway",
+                "title": "%azureApiManagement.removeApiFromGateway%",
+                "category": "Azure API Management"
+            },
+            
             {
                 "command": "azureApiManagement.showProductPolicy",
                 "title": "%azureApiManagement.showProductPolicy%",
@@ -414,6 +427,16 @@
                 {
                     "command": "azureApiManagement.removeApiFromProduct",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementProductApi",
+                    "group": "1@1"
+                },
+                {
+                    "command": "azureApiManagement.addApiToGateway",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementGatewayApis",
+                    "group": "1@1"
+                },
+                {
+                    "command": "azureApiManagement.removeApiFromGateway",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementGatewayApi",
                     "group": "1@1"
                 }
             ]
