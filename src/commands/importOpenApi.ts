@@ -11,6 +11,7 @@ import { ext } from "../extensionVariables";
 import { localize } from "../localize";
 import { IOpenApiImportObject } from "../openApi/OpenApiImportObject";
 import { OpenApiParser } from '../openApi/OpenApiParser';
+import { apiUtil } from '../utils/apiUtil';
 import { processError } from '../utils/errorUtil';
 import { requestUtil } from '../utils/requestUtil';
 
@@ -35,7 +36,7 @@ export async function importOpenApi(node?: ApisTreeItem, importUsingLink: boolea
     if (documentString !== undefined && documentString.trim() !== "") {
         const documentJson = JSON.parse(documentString);
         const document = await parseDocument(documentJson);
-        const apiName = await askApiName();
+        const apiName = await apiUtil.askApiName();
         window.withProgress(
             {
                 location: ProgressLocation.Notification,
@@ -50,17 +51,6 @@ export async function importOpenApi(node?: ApisTreeItem, importUsingLink: boolea
             window.showInformationMessage(localize("importedApi", `Imported API '${apiName}' to API Management succesfully.`));
         });
     }
-}
-
-async function askApiName() : Promise<string> {
-    const apiNamePrompt: string = localize('apiNamePrompt', 'Enter API Name.');
-    return (await ext.ui.showInputBox({
-        prompt: apiNamePrompt,
-        validateInput: async (value: string): Promise<string | undefined> => {
-            value = value ? value.trim() : '';
-            return validateApiName(value);
-        }
-    })).trim();
 }
 
 async function askDocument(): Promise<Uri[]> {
@@ -105,15 +95,4 @@ async function parseDocument(documentJson: any): Promise<IOpenApiImportObject> {
     } catch (error) {
        throw new Error(processError(error, localize("openApiJsonParseError", "Could not parse the provided OpenAPI document.")));
     }
-}
-
-function validateApiName(apiName: string): string | undefined {
-    if (apiName.length > 256) {
-        return localize("apiNameMaxLength", 'API name cannot be more than 256 characters long.');
-    }
-    if (apiName.match(/^[^*#&+:<>?]+$/) === null) {
-        return localize("apiNameInvalid", 'Invalid API Name.');
-    }
-
-    return undefined;
 }

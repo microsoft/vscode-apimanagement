@@ -28,5 +28,7 @@
     "azureApiManagement.initializeExtensionWorkspaceFolder": "Initialize extension workspace folder",
     "azureApiManagement.advancedPolicyAuthoringExperience": "(Experimental Feature) Enables advanced policy authoring experience.",
     "azureApiManagement.extractService": "Extract Service",
-    "azureApiManagement.extractApi": "Extract API"
+    "azureApiManagement.extractApi": "Extract API",
+    "azureApiManagement.importFunctionApp": "Create from Azure Functions",
+    "azureApiManagement.importFunctionAppToApi": "Import Azure Functions"
 }

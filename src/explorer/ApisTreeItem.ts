@@ -4,6 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { ApiManagementModels } from "azure-arm-apimanagement";
+import { ApiContract, ApiCreateOrUpdateParameter } from "azure-arm-apimanagement/lib/models";
 import { window } from "vscode";
 import { AzureParentTreeItem, AzureTreeItem, createTreeItemsWithErrorHandling, DialogResponses, IParsedError, parseError, UserCancelledError } from "vscode-azureextensionui";
 import { topItemCount } from "../constants";
@@ -67,43 +68,72 @@ export class ApisTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
             });
     }
 
-    public async createChildImpl(showCreatingTreeItem: (label: string) => void, userOptions?: { apiName: string, document?: IOpenApiImportObject }): Promise<ApiTreeItem> {
-        if (userOptions && userOptions.document && userOptions.apiName) {
-            const apiName = userOptions.apiName;
+    public async createChildImpl(showCreatingTreeItem: (label: string) => void, userOptions?: { apiName: string, document?: IOpenApiImportObject, apiContract?: ApiContract }): Promise<ApiTreeItem> {
+        if (userOptions) {
+            if (userOptions.document) {
+                return await this.createApiFromOpenApi(showCreatingTreeItem, userOptions.apiName, userOptions.document);
+            } else if (userOptions.apiContract) {
+                return await this.createApiWithApiContract(showCreatingTreeItem, userOptions.apiName, userOptions.apiContract);
+            }
+        }
+        throw Error("Missing one or more userOptions when creating new Api");
+    }
+
+    private async createApiFromOpenApi(showCreatingTreeItem: (label: string) => void, apiName: string, document?: IOpenApiImportObject): Promise<ApiTreeItem> {
+        if (document && apiName) {
             showCreatingTreeItem(apiName);
             try {
-                userOptions.document.info.title = apiName;
+                document.info.title = apiName;
 
-                let apiExists: boolean = true;
-                try {
-                    await this.root.client.api.get(this.root.resourceGroupName, this.root.serviceName, apiName);
-                } catch (error) {
-                    const err: IParsedError = parseError(error);
-                    if (err.errorType.toLocaleLowerCase() === 'notfound' || err.errorType.toLowerCase() === 'resourcenotfound') {
-                        apiExists = false;
-                    }
-                }
-
-                if (apiExists) {
-                    const overwriteFlag = await window.showWarningMessage(localize("apiAlreadyExists", `API "${apiName}" already exists. Import will trigger an 'Override' of exisiting API. Do you want to continue?`), { modal: true }, DialogResponses.yes, DialogResponses.cancel);
-                    if (overwriteFlag !== DialogResponses.yes) {
-                        throw new UserCancelledError();
-                    }
-                }
+                await this.checkApiExist(apiName);
 
                 const openApiImportPayload: ApiManagementModels.ApiCreateOrUpdateParameter = { displayName: apiName, path: apiName, format: '', value: '' };
-                openApiImportPayload.protocols = userOptions.document.schemes === undefined ? ["https"] : userOptions.document.schemes;
-                openApiImportPayload.format = userOptions.document.importFormat;
-                openApiImportPayload.value = JSON.stringify(userOptions.document.sourceDocument);
+                openApiImportPayload.protocols = document.schemes === undefined ? ["https"] : document.schemes;
+                openApiImportPayload.format = document.importFormat;
+                openApiImportPayload.value = JSON.stringify(document.sourceDocument);
 
                 const options = { ifMatch: "*" };
                 const api = await this.root.client.api.createOrUpdate(this.root.resourceGroupName, this.root.serviceName, apiName, openApiImportPayload, options);
                 return new ApiTreeItem(this, api);
             } catch (error) {
-               throw new Error(processError(error, localize("createAPIFailed", `Failed to create the API ${userOptions.apiName}`)));
+                throw new Error(processError(error, localize("createAPIFailed", `Failed to create the API ${apiName}`)));
             }
         } else {
             throw Error("Expected either OpenAPI document or link.");
+        }
+    }
+
+    private async createApiWithApiContract(showCreatingTreeItem: (label: string) => void, apiName: string, apiContract?: ApiContract): Promise<ApiTreeItem> {
+        if (apiContract && apiName) {
+            showCreatingTreeItem(apiName);
+            try {
+                await this.checkApiExist(apiName);
+                const apiPayload: ApiCreateOrUpdateParameter = { displayName: apiName, path: apiName, description: apiContract.description, protocols: apiContract.protocols };
+                const api = await this.root.client.api.createOrUpdate(this.root.resourceGroupName, this.root.serviceName, apiName, apiPayload);
+                return new ApiTreeItem(this, api);
+            } catch (error) {
+                throw new Error(processError(error, localize("createAPIFailed", `Failed to create the API ${apiName}`)));
+            }
+        } else {
+            throw Error("Something went wrong when creating this new api.");
+        }
+    }
+
+    private async checkApiExist(apiName: string): Promise<void> {
+        let apiExists: boolean = true;
+        try {
+            await this.root.client.api.get(this.root.resourceGroupName, this.root.serviceName, apiName);
+        } catch (error) {
+            const err: IParsedError = parseError(error);
+            if (err.errorType.toLocaleLowerCase() === 'notfound' || err.errorType.toLowerCase() === 'resourcenotfound') {
+                apiExists = false;
+            }
+        }
+        if (apiExists) {
+            const overwriteFlag = await window.showWarningMessage(localize("apiAlreadyExists", `API "${apiName}" already exists. Import will trigger an 'Override' of exisiting API. Do you want to continue?`), { modal: true }, DialogResponses.yes, DialogResponses.cancel);
+            if (overwriteFlag !== DialogResponses.yes) {
+                throw new UserCancelledError();
+            }
         }
     }
 }
