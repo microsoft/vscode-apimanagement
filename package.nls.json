@@ -30,5 +30,7 @@
     "azureApiManagement.extractService": "Extract Service",
     "azureApiManagement.extractApi": "Extract API",
     "azureApiManagement.importFunctionApp": "Create from Azure Functions",
-    "azureApiManagement.importFunctionAppToApi": "Import Azure Functions"
+    "azureApiManagement.importFunctionAppToApi": "Import Azure Functions",
+    "azureApiManagement.addApiToGateway": "Add API to Gateway",
+    "azureApiManagement.removeApiFromGateway": "Remove API from Gateway"
 }

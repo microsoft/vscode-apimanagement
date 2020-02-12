@@ -8,12 +8,13 @@ import { ProgressLocation, window } from "vscode";
 import { AzureParentTreeItem, AzureTreeItem, DialogResponses, ISubscriptionRoot, UserCancelledError } from "vscode-azureextensionui";
 import { localize } from "../localize";
 import { getResourceGroupFromId } from "../utils/azure";
-import { nonNullProp } from "../utils/nonNull";
+import { nonNullProp, nonNullValue } from "../utils/nonNull";
 import { treeUtils } from '../utils/treeUtils';
 import { ApiOperationTreeItem } from "./ApiOperationTreeItem";
 import { ApiPolicyTreeItem } from "./ApiPolicyTreeItem";
 import { ApisTreeItem } from "./ApisTreeItem";
 import { ApiTreeItem } from "./ApiTreeItem";
+import { GatewaysTreeItem } from "./GatewaysTreeItem";
 import { IServiceTreeRoot } from "./IServiceTreeRoot";
 import { NamedValuesTreeItem } from "./NamedValuesTreeItem";
 import { NamedValueTreeItem } from "./NamedValueTreeItem";
@@ -43,6 +44,7 @@ export class ServiceTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
     public readonly servicePolicyTreeItem: ServicePolicyTreeItem;
     public readonly namedValuesTreeItem: NamedValuesTreeItem;
     public readonly productsTreeItem: ProductsTreeItem;
+    public readonly gatewaysTreeItem: GatewaysTreeItem;
 
     private _root: IServiceTreeRoot;
 
@@ -57,10 +59,15 @@ export class ServiceTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
         this.apisTreeItem = new ApisTreeItem(this);
         this.productsTreeItem = new ProductsTreeItem(this);
         this.namedValuesTreeItem = new NamedValuesTreeItem(this);
+
+        const sku = nonNullValue(this.apiManagementService.sku.name);
+        if (sku === 'Developer' || sku === 'Premium') {
+            this.gatewaysTreeItem = new GatewaysTreeItem(this);
+        }
     }
 
     public async loadMoreChildrenImpl(): Promise<AzureTreeItem<IServiceTreeRoot>[]> {
-        return [this.apisTreeItem, this.namedValuesTreeItem, this.productsTreeItem, this.servicePolicyTreeItem];
+        return [this.apisTreeItem, this.namedValuesTreeItem, this.productsTreeItem, this.servicePolicyTreeItem, this.gatewaysTreeItem];
     }
 
     public hasMoreChildrenImpl(): boolean {
