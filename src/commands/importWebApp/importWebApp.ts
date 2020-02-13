@@ -168,7 +168,6 @@ async function getWildcardOperationsForApi(apiId: string, apiName: string, node?
         const allOperations = await node.root.client.apiOperation.listByApi(node.root.resourceGroupName, node.root.serviceName, node.root.apiName);
         const existingOperationNames = getAllOperationNames(allOperations);
         const existingOperationDisplayNames = getAllOperationDisplayNames(allOperations);
-        ext.outputChannel.appendLine(localize("importWebApp", "here"));
         HttpMethods.forEach(method => {
             let operationId = getBsonObjectId();
             let operationDisName = `${apiName}_${method}`;
