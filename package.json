@@ -62,7 +62,9 @@
         "onCommand:azureApiManagement.extractService",
         "onCommand:azureApiManagement.extractApi",
         "onCommand:azureApiManagement.importFunctionApp",
-        "onCommand:azureApiManagement.importFunctionAppToApi"
+        "onCommand:azureApiManagement.importFunctionAppToApi",
+        "onCommand:azureApiManagement.importWebApp",
+        "onCommand:azureApiManagement.importWebAppToApi"
     ],
     "main": "main",
     "contributes": {
@@ -259,6 +261,16 @@
                 "command": "azureApiManagement.importFunctionAppToApi",
                 "title": "%azureApiManagement.importFunctionAppToApi%",
                 "category": "Azure API Management"
+            },
+            {
+                "command": "azureApiManagement.importWebApp",
+                "title": "%azureApiManagement.importWebApp%",
+                "category": "Azure API Management"
+            },
+            {
+                "command": "azureApiManagement.importWebAppToApi",
+                "title": "%azureApiManagement.importWebAppToApi%",
+                "category": "Azure API Management"
             }
         ],
         "viewsContainers": {
@@ -360,6 +372,11 @@
                     "group": "2@1"
                 },
                 {
+                    "command": "azureApiManagement.importWebApp",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApis",
+                    "group": "2@2"
+                },
+                {
                     "command": "azureApiManagement.Refresh",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApis",
                     "group": "3@1"
@@ -383,6 +400,11 @@
                     "command": "azureApiManagement.importFunctionAppToApi",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApi",
                     "group": "2@2"
+                },
+                {
+                    "command": "azureApiManagement.importWebAppToApi",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApi",
+                    "group": "2@3"
                 },
                 {
                     "command": "azureApiManagement.Refresh",

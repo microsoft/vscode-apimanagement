@@ -3,11 +3,9 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ApiContract, BackendContract, BackendCredentialsContract, OperationCollection, OperationContract, PropertyContract } from "azure-arm-apimanagement/lib/models";
-import { WebSiteManagementClient } from "azure-arm-website";
-import { Site, WebAppCollection } from "azure-arm-website/lib/models";
+import { ApiContract, BackendCredentialsContract, OperationCollection, OperationContract, PropertyContract } from "azure-arm-apimanagement/lib/models";
+import { Site } from "azure-arm-website/lib/models";
 import { ProgressLocation, window } from "vscode";
-import xml = require("xml");
 import { IFunctionContract } from "../../azure/webApp/contracts";
 import { FunctionAppService } from "../../azure/webApp/FunctionAppService";
 import * as Constants from "../../constants";
@@ -17,8 +15,8 @@ import { ServiceTreeItem } from "../../explorer/ServiceTreeItem";
 import { ext } from "../../extensionVariables";
 import { localize } from "../../localize";
 import { apiUtil } from "../../utils/apiUtil";
-import { azureClientUtil } from "../../utils/azureClientUtil";
 import { nonNullOrEmptyValue } from "../../utils/nonNull";
+import { webAppUtil } from "../../utils/webAppUtil";
 import { parseUrlTemplate } from "./parseUrlTemplate";
 
 export async function importFunctionAppToApi(node?: ApiTreeItem): Promise<void> {
@@ -29,7 +27,8 @@ export async function importFunctionAppToApi(node?: ApiTreeItem): Promise<void> 
     ext.outputChannel.show();
     ext.outputChannel.appendLine(localize("importFunctionApp", `Import Function App started...`));
 
-    const functionApp = await getPickedFunctionApp(node);
+    ext.outputChannel.appendLine(localize("importFunctionApp", "Getting Function Apps..."));
+    const functionApp = await webAppUtil.getPickedWebApp(node, "functionapp");
     const funcName = nonNullOrEmptyValue(functionApp.name);
     const funcAppResourceGroup = nonNullOrEmptyValue(functionApp.resourceGroup);
 
@@ -65,7 +64,8 @@ export async function importFunctionApp(node?: ApisTreeItem): Promise<void> {
     ext.outputChannel.show();
     ext.outputChannel.appendLine(localize("importFunctionApp", "Import Function App started..."));
 
-    const functionApp = await getPickedFunctionApp(node);
+    ext.outputChannel.appendLine(localize("importFunctionApp", "Getting Function Apps..."));
+    const functionApp = await webAppUtil.getPickedWebApp(node, "functionapp");
     const funcName = nonNullOrEmptyValue(functionApp.name);
     const funcAppResourceGroup = nonNullOrEmptyValue(functionApp.resourceGroup);
 
@@ -82,6 +82,7 @@ export async function importFunctionApp(node?: ApisTreeItem): Promise<void> {
         },
         async () => {
             if (node) {
+                ext.outputChannel.appendLine(localize("importFunctionApp", `Creating API...`));
                 const nApi = await constructApiFromFunctionApp(apiId, functionApp, apiName);
                 await node.createChild({ apiName, apiContract: nApi });
                 ext.outputChannel.appendLine(localize("importFunctionApp", `New API with name ${apiName} created...`));
@@ -95,12 +96,6 @@ export async function importFunctionApp(node?: ApisTreeItem): Promise<void> {
         await node!.refresh();
         window.showInformationMessage(localize("importFunctionApp", `Imported Function App succesfully.`));
     });
-}
-
-async function getPickedFunctionApp(node: ApiTreeItem | ApisTreeItem): Promise<Site> {
-    const client = azureClientUtil.getClient(node.root.credentials, node.root.subscriptionId, node.root.environment);
-    const allfunctionApps = await listFunctionApps(client);
-    return await pickFunctionApp(allfunctionApps);
 }
 
 async function addOperationsToExistingApi(node: ApiTreeItem | ApisTreeItem, apiId: string, funcs: IFunctionContract[], funcAppName: string, apiName: string, funcAppService: FunctionAppService): Promise<void> {
@@ -148,12 +143,12 @@ async function addOperationsToExistingApi(node: ApiTreeItem | ApisTreeItem, apiI
 
         const backendId = apiUtil.displayNameToIdentifier(funcAppName);
         ext.outputChannel.appendLine(localize("importFunctionApp", `Create new backend entity for the function app...`));
-        await setAppBackendEntity(backendId, funcAppName, functionAppBase, backendCredentials, node);
+        await webAppUtil.setAppBackendEntity(node, backendId, funcAppName, functionAppBase, funcAppService.resourceGroup, funcAppName, backendCredentials);
         for (const operation of allOperations) {
             ext.outputChannel.appendLine(localize("importFunctionApp", `Create policy for operations ${operation.name}...`));
             await node.root.client.apiOperationPolicy.createOrUpdate(node.root.resourceGroupName, node.root.serviceName, apiName, nonNullOrEmptyValue(operation.name), {
                 format: "rawxml",
-                value: createApiOperationXmlPolicy(backendId)
+                value: webAppUtil.createImportXmlPolicy(backendId)
             });
         }
         ext.outputChannel.appendLine(localize("importFunctionApp", `Imported Function App successfully!`));
@@ -214,62 +209,6 @@ async function pickFunctions(funcAppService: FunctionAppService): Promise<IFunct
     return pickedFuncs.map(s => { return s.func; });
 }
 
-async function listFunctionApps(client: WebSiteManagementClient): Promise<Site[]> {
-    // Get all webapps
-    ext.outputChannel.appendLine(localize("importFunctionApp", "Getting Function Apps..."));
-    const allWebApps: WebAppCollection = await client.webApps.list();
-    // tslint:disable-next-line: no-unsafe-any
-    return allWebApps.filter((ele) => !!ele.kind && ele.kind.includes('functionapp'));
-}
-
-async function pickFunctionApp(functionApps: Site[]): Promise<Site> {
-    // Pick function app
-    const funcApp = await ext.ui.showQuickPick(functionApps.map((s) => { return { label: nonNullOrEmptyValue(s.name), site: s }; }), { canPickMany: false });
-    return funcApp.site;
-}
-
-// Create policy for imported operation
-function createApiOperationXmlPolicy(backendId: string): string {
-    const operationPolicy = [{
-        policies: [
-            {
-                inbound: [
-                    { base: null },
-                    {
-                        "set-backend-service": [
-                            {
-                                _attr: {
-                                    id: "apim-generated-policy",
-                                    "backend-id": backendId
-                                }
-                            }
-                        ]
-                    }
-                ]
-            },
-            { backend: [{ base: null }] },
-            { outbound: [{ base: null }] },
-            { "on-error": [{ base: null }] }
-        ]
-    }];
-
-    return xml(operationPolicy);
-}
-
-// Create backend for the function app on api service
-async function setAppBackendEntity(backendId: string, appName: string, appPath: string, BackendCredentials: BackendCredentialsContract, node: ApisTreeItem | ApiTreeItem): Promise<void> {
-    const nbackend: BackendContract = {
-        description: `${appName}`,
-        resourceId: `${node.root.environment.resourceManagerEndpointUrl}/subscription/${node.root.subscriptionId}/resourceGroups/${node.root.resourceGroupName}/providers/Microsoft.Web/sites/${appName}`,
-        url: appPath,
-        id: backendId,
-        name: backendId,
-        protocol: "http",
-        credentials: BackendCredentials
-    };
-    await node.root.client.backend.createOrUpdate(node.root.resourceGroupName, node.root.serviceName, backendId, nbackend);
-}
-
 // Create secret named value for function app hostkey
 async function createPropertyItem(node: ApisTreeItem | ApiTreeItem, propertyId: string, hostKey: string): Promise<void> {
     const propertyContract: PropertyContract = {
@@ -302,7 +241,6 @@ function getFunctionAppBase(invokeUrlTemplate: string, route: string): string {
 }
 
 async function constructApiFromFunctionApp(apiId: string, funcApp: Site, apiName: string): Promise<ApiContract> {
-    ext.outputChannel.appendLine(localize("importFunctionApp", `Creating API...`));
     return {
         description: `Import from "${funcApp.name}" Function App`,
         id: apiId,
@@ -316,6 +254,7 @@ async function constructApiFromFunctionApp(apiId: string, funcApp: Site, apiName
 // Find all importable functions
 async function filterFunctions(functions: IFunctionContract[]): Promise<IFunctionContract[]> {
     return functions.filter(element =>
+        // tslint:disable-next-line: no-unsafe-any
         (element.properties.config !== undefined && element.properties.config.bindings !== undefined &&
             !!element.properties.config.bindings.find(ele =>
                 ele.type === Constants.HttpTriggerType &&

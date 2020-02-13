@@ -29,6 +29,8 @@ export enum HttpTriggerDirectionContract {
 }
 export const HttpTriggerAuthLevelAdmin = "admin";
 export const FunctionAppKeyLength = 40;
+export const webAppApiVersion = "2019-08-01";
+export const apimApiVersion = "2019-01-01";
 
 // constants for extractor
 export const templatesFolder = "templates";
