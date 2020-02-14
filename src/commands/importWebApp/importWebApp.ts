@@ -3,6 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+import { ApiManagementModels } from "azure-arm-apimanagement";
 import { OperationCollection, OperationContract } from "azure-arm-apimanagement/lib/models";
 import { Site } from "azure-arm-website/lib/models";
 import { ProgressLocation, window } from "vscode";
@@ -40,7 +41,7 @@ export async function importWebAppToApi(node?: ApiTreeItem): Promise<void> {
     const webAppConfig: IWebAppContract = JSON.parse(webAppConfigStr);
     if (webAppConfig.properties.apiDefinition && webAppConfig.properties.apiDefinition.url) {
         ext.outputChannel.appendLine(localize("importWebApp", "Importing Web App from swagger object..."));
-        await importFromSwagger(webAppConfig, webAppName, node.root.apiName, node, true);
+        await importFromSwagger(webAppConfig, webAppName, node.root.apiName, node);
     } else {
         window.withProgress(
             {
@@ -96,7 +97,7 @@ export async function importWebApp(node?: ApisTreeItem): Promise<void> {
     const apiName = await apiUtil.askApiName(webAppName);
     if (webAppConfig.properties.apiDefinition && webAppConfig.properties.apiDefinition.url) {
         ext.outputChannel.appendLine(localize("importWebApp", "Importing Web App from swagger object..."));
-        await importFromSwagger(webAppConfig, webAppName, apiName, node, true);
+        await importFromSwagger(webAppConfig, webAppName, apiName, node);
     } else {
         window.withProgress(
             {
@@ -135,7 +136,7 @@ export async function importWebApp(node?: ApisTreeItem): Promise<void> {
     }
 }
 
-async function importFromSwagger(webAppConfig: IWebAppContract, webAppName: string, apiName: string, node: ApiTreeItem | ApisTreeItem, isReimport: boolean): Promise<void> {
+async function importFromSwagger(webAppConfig: IWebAppContract, webAppName: string, apiName: string, node: ApiTreeItem | ApisTreeItem): Promise<void> {
     if (webAppConfig.properties.apiDefinition && webAppConfig.properties.apiDefinition.url) {
         const docStr: string = await requestUtil(webAppConfig.properties.apiDefinition.url);
         if (docStr !== undefined && docStr.trim() !== "") {
@@ -150,10 +151,18 @@ async function importFromSwagger(webAppConfig: IWebAppContract, webAppName: stri
                 },
                 // tslint:disable-next-line:no-non-null-assertion
                 async () => {
-                    ext.outputChannel.appendLine(localize("importWebApp", "Creating new API..."));
-                    // tslint:disable: no-non-null-assertion
-                    await node!.createChild({ apiName: apiName, document: document });
-                    if (!isReimport) {
+                    if (node instanceof ApiTreeItem) {
+                        ext.outputChannel.appendLine(localize("importWebApp", "Updating API..."));
+                        const openApiImportPayload: ApiManagementModels.ApiCreateOrUpdateParameter = { displayName: apiName, path: apiName, format: '', value: '' };
+                        openApiImportPayload.protocols = document.schemes === undefined ? ["https"] : document.schemes;
+                        openApiImportPayload.format = document.importFormat;
+                        openApiImportPayload.value = JSON.stringify(document.sourceDocument);
+
+                        const options = { ifMatch: "*" };
+                        await node.root.client.api.createOrUpdate(node.root.resourceGroupName, node.root.serviceName, apiName, openApiImportPayload, options);
+                    } else {
+                        ext.outputChannel.appendLine(localize("importWebApp", "Creating new API..."));
+                        await node.createChild({ apiName: apiName, document: document });
                         ext.outputChannel.appendLine(localize("importWebApp", "Updating API service url..."));
                         const curApi = await node!.root.client.api.get(node!.root.resourceGroupName, node!.root.serviceName, apiName);
                         curApi.serviceUrl = "";
