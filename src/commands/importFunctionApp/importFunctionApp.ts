@@ -93,7 +93,7 @@ export async function importFunctionApp(node?: ApisTreeItem): Promise<void> {
     ).then(async () => {
         // tslint:disable-next-line:no-non-null-assertion
         await node!.refresh();
-        window.showInformationMessage(localize("importFunctionApp", `Imported Function App succesfully.`));
+        window.showInformationMessage(localize("importFunctionApp", `Imported Function App successfully.`));
     });
 }
 

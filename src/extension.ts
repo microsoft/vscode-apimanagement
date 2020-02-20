@@ -13,6 +13,7 @@ import { addApiToProduct } from './commands/addApiToProduct';
 import { copySubscriptionKey } from './commands/copySubscriptionKey';
 import { createService } from './commands/createService';
 import { deleteNode } from './commands/deleteNode';
+import { deployGatewayWithDocker, deployGatewayWithKbs } from './commands/deployGateway';
 import { extractAPI, extractService } from './commands/extract';
 import { importFunctionApp } from './commands/importFunctionApp/importFunctionApp';
 import { importFunctionAppToApi } from './commands/importFunctionApp/importFunctionApp';
@@ -38,6 +39,7 @@ import { ProductPolicyEditor } from './explorer/editors/policy/ProductPolicyEdit
 import { ServicePolicyEditor } from './explorer/editors/policy/ServicePolicyEditor';
 import { GatewayApisTreeItem } from './explorer/GatewayApisTreeItem';
 import { GatewayApiTreeItem } from './explorer/GatewayApiTreeItem';
+import { GatewayTreeItem } from './explorer/GatewayTreeItem';
 import { NamedValuesTreeItem } from './explorer/NamedValuesTreeItem';
 import { NamedValueTreeItem } from './explorer/NamedValueTreeItem';
 import { OperationPolicyTreeItem } from './explorer/OperationPolicyTreeItem';
@@ -90,6 +92,8 @@ export function activateInternal(context: vscode.ExtensionContext) {
     registerCommand('azureApiManagement.extractApi', async (node: ApiTreeItem) => await extractAPI(node));
     registerCommand('azureApiManagement.importFunctionApp', async (node: ApisTreeItem) => await importFunctionApp(node));
     registerCommand('azureApiManagement.importFunctionAppToApi', async (node: ApiTreeItem) => await importFunctionAppToApi(node));
+    registerCommand('azureApiManagement.deployGatewayWithDocker', async (node: GatewayTreeItem) => await deployGatewayWithDocker(node));
+    registerCommand('azureApiManagement.deployGatewayWithKbs', async (node: GatewayTreeItem) => await deployGatewayWithKbs(node));
 
     registerCommand('azureApiManagement.openExtensionWorkspaceFolder', openWorkingFolder);
     registerCommand('azureApiManagement.initializeExtensionWorkspaceFolder', setupWorkingFolder);
