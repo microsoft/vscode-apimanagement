@@ -39,10 +39,22 @@ export async function deployGatewayWithDocker(node?: GatewayTreeItem): Promise<v
             const token = await getGatewayToken(node!);
             const gatewayToken = `config.service.auth="GatewayKey ${token}"`;
             ext.outputChannel.appendLine(localize("deployGateway", "Running docker..."));
+            const initialComd = `docker run -d -p 8080:8080 -p 8081:8081 --name RPGateway --env ${confEndpoint} --env ${gatewayToken} mcr.microsoft.com/azure-api-management/gateway:beta`;
+            const command = await ext.ui.showInputBox({
+                prompt: localize('dockerPrompt', 'Enter Command to run docker'),
+                value: initialComd,
+                validateInput: async (value: string): Promise<string | undefined> => {
+                    value = value ? value.trim() : '';
+                    if (value === '') {
+                        return localize("valueInvalid", 'value cannot be empty.');
+                    }
+                    return undefined;
+                }
+            });
             await cpUtils.executeCommand(
                 ext.outputChannel,
                 undefined,
-                `docker run -d -p 8080:8080 -p 8081:8081 --name RPGateway --env ${confEndpoint} --env ${gatewayToken} mcr.microsoft.com/azure-api-management/gateway:beta`
+                command
             );
             ext.outputChannel.appendLine(localize("deployGateway", "Deploying gateway with docker succeeded..."));
         }
@@ -73,7 +85,6 @@ export async function deployGatewayWithKbs(node?: GatewayTreeItem): Promise<void
             ext.outputChannel.appendLine(localize("deployGateway", "Getting gateway token..."));
             const gatewayToken = await getGatewayToken(node!);
             ext.outputChannel.appendLine(localize("deployGateway", "Generating deployment yaml file..."));
-            ext.outputChannel.appendLine(localize("deployGateway", gatewayToken));
             const confEndpoint = `"https://${node!.root.serviceName}.management.azure-api.net/subscriptions/${node!.root.subscriptionId}/resourceGroups/${node!.root.resourceGroupName}/providers/Microsoft.ApiManagement/service/${node!.root.serviceName}?api-version=2018-06-01-preview"`;
             const depYaml = genDeploymentYaml(node!.root.gatewayName, gatewayToken, confEndpoint);
             ext.outputChannel.appendLine(localize("deployGateway", "Saving deployment yaml file..."));
@@ -110,7 +121,7 @@ function genDeploymentYaml(gatewayName: string, gatewayToken: string, gatewayEnd
     const gatewayNameLowercase = gatewayName.toLocaleLowerCase();
     // tslint:disable-next-line: no-unnecessary-local-variable
     const gatewayContent =
-`apiVersion: v1
+        `apiVersion: v1
 kind: Secret
 metadata:
   name: ${gatewayNameLowercase}-token
