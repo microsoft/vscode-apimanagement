@@ -4,9 +4,11 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { ApiManagementModels } from "azure-arm-apimanagement";
-import { OperationCollection, OperationContract } from "azure-arm-apimanagement/lib/models";
-import { Site } from "azure-arm-website/lib/models";
+import { ApiContract, BackendContract, BackendCredentialsContract, OperationCollection, OperationContract } from "azure-arm-apimanagement/lib/models";
+import WebSiteManagementClient from "azure-arm-website";
+import { Site, WebAppCollection } from "azure-arm-website/lib/models";
 import { ProgressLocation, window } from "vscode";
+import xml = require("xml");
 import { IOpenApiImportObject, OpenApiParser } from "../../../extension.bundle";
 import { IWebAppContract } from "../../azure/webApp/contracts";
 import * as Constants from "../../constants";
@@ -16,10 +18,10 @@ import { ServiceTreeItem } from "../../explorer/ServiceTreeItem";
 import { ext } from "../../extensionVariables";
 import { localize } from "../../localize";
 import { apiUtil } from "../../utils/apiUtil";
+import { azureClientUtil } from "../../utils/azureClientUtil";
 import { processError } from "../../utils/errorUtil";
 import { nonNullOrEmptyValue, nonNullValue } from "../../utils/nonNull";
 import { requestUtil } from "../../utils/requestUtil";
-import { webAppUtil } from "../../utils/webAppUtil";
 
 export async function importWebAppToApi(node?: ApiTreeItem): Promise<void> {
     if (!node) {
@@ -30,10 +32,10 @@ export async function importWebAppToApi(node?: ApiTreeItem): Promise<void> {
     ext.outputChannel.appendLine(localize("importWebApp", "Import Web App started..."));
 
     ext.outputChannel.appendLine(localize("importWebApp", "Getting Web App to import..."));
-    const pickedWebApp: Site = await webAppUtil.getPickedWebApp(node, "webApp");
+    const pickedWebApp: Site = await getPickedWebApp(node, "webApp");
     const resourceGroup = nonNullOrEmptyValue(pickedWebApp.resourceGroup);
     const webAppName = nonNullOrEmptyValue(pickedWebApp.name);
-    const webConfigbaseUrl = `${node.root.environment.resourceManagerEndpointUrl}/subscriptions/${node.root.subscriptionId}/resourceGroups/${resourceGroup}/providers/Microsoft.web/sites/${webAppName}/config/web?api-version=${Constants.webAppApiVersion}`;
+    const webConfigbaseUrl = `${node.root.environment.resourceManagerEndpointUrl}/subscriptions/${node.root.subscriptionId}/resourceGroups/${resourceGroup}/providers/Microsoft.web/sites/${webAppName}/config/web?api-version=${Constants.webAppApiVersion20190801}`;
     ext.outputChannel.appendLine(localize("importWebApp", "Getting picked Web App's config..."));
     const webAppConfigStr: string = await requestUtil(webConfigbaseUrl, node.root.credentials, "GET");
 
@@ -54,7 +56,7 @@ export async function importWebAppToApi(node?: ApiTreeItem): Promise<void> {
                 const backendId = `WebApp_${apiUtil.displayNameToIdentifier(webAppName)}`;
                 // tslint:disable: no-non-null-assertion
                 ext.outputChannel.appendLine(localize("importWebApp", "Setting API backend entity..."));
-                await webAppUtil.setAppBackendEntity(node!, backendId, node!.root.apiName, serviceUrl, resourceGroup, webAppName);
+                await setAppBackendEntity(node!, backendId, node!.root.apiName, serviceUrl, resourceGroup, webAppName);
                 const operations = await getWildcardOperationsForApi(node!.id, node!.root.apiName, node);
                 ext.outputChannel.appendLine(localize("importWebApp", "Creating operations..."));
                 for (const operation of operations) {
@@ -62,7 +64,7 @@ export async function importWebAppToApi(node?: ApiTreeItem): Promise<void> {
                     ext.outputChannel.appendLine(localize("importWebApp", `Creating policies for ${nonNullOrEmptyValue(operation.displayName)}...`));
                     await node!.root.client.apiOperationPolicy.createOrUpdate(node!.root.resourceGroupName, node!.root.serviceName, node!.root.apiName, nonNullOrEmptyValue(operation.name), {
                         format: "rawxml",
-                        value: webAppUtil.createImportXmlPolicy(backendId)
+                        value: createImportXmlPolicy(backendId)
                     });
                 }
                 ext.outputChannel.appendLine(localize("importWebApp", "Import Web App succeed!"));
@@ -85,10 +87,10 @@ export async function importWebApp(node?: ApisTreeItem): Promise<void> {
     ext.outputChannel.appendLine(localize("importWebApp", "Import Web App started..."));
 
     ext.outputChannel.appendLine(localize("importWebApp", "Getting Web App to import..."));
-    const pickedWebApp: Site = await webAppUtil.getPickedWebApp(node, "webApp");
+    const pickedWebApp: Site = await getPickedWebApp(node, "webApp");
     const resourceGroup = nonNullOrEmptyValue(pickedWebApp.resourceGroup);
     const webAppName = nonNullOrEmptyValue(pickedWebApp.name);
-    const webConfigbaseUrl = `${node.root.environment.resourceManagerEndpointUrl}/subscriptions/${node.root.subscriptionId}/resourceGroups/${resourceGroup}/providers/Microsoft.web/sites/${webAppName}/config/web?api-version=${Constants.webAppApiVersion}`;
+    const webConfigbaseUrl = `${node.root.environment.resourceManagerEndpointUrl}/subscriptions/${node.root.subscriptionId}/resourceGroups/${resourceGroup}/providers/Microsoft.web/sites/${webAppName}/config/web?api-version=${Constants.webAppApiVersion20190801}`;
     ext.outputChannel.appendLine(localize("importWebApp", "Getting picked Web App's config..."));
     const webAppConfigStr: string = await requestUtil(webConfigbaseUrl, node.root.credentials, "GET");
 
@@ -110,16 +112,16 @@ export async function importWebApp(node?: ApisTreeItem): Promise<void> {
                 ext.outputChannel.appendLine(localize("importWebApp", "Importing Web App from wildcard..."));
                 const apiId = apiUtil.genApiId(apiName);
                 ext.outputChannel.appendLine(localize("importWebApp", "Creating new API..."));
-                const nApi = await webAppUtil.constructApiFromWebApp(apiId, pickedWebApp, apiName);
+                const nApi = await constructApiFromWebApp(apiId, pickedWebApp, apiName);
                 await node!.createChild({ apiName, apiContract: nApi });
                 const serviceUrl = "https://".concat(nonNullOrEmptyValue(nonNullValue(pickedWebApp.hostNames)[0]));
                 const backendId = `WebApp_${apiUtil.displayNameToIdentifier(webAppName)}`;
                 ext.outputChannel.appendLine(localize("importWebApp", "Checking backend entity..."));
-                await webAppUtil.setAppBackendEntity(node!, backendId, apiName, serviceUrl, resourceGroup, webAppName);
+                await setAppBackendEntity(node!, backendId, apiName, serviceUrl, resourceGroup, webAppName);
                 ext.outputChannel.appendLine(localize("importWebApp", "Creating policies..."));
                 await node!.root.client.apiPolicy.createOrUpdate(node!.root.resourceGroupName, node!.root.serviceName, apiName, {
                     format: "rawxml",
-                    value: webAppUtil.createImportXmlPolicy(backendId)
+                    value: createImportXmlPolicy(backendId)
                 });
                 ext.outputChannel.appendLine(localize("importWebApp", "Create operations for API..."));
                 const operations = await getWildcardOperationsForApi(apiId, apiName);
@@ -134,6 +136,80 @@ export async function importWebApp(node?: ApisTreeItem): Promise<void> {
             window.showInformationMessage(localize("importWebApp", `Imported Web App '${webAppName}' to API Management succesfully.`));
         });
     }
+}
+
+export async function getPickedWebApp(node: ApiTreeItem | ApisTreeItem, webAppType: string): Promise<Site> {
+    const client = azureClientUtil.getClient(node.root.credentials, node.root.subscriptionId, node.root.environment);
+    const allfunctionApps = await listWebApps(client, webAppType);
+    return await pickWebApp(allfunctionApps);
+}
+
+export async function listWebApps(client: WebSiteManagementClient, webAppType: string): Promise<Site[]> {
+    const allWebApps: WebAppCollection = await client.webApps.list();
+    if ((webAppType === "webApp")) {
+        return allWebApps.filter((ele) => !!ele.kind && !ele.kind.includes("functionapp"));
+    }
+    return allWebApps.filter((ele) => !!ele.kind && ele.kind.includes("functionapp"));
+}
+
+export async function pickWebApp(apiApps: Site[]): Promise<Site> {
+    // Pick function app
+    const apiApp = await ext.ui.showQuickPick(apiApps.map((s) => { return { label: nonNullOrEmptyValue(s.name), site: s }; }), { canPickMany: false });
+    return apiApp.site;
+}
+
+// Create policy for importing
+export function createImportXmlPolicy(backendId: string): string {
+    const operationPolicy = [{
+        policies: [
+            {
+                inbound: [
+                    { base: null },
+                    {
+                        "set-backend-service": [
+                            {
+                                _attr: {
+                                    id: "apim-generated-policy",
+                                    "backend-id": backendId
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            { backend: [{ base: null }] },
+            { outbound: [{ base: null }] },
+            { "on-error": [{ base: null }] }
+        ]
+    }];
+
+    return xml(operationPolicy);
+}
+
+// Create backend for the web app
+export async function setAppBackendEntity(node: ApisTreeItem | ApiTreeItem, backendId: string, appName: string, appPath: string, appResourceGroup: string, webAppName: string, BackendCredentials?: BackendCredentialsContract): Promise<void> {
+    const nbackend: BackendContract = {
+        description: `${appName}`,
+        resourceId: `${node.root.environment.resourceManagerEndpointUrl}/subscriptions/${node.root.subscriptionId}/resourceGroups/${appResourceGroup}/providers/Microsoft.Web/sites/${webAppName}`,
+        url: appPath,
+        id: backendId,
+        name: backendId,
+        protocol: "http",
+        credentials: BackendCredentials
+    };
+    await node.root.client.backend.createOrUpdate(node.root.resourceGroupName, node.root.serviceName, backendId, nbackend);
+}
+
+// Create new api from web app
+export async function constructApiFromWebApp(apiId: string, webApp: Site, apiName: string): Promise<ApiContract> {
+    return {
+        description: `Import from "${webApp.name}" Function App`,
+        id: apiId,
+        name: apiName,
+        displayName: apiName,
+        path: "",
+        protocols: ["https"]
+    };
 }
 
 async function importFromSwagger(webAppConfig: IWebAppContract, webAppName: string, apiName: string, node: ApiTreeItem | ApisTreeItem): Promise<void> {

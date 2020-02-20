@@ -16,7 +16,7 @@ import { ext } from "../../extensionVariables";
 import { localize } from "../../localize";
 import { apiUtil } from "../../utils/apiUtil";
 import { nonNullOrEmptyValue } from "../../utils/nonNull";
-import { webAppUtil } from "../../utils/webAppUtil";
+import { createImportXmlPolicy, getPickedWebApp, setAppBackendEntity } from "../importWebApp/importWebApp";
 import { parseUrlTemplate } from "./parseUrlTemplate";
 
 export async function importFunctionAppToApi(node?: ApiTreeItem): Promise<void> {
@@ -28,7 +28,7 @@ export async function importFunctionAppToApi(node?: ApiTreeItem): Promise<void> 
     ext.outputChannel.appendLine(localize("importFunctionApp", `Import Function App started...`));
 
     ext.outputChannel.appendLine(localize("importFunctionApp", "Getting Function Apps..."));
-    const functionApp = await webAppUtil.getPickedWebApp(node, "functionapp");
+    const functionApp = await getPickedWebApp(node, "functionapp");
     const funcName = nonNullOrEmptyValue(functionApp.name);
     const funcAppResourceGroup = nonNullOrEmptyValue(functionApp.resourceGroup);
 
@@ -65,7 +65,7 @@ export async function importFunctionApp(node?: ApisTreeItem): Promise<void> {
     ext.outputChannel.appendLine(localize("importFunctionApp", "Import Function App started..."));
 
     ext.outputChannel.appendLine(localize("importFunctionApp", "Getting Function Apps..."));
-    const functionApp = await webAppUtil.getPickedWebApp(node, "functionapp");
+    const functionApp = await getPickedWebApp(node, "functionapp");
     const funcName = nonNullOrEmptyValue(functionApp.name);
     const funcAppResourceGroup = nonNullOrEmptyValue(functionApp.resourceGroup);
 
@@ -143,12 +143,12 @@ async function addOperationsToExistingApi(node: ApiTreeItem | ApisTreeItem, apiI
 
         const backendId = apiUtil.displayNameToIdentifier(funcAppName);
         ext.outputChannel.appendLine(localize("importFunctionApp", `Create new backend entity for the function app...`));
-        await webAppUtil.setAppBackendEntity(node, backendId, funcAppName, functionAppBase, funcAppService.resourceGroup, funcAppName, backendCredentials);
+        await setAppBackendEntity(node, backendId, funcAppName, functionAppBase, funcAppService.resourceGroup, funcAppName, backendCredentials);
         for (const operation of allOperations) {
             ext.outputChannel.appendLine(localize("importFunctionApp", `Create policy for operations ${operation.name}...`));
             await node.root.client.apiOperationPolicy.createOrUpdate(node.root.resourceGroupName, node.root.serviceName, apiName, nonNullOrEmptyValue(operation.name), {
                 format: "rawxml",
-                value: webAppUtil.createImportXmlPolicy(backendId)
+                value: createImportXmlPolicy(backendId)
             });
         }
         ext.outputChannel.appendLine(localize("importFunctionApp", `Imported Function App successfully!`));
