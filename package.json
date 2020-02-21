@@ -63,8 +63,8 @@
         "onCommand:azureApiManagement.extractApi",
         "onCommand:azureApiManagement.importFunctionApp",
         "onCommand:azureApiManagement.importFunctionAppToApi",
-        "onCommand:azureApiManagement.deployGatewayWithDocker",
-        "onCommand:azureApiManagement.deployGatewayWithKbs"
+        "onCommand:azureApiManagement.copyRunDockerCommand",
+        "onCommand:azureApiManagement.genDeployGatewayWithKbsFile"
     ],
     "main": "main",
     "contributes": {
@@ -262,13 +262,13 @@
                 "category": "Azure API Management"
             },
             {
-                "command": "azureApiManagement.deployGatewayWithDocker",
-                "title": "%azureApiManagement.deployGatewayWithDocker%",
+                "command": "azureApiManagement.copyRunDockerCommand",
+                "title": "%azureApiManagement.copyRunDockerCommand%",
                 "category": "Azure API Management"
             },
             {
-                "command": "azureApiManagement.deployGatewayWithKbs",
-                "title": "%azureApiManagement.deployGatewayWithKbs%",
+                "command": "azureApiManagement.genDeployGatewayWithKbsFile",
+                "title": "%azureApiManagement.genDeployGatewayWithKbsFile%",
                 "category": "Azure API Management"
             }
         ],
@@ -451,12 +451,12 @@
                     "group": "1@1"
                 },
                 {
-                    "command": "azureApiManagement.deployGatewayWithDocker",
+                    "command": "azureApiManagement.copyRunDockerCommand",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementGatewayTreeItem",
                     "group": "1@1"
                 },
                 {
-                    "command": "azureApiManagement.deployGatewayWithKbs",
+                    "command": "azureApiManagement.genDeployGatewayWithKbsFile",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementGatewayTreeItem",
                     "group": "1@2"
                 }

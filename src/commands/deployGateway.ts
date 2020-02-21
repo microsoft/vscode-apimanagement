@@ -5,7 +5,7 @@
 
 import * as fse from 'fs-extra';
 import * as path from 'path';
-import { OpenDialogOptions, ProgressLocation, Uri, window, workspace } from "vscode";
+import { env, OpenDialogOptions, ProgressLocation, Uri, window, workspace } from "vscode";
 import { DialogResponses } from '../../extension.bundle';
 import { IGatewayToken } from '../azure/apim/contracts';
 import { GatewayTreeItem } from "../explorer/GatewayTreeItem";
@@ -16,18 +16,18 @@ import { openUrl } from '../utils/openUrl';
 import { requestTest } from '../utils/requestUtil';
 
 // tslint:disable-next-line: export-name
-export async function deployGatewayWithDocker(node?: GatewayTreeItem): Promise<void> {
+export async function copyRunDockerCommand(node?: GatewayTreeItem): Promise<void> {
     if (!node) {
         node = <GatewayTreeItem>await ext.tree.showTreeItemPicker(GatewayTreeItem.contextValue);
     }
 
     ext.outputChannel.show();
-    ext.outputChannel.appendLine(localize("deployGateway", "Deploying gateway with docker..."));
+    ext.outputChannel.appendLine(localize("deployGateway", "Generating command for running gateway in docker..."));
 
     window.withProgress(
         {
             location: ProgressLocation.Notification,
-            title: localize("DeployGateway", "Deploying gateway with docker."),
+            title: localize("DeployGateway", "Generate command for running in Docker."),
             cancellable: true
         },
         async () => {
@@ -38,45 +38,29 @@ export async function deployGatewayWithDocker(node?: GatewayTreeItem): Promise<v
             ext.outputChannel.appendLine(localize("deployGateway", "Getting gateway token..."));
             const token = await getGatewayToken(node!);
             const gatewayToken = `config.service.auth="GatewayKey ${token}"`;
-            ext.outputChannel.appendLine(localize("deployGateway", "Running docker..."));
             const initialComd = `docker run -d -p 8080:8080 -p 8081:8081 --name RPGateway --env ${confEndpoint} --env ${gatewayToken} mcr.microsoft.com/azure-api-management/gateway:beta`;
-            const command = await ext.ui.showInputBox({
-                prompt: localize('dockerPrompt', 'Enter Command to run docker'),
-                value: initialComd,
-                validateInput: async (value: string): Promise<string | undefined> => {
-                    value = value ? value.trim() : '';
-                    if (value === '') {
-                        return localize("valueInvalid", 'value cannot be empty.');
-                    }
-                    return undefined;
-                }
-            });
-            await cpUtils.executeCommand(
-                ext.outputChannel,
-                undefined,
-                command
-            );
-            ext.outputChannel.appendLine(localize("deployGateway", "Deploying gateway with docker succeeded..."));
+            env.clipboard.writeText(initialComd);
+            ext.outputChannel.appendLine(localize("deployGateway", "Copy command for running in Docker to clipboard succeeds..."));
         }
     ).then(async () => {
         // tslint:disable-next-line:no-non-null-assertion
         await node!.refresh();
-        window.showInformationMessage(localize("deployGateway", "Deployed gateway through docker successfully."));
+        window.showInformationMessage(localize("deployGateway", "Copy command for running gateway in docker to clipboard successfully."));
     });
 }
 
-export async function deployGatewayWithKbs(node?: GatewayTreeItem): Promise<void> {
+export async function genDeployGatewayWithKbsFile(node?: GatewayTreeItem): Promise<void> {
     if (!node) {
         node = <GatewayTreeItem>await ext.tree.showTreeItemPicker(GatewayTreeItem.contextValue);
     }
 
     ext.outputChannel.show();
-    ext.outputChannel.appendLine(localize("deployGateway", "Deploying gateway with kubernetes..."));
+    ext.outputChannel.appendLine(localize("deployGateway", "Generating deployment file for running in Kubernetes..."));
 
     window.withProgress(
         {
             location: ProgressLocation.Notification,
-            title: localize("DeployGateway", "Deploying gateway with docker."),
+            title: localize("DeployGateway", "Generating deployment file for running in Kubernetes."),
             cancellable: true
         },
         async () => {
@@ -90,17 +74,13 @@ export async function deployGatewayWithKbs(node?: GatewayTreeItem): Promise<void
             ext.outputChannel.appendLine(localize("deployGateway", "Saving deployment yaml file..."));
             const uris = await askFolder();
             const configFilePath = path.join(uris[0].fsPath, `${node!.root.gatewayName}.yaml`);
-            try { await fse.writeFile(configFilePath, depYaml); } catch (error) { ext.outputChannel.appendLine(localize("deployGateway", String(error))); }
-            ext.outputChannel.appendLine(localize("deployGateway", "Starting running kubernetes..."));
-            await cpUtils.executeCommand(
-                ext.outputChannel,
-                undefined,
-                `kubectl apply -f ${configFilePath}`
-            );
-            ext.outputChannel.appendLine(localize("deployGateway", "Deploying gateway with kubernetes succeeded..."));
+            await fse.writeFile(configFilePath, depYaml);
+            ext.outputChannel.appendLine(localize("deployGateway", "Copied command for running gateway with kubernetes to clipboard..."));
+            env.clipboard.writeText(`kubectl apply -f ${configFilePath}`);
+            ext.outputChannel.appendLine(localize("deployGateway", "Generating deployment file and getting command for running in Kubernetes succeeds..."));
         }).then(async () => {
             await node!.refresh();
-            window.showInformationMessage(localize("deployGateway", "Deployed gateway through docker successfully."));
+            window.showInformationMessage(localize("deployGateway", "Generate deployment file and getting command for running in Kubernetes successfully."));
         });
 }
 
