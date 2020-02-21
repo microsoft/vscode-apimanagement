@@ -6,102 +6,143 @@
 import * as fse from 'fs-extra';
 import * as path from 'path';
 import { env, OpenDialogOptions, ProgressLocation, Uri, window, workspace } from "vscode";
-import { DialogResponses } from '../../extension.bundle';
-import { IGatewayToken } from '../azure/apim/contracts';
+import { IGatewayToken, IGatewayTokenList } from '../azure/apim/contracts';
 import { GatewayTreeItem } from "../explorer/GatewayTreeItem";
 import { ext } from "../extensionVariables";
 import { localize } from "../localize";
-import { cpUtils } from "../utils/cpUtils";
-import { openUrl } from '../utils/openUrl';
-import { requestTest } from '../utils/requestUtil';
+import { requestUtil } from '../utils/requestUtil';
 
 // tslint:disable-next-line: export-name
-export async function copyRunDockerCommand(node?: GatewayTreeItem): Promise<void> {
-    if (!node) {
-        node = <GatewayTreeItem>await ext.tree.showTreeItemPicker(GatewayTreeItem.contextValue);
+export async function copyDockerRunCommand(node?: GatewayTreeItem): Promise<void> {
+  if (!node) {
+    node = <GatewayTreeItem>await ext.tree.showTreeItemPicker(GatewayTreeItem.contextValue);
+  }
+
+  ext.outputChannel.show();
+  ext.outputChannel.appendLine(localize("deployGateway", "Generating command for running gateway in docker..."));
+
+  window.withProgress(
+    {
+      location: ProgressLocation.Notification,
+      title: localize("DeployGateway", "Generate command for running in Docker."),
+      cancellable: true
+    },
+    async () => {
+      // tslint:disable: no-non-null-assertion
+      const confEndpoint = `config.service.endpoint="https://${node!.root.serviceName}.management.azure-api.net/subscriptions/${node!.root.subscriptionId}/resourceGroups/${node!.root.resourceGroupName}/providers/Microsoft.ApiManagement/service/${node!.root.serviceName}?api-version=2018-06-01-preview"`;
+      ext.outputChannel.appendLine(localize("deployGateway", "Getting gateway token..."));
+      const token = await getGatewayToken(node!);
+      const gatewayToken = `config.service.auth="GatewayKey ${token}"`;
+      const initialComd = `docker run -d -p 8080:8080 -p 8081:8081 --name RPGateway --env ${confEndpoint} --env ${gatewayToken} mcr.microsoft.com/azure-api-management/gateway:beta`;
+      env.clipboard.writeText(initialComd);
+      ext.outputChannel.appendLine(localize("deployGateway", "Copy command for running in Docker to clipboard succeeds..."));
     }
+  ).then(async () => {
+    // tslint:disable-next-line:no-non-null-assertion
+    await node!.refresh();
+    window.showInformationMessage(localize("deployGateway", "Copy command for running gateway in docker to clipboard successfully."));
+  });
+}
 
-    ext.outputChannel.show();
-    ext.outputChannel.appendLine(localize("deployGateway", "Generating command for running gateway in docker..."));
+export async function generateKubernetesDeployment(node?: GatewayTreeItem): Promise<void> {
+  if (!node) {
+    node = <GatewayTreeItem>await ext.tree.showTreeItemPicker(GatewayTreeItem.contextValue);
+  }
 
-    window.withProgress(
-        {
-            location: ProgressLocation.Notification,
-            title: localize("DeployGateway", "Generate command for running in Docker."),
-            cancellable: true
-        },
-        async () => {
-            // tslint:disable: no-non-null-assertion
-            ext.outputChannel.appendLine(localize("deployGateway", "Checking components installed..."));
-            await checkComponentInstalled(componentType.Docker);
-            const confEndpoint = `config.service.endpoint="https://${node!.root.serviceName}.management.azure-api.net/subscriptions/${node!.root.subscriptionId}/resourceGroups/${node!.root.resourceGroupName}/providers/Microsoft.ApiManagement/service/${node!.root.serviceName}?api-version=2018-06-01-preview"`;
-            ext.outputChannel.appendLine(localize("deployGateway", "Getting gateway token..."));
-            const token = await getGatewayToken(node!);
-            const gatewayToken = `config.service.auth="GatewayKey ${token}"`;
-            const initialComd = `docker run -d -p 8080:8080 -p 8081:8081 --name RPGateway --env ${confEndpoint} --env ${gatewayToken} mcr.microsoft.com/azure-api-management/gateway:beta`;
-            env.clipboard.writeText(initialComd);
-            ext.outputChannel.appendLine(localize("deployGateway", "Copy command for running in Docker to clipboard succeeds..."));
-        }
-    ).then(async () => {
-        // tslint:disable-next-line:no-non-null-assertion
-        await node!.refresh();
-        window.showInformationMessage(localize("deployGateway", "Copy command for running gateway in docker to clipboard successfully."));
+  ext.outputChannel.show();
+  ext.outputChannel.appendLine(localize("deployGateway", "Generating deployment file for running in Kubernetes..."));
+
+  window.withProgress(
+    {
+      location: ProgressLocation.Notification,
+      title: localize("DeployGateway", "Generating deployment file for running in Kubernetes."),
+      cancellable: true
+    },
+    async () => {
+      ext.outputChannel.appendLine(localize("deployGateway", "Getting gateway token..."));
+      const gatewayToken = await getGatewayToken(node!);
+      ext.outputChannel.appendLine(localize("deployGateway", "Generating deployment yaml file..."));
+      const confEndpoint = `"https://${node!.root.serviceName}.management.azure-api.net/subscriptions/${node!.root.subscriptionId}/resourceGroups/${node!.root.resourceGroupName}/providers/Microsoft.ApiManagement/service/${node!.root.serviceName}?api-version=2018-06-01-preview"`;
+      const depYaml = genDeploymentYaml(node!.root.gatewayName, gatewayToken, confEndpoint);
+      const uris = await askFolder();
+      const configFilePath = path.join(uris[0].fsPath, `${node!.root.gatewayName}.yaml`);
+      await fse.writeFile(configFilePath, depYaml);
+      ext.outputChannel.appendLine(localize("deployGateway", "Copied command for running gateway with kubernetes to clipboard..."));
+      env.clipboard.writeText(`kubectl apply -f ${configFilePath}`);
+      ext.outputChannel.appendLine(localize("deployGateway", "Generating deployment file and getting command for running in Kubernetes succeeds..."));
+    }).then(async () => {
+      await node!.refresh();
+      window.showInformationMessage(localize("deployGateway", "Generate deployment file and getting command for running in Kubernetes successfully."));
     });
 }
 
-export async function genDeployGatewayWithKbsFile(node?: GatewayTreeItem): Promise<void> {
-    if (!node) {
-        node = <GatewayTreeItem>await ext.tree.showTreeItemPicker(GatewayTreeItem.contextValue);
+export async function copyGatewayToken(node?: GatewayTreeItem): Promise<void> {
+  if (!node) {
+    node = <GatewayTreeItem>await ext.tree.showTreeItemPicker(GatewayTreeItem.contextValue);
+  }
+
+  ext.outputChannel.show();
+  const gatewayToken = await getGatewayToken(node);
+  env.clipboard.writeText(gatewayToken);
+  window.showInformationMessage(localize("copyGatewayToken", "Gateway token copied to clipboard successfully."));
+  ext.outputChannel.appendLine(localize("copyGatewayToken", "Gateway token copied to clipboard..."));
+}
+
+export async function genNewGatewayToken(node?: GatewayTreeItem): Promise<void> {
+  if (!node) {
+    node = <GatewayTreeItem>await ext.tree.showTreeItemPicker(GatewayTreeItem.contextValue);
+  }
+
+  ext.outputChannel.show();
+  ext.outputChannel.appendLine(localize("genGatewayToken", "Please specify the expiry date for the Gateway token..."));
+  const response = (await ext.ui.showInputBox({
+    prompt: localize('gatewayPrompt', 'Enter days to expire.'),
+    value: "30",
+    validateInput: async (value: string): Promise<string | undefined> => {
+      value = value ? value.trim() : '';
+      if (!validateDays(value)) {
+        return localize("InvalidDays", "Input is not valid.");
+      }
+      return undefined;
     }
+  })).trim();
+  const numOfDays = Number.parseInt(response);
+  const gatewayToken = await genNewGwToken(node!, numOfDays);
+  env.clipboard.writeText(gatewayToken);
+  window.showInformationMessage(localize("genGatewayToken", "New Gateway token generated and copied to clipboard successfully."));
+  ext.outputChannel.appendLine(localize("genGatewayToken", "New Gateway token generated and copied to clipboard..."));
+}
 
-    ext.outputChannel.show();
-    ext.outputChannel.appendLine(localize("deployGateway", "Generating deployment file for running in Kubernetes..."));
-
-    window.withProgress(
-        {
-            location: ProgressLocation.Notification,
-            title: localize("DeployGateway", "Generating deployment file for running in Kubernetes."),
-            cancellable: true
-        },
-        async () => {
-            ext.outputChannel.appendLine(localize("deployGateway", "Checking components installed..."));
-            await checkComponentInstalled(componentType.Kubernetes);
-            ext.outputChannel.appendLine(localize("deployGateway", "Getting gateway token..."));
-            const gatewayToken = await getGatewayToken(node!);
-            ext.outputChannel.appendLine(localize("deployGateway", "Generating deployment yaml file..."));
-            const confEndpoint = `"https://${node!.root.serviceName}.management.azure-api.net/subscriptions/${node!.root.subscriptionId}/resourceGroups/${node!.root.resourceGroupName}/providers/Microsoft.ApiManagement/service/${node!.root.serviceName}?api-version=2018-06-01-preview"`;
-            const depYaml = genDeploymentYaml(node!.root.gatewayName, gatewayToken, confEndpoint);
-            ext.outputChannel.appendLine(localize("deployGateway", "Saving deployment yaml file..."));
-            const uris = await askFolder();
-            const configFilePath = path.join(uris[0].fsPath, `${node!.root.gatewayName}.yaml`);
-            await fse.writeFile(configFilePath, depYaml);
-            ext.outputChannel.appendLine(localize("deployGateway", "Copied command for running gateway with kubernetes to clipboard..."));
-            env.clipboard.writeText(`kubectl apply -f ${configFilePath}`);
-            ext.outputChannel.appendLine(localize("deployGateway", "Generating deployment file and getting command for running in Kubernetes succeeds..."));
-        }).then(async () => {
-            await node!.refresh();
-            window.showInformationMessage(localize("deployGateway", "Generate deployment file and getting command for running in Kubernetes successfully."));
-        });
+function validateDays(days: string): boolean {
+  const numOfDays = Number.parseInt(days);
+  return numOfDays.toString().length === days.length && numOfDays < 1000 && numOfDays > 0 && !isNaN(numOfDays);
 }
 
 async function getGatewayToken(node: GatewayTreeItem): Promise<string> {
-    ext.outputChannel.appendLine(localize("deployGateway", "Generating expiry date..."));
-    const now = new Date();
-    const after30days = now.setDate(now.getDate() + 30);
-    const expiryDate = (new Date(after30days)).toISOString();
-    const gatewayUrl = `https://management.azure.com/subscriptions/${node.root.subscriptionId}/resourceGroups/${node.root.resourceGroupName}/providers/Microsoft.ApiManagement/service/${node.root.serviceName}/gateways/${node.root.gatewayName}/token?api-version=2018-06-01-preview`;
-    const res: IGatewayToken = await requestTest(gatewayUrl, node.root.credentials, "POST", {
-        keyType: "primary",
-        expiry: expiryDate
-    });
-    return res.value;
+  const gatewayUrl = `https://management.azure.com/subscriptions/${node.root.subscriptionId}/resourceGroups/${node.root.resourceGroupName}/providers/Microsoft.ApiManagement/service/${node.root.serviceName}/gateways/${node.root.gatewayName}/keys?api-version=2018-06-01-preview`;
+  const res: string = await requestUtil(gatewayUrl, node.root.credentials, "POST");
+  // tslint:disable-next-line: no-unsafe-any
+  const tokens: IGatewayTokenList = JSON.parse(res);
+  return tokens.primary;
+}
+
+async function genNewGwToken(node: GatewayTreeItem, numOfDays: number): Promise<string> {
+  const now = new Date();
+  const timeSpan = now.setDate(now.getDate() + numOfDays);
+  const expiryDate = (new Date(timeSpan)).toISOString();
+  const gatewayUrl = `https://management.azure.com/subscriptions/${node.root.subscriptionId}/resourceGroups/${node.root.resourceGroupName}/providers/Microsoft.ApiManagement/service/${node.root.serviceName}/gateways/${node.root.gatewayName}/token?api-version=2018-06-01-preview`;
+  const res: IGatewayToken = await requestUtil(gatewayUrl, node.root.credentials, "POST", {
+    keyType: "primary",
+    expiry: expiryDate
+  });
+  return res.value;
 }
 
 function genDeploymentYaml(gatewayName: string, gatewayToken: string, gatewayEndpoint: string): string {
-    const gatewayNameLowercase = gatewayName.toLocaleLowerCase();
-    // tslint:disable-next-line: no-unnecessary-local-variable
-    const gatewayContent =
-        `apiVersion: v1
+  const gatewayNameLowercase = gatewayName.toLocaleLowerCase();
+  // tslint:disable-next-line: no-unnecessary-local-variable
+  const gatewayContent =
+    `apiVersion: v1
 kind: Secret
 metadata:
   name: ${gatewayNameLowercase}-token
@@ -163,51 +204,20 @@ spec:
     targetPort: 8081
   selector:
     app: ${gatewayNameLowercase}`;
-    return gatewayContent;
-}
-
-async function isComponentInstalled(command: string): Promise<boolean> {
-    try {
-        await cpUtils.executeCommand(undefined, undefined, command);
-        return true;
-    } catch (error) {
-        return false;
-    }
-}
-
-async function checkComponentInstalled(component: string): Promise<void> {
-    let isInstalled = false;
-    isInstalled = component === componentType.Docker ? await isComponentInstalled("docker --version") : await isComponentInstalled("kubectl version --client");
-    const uri = component === componentType.Docker ? 'https://docs.docker.com/install/' : "https://kubernetes.io/docs/tasks/tools/install-kubectl/";
-    if (!isInstalled) {
-        const message: string = localize('compInstalled', `You must have the ${component} installed to perform this operation.`);
-
-        window.showErrorMessage(message, DialogResponses.learnMore).then(async (result) => {
-            if (result === DialogResponses.learnMore) {
-                await openUrl(uri);
-            }
-        });
-
-        throw new Error(message);
-    }
+  return gatewayContent;
 }
 
 async function askFolder(): Promise<Uri[]> {
-    const openDialogOptions: OpenDialogOptions = {
-        canSelectFiles: false,
-        canSelectFolders: true,
-        canSelectMany: false,
-        openLabel: "save"
-    };
+  const openDialogOptions: OpenDialogOptions = {
+    canSelectFiles: false,
+    canSelectFolders: true,
+    canSelectMany: false,
+    openLabel: "save"
+  };
 
-    const rootPath = workspace.rootPath;
-    if (rootPath) {
-        openDialogOptions.defaultUri = Uri.file(rootPath);
-    }
-    return await ext.ui.showOpenDialog(openDialogOptions);
-}
-
-const enum componentType {
-    Docker = "docker",
-    Kubernetes = "kubernetes"
+  const rootPath = workspace.rootPath;
+  if (rootPath) {
+    openDialogOptions.defaultUri = Uri.file(rootPath);
+  }
+  return await ext.ui.showOpenDialog(openDialogOptions);
 }

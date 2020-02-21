@@ -25,3 +25,8 @@ export interface IGatewayApiContract {
 export interface IGatewayToken {
     value: string;
 }
+
+export interface IGatewayTokenList {
+    primary: string;
+    secondary: string;
+}

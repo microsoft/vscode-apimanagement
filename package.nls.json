@@ -33,6 +33,8 @@
     "azureApiManagement.importFunctionAppToApi": "Import Azure Functions",
     "azureApiManagement.addApiToGateway": "Add API to Gateway",
     "azureApiManagement.removeApiFromGateway": "Remove API from Gateway",
-    "azureApiManagement.copyRunDockerCommand": "Copy command for running in Docker",
-    "azureApiManagement.genDeployGatewayWithKbsFile": "Generate deployment file for running in Kubernetes"
+    "azureApiManagement.copyDockerRunCommand": "Copy Docker Run Command",
+    "azureApiManagement.generateKubernetesDeployment": "Generate Kubernetes Deployment File",
+    "azureApiManagement.copyGatewayToken": "Copy Gateway Token",
+    "azureApiManagement.genNewGatewayToken": "Generate New Gateway Token"
 }

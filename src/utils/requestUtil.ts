@@ -24,7 +24,7 @@ export async function requestUtil<T>(url: string, credentials?: ServiceClientCre
     if (credentials) {
         await signRequest(requestOptions, credentials);
     }
-    if (method !== "PUT" || !body) {
+    if (method !== "PUT" && !body) {
         // tslint:disable-next-line: await-promise
         const response = await request(requestOptions).promise();
         return <T>(response);
@@ -38,29 +38,4 @@ export async function requestUtil<T>(url: string, credentials?: ServiceClientCre
 
 export async function sendRequest<T>(httpReq: nRequest): Promise<T> {
     return await <Thenable<T>>request(httpReq).promise();
-}
-
-// tslint:disable-next-line: no-any
-export async function requestTest<T>(url: string, credentials?: ServiceClientCredentials, method?: HttpMethods, body?: any): Promise<T> {
-    const requestOptions: WebResource = new WebResource();
-    requestOptions.headers = {
-        ['User-Agent']: appendExtensionUserAgent(),
-        ['Content-Type']: "application/json"
-        // tslint:disable-next-line: no-unsafe-any
-        // ['Content-Length']: Buffer.byteLength(body).toString(),
-        // ['Connection']: "keep-alive",
-        // ['Content-Encoding']: "gzip",
-        // ['Keep-Alive']: "timeout=5, max=1000"
-    };
-    requestOptions.url = url;
-    if (method) {
-        requestOptions.method = method;
-    }
-    if (credentials) {
-        await signRequest(requestOptions, credentials);
-    }
-    const newRequest = <nRequest>requestOptions;
-    newRequest.body = body;
-    newRequest.json = true;
-    return await sendRequest(newRequest);
 }
