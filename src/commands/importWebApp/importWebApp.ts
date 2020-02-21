@@ -43,37 +43,10 @@ export async function importWebAppToApi(node?: ApiTreeItem): Promise<void> {
     const webAppConfig: IWebAppContract = JSON.parse(webAppConfigStr);
     if (webAppConfig.properties.apiDefinition && webAppConfig.properties.apiDefinition.url) {
         ext.outputChannel.appendLine(localize("importWebApp", "Importing Web App from swagger object..."));
-        await importFromSwagger(webAppConfig, webAppName, node.root.apiName, node);
+        // tslint:disable-next-line: no-non-null-assertion
+        await importFromSwagger(webAppConfig, webAppName, node!.root.apiName, node!);
     } else {
-        window.withProgress(
-            {
-                location: ProgressLocation.Notification,
-                title: localize("importWebApp", `Importing Web App '${webAppName}' to API Management service ${node.root.serviceName} ...`),
-                cancellable: false
-            },
-            async () => {
-                const serviceUrl = "https://".concat(nonNullOrEmptyValue(nonNullValue(pickedWebApp.hostNames)[0]));
-                const backendId = `WebApp_${apiUtil.displayNameToIdentifier(webAppName)}`;
-                // tslint:disable: no-non-null-assertion
-                ext.outputChannel.appendLine(localize("importWebApp", "Setting API backend entity..."));
-                await setAppBackendEntity(node!, backendId, node!.root.apiName, serviceUrl, resourceGroup, webAppName);
-                const operations = await getWildcardOperationsForApi(node!.id, node!.root.apiName, node);
-                ext.outputChannel.appendLine(localize("importWebApp", "Creating operations..."));
-                for (const operation of operations) {
-                    await node!.root.client.apiOperation.createOrUpdate(node!.root.resourceGroupName, node!.root.serviceName, node!.root.apiName, nonNullOrEmptyValue(operation.name), operation);
-                    ext.outputChannel.appendLine(localize("importWebApp", `Creating policies for ${nonNullOrEmptyValue(operation.displayName)}...`));
-                    await node!.root.client.apiOperationPolicy.createOrUpdate(node!.root.resourceGroupName, node!.root.serviceName, node!.root.apiName, nonNullOrEmptyValue(operation.name), {
-                        format: "rawxml",
-                        value: createImportXmlPolicy(backendId)
-                    });
-                }
-                ext.outputChannel.appendLine(localize("importWebApp", "Import Web App succeed!"));
-            }
-        ).then(async () => {
-            // tslint:disable-next-line:no-non-null-assertion
-            await node!.refresh();
-            window.showInformationMessage(localize("importWebApp", `Imported Web App '${webAppName}' to API Management succesfully.`));
-        });
+        ext.outputChannel.appendLine(localize("importWebApp", "Can't find swagger object to import for this web app..."));
     }
 }
 
@@ -227,24 +200,27 @@ async function importFromSwagger(webAppConfig: IWebAppContract, webAppName: stri
                 },
                 // tslint:disable-next-line:no-non-null-assertion
                 async () => {
-                    if (node instanceof ApiTreeItem) {
-                        ext.outputChannel.appendLine(localize("importWebApp", "Updating API..."));
-                        const openApiImportPayload: ApiManagementModels.ApiCreateOrUpdateParameter = { displayName: apiName, path: apiName, format: '', value: '' };
-                        openApiImportPayload.protocols = document.schemes === undefined ? ["https"] : document.schemes;
-                        openApiImportPayload.format = document.importFormat;
-                        openApiImportPayload.value = JSON.stringify(document.sourceDocument);
-
-                        const options = { ifMatch: "*" };
-                        await node.root.client.api.createOrUpdate(node.root.resourceGroupName, node.root.serviceName, apiName, openApiImportPayload, options);
-                    } else {
-                        ext.outputChannel.appendLine(localize("importWebApp", "Creating new API..."));
-                        await node.createChild({ apiName: apiName, document: document });
-                        ext.outputChannel.appendLine(localize("importWebApp", "Updating API service url..."));
-                        const curApi = await node!.root.client.api.get(node!.root.resourceGroupName, node!.root.serviceName, apiName);
-                        curApi.serviceUrl = "";
-                        await node!.root.client.api.createOrUpdate(node!.root.resourceGroupName, node!.root.serviceName, apiName, curApi);
+                    try {
+                        if (node instanceof ApiTreeItem) {
+                            ext.outputChannel.appendLine(localize("importWebApp", "Updating API..."));
+                            const openApiImportPayload: ApiManagementModels.ApiCreateOrUpdateParameter = { displayName: apiName, path: apiName, format: '', value: '' };
+                            openApiImportPayload.protocols = document.schemes === undefined ? ["https"] : document.schemes;
+                            openApiImportPayload.format = document.importFormat;
+                            openApiImportPayload.value = JSON.stringify(document.sourceDocument);
+                            const options = { ifMatch: "*" };
+                            await node.root.client.api.createOrUpdate(node.root.resourceGroupName, node.root.serviceName, apiName, openApiImportPayload, options);
+                        } else {
+                            ext.outputChannel.appendLine(localize("importWebApp", "Creating new API..."));
+                            await node.createChild({ apiName: apiName, document: document });
+                            ext.outputChannel.appendLine(localize("importWebApp", "Updating API service url..."));
+                            const curApi = await node!.root.client.api.get(node!.root.resourceGroupName, node!.root.serviceName, apiName);
+                            curApi.serviceUrl = "";
+                            await node!.root.client.api.createOrUpdate(node!.root.resourceGroupName, node!.root.serviceName, apiName, curApi);
+                        }
+                        ext.outputChannel.appendLine(localize("importWebApp", "Import web App succeeded!"));
+                    } catch (error) {
+                        ext.outputChannel.appendLine(localize("importWebApp", String(error)));
                     }
-                    ext.outputChannel.appendLine(localize("importWebApp", "Import web App succeeded!"));
                 }
             ).then(async () => {
                 // tslint:disable-next-line:no-non-null-assertion
