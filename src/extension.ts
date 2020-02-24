@@ -13,7 +13,7 @@ import { addApiToProduct } from './commands/addApiToProduct';
 import { copySubscriptionKey } from './commands/copySubscriptionKey';
 import { createService } from './commands/createService';
 import { deleteNode } from './commands/deleteNode';
-import { copyDockerRunCommand, copyGatewayToken, generateKubernetesDeployment, genNewGatewayToken } from './commands/deployGateway';
+import { copyDockerRunCommand, generateKubernetesDeployment, genNewGatewayToken } from './commands/deployGateway';
 import { extractAPI, extractService } from './commands/extract';
 import { importFunctionApp } from './commands/importFunctionApp/importFunctionApp';
 import { importFunctionAppToApi } from './commands/importFunctionApp/importFunctionApp';
@@ -94,7 +94,6 @@ export function activateInternal(context: vscode.ExtensionContext) {
     registerCommand('azureApiManagement.importFunctionAppToApi', async (node: ApiTreeItem) => await importFunctionAppToApi(node));
     registerCommand('azureApiManagement.copyDockerRunCommand', async (node: GatewayTreeItem) => await copyDockerRunCommand(node));
     registerCommand('azureApiManagement.generateKubernetesDeployment', async (node: GatewayTreeItem) => await generateKubernetesDeployment(node));
-    registerCommand('azureApiManagement.copyGatewayToken', async (node: GatewayTreeItem) => await copyGatewayToken(node));
     registerCommand('azureApiManagement.genNewGatewayToken', async (node: GatewayTreeItem) => await genNewGatewayToken(node));
 
     registerCommand('azureApiManagement.openExtensionWorkspaceFolder', openWorkingFolder);

@@ -6,11 +6,10 @@
 import * as fse from 'fs-extra';
 import * as path from 'path';
 import { env, OpenDialogOptions, ProgressLocation, Uri, window, workspace } from "vscode";
-import { IGatewayToken, IGatewayTokenList } from '../azure/apim/contracts';
+import { ApimService } from '../azure/apim/ApimService';
 import { GatewayTreeItem } from "../explorer/GatewayTreeItem";
 import { ext } from "../extensionVariables";
 import { localize } from "../localize";
-import { requestUtil } from '../utils/requestUtil';
 
 // tslint:disable-next-line: export-name
 export async function copyDockerRunCommand(node?: GatewayTreeItem): Promise<void> {
@@ -29,13 +28,13 @@ export async function copyDockerRunCommand(node?: GatewayTreeItem): Promise<void
     },
     async () => {
       // tslint:disable: no-non-null-assertion
-      const confEndpoint = `config.service.endpoint="https://${node!.root.serviceName}.management.azure-api.net/subscriptions/${node!.root.subscriptionId}/resourceGroups/${node!.root.resourceGroupName}/providers/Microsoft.ApiManagement/service/${node!.root.serviceName}?api-version=2018-06-01-preview"`;
+      const confEndpoint = `config.service.endpoint=${getConfigEndpointUrl(node!)}`;
       ext.outputChannel.appendLine(localize("deployGateway", "Getting gateway token..."));
-      const token = await getGatewayToken(node!);
+      const apimService = new ApimService(node!.root.credentials, node!.root.environment.managementEndpointUrl, node!.root.subscriptionId, node!.root.resourceGroupName, node!.root.serviceName);
+      const token = await apimService.genNewGwToken(node!.root.gatewayName, 30);
       const gatewayToken = `config.service.auth="GatewayKey ${token}"`;
       const initialComd = `docker run -d -p 8080:8080 -p 8081:8081 --name RPGateway --env ${confEndpoint} --env ${gatewayToken} mcr.microsoft.com/azure-api-management/gateway:beta`;
       env.clipboard.writeText(initialComd);
-      ext.outputChannel.appendLine(localize("deployGateway", "Copy command for running in Docker to clipboard succeeds..."));
     }
   ).then(async () => {
     // tslint:disable-next-line:no-non-null-assertion
@@ -59,33 +58,20 @@ export async function generateKubernetesDeployment(node?: GatewayTreeItem): Prom
       cancellable: true
     },
     async () => {
-      ext.outputChannel.appendLine(localize("deployGateway", "Getting gateway token..."));
-      const gatewayToken = await getGatewayToken(node!);
+      const apimService = new ApimService(node!.root.credentials, node!.root.environment.managementEndpointUrl, node!.root.subscriptionId, node!.root.resourceGroupName, node!.root.serviceName);
+      const gatewayToken = await apimService.genNewGwToken(node!.root.gatewayName, 30);
       ext.outputChannel.appendLine(localize("deployGateway", "Generating deployment yaml file..."));
-      const confEndpoint = `"https://${node!.root.serviceName}.management.azure-api.net/subscriptions/${node!.root.subscriptionId}/resourceGroups/${node!.root.resourceGroupName}/providers/Microsoft.ApiManagement/service/${node!.root.serviceName}?api-version=2018-06-01-preview"`;
+      const confEndpoint = getConfigEndpointUrl(node!);
       const depYaml = genDeploymentYaml(node!.root.gatewayName, gatewayToken, confEndpoint);
       const uris = await askFolder();
       const configFilePath = path.join(uris[0].fsPath, `${node!.root.gatewayName}.yaml`);
       await fse.writeFile(configFilePath, depYaml);
       ext.outputChannel.appendLine(localize("deployGateway", "Copied command for running gateway with kubernetes to clipboard..."));
       env.clipboard.writeText(`kubectl apply -f ${configFilePath}`);
-      ext.outputChannel.appendLine(localize("deployGateway", "Generating deployment file and getting command for running in Kubernetes succeeds..."));
     }).then(async () => {
       await node!.refresh();
       window.showInformationMessage(localize("deployGateway", "Generate deployment file and getting command for running in Kubernetes successfully."));
     });
-}
-
-export async function copyGatewayToken(node?: GatewayTreeItem): Promise<void> {
-  if (!node) {
-    node = <GatewayTreeItem>await ext.tree.showTreeItemPicker(GatewayTreeItem.contextValue);
-  }
-
-  ext.outputChannel.show();
-  const gatewayToken = await getGatewayToken(node);
-  env.clipboard.writeText(gatewayToken);
-  window.showInformationMessage(localize("copyGatewayToken", "Gateway token copied to clipboard successfully."));
-  ext.outputChannel.appendLine(localize("copyGatewayToken", "Gateway token copied to clipboard..."));
 }
 
 export async function genNewGatewayToken(node?: GatewayTreeItem): Promise<void> {
@@ -107,10 +93,10 @@ export async function genNewGatewayToken(node?: GatewayTreeItem): Promise<void> 
     }
   })).trim();
   const numOfDays = Number.parseInt(response);
-  const gatewayToken = await genNewGwToken(node!, numOfDays);
+  const apimService = new ApimService(node!.root.credentials, node!.root.environment.managementEndpointUrl, node!.root.subscriptionId, node!.root.resourceGroupName, node!.root.serviceName);
+  const gatewayToken = await apimService.genNewGwToken(node!.root.gatewayName, numOfDays);
   env.clipboard.writeText(gatewayToken);
   window.showInformationMessage(localize("genGatewayToken", "New Gateway token generated and copied to clipboard successfully."));
-  ext.outputChannel.appendLine(localize("genGatewayToken", "New Gateway token generated and copied to clipboard..."));
 }
 
 function validateDays(days: string): boolean {
@@ -118,24 +104,8 @@ function validateDays(days: string): boolean {
   return numOfDays.toString().length === days.length && numOfDays < 1000 && numOfDays > 0 && !isNaN(numOfDays);
 }
 
-async function getGatewayToken(node: GatewayTreeItem): Promise<string> {
-  const gatewayUrl = `https://management.azure.com/subscriptions/${node.root.subscriptionId}/resourceGroups/${node.root.resourceGroupName}/providers/Microsoft.ApiManagement/service/${node.root.serviceName}/gateways/${node.root.gatewayName}/keys?api-version=2018-06-01-preview`;
-  const res: string = await requestUtil(gatewayUrl, node.root.credentials, "POST");
-  // tslint:disable-next-line: no-unsafe-any
-  const tokens: IGatewayTokenList = JSON.parse(res);
-  return tokens.primary;
-}
-
-async function genNewGwToken(node: GatewayTreeItem, numOfDays: number): Promise<string> {
-  const now = new Date();
-  const timeSpan = now.setDate(now.getDate() + numOfDays);
-  const expiryDate = (new Date(timeSpan)).toISOString();
-  const gatewayUrl = `https://management.azure.com/subscriptions/${node.root.subscriptionId}/resourceGroups/${node.root.resourceGroupName}/providers/Microsoft.ApiManagement/service/${node.root.serviceName}/gateways/${node.root.gatewayName}/token?api-version=2018-06-01-preview`;
-  const res: IGatewayToken = await requestUtil(gatewayUrl, node.root.credentials, "POST", {
-    keyType: "primary",
-    expiry: expiryDate
-  });
-  return res.value;
+function getConfigEndpointUrl(node: GatewayTreeItem): string {
+  return `"https://${node!.root.serviceName}.management.azure-api.net/subscriptions/${node!.root.subscriptionId}/resourceGroups/${node!.root.resourceGroupName}/providers/Microsoft.ApiManagement/service/${node!.root.serviceName}?api-version=2018-06-01-preview"`;
 }
 
 function genDeploymentYaml(gatewayName: string, gatewayToken: string, gatewayEndpoint: string): string {

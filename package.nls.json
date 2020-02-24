@@ -35,6 +35,5 @@
     "azureApiManagement.removeApiFromGateway": "Remove API from Gateway",
     "azureApiManagement.copyDockerRunCommand": "Copy Docker Run Command",
     "azureApiManagement.generateKubernetesDeployment": "Generate Kubernetes Deployment File",
-    "azureApiManagement.copyGatewayToken": "Copy Gateway Token",
     "azureApiManagement.genNewGatewayToken": "Generate New Gateway Token"
 }

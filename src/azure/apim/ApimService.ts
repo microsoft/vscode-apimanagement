@@ -5,7 +5,7 @@
 
 import { ServiceClientCredentials } from "ms-rest";
 import { requestUtil } from "../../utils/requestUtil";
-import { IGatewayApiContract, IGatewayContract } from "./contracts";
+import { IGatewayApiContract, IGatewayContract, IGatewayToken } from "./contracts";
 
 export class ApimService {
     public baseUrl: string;
@@ -48,6 +48,18 @@ export class ApimService {
     public async deleteGatewayApi(gatewayName: string, apiName: string): Promise<void> {
         const queryUrl = `${this.baseUrl}/gateways/${gatewayName}/apis/${apiName}?api-version=${this.apiVersion}`;
         await requestUtil(queryUrl, this.credentials, 'DELETE');
+    }
+
+    public async genNewGwToken(gatewayName: string, numOfDays: number): Promise<string> {
+        const now = new Date();
+        const timeSpan = now.setDate(now.getDate() + numOfDays);
+        const expiryDate = (new Date(timeSpan)).toISOString();
+        const gatewayUrl = `https://management.azure.com/subscriptions/${this.subscriptionId}/resourceGroups/${this.resourceGroup}/providers/Microsoft.ApiManagement/service/${this.serviceName}/gateways/${gatewayName}/token?api-version=2018-06-01-preview`;
+        const res: IGatewayToken = await requestUtil(gatewayUrl, this.credentials, "POST", {
+            keyType: "primary",
+            expiry: expiryDate
+        });
+        return res.value;
     }
 
     private genSiteUrl(endPointUrl: string, subscriptionId: string, resourceGroup: string, serviceName: string): string {
