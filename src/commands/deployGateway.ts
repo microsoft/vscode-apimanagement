@@ -29,11 +29,9 @@ export async function copyDockerRunCommand(node?: GatewayTreeItem): Promise<void
     async () => {
       // tslint:disable: no-non-null-assertion
       const confEndpoint = `config.service.endpoint=${getConfigEndpointUrl(node!)}`;
-      ext.outputChannel.appendLine(localize("deployGateway", "Getting gateway token..."));
-      const apimService = new ApimService(node!.root.credentials, node!.root.environment.managementEndpointUrl, node!.root.subscriptionId, node!.root.resourceGroupName, node!.root.serviceName);
-      const token = await apimService.genNewGwToken(node!.root.gatewayName, 30);
-      const gatewayToken = `config.service.auth="GatewayKey ${token}"`;
-      const initialComd = `docker run -d -p 8080:8080 -p 8081:8081 --name RPGateway --env ${confEndpoint} --env ${gatewayToken} mcr.microsoft.com/azure-api-management/gateway:beta`;
+      const apimService = new ApimService(node!.root.credentials, node!.root.environment.resourceManagerEndpointUrl, node!.root.subscriptionId, node!.root.resourceGroupName, node!.root.serviceName);
+      const token = await apimService.generateNewGwToken(node!.root.gatewayName, 30, GatewayKeyType.primary);
+      const initialComd = getDockerRunCommand(token, confEndpoint);
       env.clipboard.writeText(initialComd);
     }
   ).then(async () => {
@@ -58,11 +56,11 @@ export async function generateKubernetesDeployment(node?: GatewayTreeItem): Prom
       cancellable: true
     },
     async () => {
-      const apimService = new ApimService(node!.root.credentials, node!.root.environment.managementEndpointUrl, node!.root.subscriptionId, node!.root.resourceGroupName, node!.root.serviceName);
-      const gatewayToken = await apimService.genNewGwToken(node!.root.gatewayName, 30);
+      const apimService = new ApimService(node!.root.credentials, node!.root.environment.resourceManagerEndpointUrl, node!.root.subscriptionId, node!.root.resourceGroupName, node!.root.serviceName);
+      const gatewayToken = await apimService.generateNewGwToken(node!.root.gatewayName, 30, GatewayKeyType.primary);
       ext.outputChannel.appendLine(localize("deployGateway", "Generating deployment yaml file..."));
       const confEndpoint = getConfigEndpointUrl(node!);
-      const depYaml = genDeploymentYaml(node!.root.gatewayName, gatewayToken, confEndpoint);
+      const depYaml = generateDeploymentYaml(node!.root.gatewayName, gatewayToken, confEndpoint);
       const uris = await askFolder();
       const configFilePath = path.join(uris[0].fsPath, `${node!.root.gatewayName}.yaml`);
       await fse.writeFile(configFilePath, depYaml);
@@ -70,18 +68,18 @@ export async function generateKubernetesDeployment(node?: GatewayTreeItem): Prom
       env.clipboard.writeText(`kubectl apply -f ${configFilePath}`);
     }).then(async () => {
       await node!.refresh();
-      window.showInformationMessage(localize("deployGateway", "Generate deployment file and getting command for running in Kubernetes successfully."));
+      window.showInformationMessage(localize("deployGateway", `Generated file and command "kubectl apply -f configFilePath" copied to clipboard.`));
     });
 }
 
-export async function genNewGatewayToken(node?: GatewayTreeItem): Promise<void> {
+export async function generateNewGatewayToken(node?: GatewayTreeItem): Promise<void> {
   if (!node) {
     node = <GatewayTreeItem>await ext.tree.showTreeItemPicker(GatewayTreeItem.contextValue);
   }
 
   ext.outputChannel.show();
   ext.outputChannel.appendLine(localize("genGatewayToken", "Please specify the expiry date for the Gateway token..."));
-  const response = (await ext.ui.showInputBox({
+  const numOfDaysResponse = (await ext.ui.showInputBox({
     prompt: localize('gatewayPrompt', 'Enter days to expire.'),
     value: "30",
     validateInput: async (value: string): Promise<string | undefined> => {
@@ -92,11 +90,17 @@ export async function genNewGatewayToken(node?: GatewayTreeItem): Promise<void> 
       return undefined;
     }
   })).trim();
-  const numOfDays = Number.parseInt(response);
-  const apimService = new ApimService(node!.root.credentials, node!.root.environment.managementEndpointUrl, node!.root.subscriptionId, node!.root.resourceGroupName, node!.root.serviceName);
-  const gatewayToken = await apimService.genNewGwToken(node!.root.gatewayName, numOfDays);
+  const options = [GatewayKeyType.primary, GatewayKeyType.secondary];
+  const keyType = await ext.ui.showQuickPick(options.map((s) => { return { label: s, description: '', detail: '' }; }), { placeHolder: 'Pick key to generate token?', canPickMany: false });
+  const numOfDays = Number.parseInt(numOfDaysResponse);
+  const apimService = new ApimService(node!.root.credentials, node!.root.environment.resourceManagerEndpointUrl, node!.root.subscriptionId, node!.root.resourceGroupName, node!.root.serviceName);
+  const gatewayToken = await apimService.generateNewGwToken(node!.root.gatewayName, numOfDays, keyType.label);
   env.clipboard.writeText(gatewayToken);
   window.showInformationMessage(localize("genGatewayToken", "New Gateway token generated and copied to clipboard successfully."));
+}
+
+function getDockerRunCommand(token: string, confEndpoint: string): string {
+  return `docker run -d -p 8080:8080 -p 8081:8081 --name RPGateway --env ${confEndpoint} --env config.service.auth="GatewayKey ${token}" mcr.microsoft.com/azure-api-management/gateway:beta`;
 }
 
 function validateDays(days: string): boolean {
@@ -108,7 +112,7 @@ function getConfigEndpointUrl(node: GatewayTreeItem): string {
   return `"https://${node!.root.serviceName}.management.azure-api.net/subscriptions/${node!.root.subscriptionId}/resourceGroups/${node!.root.resourceGroupName}/providers/Microsoft.ApiManagement/service/${node!.root.serviceName}?api-version=2018-06-01-preview"`;
 }
 
-function genDeploymentYaml(gatewayName: string, gatewayToken: string, gatewayEndpoint: string): string {
+function generateDeploymentYaml(gatewayName: string, gatewayToken: string, gatewayEndpoint: string): string {
   const gatewayNameLowercase = gatewayName.toLocaleLowerCase();
   // tslint:disable-next-line: no-unnecessary-local-variable
   const gatewayContent =
@@ -182,7 +186,7 @@ async function askFolder(): Promise<Uri[]> {
     canSelectFiles: false,
     canSelectFolders: true,
     canSelectMany: false,
-    openLabel: "save"
+    openLabel: localize("saveFile", "save Kubernetes Deployment Template")
   };
 
   const rootPath = workspace.rootPath;
@@ -190,4 +194,9 @@ async function askFolder(): Promise<Uri[]> {
     openDialogOptions.defaultUri = Uri.file(rootPath);
   }
   return await ext.ui.showOpenDialog(openDialogOptions);
+}
+
+enum GatewayKeyType  {
+  primary = "primary",
+  secondary = "secondary"
 }

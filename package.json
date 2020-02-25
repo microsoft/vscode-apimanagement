@@ -65,7 +65,7 @@
         "onCommand:azureApiManagement.importFunctionAppToApi",
         "onCommand:azureApiManagement.copyDockerRunCommand",
         "onCommand:azureApiManagement.generateKubernetesDeployment",
-        "onCommand:azureApiManagement.genNewGatewayToken"
+        "onCommand:azureApiManagement.generateNewGatewayToken"
     ],
     "main": "main",
     "contributes": {
@@ -272,8 +272,8 @@
                 "title": "%azureApiManagement.generateKubernetesDeployment%",
                 "category": "Azure API Management"
             },{
-                "command": "azureApiManagement.genNewGatewayToken",
-                "title": "%azureApiManagement.genNewGatewayToken%",
+                "command": "azureApiManagement.generateNewGatewayToken",
+                "title": "%azureApiManagement.generateNewGatewayToken%",
                 "category": "Azure API Management"
             }
         ],
@@ -466,7 +466,7 @@
                     "group": "1@2"
                 },
                 {
-                    "command": "azureApiManagement.genNewGatewayToken",
+                    "command": "azureApiManagement.generateNewGatewayToken",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementGatewayTreeItem",
                     "group": "1@3"
                 }

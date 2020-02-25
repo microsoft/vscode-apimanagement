@@ -50,13 +50,13 @@ export class ApimService {
         await requestUtil(queryUrl, this.credentials, 'DELETE');
     }
 
-    public async genNewGwToken(gatewayName: string, numOfDays: number): Promise<string> {
+    public async generateNewGwToken(gatewayName: string, numOfDays: number, keyType: string): Promise<string> {
         const now = new Date();
         const timeSpan = now.setDate(now.getDate() + numOfDays);
         const expiryDate = (new Date(timeSpan)).toISOString();
         const gatewayUrl = `https://management.azure.com/subscriptions/${this.subscriptionId}/resourceGroups/${this.resourceGroup}/providers/Microsoft.ApiManagement/service/${this.serviceName}/gateways/${gatewayName}/token?api-version=2018-06-01-preview`;
         const res: IGatewayToken = await requestUtil(gatewayUrl, this.credentials, "POST", {
-            keyType: "primary",
+            keyType: keyType,
             expiry: expiryDate
         });
         return res.value;
