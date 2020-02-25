@@ -19,6 +19,11 @@ export async function copyDockerRunCommand(node?: GatewayTreeItem): Promise<void
   }
 
   ext.outputChannel.show();
+  const hasConsent = await askConsentToGenerateToken();
+  if (!hasConsent) {
+    ext.outputChannel.appendLine(localize("deployGateway", "Generating docker command stopped..."));
+    return;
+  }
 
   window.withProgress(
     {
@@ -31,11 +36,6 @@ export async function copyDockerRunCommand(node?: GatewayTreeItem): Promise<void
       // tslint:disable: no-non-null-assertion
       const confEndpoint = `config.service.endpoint=${getConfigEndpointUrl(node!)}`;
       const apimService = new ApimService(node!.root.credentials, node!.root.environment.resourceManagerEndpointUrl, node!.root.subscriptionId, node!.root.resourceGroupName, node!.root.serviceName);
-      const hasConsent = await askConsentToGenerateToken();
-      if (!hasConsent) {
-        ext.outputChannel.appendLine(localize("deployGateway", "Generating docker command stopped..."));
-        return;
-      }
       const token = await apimService.generateNewGatewayToken(node!.root.gatewayName, 30, GatewayKeyType.primary);
       const initialComd = getDockerRunCommand(token, confEndpoint, node!.root.gatewayName);
       env.clipboard.writeText(initialComd);
@@ -53,6 +53,11 @@ export async function generateKubernetesDeployment(node?: GatewayTreeItem): Prom
   }
 
   ext.outputChannel.show();
+  const hasConsent = await askConsentToGenerateToken();
+  if (!hasConsent) {
+    ext.outputChannel.appendLine(localize("deployGateway", "Generating deployment file stopped..."));
+    return;
+  }
 
   window.withProgress(
     {
@@ -62,11 +67,6 @@ export async function generateKubernetesDeployment(node?: GatewayTreeItem): Prom
     },
     async () => {
       const apimService = new ApimService(node!.root.credentials, node!.root.environment.resourceManagerEndpointUrl, node!.root.subscriptionId, node!.root.resourceGroupName, node!.root.serviceName);
-      const hasConsent = await askConsentToGenerateToken();
-      if (!hasConsent) {
-        ext.outputChannel.appendLine(localize("deployGateway", "Generating deployment file stopped..."));
-        return;
-      }
       const gatewayToken = await apimService.generateNewGatewayToken(node!.root.gatewayName, 30, GatewayKeyType.primary);
       ext.outputChannel.appendLine(localize("deployGateway", "Generating deployment yaml file..."));
       const confEndpoint = getConfigEndpointUrl(node!);
