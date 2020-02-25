@@ -5,11 +5,11 @@
 
 import { ApiManagementModels } from "azure-arm-apimanagement";
 import { ApiContract, ApiCreateOrUpdateParameter } from "azure-arm-apimanagement/lib/models";
-import { window } from "vscode";
-import { AzureParentTreeItem, AzureTreeItem, createTreeItemsWithErrorHandling, DialogResponses, IParsedError, parseError, UserCancelledError } from "vscode-azureextensionui";
+import { AzureParentTreeItem, AzureTreeItem, createTreeItemsWithErrorHandling } from "vscode-azureextensionui";
 import { topItemCount } from "../constants";
 import { localize } from "../localize";
 import { IOpenApiImportObject } from "../openApi/OpenApiImportObject";
+import { apiUtil } from "../utils/apiUtil";
 import { processError } from "../utils/errorUtil";
 import { treeUtils } from "../utils/treeUtils";
 import { ApiTreeItem } from "./ApiTreeItem";
@@ -83,17 +83,7 @@ export class ApisTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
         if (document && apiName) {
             showCreatingTreeItem(apiName);
             try {
-                document.info.title = apiName;
-
-                await this.checkApiExist(apiName);
-
-                const openApiImportPayload: ApiManagementModels.ApiCreateOrUpdateParameter = { displayName: apiName, path: apiName, format: '', value: '' };
-                openApiImportPayload.protocols = document.schemes === undefined ? ["https"] : document.schemes;
-                openApiImportPayload.format = document.importFormat;
-                openApiImportPayload.value = JSON.stringify(document.sourceDocument);
-
-                const options = { ifMatch: "*" };
-                const api = await this.root.client.api.createOrUpdate(this.root.resourceGroupName, this.root.serviceName, apiName, openApiImportPayload, options);
+                const api = await apiUtil.createOrUpdateApiWithSwaggerObject(this, apiName, document);
                 return new ApiTreeItem(this, api);
             } catch (error) {
                 throw new Error(processError(error, localize("createAPIFailed", `Failed to create the API ${apiName}`)));
@@ -107,7 +97,7 @@ export class ApisTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
         if (apiContract && apiName) {
             showCreatingTreeItem(apiName);
             try {
-                await this.checkApiExist(apiName);
+                await apiUtil.checkApiExist(this, apiName);
                 const apiPayload: ApiCreateOrUpdateParameter = { displayName: apiName, path: apiName, description: apiContract.description, protocols: apiContract.protocols };
                 const api = await this.root.client.api.createOrUpdate(this.root.resourceGroupName, this.root.serviceName, apiName, apiPayload);
                 return new ApiTreeItem(this, api);
@@ -116,24 +106,6 @@ export class ApisTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
             }
         } else {
             throw Error("Something went wrong when creating this new api.");
-        }
-    }
-
-    private async checkApiExist(apiName: string): Promise<void> {
-        let apiExists: boolean = true;
-        try {
-            await this.root.client.api.get(this.root.resourceGroupName, this.root.serviceName, apiName);
-        } catch (error) {
-            const err: IParsedError = parseError(error);
-            if (err.errorType.toLocaleLowerCase() === 'notfound' || err.errorType.toLowerCase() === 'resourcenotfound') {
-                apiExists = false;
-            }
-        }
-        if (apiExists) {
-            const overwriteFlag = await window.showWarningMessage(localize("apiAlreadyExists", `API "${apiName}" already exists. Import will trigger an 'Override' of exisiting API. Do you want to continue?`), { modal: true }, DialogResponses.yes, DialogResponses.cancel);
-            if (overwriteFlag !== DialogResponses.yes) {
-                throw new UserCancelledError();
-            }
         }
     }
 }

@@ -16,7 +16,7 @@ import { ext } from "../../extensionVariables";
 import { localize } from "../../localize";
 import { apiUtil } from "../../utils/apiUtil";
 import { nonNullOrEmptyValue } from "../../utils/nonNull";
-import { createImportXmlPolicy, getPickedWebApp, setAppBackendEntity } from "../importWebApp/importWebApp";
+import { createImportXmlPolicy, getPickedWebApp, setAppBackendEntity, webAppKind } from "../importWebApp/importWebApp";
 import { parseUrlTemplate } from "./parseUrlTemplate";
 
 export async function importFunctionAppToApi(node?: ApiTreeItem): Promise<void> {
@@ -28,7 +28,7 @@ export async function importFunctionAppToApi(node?: ApiTreeItem): Promise<void> 
     ext.outputChannel.appendLine(localize("importFunctionApp", `Import Function App started...`));
 
     ext.outputChannel.appendLine(localize("importFunctionApp", "Getting Function Apps..."));
-    const functionApp = await getPickedWebApp(node, "functionapp");
+    const functionApp = await getPickedWebApp(node, webAppKind.functionApp);
     const funcName = nonNullOrEmptyValue(functionApp.name);
     const funcAppResourceGroup = nonNullOrEmptyValue(functionApp.resourceGroup);
 
@@ -62,10 +62,8 @@ export async function importFunctionApp(node?: ApisTreeItem): Promise<void> {
     }
 
     ext.outputChannel.show();
-    ext.outputChannel.appendLine(localize("importFunctionApp", "Import Function App started..."));
-
     ext.outputChannel.appendLine(localize("importFunctionApp", "Getting Function Apps..."));
-    const functionApp = await getPickedWebApp(node, "functionapp");
+    const functionApp = await getPickedWebApp(node, webAppKind.functionApp);
     const funcName = nonNullOrEmptyValue(functionApp.name);
     const funcAppResourceGroup = nonNullOrEmptyValue(functionApp.resourceGroup);
 
