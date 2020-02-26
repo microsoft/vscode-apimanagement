@@ -6,6 +6,7 @@
 import { env, window } from "vscode";
 import { ApimService } from "../azure/apim/ApimService";
 import { GatewayKeyType } from "../constants";
+import * as Constants from "../constants";
 import { GatewayTreeItem } from "../explorer/GatewayTreeItem";
 import { ext } from "../extensionVariables";
 import { localize } from "../localize";
@@ -19,7 +20,7 @@ export async function generateNewGatewayToken(node?: GatewayTreeItem): Promise<v
   ext.outputChannel.appendLine(localize("genGatewayToken", "Please specify the expiry date for the Gateway token..."));
   const numOfDaysResponse = (await ext.ui.showInputBox({
     prompt: localize('gatewayPrompt', 'Enter days to expire.'),
-    value: "30",
+    value: Constants.maxTokenValidTimeSpan.toString(),
     validateInput: async (value: string): Promise<string | undefined> => {
       value = value ? value.trim() : '';
       if (!validateDays(value)) {
@@ -40,5 +41,5 @@ export async function generateNewGatewayToken(node?: GatewayTreeItem): Promise<v
 
 function validateDays(days: string): boolean {
   const numOfDays = Number.parseInt(days);
-  return numOfDays.toString().length === days.length && numOfDays < 30 && numOfDays > 0 && !isNaN(numOfDays);
+  return numOfDays.toString().length === days.length && numOfDays <= 30 && numOfDays > 0 && !isNaN(numOfDays);
 }

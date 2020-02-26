@@ -8,6 +8,7 @@ import * as path from 'path';
 import { env, OpenDialogOptions, ProgressLocation, Uri, window, workspace } from "vscode";
 import { ApimService } from '../azure/apim/ApimService';
 import { GatewayKeyType } from '../constants';
+import * as Constants from "../constants";
 import { GatewayTreeItem } from "../explorer/GatewayTreeItem";
 import { ext } from "../extensionVariables";
 import { localize } from "../localize";
@@ -36,7 +37,7 @@ export async function copyDockerRunCommand(node?: GatewayTreeItem): Promise<void
       // tslint:disable: no-non-null-assertion
       const confEndpoint = `config.service.endpoint=${getConfigEndpointUrl(node!)}`;
       const apimService = new ApimService(node!.root.credentials, node!.root.environment.resourceManagerEndpointUrl, node!.root.subscriptionId, node!.root.resourceGroupName, node!.root.serviceName);
-      const token = await apimService.generateNewGatewayToken(node!.root.gatewayName, 30, GatewayKeyType.primary);
+      const token = await apimService.generateNewGatewayToken(node!.root.gatewayName, Constants.maxTokenValidTimeSpan, GatewayKeyType.primary);
       const initialComd = getDockerRunCommand(token, confEndpoint, node!.root.gatewayName);
       env.clipboard.writeText(initialComd);
     }
@@ -67,7 +68,7 @@ export async function generateKubernetesDeployment(node?: GatewayTreeItem): Prom
     },
     async () => {
       const apimService = new ApimService(node!.root.credentials, node!.root.environment.resourceManagerEndpointUrl, node!.root.subscriptionId, node!.root.resourceGroupName, node!.root.serviceName);
-      const gatewayToken = await apimService.generateNewGatewayToken(node!.root.gatewayName, 30, GatewayKeyType.primary);
+      const gatewayToken = await apimService.generateNewGatewayToken(node!.root.gatewayName, Constants.maxTokenValidTimeSpan, GatewayKeyType.primary);
       ext.outputChannel.appendLine(localize("deployGateway", "Generating deployment yaml file..."));
       const confEndpoint = getConfigEndpointUrl(node!);
       const depYaml = generateDeploymentYaml(node!.root.gatewayName, gatewayToken, confEndpoint);
@@ -83,7 +84,7 @@ export async function generateKubernetesDeployment(node?: GatewayTreeItem): Prom
 
 async function askConsentToGenerateToken(): Promise<boolean> {
   const options = ['Yes', 'No'];
-  const option = await ext.ui.showQuickPick(options.map((s) => { return { label: s, description: '', detail: '' }; }), { placeHolder: 'Do you consent to generate a new token?', canPickMany: false });
+  const option = await ext.ui.showQuickPick(options.map((s) => { return { label: s, description: '', detail: '' }; }), { placeHolder: 'Command requires generating token, do you wish to proceed?', canPickMany: false });
   return option.label === options[0];
 }
 

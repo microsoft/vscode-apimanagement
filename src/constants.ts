@@ -29,6 +29,7 @@ export enum HttpTriggerDirectionContract {
 }
 export const HttpTriggerAuthLevelAdmin = "admin";
 export const FunctionAppKeyLength = 40;
+export const maxTokenValidTimeSpan = 30;
 
 export enum GatewayKeyType {
     primary = "primary",
