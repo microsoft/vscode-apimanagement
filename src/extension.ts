@@ -13,7 +13,9 @@ import { addApiToProduct } from './commands/addApiToProduct';
 import { copySubscriptionKey } from './commands/copySubscriptionKey';
 import { createService } from './commands/createService';
 import { deleteNode } from './commands/deleteNode';
+import { copyDockerRunCommand, generateKubernetesDeployment } from './commands/deployGateway';
 import { extractAPI, extractService } from './commands/extract';
+import { generateNewGatewayToken } from './commands/generateNewGatewayToken';
 import { importFunctionApp } from './commands/importFunctionApp/importFunctionApp';
 import { importFunctionAppToApi } from './commands/importFunctionApp/importFunctionApp';
 import { importOpenApi } from './commands/importOpenApi';
@@ -38,6 +40,7 @@ import { ProductPolicyEditor } from './explorer/editors/policy/ProductPolicyEdit
 import { ServicePolicyEditor } from './explorer/editors/policy/ServicePolicyEditor';
 import { GatewayApisTreeItem } from './explorer/GatewayApisTreeItem';
 import { GatewayApiTreeItem } from './explorer/GatewayApiTreeItem';
+import { GatewayTreeItem } from './explorer/GatewayTreeItem';
 import { NamedValuesTreeItem } from './explorer/NamedValuesTreeItem';
 import { NamedValueTreeItem } from './explorer/NamedValueTreeItem';
 import { OperationPolicyTreeItem } from './explorer/OperationPolicyTreeItem';
@@ -90,6 +93,9 @@ export function activateInternal(context: vscode.ExtensionContext) {
     registerCommand('azureApiManagement.extractApi', async (node: ApiTreeItem) => await extractAPI(node));
     registerCommand('azureApiManagement.importFunctionApp', async (node: ApisTreeItem) => await importFunctionApp(node));
     registerCommand('azureApiManagement.importFunctionAppToApi', async (node: ApiTreeItem) => await importFunctionAppToApi(node));
+    registerCommand('azureApiManagement.copyDockerRunCommand', async (node: GatewayTreeItem) => await copyDockerRunCommand(node));
+    registerCommand('azureApiManagement.generateKubernetesDeployment', async (node: GatewayTreeItem) => await generateKubernetesDeployment(node));
+    registerCommand('azureApiManagement.generateNewGatewayToken', async (node: GatewayTreeItem) => await generateNewGatewayToken(node));
 
     registerCommand('azureApiManagement.openExtensionWorkspaceFolder', openWorkingFolder);
     registerCommand('azureApiManagement.initializeExtensionWorkspaceFolder', setupWorkingFolder);

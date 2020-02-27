@@ -24,7 +24,7 @@ export async function requestUtil<T>(url: string, credentials?: ServiceClientCre
     if (credentials) {
         await signRequest(requestOptions, credentials);
     }
-    if (method !== "PUT") {
+    if (method !== "PUT" && !body) {
         // tslint:disable-next-line: await-promise
         const response = await request(requestOptions).promise();
         return <T>(response);

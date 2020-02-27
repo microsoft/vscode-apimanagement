@@ -62,7 +62,10 @@
         "onCommand:azureApiManagement.extractService",
         "onCommand:azureApiManagement.extractApi",
         "onCommand:azureApiManagement.importFunctionApp",
-        "onCommand:azureApiManagement.importFunctionAppToApi"
+        "onCommand:azureApiManagement.importFunctionAppToApi",
+        "onCommand:azureApiManagement.copyDockerRunCommand",
+        "onCommand:azureApiManagement.generateKubernetesDeployment",
+        "onCommand:azureApiManagement.generateNewGatewayToken"
     ],
     "main": "main",
     "contributes": {
@@ -224,7 +227,6 @@
                 "title": "%azureApiManagement.removeApiFromGateway%",
                 "category": "Azure API Management"
             },
-            
             {
                 "command": "azureApiManagement.showProductPolicy",
                 "title": "%azureApiManagement.showProductPolicy%",
@@ -258,6 +260,20 @@
             {
                 "command": "azureApiManagement.importFunctionAppToApi",
                 "title": "%azureApiManagement.importFunctionAppToApi%",
+                "category": "Azure API Management"
+            },
+            {
+                "command": "azureApiManagement.copyDockerRunCommand",
+                "title": "%azureApiManagement.copyDockerRunCommand%",
+                "category": "Azure API Management"
+            },
+            {
+                "command": "azureApiManagement.generateKubernetesDeployment",
+                "title": "%azureApiManagement.generateKubernetesDeployment%",
+                "category": "Azure API Management"
+            },{
+                "command": "azureApiManagement.generateNewGatewayToken",
+                "title": "%azureApiManagement.generateNewGatewayToken%",
                 "category": "Azure API Management"
             }
         ],
@@ -438,6 +454,21 @@
                     "command": "azureApiManagement.removeApiFromGateway",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementGatewayApi",
                     "group": "1@1"
+                },
+                {
+                    "command": "azureApiManagement.copyDockerRunCommand",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementGatewayTreeItem",
+                    "group": "1@1"
+                },
+                {
+                    "command": "azureApiManagement.generateKubernetesDeployment",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementGatewayTreeItem",
+                    "group": "1@2"
+                },
+                {
+                    "command": "azureApiManagement.generateNewGatewayToken",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementGatewayTreeItem",
+                    "group": "1@3"
                 }
             ]
         },
