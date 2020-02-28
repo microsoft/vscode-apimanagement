@@ -34,5 +34,8 @@
     "azureApiManagement.addApiToGateway": "Add API to Gateway",
     "azureApiManagement.removeApiFromGateway": "Remove API from Gateway",
     "azureApiManagement.importWebApp": "Create from Azure WebApp",
-    "azureApiManagement.importWebAppToApi": "Import Azure WebApp"
+    "azureApiManagement.importWebAppToApi": "Import Azure WebApp",
+    "azureApiManagement.copyDockerRunCommand": "Copy Docker Run Command",
+    "azureApiManagement.generateKubernetesDeployment": "Generate Kubernetes Deployment File",
+    "azureApiManagement.generateNewGatewayToken": "Generate New Gateway Token"
 }
