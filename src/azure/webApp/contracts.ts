@@ -90,8 +90,13 @@ export interface IWebAppContract {
 
 export interface IWebAppProperties {
     apiManagementConfig: IApimConfig;
+    apiDefinition?: IApiDefinition;
 }
 
 export interface IApimConfig {
     id: string;
+}
+
+export interface IApiDefinition {
+    url?: string;
 }

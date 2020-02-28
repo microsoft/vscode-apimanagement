@@ -63,6 +63,8 @@
         "onCommand:azureApiManagement.extractApi",
         "onCommand:azureApiManagement.importFunctionApp",
         "onCommand:azureApiManagement.importFunctionAppToApi",
+        "onCommand:azureApiManagement.importWebApp",
+        "onCommand:azureApiManagement.importWebAppToApi",
         "onCommand:azureApiManagement.copyDockerRunCommand",
         "onCommand:azureApiManagement.generateKubernetesDeployment",
         "onCommand:azureApiManagement.generateNewGatewayToken"
@@ -263,6 +265,16 @@
                 "category": "Azure API Management"
             },
             {
+                "command": "azureApiManagement.importWebApp",
+                "title": "%azureApiManagement.importWebApp%",
+                "category": "Azure API Management"
+            },
+            {
+                "command": "azureApiManagement.importWebAppToApi",
+                "title": "%azureApiManagement.importWebAppToApi%",
+                "category": "Azure API Management"
+            },
+            {
                 "command": "azureApiManagement.copyDockerRunCommand",
                 "title": "%azureApiManagement.copyDockerRunCommand%",
                 "category": "Azure API Management"
@@ -271,7 +283,8 @@
                 "command": "azureApiManagement.generateKubernetesDeployment",
                 "title": "%azureApiManagement.generateKubernetesDeployment%",
                 "category": "Azure API Management"
-            },{
+            },
+            {
                 "command": "azureApiManagement.generateNewGatewayToken",
                 "title": "%azureApiManagement.generateNewGatewayToken%",
                 "category": "Azure API Management"
@@ -376,6 +389,11 @@
                     "group": "2@1"
                 },
                 {
+                    "command": "azureApiManagement.importWebApp",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApis",
+                    "group": "2@2"
+                },
+                {
                     "command": "azureApiManagement.Refresh",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApis",
                     "group": "3@1"
@@ -399,6 +417,11 @@
                     "command": "azureApiManagement.importFunctionAppToApi",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApi",
                     "group": "2@2"
+                },
+                {
+                    "command": "azureApiManagement.importWebAppToApi",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApi",
+                    "group": "2@3"
                 },
                 {
                     "command": "azureApiManagement.Refresh",
