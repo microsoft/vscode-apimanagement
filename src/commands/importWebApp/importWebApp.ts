@@ -28,25 +28,21 @@ export async function importWebAppToApi(node?: ApiTreeItem): Promise<void> {
     }
 
     ext.outputChannel.show();
-    ext.outputChannel.appendLine(localize("importWebApp", "Import Web App started..."));
 
     // tslint:disable: no-non-null-assertion
-    ext.outputChannel.appendLine(localize("importWebApp", "Getting Web App to import..."));
     const pickedWebApp: Site = await getPickedWebApp(node, webAppKind.webApp);
     const webAppResourceGroup = nonNullValue(pickedWebApp.resourceGroup);
     const webAppName = nonNullValue(pickedWebApp.name);
     const webConfigbaseUrl = getWebConfigbaseUrl(node!.root.environment.resourceManagerEndpointUrl, node!.root.subscriptionId, webAppResourceGroup, webAppName);
-    ext.outputChannel.appendLine(localize("importWebApp", "Getting picked Web App's config..."));
     const webAppConfigStr: string = await requestUtil(webConfigbaseUrl, node.root.credentials, "GET");
 
     // tslint:disable: no-unsafe-any
     const webAppConfig: IWebAppContract = JSON.parse(webAppConfigStr);
     if (webAppConfig.properties.apiDefinition && webAppConfig.properties.apiDefinition.url) {
-        ext.outputChannel.appendLine(localize("importWebApp", "Importing Web App from swagger object..."));
         // tslint:disable-next-line: no-non-null-assertion
         await importFromSwagger(webAppConfig, webAppName, node!.root.apiName, node!);
     } else {
-        ext.outputChannel.appendLine(localize("importWebApp", "Can't find swagger object to import for this web app..."));
+        ext.outputChannel.appendLine(localize("importWebApp", "API Definition not specified for Webapp..."));
     }
 }
 
@@ -57,14 +53,11 @@ export async function importWebApp(node?: ApisTreeItem): Promise<void> {
     }
 
     ext.outputChannel.show();
-    ext.outputChannel.appendLine(localize("importWebApp", "Import Web App started..."));
 
-    ext.outputChannel.appendLine(localize("importWebApp", "Getting Web App to import..."));
     const pickedWebApp: Site = await getPickedWebApp(node, webAppKind.webApp);
     const webAppResourceGroup = nonNullValue(pickedWebApp.resourceGroup);
     const webAppName = nonNullValue(pickedWebApp.name);
     const webConfigbaseUrl = getWebConfigbaseUrl(node!.root.environment.resourceManagerEndpointUrl, node!.root.subscriptionId, webAppResourceGroup, webAppName);
-    ext.outputChannel.appendLine(localize("importWebApp", "Getting picked Web App's config..."));
     const webAppConfigStr: string = await requestUtil(webConfigbaseUrl, node.root.credentials, "GET");
 
     const webAppConfig: IWebAppContract = JSON.parse(webAppConfigStr);
@@ -171,19 +164,15 @@ async function createApiWithWildCardOperations(node: ApisTreeItem, webAppName: s
             await node!.createChild({ apiName, apiContract: nApi });
             const serviceUrl = "https://".concat(nonNullValue(nonNullValue(pickedWebApp.hostNames)[0]));
             const backendId = `WebApp_${apiUtil.displayNameToIdentifier(webAppName)}`;
-            ext.outputChannel.appendLine(localize("importWebApp", "Checking backend entity..."));
             await setAppBackendEntity(node!, backendId, apiName, serviceUrl, webAppResourceGroup, webAppName);
-            ext.outputChannel.appendLine(localize("importWebApp", "Creating policies..."));
             await node!.root.client.apiPolicy.createOrUpdate(node!.root.resourceGroupName, node!.root.serviceName, apiName, {
                 format: "rawxml",
                 value: createImportXmlPolicy(backendId)
             });
-            ext.outputChannel.appendLine(localize("importWebApp", "Create operations for API..."));
             const operations = await getWildcardOperationsForApi(apiId, apiName);
             for (const operation of operations) {
                 await node!.root.client.apiOperation.createOrUpdate(node!.root.resourceGroupName, node!.root.serviceName, apiName, nonNullValue(operation.name), operation);
             }
-            ext.outputChannel.appendLine(localize("importWebApp", "Import Web App succeed!"));
         }
     ).then(async () => {
         // tslint:disable-next-line:no-non-null-assertion
@@ -206,7 +195,6 @@ async function importFromSwagger(webAppConfig: IWebAppContract, webAppName: stri
     // tslint:disable-next-line: no-non-null-assertion
     const docStr: string = await requestUtil(webAppConfig.properties.apiDefinition!.url!);
     if (docStr !== undefined && docStr.trim() !== "") {
-        ext.outputChannel.appendLine(localize("importWebApp", "Getting swagger object..."));
         const documentJson = JSON.parse(docStr);
         const document = await parseDocument(documentJson);
         window.withProgress(
@@ -229,7 +217,6 @@ async function importFromSwagger(webAppConfig: IWebAppContract, webAppName: stri
                         curApi.serviceUrl = "";
                         await node!.root.client.api.createOrUpdate(node!.root.resourceGroupName, node!.root.serviceName, apiName, curApi);
                     }
-                    ext.outputChannel.appendLine(localize("importWebApp", "Import web App succeeded!"));
                 } catch (error) {
                     ext.outputChannel.appendLine(localize("importWebApp", `Import failed with error ${String(error)}}`));
                 }

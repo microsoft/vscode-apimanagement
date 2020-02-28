@@ -33,6 +33,6 @@
     "azureApiManagement.importFunctionAppToApi": "Import Azure Functions",
     "azureApiManagement.addApiToGateway": "Add API to Gateway",
     "azureApiManagement.removeApiFromGateway": "Remove API from Gateway",
-    "azureApiManagement.importWebApp": "Create from Azure WebApps",
-    "azureApiManagement.importWebAppToApi": "Import Azure WebApps"
+    "azureApiManagement.importWebApp": "Create from Azure WebApp",
+    "azureApiManagement.importWebAppToApi": "Import Azure WebApp"
 }
