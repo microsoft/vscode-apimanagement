@@ -90,6 +90,20 @@
                 "NODE_DEBUG": "",
                 "ENABLE_LONG_RUNNING_TESTS": ""
             }
-        }
-    ]
+        },
+        {
+			"type": "node",
+			"request": "launch",
+			"name": "Server",
+			"cwd": "${workspaceFolder}",
+			"program": "${workspaceFolder}/resources/debug/debugAdapter.js",
+			"args": [ "--server=4711" ]
+		},
+    ],
+    "compounds": [
+		{
+			"name": "Extension + Server",
+			"configurations": [ "Launch Extension (no build)", "Server" ]
+		}
+	]
 }

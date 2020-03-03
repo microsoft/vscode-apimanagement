@@ -12,6 +12,7 @@ import { addApiToGateway } from './commands/addApiToGateway';
 import { addApiToProduct } from './commands/addApiToProduct';
 import { copySubscriptionKey } from './commands/copySubscriptionKey';
 import { createService } from './commands/createService';
+import { debugApiPolicy } from './commands/debugPolicies/debugPolicy';
 import { deleteNode } from './commands/deleteNode';
 import { copyDockerRunCommand, generateKubernetesDeployment } from './commands/deployGateway';
 import { extractAPI, extractService } from './commands/extract';
@@ -52,6 +53,9 @@ import { ProductTreeItem } from './explorer/ProductTreeItem';
 import { ServicePolicyTreeItem } from './explorer/ServicePolicyTreeItem';
 import { ServiceTreeItem } from './explorer/ServiceTreeItem';
 import { ext } from './extensionVariables';
+
+// tslint:disable-next-line: no-var-requires
+const debugConfig = require('../resources/debug/extension');
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -99,11 +103,15 @@ export function activateInternal(context: vscode.ExtensionContext) {
     registerCommand('azureApiManagement.copyDockerRunCommand', async (node: GatewayTreeItem) => await copyDockerRunCommand(node));
     registerCommand('azureApiManagement.generateKubernetesDeployment', async (node: GatewayTreeItem) => await generateKubernetesDeployment(node));
     registerCommand('azureApiManagement.generateNewGatewayToken', async (node: GatewayTreeItem) => await generateNewGatewayToken(node));
+    registerCommand('azureApiManagement.debugApiPolicy', async (node: ApiTreeItem) => await debugApiPolicy(node));
 
     registerCommand('azureApiManagement.openExtensionWorkspaceFolder', openWorkingFolder);
     registerCommand('azureApiManagement.initializeExtensionWorkspaceFolder', setupWorkingFolder);
 
     registerEditors(context);
+
+    // tslint:disable-next-line: no-unsafe-any
+    debugConfig.activate(context);
 }
 
 function registerEditors(context: vscode.ExtensionContext) : void {

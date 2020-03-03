@@ -33,6 +33,7 @@
         "onCommand:azureApiManagement.selectSubscriptions",
         "onView:azureApiManagementExplorer",
         "onLanguage:policy",
+        "onLanguage:apim-policy",
         "onCommand:azureApiManagement.createService",
         "onCommand:azureApiManagement.deleteService",
         "onCommand:azureApiManagement.copySubscriptionKey",
@@ -67,10 +68,50 @@
         "onCommand:azureApiManagement.importWebAppToApi",
         "onCommand:azureApiManagement.copyDockerRunCommand",
         "onCommand:azureApiManagement.generateKubernetesDeployment",
-        "onCommand:azureApiManagement.generateNewGatewayToken"
+        "onCommand:azureApiManagement.generateNewGatewayToken",
+        "onCommand:azureApiManagement.debugApiPolicy"
     ],
     "main": "main",
     "contributes": {
+        "breakpoints": [
+            {
+                "language": "apim-policy"
+            }
+        ],
+        "languages": [
+            {
+                "id": "apim-policy",
+                "mimetypes": [
+                    "application/vnd.ms-azure-apim.policy.raw+xml"
+                ]
+            }
+        ],
+        "debuggers": [
+			{
+				"type": "apim-policy",
+				"label": "Attach to APIM",
+				"runtime": "node",
+				"configurationAttributes": {
+					"launch": {
+						"properties": {
+							"stopOnEntry": {
+								"type": "boolean",
+								"description": "Automatically stop after launch.",
+								"default": true
+							}
+						}
+					}
+				},
+				"initialConfigurations": [
+					{
+						"type": "apim-policy",
+						"request": "launch",
+						"name": "Attach to APIM",
+						"stopOnEntry": true
+					}
+				]
+			}
+		],
         "jsonValidation": [
             {
                 "fileMatch": "/*-api-arm.json",
@@ -275,6 +316,11 @@
                 "category": "Azure API Management"
             },
             {
+                "command": "azureApiManagement.debugApiPolicy",
+                "title": "%azureApiManagement.debugApiPolicy%",
+                "category": "Azure API Management"
+            },
+            {
                 "command": "azureApiManagement.copyDockerRunCommand",
                 "title": "%azureApiManagement.copyDockerRunCommand%",
                 "category": "Azure API Management"
@@ -424,9 +470,14 @@
                     "group": "2@3"
                 },
                 {
-                    "command": "azureApiManagement.Refresh",
+                    "command": "azureApiManagement.debugApiPolicy",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApi",
                     "group": "3@1"
+                },
+                {
+                    "command": "azureApiManagement.Refresh",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApi",
+                    "group": "4@1"
                 },
                 {
                     "command": "azureApiManagement.Refresh",
@@ -560,7 +611,10 @@
         "webpack-cli": "^3.3.0",
         "mocha": "^5.2.0",
         "mocha-junit-reporter": "^1.18.0",
-        "mocha-multi-reporters": "^1.1.7"
+        "mocha-multi-reporters": "^1.1.7",
+        "@types/request-promise-native": "^1.0.17",
+        "@types/ws": "^6.0.1",
+        "vscode-debugadapter-testsupport": "1.40.2"
     },
     "dependencies": {
         "vscode-azureextensionui": "^0.23.3",
@@ -573,7 +627,11 @@
         "opn": "^5.3.0",
         "request": "^2.83.0",
         "request-promise": "^4.2.2",
-        "@types/xml": "^1.0.3"
+        "@types/xml": "^1.0.3",
+        "await-notify": "1.0.1",
+        "request-promise-native": "^1.0.8",
+        "vscode-debugadapter": "1.39.0",
+        "ws": "^7.1.1"
     },
     "extensionDependencies": [
         "ms-vscode.azure-account",
