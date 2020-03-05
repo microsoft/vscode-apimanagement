@@ -71,7 +71,8 @@
     },
     "linterOptions": {
         "exclude": [
-            "src/test/**" // Enable back when tests are ready.
+            "src/test/**",
+            "src/debugger/**"
         ]
     }
 }

@@ -1,13 +1,13 @@
-import { PolicySource } from "./PolicySource";
-import { UiThread } from "./UiThread";
+import { UiThread } from "./uiThread";
+import { PolicySource } from "./policySource";
 
-// tslint:disable: indent
 export class UiRequest {
-	public id: string;
-	public threads: UiThread[];
 	private operationId: string;
 	private apiId: string;
 	private productId: string;
+
+	id: string;
+	threads: UiThread[];
 
 	constructor(id: string, operationId: string, apiId: string, productId: string) {
 		this.id = id;
@@ -18,36 +18,39 @@ export class UiRequest {
 		this.productId = productId;
 	}
 
-	public addNewThread(gatewayThread: number, policySource: PolicySource): UiThread {
+	addNewThread(gatewayThread: number, policySource: PolicySource) {
 		let thread: UiThread;
 		this.threads.push(thread = new UiThread(gatewayThread, this.operationId, this.apiId, this.productId, policySource));
 		return thread;
 	}
 
-	public findThreadByStackFrameId(id: number): UiThread | null {
+	findThreadByStackFrameId(id: number) {
 		for (const thread of this.threads) {
 			if (thread.containsStackFrame(id)) {
 				return thread;
 			}
 		}
+
 		return null;
 	}
 
-	public findThreadById(id: number): UiThread | null {
+	findThreadById(id: number) {
 		for (const thread of this.threads) {
-			if (thread.id === id) {
+			if (thread.id == id) {
 				return thread;
 			}
 		}
+
 		return null;
 	}
 
-	public findThreadByUiId(uiId: number): UiThread | null {
+	findThreadByUiId(uiId: number) {
 		for (const thread of this.threads) {
-			if (thread.uiId === uiId) {
+			if (thread.uiId == uiId) {
 				return thread;
 			}
 		}
+
 		return null;
 	}
 }

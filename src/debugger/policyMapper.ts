@@ -1,13 +1,10 @@
-import { nonNullValue } from "../../utils/nonNull";
-
-// tslint:disable: indent
 export class PolicyMapper {
-	public static WhiteSpaceCharacters: string = " \r\n\t";
-	public static NameCharacters: string = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-:";
+	static WhiteSpaceCharacters = " \r\n\t";
+	static NameCharacters = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-:";
 
 	private index: number;
 	private xml: string;
-	private map: IPolicyMap;
+	private map: PolicyMap;
 	private count: {
 		[key: string]: number
 	};
@@ -20,7 +17,7 @@ export class PolicyMapper {
 		index: number;
 	};
 
-	public mapPolicy(xml: string): IPolicyMap {
+	mapPolicy(xml: string) {
 		this.index = 0;
 		this.xml = xml;
 		this.count = {};
@@ -29,29 +26,27 @@ export class PolicyMapper {
 		this.line = 0;
 		this.column = 0;
 
-		// tslint:disable-next-line: no-empty
-		while (this.index < this.xml.length && (this.xmlComment() || this.element())) { }
+		while (this.index < this.xml.length && (this.xmlComment() || this.element()));
 
 		return this.map;
 	}
 
-	// tslint:disable-next-line: cyclomatic-complexity
-	private element(): boolean {
+	private element() {
 		this.captureLocation();
 
 		let nameStart = -1;
-		let name: string | undefined;
-		let start: [number, number] | undefined;
-		let end: [number, number] | undefined;
+		let name: string = null;
+		let start: [number, number] = null;
+		let end: [number, number] = null;
 		let selfClosing = false;
 		let closing = false;
 		while (this.index < this.xml.length) {
 			const char = this.xml[this.index];
-			if (char === '<') {
+			if (char == '<') {
 				if (!start) {
 					start = [this.line, this.column];
 				}
-			} else if (char === '/') {
+			} else if (char == '/') {
 				if (!name) {
 					if (nameStart > 0 && !name) {
 						name = this.xml.substring(nameStart, this.index);
@@ -66,7 +61,7 @@ export class PolicyMapper {
 				} else {
 					closing = true;
 				}
-			} else if (char === '>') {
+			} else if (char == '>') {
 				if (nameStart > 0 && !name) {
 					name = this.xml.substring(nameStart, this.index);
 					this.stack.push(name);
@@ -74,7 +69,7 @@ export class PolicyMapper {
 
 				if (!end) {
 					end = [this.line, this.column];
-					this.addElementToMap(nonNullValue(start), end);
+					this.addElementToMap(start, end);
 				}
 
 				this.advance();
@@ -86,7 +81,7 @@ export class PolicyMapper {
 				if (this.elementValue()) {
 					continue;
 				}
-			} else if (char === '<') {
+			} else if (char == '<') {
 				if (end) {
 					closing = true;
 				} else {
@@ -111,34 +106,34 @@ export class PolicyMapper {
 				break;
 			}
 
-			this.advance();
+			this.advance()
 		}
 
 		this.backtrack();
 		return false;
 	}
 
-	private xmlComment(): boolean {
+	private xmlComment() {
 		this.captureLocation();
 
 		let openCount = 0;
 		let closeCount = 0;
 		while (this.index < this.xml.length) {
 			const char = this.xml[this.index];
-			if (char === '<') {
-				if (openCount === 0) {
+			if (char == '<') {
+				if (openCount == 0) {
 					openCount++;
 				}
-			} else if (char === '!') {
-				if (openCount === 1) {
+			} else if (char == '!') {
+				if (openCount == 1) {
 					openCount++;
 				} else {
 					openCount = 0;
 				}
-			} else if (char === '-') {
-				if (openCount === 2 || openCount === 3) {
+			} else if (char == '-') {
+				if (openCount == 2 || openCount == 3) {
 					openCount++;
-				} else if (openCount === 4) {
+				} else if (openCount == 4) {
 					if (closeCount < 2) {
 						closeCount++;
 					} else {
@@ -147,8 +142,8 @@ export class PolicyMapper {
 				} else {
 					break;
 				}
-			} else if (char === '>') {
-				if (closeCount === 2) {
+			} else if (char == '>') {
+				if (closeCount == 2) {
 					this.advance();
 					return true;
 				}
@@ -173,24 +168,23 @@ export class PolicyMapper {
 		return false;
 	}
 
-	// tslint:disable-next-line: no-any
-	private attributes(): any {
-		let hasAttribute: boolean = false;
+	private attributes() {
+		let any = false;
 		while (this.attribute()) {
-			hasAttribute = true;
+			any = true;
 		}
-		return hasAttribute;
+		return any;
 	}
 
-	private attribute(): boolean {
+	private attribute() {
 		this.captureLocation();
 
 		let nameStart = -1;
-		let name: string | undefined;
+		let name: string = null;
 		let hasValue = false;
 		while (this.index < this.xml.length) {
 			const char = this.xml[this.index];
-			if (char === '=') {
+			if (char == '=') {
 				if (nameStart >= 0 && !name) {
 					name = this.xml.substring(nameStart, this.index);
 				}
@@ -198,7 +192,7 @@ export class PolicyMapper {
 				if (!name) {
 					break;
 				}
-			} else if (char === '"') {
+			} else if (char == '"') {
 				if (!name) {
 					break;
 				}
@@ -211,7 +205,6 @@ export class PolicyMapper {
 				this.advance();
 				if (this.expression()) {
 					hasValue = true;
-					// tslint:disable-next-line: align
 				} if (this.simpleValue('"', true)) {
 					hasValue = true;
 					continue;
@@ -241,40 +234,40 @@ export class PolicyMapper {
 		return false;
 	}
 
-	private expression(): boolean {
+	private expression() {
 		this.captureLocation();
 
 		let at = false;
-		let openingBracket: string | undefined;
-		let closingBracket: string | undefined;
+		let openingBracket: string = null;
+		let closingBracket: string = null;
 		let bracketDepth = -1;
 		while (this.index < this.xml.length) {
 			const char = this.xml[this.index];
 
-			if (char === '@') {
+			if (char == '@') {
 				if (at) {
 					break;
 				}
 
 				at = true;
-			} else if (char === '{' || char === '(') {
+			} else if (char == '{' || char == '(') {
 				if (!at) {
 					break;
 				}
 
 				if (!openingBracket) {
 					openingBracket = char;
-					closingBracket = char === '{' ? '}' : ')';
+					closingBracket = char == '{' ? '}' : ')';
 					bracketDepth = 0;
-				} else if (openingBracket === char) {
-					bracketDepth++;
+				} else if (openingBracket == char) {
+					bracketDepth++
 				}
-			} else if (char === '}' || char === ')') {
+			} else if (char == '}' || char == ')') {
 				if (!openingBracket) {
 					break;
 				}
 
-				if (closingBracket === char && --bracketDepth <= 0) {
+				if (closingBracket == char && --bracketDepth <= 0) {
 					this.advance();
 					return true;
 				}
@@ -293,14 +286,14 @@ export class PolicyMapper {
 		return false;
 	}
 
-	private simpleValue(terminator: string, allowEmpty: boolean): boolean {
+	private simpleValue(terminator: string, allowEmpty: boolean) {
 		this.captureLocation();
 
 		let empty = true;
 		while (this.index < this.xml.length) {
 			const char = this.xml[this.index];
 
-			if (char === terminator) {
+			if (char == terminator) {
 				if (empty && !allowEmpty) {
 					break;
 				}
@@ -316,16 +309,16 @@ export class PolicyMapper {
 		return false;
 	}
 
-	private elementValue(): boolean {
-		let hasAny = false;
+	private elementValue() {
+		let any = false;
 		while (this.expression() || this.xmlComment() || this.element() || this.simpleValue('<', false)) {
-			hasAny = true;
+			any = true;
 		}
-		return hasAny;
+		return any;
 	}
 
-	private advance(): void {
-		if (this.xml[this.index] === '\n') {
+	private advance() {
+		if (this.xml[this.index] == '\n') {
 			this.line++;
 			this.column = 0;
 		} else {
@@ -334,14 +327,14 @@ export class PolicyMapper {
 		this.index++;
 	}
 
-	private addElementToMap(start: [number, number], end: [number, number]): void {
-		let key = this.stack.reduce((a, b) => `${a}/${b}`);
+	private addElementToMap(start: [number, number], end: [number, number]) {
+		let key = this.stack.reduce((a,b) => `${a}/${b}`);
 
-		if (this.count[key] !== undefined) {
+		if (this.count[key]) {
 			this.count[key] += 1;
 			key = `${key}[${this.count[key]}]`;
-		} else if (this.map[key] !== undefined) {
-			this.count[key] = 2;
+		} else if (this.map[key]) {
+			this.count[key] = 2
 			this.map[`${key}[1]`] = this.map[key];
 			delete this.map[key];
 			key = `${key}[2]`;
@@ -352,10 +345,10 @@ export class PolicyMapper {
 			endLine: end[0],
 			column: start[1],
 			endColumn: end[1]
-		};
+		}
 	}
 
-	private captureLocation(): void {
+	private captureLocation() {
 		this.capturedLocation = {
 			line: this.line,
 			column: this.column,
@@ -363,20 +356,20 @@ export class PolicyMapper {
 		};
 	}
 
-	private backtrack(): void {
+	private backtrack() {
 		this.line = this.capturedLocation.line;
 		this.column = this.capturedLocation.column;
 		this.index = this.capturedLocation.index;
 	}
 }
 
-export interface IPolicyMap {
-	[path: string]: IPolicyLocation;
+export interface PolicyMap {
+	[path: string]: PolicyLocation
 }
 
-export interface IPolicyLocation {
-	line: number;
-	endLine: number;
-	column: number;
-	endColumn: number;
+export interface PolicyLocation {
+	line: number,
+	endLine: number
+	column: number,
+	endColumn: number
 }

@@ -27,6 +27,7 @@ import { openWorkingFolder } from './commands/openWorkingFolder';
 import { setupWorkingFolder } from './commands/setupWorkingFolder';
 import { testOperation } from './commands/testOperation';
 import { doubleClickDebounceDelay } from './constants';
+import { activate } from './debugger/extension';
 import { ApiManagementProvider } from './explorer/ApiManagementProvider';
 import { ApiOperationTreeItem } from './explorer/ApiOperationTreeItem';
 import { ApiPolicyTreeItem } from './explorer/ApiPolicyTreeItem';
@@ -55,7 +56,7 @@ import { ServiceTreeItem } from './explorer/ServiceTreeItem';
 import { ext } from './extensionVariables';
 
 // tslint:disable-next-line: no-var-requires
-const debugConfig = require('../resources/debug/extension');
+const debuggerConfig = require('../resources/debugger/extension');
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -111,7 +112,8 @@ export function activateInternal(context: vscode.ExtensionContext) {
     registerEditors(context);
 
     // tslint:disable-next-line: no-unsafe-any
-    debugConfig.activate(context);
+    debuggerConfig.activate(context);
+        //activate(context);
 }
 
 function registerEditors(context: vscode.ExtensionContext) : void {

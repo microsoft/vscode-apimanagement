@@ -3,10 +3,9 @@
  *--------------------------------------------------------*/
 
 import { EventEmitter } from 'events';
-import * as WebSocket from "ws";
+import * as WebSocket from "ws"
 
-// tslint:disable: indent
-export interface IMockBreakpoint {
+export interface MockBreakpoint {
 	id: number;
 	line: number;
 	verified: boolean;
@@ -15,26 +14,25 @@ export interface IMockBreakpoint {
 export class DebuggerConnection extends EventEmitter {
 	private connection: WebSocket | null;
 	private responseAwaiters: {
-		// tslint:disable-next-line: no-any
 		[key: string]: ((value: any) => void)[]
 	} = {};
 
 	constructor() {
 		super();
 
-		process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+		process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0";
 	}
 
-	public isConnected(): boolean {
+	isConnected() {
 		return this.connection != null;
 	}
 
-	public async attach(address: string, key: string, stopOnEntry: boolean): Promise<void> {
+	async attach(address: string, key: string, stopOnEntry: boolean) {
 		let connection: WebSocket;
 		return new Promise((resolve, reject) => {
 			connection = new WebSocket(`${address}?key=${key}`)
 				.on('error', e => {
-					if (this.connection == null || this.connection === connection) {
+					if (this.connection == null || this.connection == connection) {
 						this.connection = null;
 						this.sendEvent('end', `Can't connect to gateway: ${e.message}.`);
 					}
@@ -53,79 +51,77 @@ export class DebuggerConnection extends EventEmitter {
 		});
 	}
 
-	public async getRequests(): Promise<IRequestContract[]> {
-		return this.waitForResponse<IRequestContract[]>(() => this.sendCommand('getRequests'), 'requests');
+	getRequests() {
+		return this.waitForResponse<RequestContract[]>(() => this.sendCommand('getRequests'), 'requests');
 	}
 
-	public async getStackTrace(requestId: string, threadId: number): Promise<IStackFrameContract[]> {
-		return this.waitForResponse<IStackFrameContract[]>(() => this.sendCommand('getStackTrace', {
+	getStackTrace(requestId: string, threadId: number) {
+		return this.waitForResponse<StackFrameContract[]>(() => this.sendCommand('getStackTrace', {
 			requestId: requestId,
 			threadId: threadId
-		}),                                                'stackTrace');
+		}), 'stackTrace');
 	}
 
-	public async getVariables(requestId: string, threadId: number, path?: string): Promise<IVariableContract[]> {
-		return this.waitForResponse<IVariableContract[]>(() => this.sendCommand('getVariables', {
+	getVariables(requestId: string, threadId: number, path?: string) {
+		return this.waitForResponse<VariableContract[]>(() => this.sendCommand('getVariables', {
 			requestId: requestId,
 			threadId: threadId,
 			path: path
-		}),                                              'variables');
+		}), 'variables');
 	}
 
-	public setBreakpoints(breakpoints: {
+	setBreakpoints(breakpoints: {
 		path: string,
 		scopeId: string
-	}[]): void {
+	}[]) {
 		this.sendCommand('setBreakpoints', {
 			breakpoints: breakpoints
 		});
 	}
 
-	public stepOver(requestId: string, threadId: number): void {
+	stepOver(requestId: string, threadId: number) {
 		this.sendCommand('stepOver', {
 			requestId: requestId,
 			threadId: threadId
 		});
 	}
 
-	public stepIn(requestId: string, threadId: number): void {
+	stepIn(requestId: string, threadId: number) {
 		this.sendCommand('stepIn', {
 			requestId: requestId,
 			threadId: threadId
 		});
 	}
 
-	public stepOut(requestId: string, threadId: number): void {
+	stepOut(requestId: string, threadId: number) {
 		this.sendCommand('stepOut', {
 			requestId: requestId,
 			threadId: threadId
 		});
 	}
 
-	// tslint:disable-next-line: no-reserved-keywords
-	public continue(requestId: string, threadId: number): void {
+	continue(requestId: string, threadId: number) {
 		this.sendCommand('continue', {
 			requestId: requestId,
 			threadId: threadId
 		});
 	}
 
-	public pause(requestId: string, threadId: number): void {
+	pause(requestId: string, threadId: number) {
 		this.sendCommand('pause', {
 			requestId: requestId,
 			threadId: threadId
 		});
 	}
 
-	public terminateRequests(requests: string[]): void {
+	terminateRequests(requests: string[]) {
 		this.sendCommand('terminateRequests', {
 			requests: requests
 		});
 	}
 
-	// tslint:disable-next-line: no-any
-	private sendCommand(name: string, args?: any): void {
-		if (this.connection === null) {
+	private sendCommand(name: string, args?: any) {
+		if (this.connection == null) {
 			return;
 		}
 
@@ -135,13 +131,9 @@ export class DebuggerConnection extends EventEmitter {
 		}));
 	}
 
-	private parseResponse(data: string): void {
+	private parseResponse(data: string) {
 		try {
-			// tslint:disable: no-banned-terms
-			// tslint:disable: no-unsafe-any
-			// tslint:disable-next-line: no-any
 			const event: { name: string, arguments: any } = JSON.parse(data.trim());
-			// tslint:disable-next-line: switch-default
 			switch (event.name) {
 				case 'stopOnEntry':
 					this.sendEvent(event.name, event.arguments.requestId, event.arguments.threadId, event.arguments.operationId, event.arguments.apiId, event.arguments.productId);
@@ -161,7 +153,7 @@ export class DebuggerConnection extends EventEmitter {
 			}
 
 			const awaiters = this.responseAwaiters[event.name];
-			if (awaiters.length > 0) {
+			if (awaiters) {
 				for (const awaiter of awaiters) {
 					awaiter(event.arguments);
 				}
@@ -173,23 +165,21 @@ export class DebuggerConnection extends EventEmitter {
 		}
 	}
 
-	private async waitForResponse<T>(sendCommand: () => void, name: string): Promise<T> {
+	private async waitForResponse<T>(sendCommand: () => void, name: string) {
 		return new Promise<T>(resolve => {
-			// tslint:disable-next-line: strict-boolean-expressions
 			(this.responseAwaiters[name] || (this.responseAwaiters[name] = [])).push(resolve);
 			sendCommand();
 		});
 	}
 
-	// tslint:disable-next-line: no-any
-	private sendEvent(event: string, ...args: any[]): any {
+	private sendEvent(event: string, ...args: any[]) {
 		setImmediate(_ => {
 			this.emit(event, ...args);
 		});
 	}
 }
 
-export interface IRequestContract {
+export interface RequestContract {
 	id: string;
 	threads: number[];
 	operationId: string;
@@ -197,7 +187,7 @@ export interface IRequestContract {
 	productId: string;
 }
 
-export interface IStackFrameContract {
+export interface StackFrameContract {
 	scopeId: string;
 	index: number;
 	name: string;
@@ -211,11 +201,9 @@ export enum StackFrameScopeContract {
 	tenant = '/tenant'
 }
 
-export interface IVariableContract {
+export interface VariableContract {
 	name: string;
-	// tslint:disable-next-line: no-reserved-keywords
 	type: string;
-	// tslint:disable: no-any
 	value: any;
 	nestedCount: any;
 }
