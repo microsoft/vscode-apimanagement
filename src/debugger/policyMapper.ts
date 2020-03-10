@@ -35,9 +35,9 @@ export class PolicyMapper {
 		this.captureLocation();
 
 		let nameStart = -1;
-		let name: string = null;
-		let start: [number, number] = null;
-		let end: [number, number] = null;
+		let name: string | null = null;
+		let start: [number, number] | null = null;
+		let end: [number, number] | null= null;
 		let selfClosing = false;
 		let closing = false;
 		while (this.index < this.xml.length) {
@@ -67,7 +67,7 @@ export class PolicyMapper {
 					this.stack.push(name);
 				}
 
-				if (!end) {
+				if (!end && start !== null) {
 					end = [this.line, this.column];
 					this.addElementToMap(start, end);
 				}
@@ -180,7 +180,7 @@ export class PolicyMapper {
 		this.captureLocation();
 
 		let nameStart = -1;
-		let name: string = null;
+		let name: string | null = null;
 		let hasValue = false;
 		while (this.index < this.xml.length) {
 			const char = this.xml[this.index];
@@ -238,8 +238,8 @@ export class PolicyMapper {
 		this.captureLocation();
 
 		let at = false;
-		let openingBracket: string = null;
-		let closingBracket: string = null;
+		let openingBracket: string | null = null;
+		let closingBracket: string | null = null;
 		let bracketDepth = -1;
 		while (this.index < this.xml.length) {
 			const char = this.xml[this.index];

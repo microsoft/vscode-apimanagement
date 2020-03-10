@@ -94,7 +94,7 @@ export class ApimDebugSession extends LoggingDebugSession {
 		}
 	}
 
-	protected initializeRequest(response: DebugProtocol.InitializeResponse, args: DebugProtocol.InitializeRequestArguments): void {
+	protected initializeRequest(response: DebugProtocol.InitializeResponse, _args: DebugProtocol.InitializeRequestArguments): void {
 		response.body = response.body || {};
 		response.body.supportsConfigurationDoneRequest = true;
 
@@ -127,7 +127,7 @@ export class ApimDebugSession extends LoggingDebugSession {
 			},
 			strictSSL: false,
 			json: true
-		}).on('error', e => {
+		}).on('error', _e => {
 			this.sendEvent(new TerminatedEvent());
 		}).on('response', e => {
 			if (e.statusCode != 200) {
@@ -146,7 +146,7 @@ export class ApimDebugSession extends LoggingDebugSession {
 			},
 			strictSSL: false,
 			json: true
-		}).on('error', e => {
+		}).on('error', _e => {
 			this.sendEvent(new TerminatedEvent());
 		}).on('response', e => {
 			if (e.statusCode != 200) {
@@ -181,7 +181,8 @@ export class ApimDebugSession extends LoggingDebugSession {
 		const requests = args.threadIds!.map(id => this.findThreadByUiId(id));
 
 		if (requests.length) {
-			await this.runtime.terminateRequests(requests.map(r => r[0].id).filter((value, index, self) => self.indexOf(value) === index));
+			// may break
+			await this.runtime.terminateRequests(requests.map(r => r![0].id).filter((value, index, self) => self.indexOf(value) === index));
 		}
 
 		this.sendResponse(response);
@@ -222,11 +223,13 @@ export class ApimDebugSession extends LoggingDebugSession {
 	protected async sourceRequest(response: DebugProtocol.SourceResponse, args: DebugProtocol.SourceArguments) {
 		const policy = this.policySource.getPolicyBySourceReference(args.sourceReference);
 
-		response.body = {
-			content: policy && policy.xml,
-			mimeType: 'application/vnd.ms-azure-apim.policy.raw+xml'
+		if (policy !== null && policy.xml !== null) {
+			response.body = {
+				content: policy && policy.xml,
+				mimeType: 'application/vnd.ms-azure-apim.policy.raw+xml'
+			}
+			this.sendResponse(response);
 		}
-		this.sendResponse(response);
 	}
 
 	protected async continueRequest(response: DebugProtocol.ContinueResponse, args: DebugProtocol.ContinueArguments) {
@@ -274,7 +277,7 @@ export class ApimDebugSession extends LoggingDebugSession {
 	}
 
 	protected scopesRequest(response: DebugProtocol.ScopesResponse, args: DebugProtocol.ScopesArguments) {
-		let scopes: Scope[];
+		let scopes: Scope[] = [];
 
 		const request = this.findThreadByStackFrameId(args.frameId);
 		if (request) {
@@ -288,7 +291,7 @@ export class ApimDebugSession extends LoggingDebugSession {
 	}
 
 	protected async variablesRequest(response: DebugProtocol.VariablesResponse, args: DebugProtocol.VariablesArguments) {
-		let variables: Variable[];
+		let variables: Variable[] = [];
 
 		if (this.runtime.isConnected()) {
 			const variableScope = this.variablesHandles.get(args.variablesReference);;
@@ -316,18 +319,18 @@ export class ApimDebugSession extends LoggingDebugSession {
 	}
 
 	protected async setBreakPointsRequest(response: DebugProtocol.SetBreakpointsResponse, args: DebugProtocol.SetBreakpointsArguments) {
-		let breakpoints: Breakpoint[];
+		let breakpoints: Breakpoint[] = [];
 		const breakpointsToSet: {
 			path: string,
 			scopeId: string
 		}[] = [];
-		if (args.breakpoints.length) {
+		if (args.breakpoints && args.breakpoints.length) {
 			let policy = this.policySource.getPolicyBySourceReference(args.source.sourceReference);
 			if (!policy && args.source.name) {
 				policy = this.policySource.getPolicy(args.source.name) || await this.policySource.fetchPolicy(args.source.name);
 			}
 
-			if (policy) {
+			if (policy && policy !== null) {
 				breakpoints = args.breakpoints.map(b => {
 					let position = {
 						line: -1,
@@ -336,11 +339,11 @@ export class ApimDebugSession extends LoggingDebugSession {
 						endColumn: -1
 					}
 
-					let path: string = null;
+					let path: string | null = null;
 					const breakpointLine = this.convertClientLineToDebugger(b.line);
 					const breakpointColumn = b.column && this.convertClientColumnToDebugger(b.column);
-					for (const key in policy.map) {
-						const mapEntry = policy.map[key];
+					for (const key in policy!.map) {
+						const mapEntry = policy!.map[key];
 						if (mapEntry.line == breakpointLine
 							&& (!breakpointColumn || breakpointColumn >= mapEntry.column && breakpointColumn <= mapEntry.endColumn)
 							&& (position.line == -1 || mapEntry.column < position.column)) {
@@ -348,11 +351,13 @@ export class ApimDebugSession extends LoggingDebugSession {
 							position = mapEntry;
 						}
 					}
-
 					if (position.line == -1) {
 						return new Breakpoint(false);
 					}
 
+					if (path === null) {
+						throw new Error("Path is null");
+					}
 					const policyName = path.substring(path.lastIndexOf('/') + 1);
 					if (this.availablePolicies.indexOf(policyName) == -1) {
 						return new Breakpoint(false);
@@ -360,9 +365,9 @@ export class ApimDebugSession extends LoggingDebugSession {
 
 					breakpointsToSet.push({
 						path: path.substr(path.indexOf('/') + 1), //Remove 'policies/' prefix
-						scopeId: policy.scopeId
+						scopeId: policy!.scopeId
 					});
-					const breakpoint = new Breakpoint(true, this.convertDebuggerLineToClient(position.line), this.convertDebuggerColumnToClient(position.column), policy.source);
+					const breakpoint = new Breakpoint(true, this.convertDebuggerLineToClient(position.line), this.convertDebuggerColumnToClient(position.column), policy!.source);
 					(<DebugProtocol.Breakpoint>breakpoint).endLine = this.convertDebuggerLineToClient(position.endLine);
 					(<DebugProtocol.Breakpoint>breakpoint).endColumn = this.convertDebuggerColumnToClient(position.endColumn);
 					return breakpoint;
@@ -374,13 +379,14 @@ export class ApimDebugSession extends LoggingDebugSession {
 			await this.runtime.setBreakpoints(breakpointsToSet);
 		}
 
+		const nBreakpoints : Breakpoint[] = (breakpoints.length !== 0) ? breakpoints : (args.breakpoints) ? args.breakpoints.map(_b => new Breakpoint(false)) : [];
 		response.body = {
-			breakpoints: breakpoints || args.breakpoints.map(b => new Breakpoint(false))
+			breakpoints: nBreakpoints
 		}
 		this.sendResponse(response);
 	}
 
-	private findThreadByUiId(id: number): [UiRequest, UiThread] {
+	private findThreadByUiId(id: number): [UiRequest, UiThread] | null{
 		for (const uiRequest of this.requests) {
 			const uiThread = uiRequest.findThreadByUiId(id);
 			if (uiThread) {
@@ -391,7 +397,7 @@ export class ApimDebugSession extends LoggingDebugSession {
 		return null;
 	}
 
-	private findThreadByStackFrameId(id: number): [UiRequest, UiThread] {
+	private findThreadByStackFrameId(id: number): [UiRequest, UiThread] | null{
 		for (const uiRequest of this.requests) {
 			const uiThread = uiRequest.findThreadByStackFrameId(id);
 			if (uiThread) {

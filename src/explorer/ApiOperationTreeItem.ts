@@ -80,6 +80,10 @@ export class ApiOperationTreeItem extends AzureParentTreeItem<IOperationTreeRoot
         return await new OperationConsole().buildRequestInfo(this.root);
     }
 
+    public async getOperationDebugInfo(): Promise<string> {
+        return await new OperationConsole().buildDebugRequestInfo(this.root);
+    }
+
     private createRoot(subRoot: ISubscriptionRoot): IOperationTreeRoot {
         return Object.assign({}, <IApiTreeRoot>subRoot, {
             opName : nonNullProp(this.operationContract, 'name')

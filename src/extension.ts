@@ -56,7 +56,7 @@ import { ServiceTreeItem } from './explorer/ServiceTreeItem';
 import { ext } from './extensionVariables';
 
 // tslint:disable-next-line: no-var-requires
-const debuggerConfig = require('../resources/debugger/extension');
+//const debuggerConfig = require('../resources/debugger/extension');
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -104,7 +104,7 @@ export function activateInternal(context: vscode.ExtensionContext) {
     registerCommand('azureApiManagement.copyDockerRunCommand', async (node: GatewayTreeItem) => await copyDockerRunCommand(node));
     registerCommand('azureApiManagement.generateKubernetesDeployment', async (node: GatewayTreeItem) => await generateKubernetesDeployment(node));
     registerCommand('azureApiManagement.generateNewGatewayToken', async (node: GatewayTreeItem) => await generateNewGatewayToken(node));
-    registerCommand('azureApiManagement.debugApiPolicy', async (node: ApiTreeItem) => await debugApiPolicy(node));
+    registerCommand('azureApiManagement.debugApiPolicy', async (node: ApiOperationTreeItem) => await debugApiPolicy(node));
 
     registerCommand('azureApiManagement.openExtensionWorkspaceFolder', openWorkingFolder);
     registerCommand('azureApiManagement.initializeExtensionWorkspaceFolder', setupWorkingFolder);
@@ -112,8 +112,8 @@ export function activateInternal(context: vscode.ExtensionContext) {
     registerEditors(context);
 
     // tslint:disable-next-line: no-unsafe-any
-    debuggerConfig.activate(context);
-        //activate(context);
+    // debuggerConfig.activate(context);
+    activate(context);
 }
 
 function registerEditors(context: vscode.ExtensionContext) : void {

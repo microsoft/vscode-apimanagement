@@ -87,31 +87,31 @@
             }
         ],
         "debuggers": [
-			{
-				"type": "apim-policy",
-				"label": "Attach to APIM",
-				"runtime": "node",
-				"configurationAttributes": {
-					"launch": {
-						"properties": {
-							"stopOnEntry": {
-								"type": "boolean",
-								"description": "Automatically stop after launch.",
-								"default": true
-							}
-						}
-					}
-				},
-				"initialConfigurations": [
-					{
-						"type": "apim-policy",
-						"request": "launch",
-						"name": "Attach to APIM",
-						"stopOnEntry": true
-					}
-				]
-			}
-		],
+            {
+                "type": "apim-policy",
+                "label": "Attach to APIM",
+                "runtime": "node",
+                "configurationAttributes": {
+                    "launch": {
+                        "properties": {
+                            "stopOnEntry": {
+                                "type": "boolean",
+                                "description": "Automatically stop after launch.",
+                                "default": true
+                            }
+                        }
+                    }
+                },
+                "initialConfigurations": [
+                    {
+                        "type": "apim-policy",
+                        "request": "launch",
+                        "name": "Attach to APIM",
+                        "stopOnEntry": true
+                    }
+                ]
+            }
+        ],
         "jsonValidation": [
             {
                 "fileMatch": "/*-api-arm.json",
@@ -470,11 +470,6 @@
                     "group": "2@3"
                 },
                 {
-                    "command": "azureApiManagement.debugApiPolicy",
-                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApi",
-                    "group": "3@1"
-                },
-                {
                     "command": "azureApiManagement.Refresh",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApi",
                     "group": "4@1"
@@ -493,6 +488,11 @@
                     "command": "azureApiManagement.testOperation",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApiOperation",
                     "group": "1@1"
+                },
+                {
+                    "command": "azureApiManagement.debugApiPolicy",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApiOperation",
+                    "group": "2@1"
                 },
                 {
                     "command": "azureApiManagement.createNamedValue",

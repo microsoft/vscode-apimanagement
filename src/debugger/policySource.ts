@@ -31,11 +31,11 @@ export class PolicySource
 
 		if (policiesToRequest.length) {
 			// Batching goes here
-			await Promise.all(policiesToRequest.map(s => this.fetchPolicy(s).catch(e => null)));
+			await Promise.all(policiesToRequest.map(s => this.fetchPolicy(s).catch(_e => null)));
 		}
 	}
 
-	getPolicyBySourceReference(id: number) {
+	getPolicyBySourceReference(id: number | undefined) {
 		for(const scope in this.policies) {
 			const policy = this.policies[scope];
 			if (policy && policy.source && policy.source.sourceReference == id) {
@@ -63,9 +63,9 @@ export class PolicySource
 			},
 			strictSSL: false,
 			json: true
-		}).on('error', e => {
+		}).on('error', _e => {
 			//const a = 5;
-		}).on('response', e => {
+		}).on('response', _e => {
 			//const a = 5;
 		});
 
@@ -112,7 +112,7 @@ interface PolicyContract {
 
 interface Policy {
 	scopeId: string;
-	xml: string;
+	xml: string | null;
 	source: Source;
 	map: PolicyMap;
 }

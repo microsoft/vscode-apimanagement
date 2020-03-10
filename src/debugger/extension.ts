@@ -28,10 +28,6 @@ class ApimPolicyConfigurationProvider implements vscode.DebugConfigurationProvid
                 config.stopOnEntry = true;
             }
         }
-
-        config.gatewayAddress = 'wss://proxy.apim.net/debug-0123456789abcdef';
-        config.managementAddress = 'https://management.apim.net/subscriptions/a200340d-6b82-494d-9dbf-687ba6e33f9e/resourceGroups/Api-Default-West-US/providers/microsoft.apimanagement/service/devportal-lrp';
-        config.managementAuth = 'SharedAccessSignature integration&202004012324&qpC28gFSx2WZG/j+NVVoPFJyvfu0e1ALECH2cydrMVT7EAFsgag1sW3tSNQ9A5pTa/r61wCI8EDAKMvKHuUJ9A==';
         return config;
     }
 }

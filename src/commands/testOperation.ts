@@ -14,13 +14,27 @@ export async function testOperation(node?: ApiOperationTreeItem): Promise<void> 
     if (!node) {
         node = <ApiOperationTreeItem>await ext.tree.showTreeItemPicker(ApiOperationTreeItem.contextValue);
     }
+    // tslint:disable-next-line: no-non-null-assertion
+    await createOperationTestFile(node!, OperationRunMode.test);
+}
 
+export async function createOperationTestFile(node: ApiOperationTreeItem, mode: OperationRunMode): Promise<void> {
     // using https://github.com/Huachao/vscode-restclient
     const fileName = `${nameUtil(node.root)}.http`;
     const localFilePath: string = await createTemporaryFile(fileName);
-    const data: string = await node.getOperationTestInfo();
+    let data: string;
+    if (mode === OperationRunMode.debug) {
+        data = await node.getOperationDebugInfo();
+    } else {
+        data = await node.getOperationTestInfo();
+    }
     const document: vscode.TextDocument = await vscode.workspace.openTextDocument(localFilePath);
     const textEditor: vscode.TextEditor = await vscode.window.showTextDocument(document);
     await writeToEditor(textEditor, data);
     await textEditor.document.save();
+}
+
+export enum OperationRunMode {
+    debug = "debug",
+    test = "test"
 }

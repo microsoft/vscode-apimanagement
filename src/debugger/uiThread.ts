@@ -52,12 +52,12 @@ export class UiThread {
 		const stack: {
 			key: string,
 			frame: StackFrameContract,
-			isVirtual: boolean,
+			isVirtual?: boolean,
 			stackFrame: StackFrame
 		}[] = [];
 		const allFrames = this.addVirtualStack(frames);
 		const pendingSources: PendingSource[] = [];
-		let prevFrame: StackFrameContract = null;
+		let prevFrame: StackFrameContract | null = null;
 		let path: string[] = [];
 		for (const frame of allFrames.reverse()) {
 			if (!path.length || prevFrame && (prevFrame.scopeId != frame.scopeId)) {

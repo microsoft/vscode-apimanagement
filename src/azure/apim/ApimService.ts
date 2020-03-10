@@ -61,6 +61,11 @@ export class ApimService {
         return res.value;
     }
 
+    public async getSubscriptionMasterkey(): Promise<string> {
+        const masterKeyUrl = `${this.baseUrl}/subscriptions/master?api-version=${this.apiVersion}`;
+        return await requestUtil(masterKeyUrl, this.credentials, 'GET');
+    }
+
     private genSiteUrl(endPointUrl: string, subscriptionId: string, resourceGroup: string, serviceName: string): string {
         return `${endPointUrl}/subscriptions/${subscriptionId}/resourceGroups/${resourceGroup}/providers/Microsoft.ApiManagement/service/${serviceName}`;
     }
