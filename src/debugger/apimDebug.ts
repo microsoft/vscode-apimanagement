@@ -301,7 +301,7 @@ export class ApimDebugSession extends LoggingDebugSession {
 			if (scopeParts.length >= 2) {
 				const vars = await this.runtime.getVariables(scopeParts[0], +scopeParts[1], scopeParts.slice(2).join('.'));
 				variables = vars.map(v => {
-					const variable = new Variable(v.name, v.value, v.nestedCount ? this.variablesHandles.create(`${variableScope}|${v.name}`) : 0);
+					const variable = new Variable(v.name, v.value || "", v.nestedCount ? this.variablesHandles.create(`${variableScope}|${v.name}`) : 0);
 					(<DebugProtocol.Variable>variable).type = v.type;
 					(<DebugProtocol.Variable>variable).namedVariables = v.nestedCount;
 					(<DebugProtocol.Variable>variable).presentationHint = {
