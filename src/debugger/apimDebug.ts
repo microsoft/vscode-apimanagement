@@ -237,6 +237,8 @@ export class ApimDebugSession extends LoggingDebugSession {
 		if (request && this.runtime.isConnected()) {
 			await this.runtime.continue(request[0].id, request[1].id);
 		}
+
+		response.body.allThreadsContinued = false;
 		this.sendResponse(response);
 	}
 
