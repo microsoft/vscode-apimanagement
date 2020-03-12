@@ -21,11 +21,15 @@ export async function debugApiPolicy(node?: ApiOperationTreeItem): Promise<void>
     //const managementUrl = `${node.root.environment.resourceManagerEndpointUrl}/subscriptions/${node.root.subscriptionId}/resourceGroups/${node.root.resourceGroupName}/providers/microsoft.apimanagement/service/${node.root.serviceName}`;
     const managementUrl = `https://${node.root.serviceName}.management.azure-api.net/subscriptions/${node.root.subscriptionId}/resourceGroups/${node.root.resourceGroupName}/providers/microsoft.apimanagement/service/${node.root.serviceName}`;
 
-    const authUrl = `${node.root.environment.resourceManagerEndpointUrl}/subscriptions/${node.root.subscriptionId}/resourceGroups/${node.root.resourceGroupName}/providers/microsoft.apimanagement/service/${node.root.serviceName}/users/integration/token?api-version=2018-06-01-preview`;
+    const userUrl = `${node.root.environment.resourceManagerEndpointUrl}/subscriptions/${node.root.subscriptionId}/resourceGroups/${node.root.resourceGroupName}/providers/microsoft.apimanagement/service/${node.root.serviceName}/tenant/access?api-version=2019-01-01`;
+    const userObject : string = await requestUtil(userUrl, node.root.credentials, "GET");
+    const user: IUser = <IUser>JSON.parse(userObject);
+
+    const authUrl = `${node.root.environment.resourceManagerEndpointUrl}/subscriptions/${node.root.subscriptionId}/resourceGroups/${node.root.resourceGroupName}/providers/microsoft.apimanagement/service/${node.root.serviceName}/users/${user.id}/token?api-version=2018-06-01-preview`;
     const now = new Date();
     const timeSpan = now.setDate(now.getDate() + 29);
     const expiryDate = (new Date(timeSpan)).toISOString();
-    const managementAuth : IAuthenticationToken = await requestUtil(authUrl, node.root.credentials, "POST", {
+    const managementAuth: IAuthenticationToken = await requestUtil(authUrl, node.root.credentials, "POST", {
         keyType: "primary",
         expiry: expiryDate
     });
@@ -54,4 +58,11 @@ export function getDebugGatewayAddressUrl(serviceName: string): string {
 
 export interface IAuthenticationToken {
     value: string;
+}
+
+export interface IUser {
+    id: string;
+    primaryKey: string;
+    secondaryKey: string;
+    enabled: boolean;
 }
