@@ -10,11 +10,15 @@ import { UiRequest } from './uiRequest';
 import { UiThread } from './uiThread';
 import { PolicySource } from './policySource';
 const { Subject } = require('await-notify');
+import * as vscode from 'vscode';
+import { ServiceClientCredentials } from "ms-rest";
+import { getBearerToken } from '../utils/requestUtil';
 
 interface LaunchRequestArguments extends DebugProtocol.LaunchRequestArguments {
 	gatewayAddress: string;
 	managementAddress: string;
 	managementAuth: string;
+	subscriptionId: string;
 	stopOnEntry?: boolean;
 }
 
@@ -108,9 +112,10 @@ export class ApimDebugSession extends LoggingDebugSession {
 
 	protected async launchRequest(response: DebugProtocol.LaunchResponse, args: LaunchRequestArguments) {
 		logger.setup(Logger.LogLevel.Verbose, false);
-		this.policySource = new PolicySource(args.managementAddress, args.managementAuth);
-		const masterKey = await this.getMasterSubscriptionKey(args.managementAddress, args.managementAuth);
-		this.availablePolicies = await this.getAvailablePolicies(args.managementAddress, args.managementAuth);
+		const credential =  await this.getAccountCredentials(args.subscriptionId);
+		this.policySource = new PolicySource(args.managementAddress, credential);
+		const masterKey = await this.getMasterSubscriptionKey(args.managementAddress, credential);
+		this.availablePolicies = await this.getAvailablePolicies(args.managementAddress, credential);
 
 		this.sendEvent(new InitializedEvent());
 		await this.configurationDone.wait(1000);
@@ -120,10 +125,23 @@ export class ApimDebugSession extends LoggingDebugSession {
 		this.updateRequests(await this.runtime.getRequests(), true);
 	}
 
-	private async getMasterSubscriptionKey(managementAddress: string, managementAuth: string) {
-		const subscription: ApimSubscription = await request.get(`${managementAddress}/subscriptions/master?api-version=2019-01-01`, {
+	private async getAccountCredentials(subscriptionId: string): Promise<ServiceClientCredentials> {
+		const azureAccountExtension = vscode.extensions.getExtension('ms-vscode.azure-account');
+		const azureAccount = azureAccountExtension!.exports;
+		await azureAccount.waitForFilters();
+		if (azureAccount.status !== 'LoggedIn') {
+			throw "ERROR!";
+		}
+		const creds = azureAccount.filters.filter(filter => filter.subscription.subscriptionId === subscriptionId).map(filter => filter.session.credentials);
+		return creds[0];
+	}
+
+	private async getMasterSubscriptionKey(managementAddress: string, credential: ServiceClientCredentials) {
+		const resourceUrl = `${managementAddress}/subscriptions/master?api-version=2019-01-01`;
+		const authToken = await getBearerToken(resourceUrl, "GET", credential);
+		const subscription: ApimSubscription = await request.get(resourceUrl, {
 			headers: {
-				Authorization: managementAuth
+				Authorization: authToken
 			},
 			strictSSL: false,
 			json: true
@@ -139,10 +157,12 @@ export class ApimDebugSession extends LoggingDebugSession {
 		return subscription.properties.primaryKey;
 	}
 
-	private async getAvailablePolicies(managementAddress: string, managementAuth: string) {
-		const snippets: PolicySnippet[] = await request.get(`${managementAddress}/policysnippets?api-version=2019-01-01`, {
+	private async getAvailablePolicies(managementAddress: string, credential: ServiceClientCredentials) {
+		const resourceUrl = `${managementAddress}/policysnippets?api-version=2019-01-01`;
+		const authToken = await getBearerToken(resourceUrl, "GET", credential);
+		const snippets: PolicySnippet[] = await request.get(resourceUrl, {
 			headers: {
-				Authorization: managementAuth
+				Authorization: authToken
 			},
 			strictSSL: false,
 			json: true
@@ -381,14 +401,14 @@ export class ApimDebugSession extends LoggingDebugSession {
 			await this.runtime.setBreakpoints(breakpointsToSet);
 		}
 
-		const nBreakpoints : Breakpoint[] = (breakpoints.length !== 0) ? breakpoints : (args.breakpoints) ? args.breakpoints.map(_b => new Breakpoint(false)) : [];
+		const nBreakpoints: Breakpoint[] = (breakpoints.length !== 0) ? breakpoints : (args.breakpoints) ? args.breakpoints.map(_b => new Breakpoint(false)) : [];
 		response.body = {
 			breakpoints: nBreakpoints
 		}
 		this.sendResponse(response);
 	}
 
-	private findThreadByUiId(id: number): [UiRequest, UiThread] | null{
+	private findThreadByUiId(id: number): [UiRequest, UiThread] | null {
 		for (const uiRequest of this.requests) {
 			const uiThread = uiRequest.findThreadByUiId(id);
 			if (uiThread) {
@@ -399,7 +419,7 @@ export class ApimDebugSession extends LoggingDebugSession {
 		return null;
 	}
 
-	private findThreadByStackFrameId(id: number): [UiRequest, UiThread] | null{
+	private findThreadByStackFrameId(id: number): [UiRequest, UiThread] | null {
 		for (const uiRequest of this.requests) {
 			const uiThread = uiRequest.findThreadByStackFrameId(id);
 			if (uiThread) {

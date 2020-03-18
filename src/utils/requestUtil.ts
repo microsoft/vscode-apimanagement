@@ -39,3 +39,20 @@ export async function requestUtil<T>(url: string, credentials?: ServiceClientCre
 export async function sendRequest<T>(httpReq: nRequest): Promise<T> {
     return await <Thenable<T>>request(httpReq).promise();
 }
+
+export async function getBearerToken(url: string, method: HttpMethods, credentials: ServiceClientCredentials): Promise<string> {
+    const requestOptions: WebResource = new WebResource();
+    requestOptions.headers = {
+        ['User-Agent']: appendExtensionUserAgent()
+    };
+    requestOptions.url = url;
+    requestOptions.method = method;
+    try {
+        await signRequest(requestOptions, credentials);
+    } catch (err) {
+        throw err;
+    }
+    const headers = requestOptions.headers;
+    // tslint:disable-next-line: no-string-literal
+    return headers['authorization'];
+}

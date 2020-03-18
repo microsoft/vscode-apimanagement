@@ -3,18 +3,20 @@ import { Source } from 'vscode-debugadapter';
 import { PolicyMapper, PolicyMap } from './policyMapper';
 import { StackFrameScopeContract } from './debuggerConnection';
 import * as path from 'path';
+import { ServiceClientCredentials } from 'ms-rest';
+import { getBearerToken } from '../utils/requestUtil';
 
 export class PolicySource
 {
 	private static NextSourceReference = 1;
 
 	private managementAddress: string;
-	private auth: string;
+	private credential: ServiceClientCredentials;
 	private policies: { [key: string]: Policy } = {};
 
-	constructor(managementAddress: string, auth: string) {
+	constructor(managementAddress: string, credential: ServiceClientCredentials) {
 		this.managementAddress = managementAddress;
-		this.auth = auth;
+		this.credential = credential;
 	}
 
 	getPolicyLocation(scopeId: string, path: string) {
@@ -57,9 +59,10 @@ export class PolicySource
 			return null;
 		}
 
+		const authToken = await getBearerToken(policyUrl, "GET", this.credential);
 		const policyContract: PolicyContract = await request.get(policyUrl, {
 			headers: {
-				Authorization: this.auth
+				Authorization: authToken
 			},
 			strictSSL: false,
 			json: true
