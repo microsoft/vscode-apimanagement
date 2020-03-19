@@ -6,6 +6,7 @@
 import { ApiContract, BackendCredentialsContract, OperationCollection, OperationContract, PropertyContract } from "azure-arm-apimanagement/lib/models";
 import { Site } from "azure-arm-website/lib/models";
 import { ProgressLocation, window } from "vscode";
+import { getSetBackendPolicy } from "../../azure/apim/policyComponents";
 import { IFunctionContract } from "../../azure/webApp/contracts";
 import { FunctionAppService } from "../../azure/webApp/FunctionAppService";
 import * as Constants from "../../constants";
@@ -87,6 +88,7 @@ export async function importFunctionApp(node?: ApisTreeItem): Promise<void> {
                 await addOperationsToExistingApi(node, apiId, pickedFuncs, funcName, apiName, funcAppService);
                 ext.outputChannel.appendLine(localize("importFunctionApp", `Linking API Management instance to Function App...`));
                 await funcAppService.updateSiteConfigAPIM(node.root.resourceGroupName, node.root.serviceName, apiName);
+                ext.outputChannel.appendLine(localize("importFunctionApp", `Imported Function App successfully!`));
             }
         }
     ).then(async () => {
@@ -125,14 +127,14 @@ async function addOperationsToExistingApi(node: ApiTreeItem | ApisTreeItem, apiI
             const existingOperations = await getAllOperations(node);
             allOperations = filteredExistingOperations(apiId, existingOperations, allOperations);
         }
+        ext.outputChannel.appendLine(localize("importFunctionApp", `Creating new operations...`));
         for (const operation of allOperations) {
-            ext.outputChannel.appendLine(localize("importFunctionApp", `Creating new operations to API...`));
             await node.root.client.apiOperation.createOrUpdate(node.root.resourceGroupName, node.root.serviceName, apiName, nonNullOrEmptyValue(operation.name), operation);
         }
         ext.outputChannel.appendLine(localize("importFunctionApp", `Getting host key from Function App ${funcAppName}...`));
         const hostKey = await funcAppService.addFuncHostKeyForApim(node.root.serviceName);
         const propertyId = apiUtil.displayNameToIdentifier(`${funcAppName}-key`);
-        ext.outputChannel.appendLine(localize("importFunctionApp", `Create new named value for the Function host key ${propertyId}...`));
+        ext.outputChannel.appendLine(localize("importFunctionApp", `Creating new named value for the Function host key ${propertyId}...`));
         await createPropertyItem(node, propertyId, hostKey);
 
         const backendCredentials: BackendCredentialsContract = {
@@ -140,16 +142,15 @@ async function addOperationsToExistingApi(node: ApiTreeItem | ApisTreeItem, apiI
         };
 
         const backendId = apiUtil.displayNameToIdentifier(funcAppName);
-        ext.outputChannel.appendLine(localize("importFunctionApp", `Create new backend entity for the function app...`));
+        ext.outputChannel.appendLine(localize("importFunctionApp", `Creating new backend entity for the function app...`));
         await setAppBackendEntity(node, backendId, funcAppName, functionAppBase, funcAppService.resourceGroup, funcAppName, backendCredentials);
         for (const operation of allOperations) {
-            ext.outputChannel.appendLine(localize("importFunctionApp", `Create policy for operations ${operation.name}...`));
+            ext.outputChannel.appendLine(localize("importFunctionApp", `Creating policy for operations ${operation.name}...`));
             await node.root.client.apiOperationPolicy.createOrUpdate(node.root.resourceGroupName, node.root.serviceName, apiName, nonNullOrEmptyValue(operation.name), {
                 format: "rawxml",
-                value: createImportXmlPolicy(backendId)
+                value: createImportXmlPolicy([getSetBackendPolicy(backendId)])
             });
         }
-        ext.outputChannel.appendLine(localize("importFunctionApp", `Imported Function App successfully!`));
     }
 }
 

@@ -48,8 +48,13 @@ export class FunctionAppService {
     // Update function app config
     public async updateSiteConfigAPIM(resourceGroup: string, serviceName: string, apiName: string): Promise<void> {
         const webAppConfig: IWebAppContract = await this.getFuncAppConfig();
-        if (webAppConfig.properties.apiManagementConfig.id === undefined) {
-            webAppConfig.properties.apiManagementConfig.id = `/subscriptions/${this.subscriptionId}/resourceGroups/${resourceGroup}/providers/Microsoft.ApiManagement/service/${serviceName}/apis/${apiName}`;
+        const apiConfigId = `/subscriptions/${this.subscriptionId}/resourceGroups/${resourceGroup}/providers/Microsoft.ApiManagement/service/${serviceName}/apis/${apiName}`;
+        if (webAppConfig.properties.apiManagementConfig === null) {
+            webAppConfig.properties.apiManagementConfig = {
+                id: apiConfigId
+            };
+        } else if (webAppConfig.properties.apiManagementConfig.id) {
+            webAppConfig.properties.apiManagementConfig.id = apiConfigId;
         }
         const webConfigUrl = `${this.baseUrl}/config/web?api-version=${Constants.functionAppApiVersion}`;
         await requestUtil(webConfigUrl, this.credentials, "PUT", webAppConfig);
