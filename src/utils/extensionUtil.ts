@@ -9,7 +9,7 @@ import { openUrl } from '../utils/openUrl';
 
 // tslint:disable-next-line:export-name
 export function checkCsharpExtensionInstalled(actionContext: IActionContext): void {
-    const csharpExtension = vscode.extensions.getExtension("ms-vscode.csharp");
+    const csharpExtension = vscode.extensions.getExtension("ms-dotnettools.csharp") || vscode.extensions.getExtension("ms-vscode.csharp");
     if (!csharpExtension) {
         const message: string = localize('csharpExtensionNotInstalled', 'You must have the VSCode CSharp extension installed to improve policy authoring experience.');
 
