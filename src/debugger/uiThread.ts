@@ -1,16 +1,29 @@
 import { StackFrame } from 'vscode-debugadapter';
+import { DebugProtocol } from 'vscode-debugprotocol';
 import { StackFrameContract, StackFrameScopeContract } from './debuggerConnection';
 import { PolicySource } from './policySource';
-import { DebugProtocol } from 'vscode-debugprotocol';
+
+// tslint:disable: no-unsafe-any
+// tslint:disable: indent
+// tslint:disable: export-name
+// tslint:disable: strict-boolean-expressions
+// tslint:disable: typedef
+// tslint:disable: no-non-null-assertion
+// tslint:disable: no-for-in
+// tslint:disable: forin
+// tslint:disable: interface-name
 
 interface PendingSource {
 	scopeId: string;
 	stackFrames: StackFrame[];
-};
+}
 
 export class UiThread {
 	private static NextThreadId = 1;
 	private static NextStackFrameId = 1;
+
+	public id: number;
+	public uiId: number;
 
 	private operationId: string;
 	private apiId: string;
@@ -19,9 +32,6 @@ export class UiThread {
 		[key: string]: StackFrame
 	} = {};
 	private policySource: PolicySource;
-
-	id: number;
-	uiId: number;
 
 	constructor (id: number, operationId: string, apiId: string, productId: string, policySource: PolicySource) {
 		this.id = id;
@@ -33,9 +43,21 @@ export class UiThread {
 		this.policySource = policySource;
 	}
 
-	containsStackFrame(id: number) {
+	private static addPendingSource(pendingSources: PendingSource[], frame: StackFrameContract, stackFrame: StackFrame) {
+		let pendingSource = pendingSources.find(s => s.scopeId === frame.scopeId);
+		if (!pendingSource) {
+			pendingSources.push(pendingSource = {
+				scopeId: frame.scopeId,
+				stackFrames: []
+			});
+		}
+
+		pendingSource.stackFrames.push(stackFrame);
+	}
+
+	public containsStackFrame(id: number) {
 		for (const key in this.stackFrames) {
-			if (this.stackFrames[key].id == id) {
+			if (this.stackFrames[key].id === id) {
 				return true;
 			}
 		}
@@ -43,7 +65,8 @@ export class UiThread {
 		return false;
 	}
 
-	async getStackFrames(frames: StackFrameContract[]) {
+	// tslint:disable-next-line: cyclomatic-complexity
+	public async getStackFrames(frames: StackFrameContract[]) {
 		if (!frames.length) {
 			return [];
 		}
@@ -60,7 +83,7 @@ export class UiThread {
 		let prevFrame: StackFrameContract | null = null;
 		let path: string[] = [];
 		for (const frame of allFrames.reverse()) {
-			if (!path.length || prevFrame && (prevFrame.scopeId != frame.scopeId)) {
+			if (!path.length || prevFrame && (prevFrame.scopeId !== frame.scopeId)) {
 				path = ['policies', frame.section];
 			}
 			prevFrame = frame;
@@ -114,10 +137,10 @@ export class UiThread {
 	}
 
 	private addVirtualStack(frames: StackFrameContract[]): (StackFrameContract & { isVirtual?: true })[] {
-		let allFrames: (StackFrameContract & { isVirtual?: true })[] = [...frames];
+		const allFrames: (StackFrameContract & { isVirtual?: true })[] = [...frames];
 
 		let lastFrame = allFrames[frames.length - 1];
-		if (lastFrame.scopeId == StackFrameScopeContract.tenant && this.productId) {
+		if (lastFrame.scopeId === StackFrameScopeContract.tenant && this.productId) {
 			allFrames.push(lastFrame = {
 				scopeId: `/products/${this.productId}`,
 				name: 'base',
@@ -127,7 +150,7 @@ export class UiThread {
 			});
 		}
 
-		if ((lastFrame.scopeId == StackFrameScopeContract.tenant || lastFrame.scopeId.startsWith(StackFrameScopeContract.product)) && this.apiId) {
+		if ((lastFrame.scopeId === StackFrameScopeContract.tenant || lastFrame.scopeId.startsWith(StackFrameScopeContract.product)) && this.apiId) {
 			allFrames.push(lastFrame = {
 				scopeId: `/apis/${this.apiId}`,
 				name: 'base',
@@ -148,18 +171,6 @@ export class UiThread {
 		}
 
 		return allFrames;
-	}
-
-	private static addPendingSource(pendingSources: PendingSource[], frame: StackFrameContract, stackFrame: StackFrame) {
-		let pendingSource = pendingSources.find(s => s.scopeId == frame.scopeId);
-		if (!pendingSource) {
-			pendingSources.push(pendingSource = {
-				scopeId: frame.scopeId,
-				stackFrames: []
-			});
-		}
-
-		pendingSource.stackFrames.push(stackFrame);
 	}
 
 	private getStackFrame(frame: StackFrameContract, path: string, pendingSources: PendingSource[]) {

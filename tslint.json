@@ -71,8 +71,7 @@
     },
     "linterOptions": {
         "exclude": [
-            "src/test/**",
-            "src/debugger/**"
+            "src/test/**"
         ]
     }
 }

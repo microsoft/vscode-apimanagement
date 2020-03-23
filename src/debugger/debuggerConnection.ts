@@ -3,7 +3,19 @@
  *--------------------------------------------------------*/
 
 import { EventEmitter } from 'events';
-import * as WebSocket from "ws"
+import * as WebSocket from "ws";
+
+// tslint:disable: no-unsafe-any
+// tslint:disable: indent
+// tslint:disable: export-name
+// tslint:disable: strict-boolean-expressions
+// tslint:disable: typedef
+// tslint:disable: no-non-null-assertion
+// tslint:disable: no-for-in
+// tslint:disable: forin
+// tslint:disable: no-any
+// tslint:disable: no-reserved-keywords
+// tslint:disable: interface-name
 
 export interface MockBreakpoint {
 	id: number;
@@ -20,19 +32,19 @@ export class DebuggerConnection extends EventEmitter {
 	constructor() {
 		super();
 
-		process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0";
+		process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 	}
 
-	isConnected() {
+	public isConnected() {
 		return this.connection != null;
 	}
 
-	async attach(address: string, key: string, stopOnEntry: boolean) {
+	public async attach(address: string, key: string, stopOnEntry: boolean) {
 		let connection: WebSocket;
 		return new Promise((resolve, reject) => {
 			connection = new WebSocket(`${address}?key=${key}`)
 				.on('error', e => {
-					if (this.connection == null || this.connection == connection) {
+					if (this.connection == null || this.connection === connection) {
 						this.connection = null;
 						this.sendEvent('end', `Can't connect to gateway: ${e.message}.`);
 					}
@@ -51,26 +63,26 @@ export class DebuggerConnection extends EventEmitter {
 		});
 	}
 
-	getRequests() {
+	public async getRequests() {
 		return this.waitForResponse<RequestContract[]>(() => this.sendCommand('getRequests'), 'requests');
 	}
 
-	getStackTrace(requestId: string, threadId: number) {
+	public async getStackTrace(requestId: string, threadId: number) {
 		return this.waitForResponse<StackFrameContract[]>(() => this.sendCommand('getStackTrace', {
 			requestId: requestId,
 			threadId: threadId
-		}), 'stackTrace');
+		}),                                               'stackTrace');
 	}
 
-	getVariables(requestId: string, threadId: number, path?: string) {
+	public async getVariables(requestId: string, threadId: number, path?: string) {
 		return this.waitForResponse<VariableContract[]>(() => this.sendCommand('getVariables', {
 			requestId: requestId,
 			threadId: threadId,
 			path: path
-		}), 'variables');
+		}),                                             'variables');
 	}
 
-	setBreakpoints(breakpoints: {
+	public async setBreakpoints(breakpoints: {
 		path: string,
 		scopeId: string
 	}[]) {
@@ -79,42 +91,42 @@ export class DebuggerConnection extends EventEmitter {
 		});
 	}
 
-	stepOver(requestId: string, threadId: number) {
+	public async stepOver(requestId: string, threadId: number) {
 		this.sendCommand('stepOver', {
 			requestId: requestId,
 			threadId: threadId
 		});
 	}
 
-	stepIn(requestId: string, threadId: number) {
+	public async stepIn(requestId: string, threadId: number) {
 		this.sendCommand('stepIn', {
 			requestId: requestId,
 			threadId: threadId
 		});
 	}
 
-	stepOut(requestId: string, threadId: number) {
+	public async stepOut(requestId: string, threadId: number) {
 		this.sendCommand('stepOut', {
 			requestId: requestId,
 			threadId: threadId
 		});
 	}
 
-	continue(requestId: string, threadId: number) {
+	public async continue(requestId: string, threadId: number) {
 		this.sendCommand('continue', {
 			requestId: requestId,
 			threadId: threadId
 		});
 	}
 
-	pause(requestId: string, threadId: number) {
+	public async pause(requestId: string, threadId: number) {
 		this.sendCommand('pause', {
 			requestId: requestId,
 			threadId: threadId
 		});
 	}
 
-	terminateRequests(requests: string[]) {
+	public async terminateRequests(requests: string[]) {
 		this.sendCommand('terminateRequests', {
 			requests: requests
 		});
@@ -133,7 +145,9 @@ export class DebuggerConnection extends EventEmitter {
 
 	private parseResponse(data: string) {
 		try {
+			// tslint:disable-next-line: no-banned-terms
 			const event: { name: string, arguments: any } = JSON.parse(data.trim());
+			// tslint:disable-next-line: switch-default
 			switch (event.name) {
 				case 'stopOnEntry':
 					this.sendEvent(event.name, event.arguments.requestId, event.arguments.threadId, event.arguments.operationId, event.arguments.apiId, event.arguments.productId);

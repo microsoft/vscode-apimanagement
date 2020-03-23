@@ -1,13 +1,23 @@
+import { ServiceClientCredentials } from 'ms-rest';
+import * as path from 'path';
 import * as request from 'request-promise-native';
 import { Source } from 'vscode-debugadapter';
-import { PolicyMapper, PolicyMap } from './policyMapper';
-import { StackFrameScopeContract } from './debuggerConnection';
-import * as path from 'path';
-import { ServiceClientCredentials } from 'ms-rest';
 import { getBearerToken } from '../utils/requestUtil';
+import { StackFrameScopeContract } from './debuggerConnection';
+import { PolicyMap, PolicyMapper } from './policyMapper';
 
-export class PolicySource
-{
+// tslint:disable: no-unsafe-any
+// tslint:disable: indent
+// tslint:disable: export-name
+// tslint:disable: strict-boolean-expressions
+// tslint:disable: typedef
+// tslint:disable: no-non-null-assertion
+// tslint:disable: no-for-in
+// tslint:disable: forin
+// tslint:disable: no-shadowed-variable
+// tslint:disable: interface-name
+
+export class PolicySource {
 	private static NextSourceReference = 1;
 
 	private managementAddress: string;
@@ -19,7 +29,7 @@ export class PolicySource
 		this.credential = credential;
 	}
 
-	getPolicyLocation(scopeId: string, path: string) {
+	public getPolicyLocation(scopeId: string, path: string) {
 		const policy = this.policies[this.normalizeScopeId(scopeId)];
 		if (!policy) {
 			return null;
@@ -28,7 +38,7 @@ export class PolicySource
 		return policy.map[path];
 	}
 
-	async fetchPolicies(scopes: string[]) {
+	public async fetchPolicies(scopes: string[]) {
 		const policiesToRequest = scopes.map(s => this.normalizeScopeId(s)).filter(s => !this.policies[s]);
 
 		if (policiesToRequest.length) {
@@ -37,10 +47,10 @@ export class PolicySource
 		}
 	}
 
-	getPolicyBySourceReference(id: number | undefined) {
-		for(const scope in this.policies) {
+	public getPolicyBySourceReference(id: number | undefined) {
+		for (const scope in this.policies) {
 			const policy = this.policies[scope];
-			if (policy && policy.source && policy.source.sourceReference == id) {
+			if (policy && policy.source && policy.source.sourceReference === id) {
 				return policy;
 			}
 		}
@@ -48,11 +58,11 @@ export class PolicySource
 		return null;
 	}
 
-	getPolicy(scopeId: string): Policy {
+	public getPolicy(scopeId: string): Policy {
 		return this.policies[this.normalizeScopeId(scopeId)];
 	}
 
-	async fetchPolicy(scopeId: string) {
+	public async fetchPolicy(scopeId: string) {
 		scopeId = this.normalizeScopeId(scopeId);
 		const policyUrl = this.getPolicyUrl(scopeId);
 		if (!policyUrl) {
@@ -98,7 +108,7 @@ export class PolicySource
 	}
 
 	private getPolicyUrl(scopeId: string) {
-		if (scopeId == StackFrameScopeContract.tenant) {
+		if (scopeId === StackFrameScopeContract.tenant) {
 			return `${this.managementAddress}/policies/policy?api-version=2019-01-01&format=xml-raw`;
 		} else {
 			return `${this.managementAddress}/${scopeId}/policies/policy?api-version=2019-01-01&format=xml-raw`;
@@ -110,7 +120,7 @@ interface PolicyContract {
 	properties: {
 		format: string,
 		value: string
-	}
+	};
 }
 
 interface Policy {

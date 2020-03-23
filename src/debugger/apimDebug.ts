@@ -2,19 +2,28 @@
  * Copyright (C) Microsoft Corporation. All rights reserved.
  *--------------------------------------------------------*/
 
-import { Logger, logger, LoggingDebugSession, InitializedEvent, TerminatedEvent, StoppedEvent, Thread, ThreadEvent, StackFrame, Variable, Scope, Handles, Breakpoint, OutputEvent } from 'vscode-debugadapter';
-import { DebugProtocol } from 'vscode-debugprotocol';
-import { DebuggerConnection, RequestContract } from './debuggerConnection';
+import { ServiceClientCredentials } from "ms-rest";
 import * as request from 'request-promise-native';
+import * as vscode from 'vscode';
+import { Breakpoint, Handles, InitializedEvent, Logger, logger, LoggingDebugSession, OutputEvent, Scope, StackFrame, StoppedEvent, TerminatedEvent, Thread, ThreadEvent, Variable } from 'vscode-debugadapter';
+import { DebugProtocol } from 'vscode-debugprotocol';
+import { getBearerToken } from '../utils/requestUtil';
+import { DebuggerConnection, RequestContract } from './debuggerConnection';
+import { PolicySource } from './policySource';
 import { UiRequest } from './uiRequest';
 import { UiThread } from './uiThread';
-import { PolicySource } from './policySource';
-const { Subject } = require('await-notify');
-import * as vscode from 'vscode';
-import { ServiceClientCredentials } from "ms-rest";
-import { getBearerToken } from '../utils/requestUtil';
 
-interface LaunchRequestArguments extends DebugProtocol.LaunchRequestArguments {
+// tslint:disable: no-unsafe-any
+// tslint:disable: indent
+// tslint:disable: export-name
+// tslint:disable: strict-boolean-expressions
+// tslint:disable: typedef
+// tslint:disable: no-non-null-assertion
+// tslint:disable: no-for-in
+// tslint:disable: forin
+const { Subject } = require('await-notify');
+
+interface ILaunchRequestArguments extends DebugProtocol.LaunchRequestArguments {
 	gatewayAddress: string;
 	managementAddress: string;
 	managementAuth: string;
@@ -52,52 +61,6 @@ export class ApimDebugSession extends LoggingDebugSession {
 		});
 	}
 
-	private onStopOnEntry(requestId: string, threadId: number, operationId: string, apiId: string, productId: string) {
-		this.updateRequests([
-			{
-				id: requestId,
-				threads: [threadId],
-				operationId: operationId,
-				apiId: apiId,
-				productId: productId,
-			}
-		], false);
-
-		this.onStop('entry', requestId, threadId);
-	}
-
-	private onStopOnException(requestId: string, threadId: number, operationId: string, apiId: string, productId: string, message: string) {
-		this.updateRequests([
-			{
-				id: requestId,
-				threads: [threadId],
-				operationId: operationId,
-				apiId: apiId,
-				productId: productId,
-			}
-		], false);
-
-		this.onStop('exception', requestId, threadId, message);
-	}
-
-	private onThreadExited(requestId: string, threadId: number) {
-		const request = this.requests.find(r => r.id == requestId);
-		const thread = request && request.findThreadById(threadId);
-
-		if (thread) {
-			this.sendEvent(new ThreadEvent('exited', thread.uiId));
-		}
-	}
-
-	private onStop(event: string, requestId: string, threadId: number, exceptionText?: string) {
-		const request = this.requests.find(r => r.id == requestId);
-		const thread = request && request.findThreadById(threadId);
-
-		if (thread) {
-			this.sendEvent(new StoppedEvent(event, thread.uiId, exceptionText));
-		}
-	}
-
 	protected initializeRequest(response: DebugProtocol.InitializeResponse, _args: DebugProtocol.InitializeRequestArguments): void {
 		response.body = response.body || {};
 		response.body.supportsConfigurationDoneRequest = true;
@@ -110,7 +73,7 @@ export class ApimDebugSession extends LoggingDebugSession {
 		this.configurationDone.notify();
 	}
 
-	protected async launchRequest(response: DebugProtocol.LaunchResponse, args: LaunchRequestArguments) {
+	protected async launchRequest(response: DebugProtocol.LaunchResponse, args: ILaunchRequestArguments): Promise<void> {
 		logger.setup(Logger.LogLevel.Verbose, false);
 		const credential =  await this.getAccountCredentials(args.subscriptionId);
 		this.policySource = new PolicySource(args.managementAddress, credential);
@@ -125,68 +88,15 @@ export class ApimDebugSession extends LoggingDebugSession {
 		this.updateRequests(await this.runtime.getRequests(), true);
 	}
 
-	private async getAccountCredentials(subscriptionId: string): Promise<ServiceClientCredentials> {
-		const azureAccountExtension = vscode.extensions.getExtension('ms-vscode.azure-account');
-		const azureAccount = azureAccountExtension!.exports;
-		await azureAccount.waitForFilters();
-		if (azureAccount.status !== 'LoggedIn') {
-			throw "ERROR!";
-		}
-		const creds = azureAccount.filters.filter(filter => filter.subscription.subscriptionId === subscriptionId).map(filter => filter.session.credentials);
-		return creds[0];
-	}
-
-	private async getMasterSubscriptionKey(managementAddress: string, credential: ServiceClientCredentials) {
-		const resourceUrl = `${managementAddress}/subscriptions/master?api-version=2019-01-01`;
-		const authToken = await getBearerToken(resourceUrl, "GET", credential);
-		const subscription: ApimSubscription = await request.get(resourceUrl, {
-			headers: {
-				Authorization: authToken
-			},
-			strictSSL: false,
-			json: true
-		}).on('error', _e => {
-			this.sendEvent(new TerminatedEvent());
-		}).on('response', e => {
-			if (e.statusCode != 200) {
-				this.sendEvent(new OutputEvent(`Error fetching master subscription: ${e.statusCode} ${e.statusMessage}`, 'stderr'));
-				this.sendEvent(new TerminatedEvent());
-			}
-		});
-
-		return subscription.properties.primaryKey;
-	}
-
-	private async getAvailablePolicies(managementAddress: string, credential: ServiceClientCredentials) {
-		const resourceUrl = `${managementAddress}/policysnippets?api-version=2019-01-01`;
-		const authToken = await getBearerToken(resourceUrl, "GET", credential);
-		const snippets: PolicySnippet[] = await request.get(resourceUrl, {
-			headers: {
-				Authorization: authToken
-			},
-			strictSSL: false,
-			json: true
-		}).on('error', _e => {
-			this.sendEvent(new TerminatedEvent());
-		}).on('response', e => {
-			if (e.statusCode != 200) {
-				this.sendEvent(new OutputEvent(`Error fetching policy definitions: ${e.statusCode} ${e.statusMessage}`, 'stderr'));
-				this.sendEvent(new TerminatedEvent());
-			}
-		});
-
-		return snippets.map(s => s.content.substring(1, /[\s>/]/.exec(s.content)!.index));
-	}
-
 	protected async threadsRequest(response: DebugProtocol.ThreadsResponse) {
 		if (this.runtime.isConnected()) {
 			this.updateRequests(await this.runtime.getRequests(), true);
 		}
 
 		const threads: Thread[] = [];
-		for (const request of this.requests) {
-			for (const thread of request.threads) {
-				threads.push(new Thread(thread.uiId, `${request.id} (${thread.id})`));
+		for (const nRequest of this.requests) {
+			for (const thread of nRequest.threads) {
+				threads.push(new Thread(thread.uiId, `${nRequest.id} (${thread.id})`));
 			}
 		}
 
@@ -211,10 +121,10 @@ export class ApimDebugSession extends LoggingDebugSession {
 	protected async stackTraceRequest(response: DebugProtocol.StackTraceResponse, args: DebugProtocol.StackTraceArguments) {
 		let stack: StackFrame[] = [];
 		if (this.runtime.isConnected()) {
-			const request = this.findThreadByUiId(args.threadId);
-			if (request) {
-				const requestStack = await this.runtime.getStackTrace(request[0].id, request[1].id);
-				stack = await request[1].getStackFrames(requestStack);
+			const nRequest = this.findThreadByUiId(args.threadId);
+			if (nRequest) {
+				const requestStack = await this.runtime.getStackTrace(nRequest[0].id, nRequest[1].id);
+				stack = await nRequest[1].getStackFrames(requestStack);
 
 				for (const item of <DebugProtocol.StackFrame[]>stack) {
 					if (item.line) {
@@ -247,15 +157,15 @@ export class ApimDebugSession extends LoggingDebugSession {
 			response.body = {
 				content: policy && policy.xml,
 				mimeType: 'application/vnd.ms-azure-apim.policy.raw+xml'
-			}
+			};
 			this.sendResponse(response);
 		}
 	}
 
 	protected async continueRequest(response: DebugProtocol.ContinueResponse, args: DebugProtocol.ContinueArguments) {
-		const request = this.findThreadByUiId(args.threadId);
-		if (request && this.runtime.isConnected()) {
-			await this.runtime.continue(request[0].id, request[1].id);
+		const nRequest = this.findThreadByUiId(args.threadId);
+		if (nRequest && this.runtime.isConnected()) {
+			await this.runtime.continue(nRequest[0].id, nRequest[1].id);
 		}
 
 		response.body.allThreadsContinued = false;
@@ -263,36 +173,36 @@ export class ApimDebugSession extends LoggingDebugSession {
 	}
 
 	protected async nextRequest(response: DebugProtocol.NextResponse, args: DebugProtocol.NextArguments) {
-		const request = this.findThreadByUiId(args.threadId);
-		if (request && this.runtime.isConnected()) {
-			await this.runtime.stepOver(request[0].id, request[1].id);
+		const nRequest = this.findThreadByUiId(args.threadId);
+		if (nRequest && this.runtime.isConnected()) {
+			await this.runtime.stepOver(nRequest[0].id, nRequest[1].id);
 		}
 
 		this.sendResponse(response);
 	}
 
 	protected async stepInRequest(response: DebugProtocol.StepInResponse, args: DebugProtocol.StepInArguments) {
-		const request = this.findThreadByUiId(args.threadId);
-		if (request && this.runtime.isConnected()) {
-			await this.runtime.stepIn(request[0].id, request[1].id);
+		const nRequest = this.findThreadByUiId(args.threadId);
+		if (nRequest && this.runtime.isConnected()) {
+			await this.runtime.stepIn(nRequest[0].id, nRequest[1].id);
 		}
 
 		this.sendResponse(response);
 	}
 
 	protected async stepOutRequest(response: DebugProtocol.StepOutResponse, args: DebugProtocol.StepOutArguments) {
-		const request = this.findThreadByUiId(args.threadId);
-		if (request && this.runtime.isConnected()) {
-			await this.runtime.stepOut(request[0].id, request[1].id);
+		const nRequest = this.findThreadByUiId(args.threadId);
+		if (nRequest && this.runtime.isConnected()) {
+			await this.runtime.stepOut(nRequest[0].id, nRequest[1].id);
 		}
 
 		this.sendResponse(response);
 	}
 
 	protected async pauseRequest(response: DebugProtocol.PauseResponse, args: DebugProtocol.PauseArguments) {
-		const request = this.findThreadByUiId(args.threadId);
-		if (request && this.runtime.isConnected()) {
-			await this.runtime.pause(request[0].id, request[1].id);
+		const nRequest = this.findThreadByUiId(args.threadId);
+		if (nRequest && this.runtime.isConnected()) {
+			await this.runtime.pause(nRequest[0].id, nRequest[1].id);
 		}
 
 		this.sendResponse(response);
@@ -301,9 +211,9 @@ export class ApimDebugSession extends LoggingDebugSession {
 	protected scopesRequest(response: DebugProtocol.ScopesResponse, args: DebugProtocol.ScopesArguments) {
 		let scopes: Scope[] = [];
 
-		const request = this.findThreadByStackFrameId(args.frameId);
-		if (request) {
-			scopes = [new Scope("Request", this.variablesHandles.create(`${request[0].id}|${request[1].id}`), true)];
+		const nRequest = this.findThreadByStackFrameId(args.frameId);
+		if (nRequest) {
+			scopes = [new Scope("Request", this.variablesHandles.create(`${nRequest[0].id}|${nRequest[1].id}`), true)];
 		}
 
 		response.body = {
@@ -316,7 +226,7 @@ export class ApimDebugSession extends LoggingDebugSession {
 		let variables: Variable[] = [];
 
 		if (this.runtime.isConnected()) {
-			const variableScope = this.variablesHandles.get(args.variablesReference);;
+			const variableScope = this.variablesHandles.get(args.variablesReference);
 			const scopeParts = variableScope.split('|');
 			if (scopeParts.length >= 2) {
 				const vars = await this.runtime.getVariables(scopeParts[0], +scopeParts[1], scopeParts.slice(2).join('.'));
@@ -334,7 +244,7 @@ export class ApimDebugSession extends LoggingDebugSession {
 		}
 
 		response.body = {
-			variables: variables || [],
+			variables: variables || []
 
 		};
 		this.sendResponse(response);
@@ -359,21 +269,21 @@ export class ApimDebugSession extends LoggingDebugSession {
 						column: -1,
 						endLine: -1,
 						endColumn: -1
-					}
+					};
 
 					let path: string | null = null;
 					const breakpointLine = this.convertClientLineToDebugger(b.line);
 					const breakpointColumn = b.column && this.convertClientColumnToDebugger(b.column);
 					for (const key in policy!.map) {
 						const mapEntry = policy!.map[key];
-						if (mapEntry.line == breakpointLine
+						if (mapEntry.line === breakpointLine
 							&& (!breakpointColumn || breakpointColumn >= mapEntry.column && breakpointColumn <= mapEntry.endColumn)
-							&& (position.line == -1 || mapEntry.column < position.column)) {
+							&& (position.line === -1 || mapEntry.column < position.column)) {
 							path = key;
 							position = mapEntry;
 						}
 					}
-					if (position.line == -1) {
+					if (position.line === -1) {
 						return new Breakpoint(false);
 					}
 
@@ -381,7 +291,7 @@ export class ApimDebugSession extends LoggingDebugSession {
 						throw new Error("Path is null");
 					}
 					const policyName = path.substring(path.lastIndexOf('/') + 1);
-					if (this.availablePolicies.indexOf(policyName) == -1) {
+					if (this.availablePolicies.indexOf(policyName) === -1) {
 						return new Breakpoint(false);
 					}
 
@@ -404,8 +314,107 @@ export class ApimDebugSession extends LoggingDebugSession {
 		const nBreakpoints: Breakpoint[] = (breakpoints.length !== 0) ? breakpoints : (args.breakpoints) ? args.breakpoints.map(_b => new Breakpoint(false)) : [];
 		response.body = {
 			breakpoints: nBreakpoints
-		}
+		};
 		this.sendResponse(response);
+	}
+
+	private onStopOnEntry(requestId: string, threadId: number, operationId: string, apiId: string, productId: string) {
+		this.updateRequests([
+			{
+				id: requestId,
+				threads: [threadId],
+				operationId: operationId,
+				apiId: apiId,
+				productId: productId
+			}
+		],                  false);
+
+		this.onStop('entry', requestId, threadId);
+	}
+
+	private onStopOnException(requestId: string, threadId: number, operationId: string, apiId: string, productId: string, message: string) {
+		this.updateRequests([
+			{
+				id: requestId,
+				threads: [threadId],
+				operationId: operationId,
+				apiId: apiId,
+				productId: productId
+			}
+		],                  false);
+
+		this.onStop('exception', requestId, threadId, message);
+	}
+
+	private onThreadExited(requestId: string, threadId: number) {
+		const nRequest = this.requests.find(r => r.id === requestId);
+		const thread = nRequest && nRequest.findThreadById(threadId);
+
+		if (thread) {
+			this.sendEvent(new ThreadEvent('exited', thread.uiId));
+		}
+	}
+
+	private onStop(event: string, requestId: string, threadId: number, exceptionText?: string) {
+		const nRequest = this.requests.find(r => r.id === requestId);
+		const thread = nRequest && nRequest.findThreadById(threadId);
+
+		if (thread) {
+			this.sendEvent(new StoppedEvent(event, thread.uiId, exceptionText));
+		}
+	}
+
+	private async getAccountCredentials(subscriptionId: string): Promise<ServiceClientCredentials> {
+		const azureAccountExtension = vscode.extensions.getExtension('ms-vscode.azure-account');
+		const azureAccount = azureAccountExtension!.exports;
+		await azureAccount.waitForFilters();
+		if (azureAccount.status !== 'LoggedIn') {
+			throw new Error("ERROR!");
+		}
+		const creds = azureAccount.filters.filter(filter => filter.subscription.subscriptionId === subscriptionId).map(filter => filter.session.credentials);
+		return creds[0];
+	}
+
+	private async getMasterSubscriptionKey(managementAddress: string, credential: ServiceClientCredentials) {
+		const resourceUrl = `${managementAddress}/subscriptions/master?api-version=2019-01-01`;
+		const authToken = await getBearerToken(resourceUrl, "GET", credential);
+		const subscription: IApimSubscription = await request.get(resourceUrl, {
+			headers: {
+				Authorization: authToken
+			},
+			strictSSL: false,
+			json: true
+		}).on('error', _e => {
+			this.sendEvent(new TerminatedEvent());
+		}).on('response', e => {
+			if (e.statusCode !== 200) {
+				this.sendEvent(new OutputEvent(`Error fetching master subscription: ${e.statusCode} ${e.statusMessage}`, 'stderr'));
+				this.sendEvent(new TerminatedEvent());
+			}
+		});
+
+		return subscription.properties.primaryKey;
+	}
+
+	private async getAvailablePolicies(managementAddress: string, credential: ServiceClientCredentials) {
+		const resourceUrl = `${managementAddress}/policysnippets?api-version=2019-01-01`;
+		const authToken = await getBearerToken(resourceUrl, "GET", credential);
+		const snippets: IPolicySnippet[] = await request.get(resourceUrl, {
+			headers: {
+				Authorization: authToken
+			},
+			strictSSL: false,
+			json: true
+		}).on('error', _e => {
+			this.sendEvent(new TerminatedEvent());
+		}).on('response', e => {
+			if (e.statusCode !== 200) {
+				this.sendEvent(new OutputEvent(`Error fetching policy definitions: ${e.statusCode} ${e.statusMessage}`, 'stderr'));
+				this.sendEvent(new TerminatedEvent());
+			}
+		});
+
+		return snippets.map(s => s.content.substring(1, /[\s>/]/.exec(s.content)!.index));
 	}
 
 	private findThreadByUiId(id: number): [UiRequest, UiThread] | null {
@@ -435,7 +444,7 @@ export class ApimDebugSession extends LoggingDebugSession {
 			let requestIndex = 0;
 			while (requestIndex < this.requests.length) {
 				const uiRequest = this.requests[requestIndex];
-				const gatewayRequest = gatewayRequests.find(r => r.id == uiRequest.id);
+				const gatewayRequest = gatewayRequests.find(r => r.id === uiRequest.id);
 				if (!gatewayRequest) {
 					for (const thread of uiRequest.threads) {
 						this.sendEvent(new ThreadEvent('exited', thread.uiId));
@@ -467,13 +476,13 @@ export class ApimDebugSession extends LoggingDebugSession {
 		}
 
 		for (const gatewayRequest of gatewayRequests) {
-			let uiRequest = this.requests.find(r => r.id == gatewayRequest.id);
+			let uiRequest = this.requests.find(r => r.id === gatewayRequest.id);
 			if (!uiRequest) {
 				this.requests.push(uiRequest = new UiRequest(gatewayRequest.id, gatewayRequest.operationId, gatewayRequest.apiId, gatewayRequest.productId));
 			}
 
 			for (const gatewayThread of gatewayRequest.threads) {
-				let uiThread = uiRequest.threads.find(t => t.id == gatewayThread);
+				let uiThread = uiRequest.threads.find(t => t.id === gatewayThread);
 				if (!uiThread) {
 					uiThread = uiRequest.addNewThread(gatewayThread, this.policySource);
 
@@ -484,13 +493,13 @@ export class ApimDebugSession extends LoggingDebugSession {
 	}
 }
 
-interface ApimSubscription {
+interface IApimSubscription {
 	properties: {
 		primaryKey: string;
 		secondaryKey: string;
-	}
+	};
 }
 
-interface PolicySnippet {
+interface IPolicySnippet {
 	content: string;
 }
