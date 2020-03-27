@@ -6,7 +6,7 @@
 import { ApiContract, BackendCredentialsContract, OperationCollection, OperationContract, PropertyContract } from "azure-arm-apimanagement/lib/models";
 import { Site } from "azure-arm-website/lib/models";
 import { ProgressLocation, window } from "vscode";
-import { getSetBackendPolicy } from "../../azure/apim/policyComponents";
+import { getSetBackendPolicy } from "../../azure/apim/policyHelper";
 import { IFunctionContract } from "../../azure/webApp/contracts";
 import { FunctionAppService } from "../../azure/webApp/FunctionAppService";
 import * as Constants from "../../constants";
@@ -46,7 +46,7 @@ export async function importFunctionAppToApi(node?: ApiTreeItem): Promise<void> 
                 const apiId = apiUtil.genApiId(node.root.apiName);
                 await addOperationsToExistingApi(node, apiId, pickedFuncs, funcName, node.root.apiName, funcAppService);
                 ext.outputChannel.appendLine(localize("importFunctionApp", `Linking API Management instance to Function App...`));
-                await funcAppService.updateSiteConfigAPIM(node.root.resourceGroupName, node.root.serviceName, node.root.apiName);
+                await funcAppService.getWebAppConfig(node.root.resourceGroupName, node.root.serviceName, node.root.apiName);
             }
         }
     ).then(async () => {
@@ -87,7 +87,7 @@ export async function importFunctionApp(node?: ApisTreeItem): Promise<void> {
                 ext.outputChannel.appendLine(localize("importFunctionApp", `New API with name ${apiName} created...`));
                 await addOperationsToExistingApi(node, apiId, pickedFuncs, funcName, apiName, funcAppService);
                 ext.outputChannel.appendLine(localize("importFunctionApp", `Linking API Management instance to Function App...`));
-                await funcAppService.updateSiteConfigAPIM(node.root.resourceGroupName, node.root.serviceName, apiName);
+                await funcAppService.getWebAppConfig(node.root.resourceGroupName, node.root.serviceName, apiName);
                 ext.outputChannel.appendLine(localize("importFunctionApp", `Imported Function App successfully!`));
             }
         }

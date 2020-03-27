@@ -9,7 +9,7 @@ import { Site, WebAppCollection } from "azure-arm-website/lib/models";
 import { ProgressLocation, window } from "vscode";
 import xml = require("xml");
 import { IOpenApiImportObject, ISecurityType, OpenApiParser } from "../../../extension.bundle";
-import { getRewriteUrlPolicy, getSetBackendPolicy, getSetHeaderPolicy, getSetMethodPolicy } from "../../azure/apim/policyComponents";
+import { getRewriteUrlPolicy, getSetBackendPolicy, getSetHeaderPolicy, getSetMethodPolicy } from "../../azure/apim/policyHelper";
 import { IWebAppContract } from "../../azure/webApp/contracts";
 import * as Constants from "../../constants";
 import { ApisTreeItem } from "../../explorer/ApisTreeItem";
