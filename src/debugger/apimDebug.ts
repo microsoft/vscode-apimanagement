@@ -38,8 +38,8 @@ export class ApimDebugSession extends LoggingDebugSession {
 	private requests: UiRequest[] = [];
 	private policySource: PolicySource;
 	private variablesHandles = new Handles<string>();
-	private initialized: boolean = false;
-	private breakpointsArgs: { [scopeId: string]: DebugProtocol.SetBreakpointsArguments } = {};
+	// private initialized: boolean = false;
+	// private breakpointsArgs: { [scopeId: string]: DebugProtocol.SetBreakpointsArguments } = {};
 
 	public constructor() {
 		super();
@@ -89,7 +89,7 @@ export class ApimDebugSession extends LoggingDebugSession {
 		// will set breakpoints after attach
 		this.sendResponse(response);
 		this.updateRequests(await this.runtime.getRequests(), true);
-		this.initialized = true;
+		//this.initialized = true;
 	}
 
 	protected async threadsRequest(response: DebugProtocol.ThreadsResponse) {
@@ -163,22 +163,22 @@ export class ApimDebugSession extends LoggingDebugSession {
 				mimeType: 'application/vnd.ms-azure-apim.policy.raw+xml'
 			};
 			this.sendResponse(response);
-			if (args.source && args.source.path && this.breakpointsArgs[args.source.path]) {
-				const breakpointArgs = this.breakpointsArgs[args.source.path];
-				const breakpoints = await this.setBreakpoints(breakpointArgs);
-				delete this.breakpointsArgs[args.source.path];
-				const breakpointResponse: DebugProtocol.SetBreakpointsResponse = {
-					command: "setBreakpoints",
-					request_seq: response.request_seq,
-					seq: response.seq + 1,
-					success: true,
-					type: "response",
-					body: {
-						breakpoints: breakpoints
-					}
-				};
-				this.sendResponse(breakpointResponse);
-			}
+			// if (args.source && args.source.path && this.breakpointsArgs[args.source.path]) {
+			// 	const breakpointArgs = this.breakpointsArgs[args.source.path];
+			// 	const breakpoints = await this.setBreakpoints(breakpointArgs);
+			// 	delete this.breakpointsArgs[args.source.path];
+			// 	const breakpointResponse: DebugProtocol.SetBreakpointsResponse = {
+			// 		command: "setBreakpoints",
+			// 		request_seq: response.request_seq,
+			// 		seq: response.seq + 1,
+			// 		success: true,
+			// 		type: "response",
+			// 		body: {
+			// 			breakpoints: breakpoints
+			// 		}
+			// 	};
+			// 	this.sendResponse(breakpointResponse);
+			// }
 		}
 	}
 
@@ -271,9 +271,9 @@ export class ApimDebugSession extends LoggingDebugSession {
 	}
 
 	protected async setBreakPointsRequest(response: DebugProtocol.SetBreakpointsResponse, args: DebugProtocol.SetBreakpointsArguments) {
-		if (!this.initialized && args.source.path) {
-			this.breakpointsArgs[args.source.path] = args;
-		}
+		// if (!this.initialized && args.source.path) {
+		// 	this.breakpointsArgs[args.source.path] = args;
+		// }
 		const breakpoints = await this.setBreakpoints(args);
 		const nBreakpoints: Breakpoint[] = (breakpoints.length !== 0) ? breakpoints : (args.breakpoints) ? args.breakpoints.map(_b => new Breakpoint(false)) : [];
 		response.body = {
