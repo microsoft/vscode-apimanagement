@@ -27,10 +27,9 @@ export async function debugApiPolicy(node?: ApiOperationTreeItem): Promise<void>
         managementAddress: managementUrl,
         subscriptionId: node.root.subscriptionId
     };
-
-    await vscode.debug.startDebugging(undefined, debugConfig);
     // tslint:disable-next-line: no-non-null-assertion
     await createOperationTestFile(node!, OperationRunMode.debug);
+    await vscode.debug.startDebugging(undefined, debugConfig);
 }
 
 export function getDebugGatewayAddressUrl(serviceName: string): string {

@@ -11,11 +11,7 @@ import { ApimDebugSession } from './apimDebug';
 // tslint:disable: strict-boolean-expressions
 // tslint:disable: typedef
 // tslint:disable: no-non-null-assertion
-// tslint:disable: no-for-in
-// tslint:disable: forin
 // tslint:disable: no-any
-// tslint:disable: no-reserved-keywords
-// tslint:disable: interface-name
 // tslint:disable: no-empty
 
 export function activate(context: vscode.ExtensionContext) {

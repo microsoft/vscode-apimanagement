@@ -38,6 +38,8 @@ export class ApimDebugSession extends LoggingDebugSession {
 	private requests: UiRequest[] = [];
 	private policySource: PolicySource;
 	private variablesHandles = new Handles<string>();
+	private initialized: boolean = false;
+	private breakpointsArgs: { [scopeId: string]: DebugProtocol.SetBreakpointsArguments } = {};
 
 	public constructor() {
 		super();
@@ -75,7 +77,7 @@ export class ApimDebugSession extends LoggingDebugSession {
 
 	protected async launchRequest(response: DebugProtocol.LaunchResponse, args: ILaunchRequestArguments): Promise<void> {
 		logger.setup(Logger.LogLevel.Verbose, false);
-		const credential =  await this.getAccountCredentials(args.subscriptionId);
+		const credential = await this.getAccountCredentials(args.subscriptionId);
 		this.policySource = new PolicySource(args.managementAddress, credential);
 		const masterKey = await this.getMasterSubscriptionKey(args.managementAddress, credential);
 		this.availablePolicies = await this.getAvailablePolicies(args.managementAddress, credential);
@@ -84,8 +86,10 @@ export class ApimDebugSession extends LoggingDebugSession {
 		await this.configurationDone.wait(1000);
 
 		await this.runtime.attach(args.gatewayAddress, masterKey, !!args.stopOnEntry);
+		// will set breakpoints after attach
 		this.sendResponse(response);
 		this.updateRequests(await this.runtime.getRequests(), true);
+		this.initialized = true;
 	}
 
 	protected async threadsRequest(response: DebugProtocol.ThreadsResponse) {
@@ -159,6 +163,22 @@ export class ApimDebugSession extends LoggingDebugSession {
 				mimeType: 'application/vnd.ms-azure-apim.policy.raw+xml'
 			};
 			this.sendResponse(response);
+			if (args.source && args.source.path && this.breakpointsArgs[args.source.path]) {
+				const breakpointArgs = this.breakpointsArgs[args.source.path];
+				const breakpoints = await this.setBreakpoints(breakpointArgs);
+				delete this.breakpointsArgs[args.source.path];
+				const breakpointResponse: DebugProtocol.SetBreakpointsResponse = {
+					command: "setBreakpoints",
+					request_seq: response.request_seq,
+					seq: response.seq + 1,
+					success: true,
+					type: "response",
+					body: {
+						breakpoints: breakpoints
+					}
+				};
+				this.sendResponse(breakpointResponse);
+			}
 		}
 	}
 
@@ -251,6 +271,18 @@ export class ApimDebugSession extends LoggingDebugSession {
 	}
 
 	protected async setBreakPointsRequest(response: DebugProtocol.SetBreakpointsResponse, args: DebugProtocol.SetBreakpointsArguments) {
+		if (!this.initialized && args.source.path) {
+			this.breakpointsArgs[args.source.path] = args;
+		}
+		const breakpoints = await this.setBreakpoints(args);
+		const nBreakpoints: Breakpoint[] = (breakpoints.length !== 0) ? breakpoints : (args.breakpoints) ? args.breakpoints.map(_b => new Breakpoint(false)) : [];
+		response.body = {
+			breakpoints: nBreakpoints
+		};
+		this.sendResponse(response);
+	}
+
+	private async setBreakpoints(args: DebugProtocol.SetBreakpointsArguments): Promise<Breakpoint[]> {
 		let breakpoints: Breakpoint[] = [];
 		const breakpointsToSet: {
 			path: string,
@@ -261,7 +293,7 @@ export class ApimDebugSession extends LoggingDebugSession {
 			if (!policy && args.source.name) {
 				policy = this.policySource.getPolicy(args.source.name) || await this.policySource.fetchPolicy(args.source.name);
 			}
-
+			// set breakpoints if has policy otherwise check if it's initialization
 			if (policy && policy !== null) {
 				breakpoints = args.breakpoints.map(b => {
 					let position = {
@@ -310,12 +342,7 @@ export class ApimDebugSession extends LoggingDebugSession {
 		if (breakpointsToSet.length) {
 			await this.runtime.setBreakpoints(breakpointsToSet);
 		}
-
-		const nBreakpoints: Breakpoint[] = (breakpoints.length !== 0) ? breakpoints : (args.breakpoints) ? args.breakpoints.map(_b => new Breakpoint(false)) : [];
-		response.body = {
-			breakpoints: nBreakpoints
-		};
-		this.sendResponse(response);
+		return breakpoints;
 	}
 
 	private onStopOnEntry(requestId: string, threadId: number, operationId: string, apiId: string, productId: string) {
@@ -327,7 +354,7 @@ export class ApimDebugSession extends LoggingDebugSession {
 				apiId: apiId,
 				productId: productId
 			}
-		],                  false);
+		], false);
 
 		this.onStop('entry', requestId, threadId);
 	}
@@ -341,7 +368,7 @@ export class ApimDebugSession extends LoggingDebugSession {
 				apiId: apiId,
 				productId: productId
 			}
-		],                  false);
+		], false);
 
 		this.onStop('exception', requestId, threadId, message);
 	}
