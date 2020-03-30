@@ -542,7 +542,7 @@
     "devDependencies": {
         "@types/fs-extra": "^4.0.3",
         "@types/gulp": "^4.0.6",
-        "@types/node": "^8.10.25",
+        "@types/node": "^10.0.0",
         "@types/request": "^2.47.0",
         "@types/request-promise": "^4.1.43",
         "@types/swagger-parser": "^4.0.3",
