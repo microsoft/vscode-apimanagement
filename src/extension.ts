@@ -56,7 +56,7 @@ import { ServiceTreeItem } from './explorer/ServiceTreeItem';
 import { ext } from './extensionVariables';
 
 // tslint:disable-next-line: no-var-requires
-//const debuggerConfig = require('../resources/debugger/extension');
+// const debuggerConfig = require('../resources/debugger/extension');
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed

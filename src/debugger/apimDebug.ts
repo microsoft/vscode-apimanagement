@@ -67,6 +67,8 @@ export class ApimDebugSession extends LoggingDebugSession {
 		response.body = response.body || {};
 		response.body.supportsConfigurationDoneRequest = true;
 
+		response.body.supportsRestartRequest = false;
+		response.body.supportsRestartFrame = false;
 		this.sendResponse(response);
 	}
 
@@ -77,10 +79,17 @@ export class ApimDebugSession extends LoggingDebugSession {
 
 	protected async launchRequest(response: DebugProtocol.LaunchResponse, args: ILaunchRequestArguments): Promise<void> {
 		logger.setup(Logger.LogLevel.Verbose, false);
-		const credential = await this.getAccountCredentials(args.subscriptionId);
-		this.policySource = new PolicySource(args.managementAddress, credential);
-		const masterKey = await this.getMasterSubscriptionKey(args.managementAddress, credential);
-		this.availablePolicies = await this.getAvailablePolicies(args.managementAddress, credential);
+		let masterKey;
+		if (args.managementAuth) {
+			this.policySource = new PolicySource(args.managementAddress, undefined, args.managementAuth);
+			masterKey = await this.getMasterSubscriptionKey(args.managementAddress, undefined, args.managementAuth);
+			this.availablePolicies = await this.getAvailablePolicies(args.managementAddress, undefined, args.managementAuth);
+		} else {
+			const credential = await this.getAccountCredentials(args.subscriptionId);
+			this.policySource = new PolicySource(args.managementAddress, credential);
+			masterKey = await this.getMasterSubscriptionKey(args.managementAddress, credential);
+			this.availablePolicies = await this.getAvailablePolicies(args.managementAddress, credential);
+		}
 
 		this.sendEvent(new InitializedEvent());
 		await this.configurationDone.wait(1000);
@@ -402,9 +411,9 @@ export class ApimDebugSession extends LoggingDebugSession {
 		return creds[0];
 	}
 
-	private async getMasterSubscriptionKey(managementAddress: string, credential: ServiceClientCredentials) {
+	private async getMasterSubscriptionKey(managementAddress: string, credential?: ServiceClientCredentials, managementAuth?: string) {
 		const resourceUrl = `${managementAddress}/subscriptions/master?api-version=2019-01-01`;
-		const authToken = await getBearerToken(resourceUrl, "GET", credential);
+		const authToken = managementAuth ? managementAuth : await getBearerToken(resourceUrl, "GET", credential!);
 		const subscription: IApimSubscription = await request.get(resourceUrl, {
 			headers: {
 				Authorization: authToken
@@ -423,9 +432,9 @@ export class ApimDebugSession extends LoggingDebugSession {
 		return subscription.properties.primaryKey;
 	}
 
-	private async getAvailablePolicies(managementAddress: string, credential: ServiceClientCredentials) {
+	private async getAvailablePolicies(managementAddress: string, credential?: ServiceClientCredentials, managementAuth?: string) {
 		const resourceUrl = `${managementAddress}/policysnippets?api-version=2019-01-01`;
-		const authToken = await getBearerToken(resourceUrl, "GET", credential);
+		const authToken = managementAuth ? managementAuth : await getBearerToken(resourceUrl, "GET", credential!);
 		const snippets: IPolicySnippet[] = await request.get(resourceUrl, {
 			headers: {
 				Authorization: authToken

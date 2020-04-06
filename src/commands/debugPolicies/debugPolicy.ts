@@ -8,6 +8,7 @@ import { ApiOperationTreeItem } from '../../explorer/ApiOperationTreeItem';
 import { ext } from "../../extensionVariables";
 import { createOperationTestFile, OperationRunMode } from '../testOperation';
 
+// tslint:disable: no-unsafe-any
 // tslint:disable-next-line: export-name
 export async function debugApiPolicy(node?: ApiOperationTreeItem): Promise<void> {
     if (!node) {
@@ -18,6 +19,8 @@ export async function debugApiPolicy(node?: ApiOperationTreeItem): Promise<void>
     const gatewayAddress = getDebugGatewayAddressUrl(node!.root.serviceName);
     const managementUrl = `${node.root.environment.resourceManagerEndpointUrl}/subscriptions/${node.root.subscriptionId}/resourceGroups/${node.root.resourceGroupName}/providers/microsoft.apimanagement/service/${node.root.serviceName}`;
 
+    const mode = "development";
+
     const debugConfig: vscode.DebugConfiguration = {
         type: "apim-policy",
         request: "launch",
@@ -27,9 +30,26 @@ export async function debugApiPolicy(node?: ApiOperationTreeItem): Promise<void>
         managementAddress: managementUrl,
         subscriptionId: node.root.subscriptionId
     };
+
+    const debugConfig2: vscode.DebugConfiguration = {
+        type: "apim-policy",
+        request: "launch",
+        name: "Attach to APIM",
+        stopOnEntry: true,
+        gatewayAddress: 'wss://proxy.apim.net/debug-0123456789abcdef',
+        managementAddress: 'https://management.apim.net/subscriptions/x/resourceGroups/x/providers/microsoft.apimanagement/service/x',
+        managementAuth: 'SharedAccessSignature integration&202004300042&Hh3jin6eJ22yc+MSAkaUl6+TgHwq8rRhnKt2UqQMugkiDsK5N3wJWWhjQscHiws0FID9ogk7sa0i7W/h2ydczA=='
+    };
+
+    if (!vscode.debug.activeDebugSession) {
+        if (mode === "development") {
+            await vscode.debug.startDebugging(undefined, debugConfig2);
+        } else {
+            await vscode.debug.startDebugging(undefined, debugConfig);
+        }
+    }
     // tslint:disable-next-line: no-non-null-assertion
     await createOperationTestFile(node!, OperationRunMode.debug);
-    await vscode.debug.startDebugging(undefined, debugConfig);
 }
 
 export function getDebugGatewayAddressUrl(serviceName: string): string {

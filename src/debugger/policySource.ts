@@ -21,12 +21,17 @@ export class PolicySource {
 	private static NextSourceReference = 1;
 
 	private managementAddress: string;
-	private credential: ServiceClientCredentials;
+	private credential: ServiceClientCredentials | undefined;
+	private auth: string | undefined;
 	private policies: { [key: string]: Policy } = {};
 
-	constructor(managementAddress: string, credential: ServiceClientCredentials) {
+	constructor(managementAddress: string, credential?: ServiceClientCredentials, auth?: string) {
 		this.managementAddress = managementAddress;
 		this.credential = credential;
+		this.auth = auth;
+		if (!credential && !auth) {
+			throw new Error("Missing credentials!");
+		}
 	}
 
 	public getPolicyLocation(scopeId: string, path: string) {
@@ -69,7 +74,12 @@ export class PolicySource {
 			return null;
 		}
 
-		const authToken = await getBearerToken(policyUrl, "GET", this.credential);
+		let authToken;
+		if (this.auth) {
+			authToken = this.auth;
+		} else {
+			authToken = await getBearerToken(policyUrl, "GET", this.credential!);
+		}
 		const policyContract: PolicyContract = await request.get(policyUrl, {
 			headers: {
 				Authorization: authToken
