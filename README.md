@@ -69,13 +69,10 @@ Please note: only JSON format is supported currently.
 ## Import Function App to an existing API
 ![importFuncAppToApi](resources/importFuncToApi2.gif)
 
-## Import Web App (with swagger object) to create a new API
+## Import Web App to create a new API
 ![importWebApp](resources/importWebapp.gif)
 
-## Import Web App (without swagger object) to create a new API
-![importWebApp](resources/importWebapp2.gif)
-
-## Import Web App (with swagger object) to an existing API
+## Import Web App to an existing API
 ![importWebAppToApi](resources/importWebappToApi.gif)
 
 ## Add API to gateway
