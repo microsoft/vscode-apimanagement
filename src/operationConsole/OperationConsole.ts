@@ -58,7 +58,7 @@ export class OperationConsole {
         let versionPath = "";
         let revision = "";
 
-        if (api.apiVersionSet && api.apiVersion && api.apiVersionSet.versioningScheme === "Segment") {
+        if (api.apiVersion) {
             versionPath = `/${api.apiVersion}`;
         }
 
