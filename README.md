@@ -22,9 +22,9 @@ All you need is an Azure Subscription to get started. If you don't have one, [cl
 -   Test an API using [REST Client](https://marketplace.visualstudio.com/items?itemName=humao.rest-client)
 -   Command Palette support for most features
 -   Extract API and service configurations into ARM templates
--   Import Function App to existing API or creating new API
--   Import Web App to existing API or creating new API
--   Gateways and deploy gateways
+-   Import Azure Functions - Transform HttpTriggers into APIs
+-   Import App Service WebApp
+-   Manage Self-Hosted Gateways
 
 ## Create an API Management instance using defaults
 
@@ -63,26 +63,14 @@ Please note: only JSON format is supported currently.
 
 ![Extract](resources/extract.gif)
 
-## Import Function App to create a new API
+## Import Function App
 ![importFuncApp](resources/importFunc.gif)
 
-## Import Function App to an existing API
-![importFuncAppToApi](resources/importFuncToApi2.gif)
-
-## Import Web App to create a new API
+## Import App Service Web App
 ![importWebApp](resources/importWebapp.gif)
 
-## Import Web App to an existing API
-![importWebAppToApi](resources/importWebappToApi.gif)
-
-## Add API to gateway
-![gateway](resources/addApiGw.gif)
-
-## Generate K8s deployment file for gateway
-![gateway](resources/deployGwKub.gif)
-
-## Generate docker run command for gateway
-![gateway](resources/deployGwDocker.gif)
+## Deploy Gateway with Docker or Kubernetes
+![deployGateway](resources/deployGw.gif)
 
 ## Intellisense for Policy Expressions.
 
