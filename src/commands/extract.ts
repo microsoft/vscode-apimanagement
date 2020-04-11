@@ -103,15 +103,19 @@ async function runExtractor(filePath: string, subscriptionId: string): Promise<v
         subscriptionId
     );
 
-    await cpUtils.executeCommand(
-        ext.outputChannel,
-        workingFolderPath,
-        'dotnet',
-        'apimtemplate.dll',
-        'extract',
-        '--extractorConfig',
-        `"${filePath}"`
-    );
+    try {
+        await cpUtils.executeCommand(
+            ext.outputChannel,
+            workingFolderPath,
+            'dotnet',
+            'apimtemplate.dll',
+            'extract',
+            '--extractorConfig',
+            `"${filePath}"`
+        );
+    } catch (error) {
+        window.showInformationMessage(localize("dotNetNotInstalled", String(error)));
+    }
 }
 
 async function askFolder(): Promise<Uri[]> {
