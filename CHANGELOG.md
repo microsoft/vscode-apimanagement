@@ -1,6 +1,13 @@
 # Change Log
 All notable changes to the "Azure Api Managment VS Code" extension will be documented in this file.
 
+## [0.1.3 - 2020-04-10]
+- Import App Service WebApp APIs
+- Import Azure Functions HttpTriggers
+- Manage APIs to Self-hosted gateways
+- Generate Docker command for Self-hosted gateways
+- Generate Kubernetes deployment file for Self-hosted gateways
+
 ## [0.1.2 - 2020-01-06]
 
 ### Added
