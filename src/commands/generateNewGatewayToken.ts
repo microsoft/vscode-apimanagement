@@ -24,7 +24,7 @@ export async function generateNewGatewayToken(node?: GatewayTreeItem): Promise<v
     validateInput: async (value: string): Promise<string | undefined> => {
       value = value ? value.trim() : '';
       if (!validateDays(value)) {
-        return localize("InvalidDays", "Input is not valid. Token should expire within 30 days.");
+        return localize("InvalidDays", "Input is not valid. Value must be less than 30 days.");
       }
       return undefined;
     }
