@@ -103,7 +103,7 @@ async function runExtractor(filePath: string, subscriptionId: string): Promise<v
         subscriptionId
     );
 
-    try {
+    if (await dotnetUtils.checkDotnetVersionInstalled("2.1")) {
         await cpUtils.executeCommand(
             ext.outputChannel,
             workingFolderPath,
@@ -113,8 +113,9 @@ async function runExtractor(filePath: string, subscriptionId: string): Promise<v
             '--extractorConfig',
             `"${filePath}"`
         );
-    } catch (error) {
-        window.showInformationMessage(localize("dotNetNotInstalled", String(error)));
+    } else {
+        window.showInformationMessage(localize("dotnetNotInstalled", ".NET framework 2.1 not installed. Please go to 'https://aka.ms/dotnet-core-applaunch?framework=Microsoft.NETCore.App&framework_version=2.1.0&arch=x64&rid=win10-x64' to download"));
+        throw new Error();
     }
 }
 
