@@ -40,7 +40,28 @@ export class PolicySource {
 			return null;
 		}
 
-		return policy.map[path];
+		if (Object.keys(policy.map).includes(path)) {
+			return policy.map[path];
+		}
+
+		const paths = path.split("/");
+		const mapKeys = Object.keys(policy.map).map(s => s.split("/")).filter(s => s.length === paths.length);
+
+		for (const curKey of mapKeys) {
+			let isEqual = true;
+			// tslint:disable-next-line: prefer-for-of
+			for (let idx = 0; idx < paths.length; idx++) {
+				if (paths[idx] === curKey[idx]) {
+					continue;
+				} else {
+					isEqual = false;
+				}
+			}
+			if (isEqual === true) {
+				return policy.map[curKey.join("/")];
+			}
+		}
+		return null;
 	}
 
 	public async fetchPolicies(scopes: string[]) {

@@ -11,6 +11,7 @@
 // tslint:disable: no-reserved-keywords
 // tslint:disable: interface-name
 // tslint:disable: no-empty
+// tslint:disable: prefer-template
 
 export class PolicyMapper {
 	public static WhiteSpaceCharacters = " \r\n\t";
@@ -45,7 +46,8 @@ export class PolicyMapper {
 		return this.map;
 	}
 
-	// tslint:disable-next-line: cyclomatic-complexity
+	// tslint:disable: cyclomatic-complexity
+	// tslint:disable: max-func-body-length
 	private element() {
 		this.captureLocation();
 
@@ -65,7 +67,15 @@ export class PolicyMapper {
 				if (!name) {
 					if (nameStart > 0 && !name) {
 						name = this.xml.substring(nameStart, this.index);
-						this.stack.push(name);
+						const curkey = this.stack.length === 0 ? `${name}[1]` : this.stack.join('/') + `/${name}[1]`;
+						//const curkey = this.stack.reduce((a, b) => `${a}/${b}`) + `${name}[1]`;
+						if (this.count[curkey]) {
+							this.stack.push(name + `[${this.count[curkey] + 1}]`);
+							this.count[curkey]++;
+						} else {
+							this.stack.push(name + `[1]`);
+							this.count[curkey] = 1;
+						}
 					} else {
 						break;
 					}
@@ -79,7 +89,15 @@ export class PolicyMapper {
 			} else if (char === '>') {
 				if (nameStart > 0 && !name) {
 					name = this.xml.substring(nameStart, this.index);
-					this.stack.push(name);
+					const curkey = this.stack.length === 0 ? `${name}[1]` : this.stack.join('/') + `/${name}[1]`;
+					//const curkey = this.stack.reduce((a, b) => `${a}/${b}`) + `${name}[1]`;
+					if (this.count[curkey]) {
+						this.stack.push(name + `[${this.count[curkey] + 1}]`);
+						this.count[curkey]++;
+					} else {
+						this.stack.push(name + `[1]`);
+						this.count[curkey] = 1;
+					}
 				}
 
 				if (!end && start !== null) {
@@ -105,7 +123,15 @@ export class PolicyMapper {
 			} else if (PolicyMapper.WhiteSpaceCharacters.indexOf(char) >= 0) {
 				if (nameStart >= 0 && !name) {
 					name = this.xml.substring(nameStart, this.index);
-					this.stack.push(name);
+					const curkey = this.stack.length === 0 ? `${name}[1]` : this.stack.join('/') + `/${name}[1]`;
+					//const curkey = this.stack.reduce((a, b) => `${a}/${b}`) + `${name}[1]`;
+					if (this.count[curkey]) {
+						this.stack.push(name + `[${this.count[curkey] + 1}]`);
+						this.count[curkey]++;
+					} else {
+						this.stack.push(name + `[1]`);
+						this.count[curkey] = 1;
+					}
 				}
 
 				if (name && !end && this.attributes()) {
@@ -344,17 +370,7 @@ export class PolicyMapper {
 	}
 
 	private addElementToMap(start: [number, number], end: [number, number]) {
-		let key = this.stack.reduce((a, b) => `${a}/${b}`);
-
-		if (this.count[key]) {
-			this.count[key] += 1;
-			key = `${key}[${this.count[key]}]`;
-		} else if (this.map[key]) {
-			this.count[key] = 2;
-			this.map[`${key}[1]`] = this.map[key];
-			delete this.map[key];
-			key = `${key}[2]`;
-		}
+		const key = this.stack.reduce((a, b) => `${a}/${b}`);
 
 		this.map[key] = {
 			line: start[0],

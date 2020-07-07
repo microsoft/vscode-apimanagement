@@ -18,7 +18,7 @@ export async function testOperation(node?: ApiOperationTreeItem): Promise<void> 
     await createOperationTestFile(node!, OperationRunMode.test);
 }
 
-export async function createOperationTestFile(node: ApiOperationTreeItem, mode: OperationRunMode): Promise<void> {
+export async function createOperationTestFile(node: ApiOperationTreeItem, mode: OperationRunMode): Promise<vscode.TextEditor> {
     // using https://github.com/Huachao/vscode-restclient
     const fileName = `${nameUtil(node.root)}.http`;
     const localFilePath: string = await createTemporaryFile(fileName);
@@ -32,6 +32,7 @@ export async function createOperationTestFile(node: ApiOperationTreeItem, mode: 
     const textEditor: vscode.TextEditor = await vscode.window.showTextDocument(document);
     await writeToEditor(textEditor, data);
     await textEditor.document.save();
+    return textEditor;
 }
 
 export enum OperationRunMode {

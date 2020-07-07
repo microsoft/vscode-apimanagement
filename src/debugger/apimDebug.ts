@@ -7,7 +7,9 @@ import * as request from 'request-promise-native';
 import * as vscode from 'vscode';
 import { Breakpoint, Handles, InitializedEvent, Logger, logger, LoggingDebugSession, OutputEvent, Scope, StackFrame, StoppedEvent, TerminatedEvent, Thread, ThreadEvent, Variable } from 'vscode-debugadapter';
 import { DebugProtocol } from 'vscode-debugprotocol';
+import { createTemporaryFile } from "../utils/fsUtil";
 import { getBearerToken } from '../utils/requestUtil';
+import { writeToEditor } from '../utils/vscodeUtils';
 import { DebuggerConnection, RequestContract } from './debuggerConnection';
 import { PolicySource } from './policySource';
 import { UiRequest } from './uiRequest';
@@ -28,6 +30,8 @@ interface ILaunchRequestArguments extends DebugProtocol.LaunchRequestArguments {
 	managementAddress: string;
 	managementAuth: string;
 	subscriptionId: string;
+	operationData: string;
+	fileName: string;
 	stopOnEntry?: boolean;
 }
 
@@ -38,6 +42,7 @@ export class ApimDebugSession extends LoggingDebugSession {
 	private requests: UiRequest[] = [];
 	private policySource: PolicySource;
 	private variablesHandles = new Handles<string>();
+	//private isInitialSetBreakpointRequest : boolean = true;
 	// private initialized: boolean = false;
 	// private breakpointsArgs: { [scopeId: string]: DebugProtocol.SetBreakpointsArguments } = {};
 
@@ -49,10 +54,10 @@ export class ApimDebugSession extends LoggingDebugSession {
 
 		this.runtime = new DebuggerConnection();
 
-		this.runtime.on('stopOnEntry', (requestId, threadId, operationId, apiId, productId) => this.onStopOnEntry(requestId, threadId, operationId, apiId, productId));
-		this.runtime.on('stopOnStep', (requestId, threadId) => this.onStop('step', requestId, threadId));
-		this.runtime.on('stopOnBreakpoint', (requestId, threadId) => this.onStop('breakpoint', requestId, threadId));
-		this.runtime.on('stopOnException', (requestId, threadId, operationId, apiId, productId, message) => this.onStopOnException(requestId, threadId, operationId, apiId, productId, message));
+		this.runtime.on('stopOnEntry', (requestId, threadId, operationId, apiId, productId) => this.onStop('entry', requestId, threadId, operationId, apiId, productId));
+		this.runtime.on('stopOnStep', (requestId, threadId, operationId, apiId, productId) => this.onStop('step', requestId, threadId, operationId, apiId, productId));
+		this.runtime.on('stopOnBreakpoint', (requestId, threadId, operationId, apiId, productId) => this.onStop('breakpoint', requestId, threadId, operationId, apiId, productId));
+		this.runtime.on('stopOnException', (requestId, threadId, operationId, apiId, productId, message) => this.onStop('exception', requestId, threadId, operationId, apiId, productId, message));
 		this.runtime.on('threadExited', (requestId, threadId) => this.onThreadExited(requestId, threadId));
 		this.runtime.on('end', message => {
 			this.requests = [];
@@ -61,6 +66,7 @@ export class ApimDebugSession extends LoggingDebugSession {
 			}
 			this.sendEvent(new TerminatedEvent());
 		});
+		//this.runtime.on('terminated', (requestId, threadId) => this.onTerminateDebugger(requestId, threadId));
 	}
 
 	protected initializeRequest(response: DebugProtocol.InitializeResponse, _args: DebugProtocol.InitializeRequestArguments): void {
@@ -91,14 +97,14 @@ export class ApimDebugSession extends LoggingDebugSession {
 			this.availablePolicies = await this.getAvailablePolicies(args.managementAddress, credential);
 		}
 
+		await this.runtime.attach(args.gatewayAddress, masterKey, !!args.stopOnEntry);
 		this.sendEvent(new InitializedEvent());
 		await this.configurationDone.wait(1000);
-
-		await this.runtime.attach(args.gatewayAddress, masterKey, !!args.stopOnEntry);
 		// will set breakpoints after attach
 		this.sendResponse(response);
 		this.updateRequests(await this.runtime.getRequests(), true);
 		//this.initialized = true;
+		await this.createTestOperationFile(args.operationData, args.fileName);
 	}
 
 	protected async threadsRequest(response: DebugProtocol.ThreadsResponse) {
@@ -172,22 +178,6 @@ export class ApimDebugSession extends LoggingDebugSession {
 				mimeType: 'application/vnd.ms-azure-apim.policy.raw+xml'
 			};
 			this.sendResponse(response);
-			// if (args.source && args.source.path && this.breakpointsArgs[args.source.path]) {
-			// 	const breakpointArgs = this.breakpointsArgs[args.source.path];
-			// 	const breakpoints = await this.setBreakpoints(breakpointArgs);
-			// 	delete this.breakpointsArgs[args.source.path];
-			// 	const breakpointResponse: DebugProtocol.SetBreakpointsResponse = {
-			// 		command: "setBreakpoints",
-			// 		request_seq: response.request_seq,
-			// 		seq: response.seq + 1,
-			// 		success: true,
-			// 		type: "response",
-			// 		body: {
-			// 			breakpoints: breakpoints
-			// 		}
-			// 	};
-			// 	this.sendResponse(breakpointResponse);
-			// }
 		}
 	}
 
@@ -197,7 +187,9 @@ export class ApimDebugSession extends LoggingDebugSession {
 			await this.runtime.continue(nRequest[0].id, nRequest[1].id);
 		}
 
-		response.body.allThreadsContinued = false;
+		response.body = {
+			allThreadsContinued: false
+		};
 		this.sendResponse(response);
 	}
 
@@ -291,17 +283,25 @@ export class ApimDebugSession extends LoggingDebugSession {
 		this.sendResponse(response);
 	}
 
+	private async createTestOperationFile(operationData: string, fileName: string) {
+		const localFilePath: string = await createTemporaryFile(fileName);
+		const document: vscode.TextDocument = await vscode.workspace.openTextDocument(localFilePath);
+		const textEditor: vscode.TextEditor = await vscode.window.showTextDocument(document);
+		await writeToEditor(textEditor, operationData);
+		await textEditor.document.save();
+	}
+
 	private async setBreakpoints(args: DebugProtocol.SetBreakpointsArguments): Promise<Breakpoint[]> {
 		let breakpoints: Breakpoint[] = [];
 		const breakpointsToSet: {
 			path: string,
 			scopeId: string
 		}[] = [];
+		let policy = this.policySource.getPolicyBySourceReference(args.source.sourceReference);
+		if (!policy && args.source.name) {
+			policy = this.policySource.getPolicy(args.source.name) || await this.policySource.fetchPolicy(args.source.name);
+		}
 		if (args.breakpoints && args.breakpoints.length) {
-			let policy = this.policySource.getPolicyBySourceReference(args.source.sourceReference);
-			if (!policy && args.source.name) {
-				policy = this.policySource.getPolicy(args.source.name) || await this.policySource.fetchPolicy(args.source.name);
-			}
 			// set breakpoints if has policy otherwise check if it's initialization
 			if (policy && policy !== null) {
 				breakpoints = args.breakpoints.map(b => {
@@ -331,7 +331,19 @@ export class ApimDebugSession extends LoggingDebugSession {
 					if (path === null) {
 						throw new Error("Path is null");
 					}
-					const policyName = path.substring(path.lastIndexOf('/') + 1);
+					let policyName = path.substring(path.lastIndexOf('/') + 1);
+					if (policyName.indexOf('[') !== -1) {
+						policyName = policyName.substring(0, policyName.lastIndexOf('['));
+					}
+					// let isPolicy = false;
+					// for (const currentPolicy of this.availablePolicies) {
+					// 	if (policyName.startsWith(currentPolicy)) {
+					// 		isPolicy = true;
+					// 	}
+					// }
+					// if (!isPolicy) {
+					// 	return new Breakpoint(false);
+					// }
 					if (this.availablePolicies.indexOf(policyName) === -1) {
 						return new Breakpoint(false);
 					}
@@ -348,38 +360,8 @@ export class ApimDebugSession extends LoggingDebugSession {
 			}
 		}
 
-		if (breakpointsToSet.length) {
-			await this.runtime.setBreakpoints(breakpointsToSet);
-		}
+		await this.runtime.setBreakpoints(breakpointsToSet, policy!.scopeId);
 		return breakpoints;
-	}
-
-	private onStopOnEntry(requestId: string, threadId: number, operationId: string, apiId: string, productId: string) {
-		this.updateRequests([
-			{
-				id: requestId,
-				threads: [threadId],
-				operationId: operationId,
-				apiId: apiId,
-				productId: productId
-			}
-		], false);
-
-		this.onStop('entry', requestId, threadId);
-	}
-
-	private onStopOnException(requestId: string, threadId: number, operationId: string, apiId: string, productId: string, message: string) {
-		this.updateRequests([
-			{
-				id: requestId,
-				threads: [threadId],
-				operationId: operationId,
-				apiId: apiId,
-				productId: productId
-			}
-		], false);
-
-		this.onStop('exception', requestId, threadId, message);
 	}
 
 	private onThreadExited(requestId: string, threadId: number) {
@@ -391,7 +373,20 @@ export class ApimDebugSession extends LoggingDebugSession {
 		}
 	}
 
-	private onStop(event: string, requestId: string, threadId: number, exceptionText?: string) {
+	// private onTerminateDebugger(requestId: string, threadId: number) {
+	// 	this.runtime.terminateDebugger(requestId, threadId);
+	// }
+
+	private onStop(event: string, requestId: string, threadId: number, operationId: string, apiId: string, productId: string, exceptionText?: string) {
+		this.updateRequests([
+			{
+				id: requestId,
+				threads: [threadId],
+				operationId: operationId,
+				apiId: apiId,
+				productId: productId
+			}
+		],                  false);
 		const nRequest = this.requests.find(r => r.id === requestId);
 		const thread = nRequest && nRequest.findThreadById(threadId);
 

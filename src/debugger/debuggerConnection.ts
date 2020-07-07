@@ -80,11 +80,9 @@ export class DebuggerConnection extends EventEmitter {
 		}),                                             'variables');
 	}
 
-	public async setBreakpoints(breakpoints: {
-		path: string,
-		scopeId: string
-	}[]) {
+	public async setBreakpoints(breakpoints: { path: string, scopeId: string}[], scopeId: string) {
 		this.sendCommand('setBreakpoints', {
+			scopeId: scopeId,
 			breakpoints: breakpoints
 		});
 	}
@@ -151,16 +149,16 @@ export class DebuggerConnection extends EventEmitter {
 					this.sendEvent(event.name, event.arguments.requestId, event.arguments.threadId, event.arguments.operationId, event.arguments.apiId, event.arguments.productId);
 					break;
 				case 'stopOnStep':
-					this.sendEvent(event.name, event.arguments.requestId, event.arguments.threadId);
+					this.sendEvent(event.name, event.arguments.requestId, event.arguments.threadId, event.arguments.operationId, event.arguments.apiId, event.arguments.productId);
 					break;
 				case 'stopOnException':
 					this.sendEvent(event.name, event.arguments.requestId, event.arguments.threadId, event.arguments.operationId, event.arguments.apiId, event.arguments.productId, event.arguments.message);
 					break;
 				case 'stopOnBreakpoint':
-					this.sendEvent(event.name, event.arguments.requestId, event.arguments.threadId);
+					this.sendEvent(event.name, event.arguments.requestId, event.arguments.threadId, event.arguments.operationId, event.arguments.apiId, event.arguments.productId);
 					break;
 				case 'threadExited':
-					this.sendEvent(event.name, event.arguments.requestId, event.arguments.threadId);
+					this.sendEvent(event.name, event.arguments.requestId, event.arguments.threadId, event.arguments.operationId, event.arguments.apiId, event.arguments.productId);
 					break;
 			}
 

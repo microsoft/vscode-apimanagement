@@ -33,7 +33,7 @@ export class UiThread {
 	} = {};
 	private policySource: PolicySource;
 
-	constructor (id: number, operationId: string, apiId: string, productId: string, policySource: PolicySource) {
+	constructor(id: number, operationId: string, apiId: string, productId: string, policySource: PolicySource) {
 		this.id = id;
 		this.uiId = UiThread.NextThreadId++;
 
@@ -84,10 +84,14 @@ export class UiThread {
 		let path: string[] = [];
 		for (const frame of allFrames.reverse()) {
 			if (!path.length || prevFrame && (prevFrame.scopeId !== frame.scopeId)) {
-				path = ['policies', frame.section];
+				path = ['policies[1]', frame.section + "[1]"];
 			}
 			prevFrame = frame;
-			path.push(frame.index ? `${frame.name}[${frame.index}]` : frame.name);
+			if (!frame.name.endsWith(']')) {
+				path.push(`${frame.name}[${frame.index || 1}]`);
+			} else {
+				path.push(`${frame.name}`);
+			}
 			const stackFrameKey = path.join('/');
 
 			stack.push({
@@ -99,7 +103,7 @@ export class UiThread {
 		}
 
 		// Fetch any sources if necessary
-		if (pendingSources.length) {
+		if (pendingSources.length > 0) {
 			await this.policySource.fetchPolicies(pendingSources.map(p => p.scopeId));
 		}
 
@@ -113,19 +117,26 @@ export class UiThread {
 				stackFrame.source = policy && policy.source;
 			}
 
-			if (!stackFrame.line && !stackFrame.column && !stackFrame.endLine && !stackFrame.endColumn) {
-				const location = this.policySource.getPolicyLocation(frame.scopeId, item.key);
-				if (location) {
-					stackFrame.line = location.line;
-					stackFrame.column = location.column;
-					stackFrame.endLine = location.endLine;
-					stackFrame.endColumn = location.endColumn;
-				}
+			// if (!stackFrame.line && !stackFrame.column && !stackFrame.endLine && !stackFrame.endColumn) {
+			// 	const location = this.policySource.getPolicyLocation(frame.scopeId, item.key);
+			// 	if (location) {
+			// 		stackFrame.line = location.line;
+			// 		stackFrame.column = location.column;
+			// 		stackFrame.endLine = location.endLine;
+			// 		stackFrame.endColumn = location.endColumn;
+			// 	}
+			// }
+			const location = this.policySource.getPolicyLocation(frame.scopeId, item.key);
+			if (location) {
+				stackFrame.line = location.line;
+				stackFrame.column = location.column;
+				stackFrame.endLine = location.endLine;
+				stackFrame.endColumn = location.endColumn;
 			}
 		}
 
 		// Remove any 'virtual' UI stack frames if no policy present
-		for (let index = 0; index < stack.length; ) {
+		for (let index = 0; index < stack.length;) {
 			if (stack[index].isVirtual && (!stack[index].stackFrame.source || !stack[index].stackFrame.line && !stack[index].stackFrame.column)) {
 				stack.splice(index, 1);
 			} else {
