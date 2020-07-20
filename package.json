@@ -2,7 +2,7 @@
     "name": "vscode-apimanagement",
     "displayName": "Azure API Management",
     "description": "An Azure API Management extension for Visual Studio Code.",
-    "version": "0.1.6-alpha",
+    "version": "0.1.4",
     "publisher": "ms-azuretools",
     "icon": "resources/azure-apim.png",
     "aiKey": "AIF-d9b70cd4-b9f9-4d70-929b-a071c400b217",
@@ -402,20 +402,20 @@
                 {
                     "command": "azureApiManagement.copySubscriptionKey",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementService",
-                    "group": "2@1"
-                },
-                {
-                    "command": "azureApiManagement.deleteService",
-                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementService",
-                    "group": "2@2"
+                    "group": "1@2"
                 },
                 {
                     "command": "azureApiManagement.extractService",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementService",
-                    "group": "3@1"
+                    "group": "2@1"
                 },
                 {
                     "command": "azureApiManagement.Refresh",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementService",
+                    "group": "3@1"
+                },
+                {
+                    "command": "azureApiManagement.deleteService",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementService",
                     "group": "4@1"
                 },
@@ -450,29 +450,29 @@
                     "group": "1@1"
                 },
                 {
-                    "command": "azureApiManagement.deleteApi",
-                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApi",
-                    "group": "1@2"
-                },
-                {
-                    "command": "azureApiManagement.extractApi",
+                    "command": "azureApiManagement.importFunctionAppToApi",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApi",
                     "group": "2@1"
                 },
                 {
-                    "command": "azureApiManagement.importFunctionAppToApi",
+                    "command": "azureApiManagement.importWebAppToApi",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApi",
                     "group": "2@2"
                 },
                 {
-                    "command": "azureApiManagement.importWebAppToApi",
+                    "command": "azureApiManagement.extractApi",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApi",
-                    "group": "2@3"
+                    "group": "3@1"
                 },
                 {
                     "command": "azureApiManagement.Refresh",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApi",
                     "group": "4@1"
+                },
+                {
+                    "command": "azureApiManagement.deleteApi",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApi",
+                    "group": "5@1"
                 },
                 {
                     "command": "azureApiManagement.Refresh",

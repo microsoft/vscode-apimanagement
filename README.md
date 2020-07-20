@@ -1,5 +1,5 @@
 [![Version](https://vsmarketplacebadge.apphb.com/version/ms-azuretools.vscode-apimanagement.svg)](https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-apimanagement) [![Installs](https://vsmarketplacebadge.apphb.com/installs-short/ms-azuretools.vscode-apimanagement.svg)](https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-apimanagement)
-[![Build Status](https://dev.azure.com/ms-azuretools/AzCode/_apis/build/status/Nightly/vscode-apimanagement-nightly?branchName=master)](https://dev.azure.com/ms-azuretools/AzCode/_build/latest?definitionId=21&branchName=master) [![GitHub](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/Microsoft/vscode-apimanagement/blob/master/LICENSE.md)
+[![Build Status](https://dev.azure.com/ms-azuretools/AzCode/_apis/build/status/vscode-apimanagement?branchName=master)](https://dev.azure.com/ms-azuretools/AzCode/_build/latest?definitionId=20&branchName=master) [![GitHub](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/Microsoft/vscode-apimanagement/blob/master/LICENSE.md)
 
 # Azure API Management Extension for Visual Studio Code (Preview)
 
@@ -22,6 +22,9 @@ All you need is an Azure Subscription to get started. If you don't have one, [cl
 -   Test an API using [REST Client](https://marketplace.visualstudio.com/items?itemName=humao.rest-client)
 -   Command Palette support for most features
 -   Extract API and service configurations into ARM templates
+-   Import Azure Functions - Transform HttpTriggers into APIs
+-   Import App Service WebApp
+-   Manage Self-Hosted Gateways
 
 ## Create an API Management instance using defaults
 
@@ -59,6 +62,15 @@ Please note: only JSON format is supported currently.
 ## Extract Service or API
 
 ![Extract](resources/extract.gif)
+
+## Import Function App
+![importFuncApp](resources/importFunc.gif)
+
+## Import App Service Web App
+![importWebApp](resources/importWebapp.gif)
+
+## Deploy Gateway with Docker or Kubernetes
+![deployGateway](resources/deployGw.gif)
 
 ## Intellisense for Policy Expressions.
 

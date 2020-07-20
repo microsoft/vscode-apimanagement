@@ -39,7 +39,7 @@ export class ConsoleRequest {
 
         const keyHeader = new ConsoleHeader();
         keyHeader.name = "Ocp-Apim-Subscription-Key";
-        keyHeader.value = "{{SusbscriptionKey}}";
+        keyHeader.value = "{{SubscriptionKey}}";
         this.headers.push(keyHeader);
 
         const traceHeader = new ConsoleHeader();

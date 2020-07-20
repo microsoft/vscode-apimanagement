@@ -51,4 +51,15 @@ export namespace dotnetUtils {
             throw new Error(message);
         }
     }
+
+    export async function checkDotnetVersionInstalled(targetVersion: string): Promise<boolean> {
+        const response = await cpUtils.executeCommand(undefined, undefined, 'dotnet', '--list-sdks');
+        const versions = response.split(/\r?\n/);
+        for (const version of versions) {
+            if (version.startsWith(targetVersion)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

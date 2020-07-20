@@ -4,7 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { ApiManagementModels } from "azure-arm-apimanagement";
-import { ApiContract } from "azure-arm-apimanagement/lib/models";
+import { ApiContract, OperationCollection } from "azure-arm-apimanagement/lib/models";
 import { window } from "vscode";
 import { AzureParentTreeItem, DialogResponses, IOpenApiImportObject, IParsedError, parseError, UserCancelledError } from "../../extension.bundle";
 import * as Constants from "../constants";
@@ -93,5 +93,16 @@ export namespace apiUtil {
                 throw new UserCancelledError();
             }
         }
+    }
+
+    export async function getAllOperationsForApi(root: IServiceTreeRoot, apiId: string): Promise<OperationCollection> {
+        let operations: OperationCollection = await root.client.apiOperation.listByApi(root.resourceGroupName, root.serviceName, apiId);
+        let nextLink = operations.nextLink;
+        while (nextLink) {
+            const nOperations: OperationCollection = await root.client.apiOperation.listByApiNext(nextLink);
+            nextLink = nOperations.nextLink;
+            operations = operations.concat(nOperations);
+        }
+        return operations;
     }
 }

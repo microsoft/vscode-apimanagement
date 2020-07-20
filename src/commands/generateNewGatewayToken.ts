@@ -24,7 +24,7 @@ export async function generateNewGatewayToken(node?: GatewayTreeItem): Promise<v
     validateInput: async (value: string): Promise<string | undefined> => {
       value = value ? value.trim() : '';
       if (!validateDays(value)) {
-        return localize("InvalidDays", "Input is not valid.");
+        return localize("InvalidDays", "Input is not valid. Value must be less than 30 days.");
       }
       return undefined;
     }
@@ -41,5 +41,5 @@ export async function generateNewGatewayToken(node?: GatewayTreeItem): Promise<v
 
 function validateDays(days: string): boolean {
   const numOfDays = Number.parseInt(days);
-  return numOfDays.toString().length === days.length && numOfDays <= 30 && numOfDays > 0 && !isNaN(numOfDays);
+  return numOfDays.toString().length === days.length && numOfDays < 30 && numOfDays > 0 && !isNaN(numOfDays);
 }
