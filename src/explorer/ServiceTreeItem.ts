@@ -91,8 +91,13 @@ export class ServiceTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
     }
 
     public async copySubscriptionKey(): Promise<string> {
-        const subscription = await this.root.client.subscription.get(this.root.resourceGroupName, this.root.serviceName, "master");
-        return subscription.secondaryKey;
+        const subscriptionKeys = await this.root.client.subscription.listSecrets(this.root.resourceGroupName, this.root.serviceName, "master");
+        if (!subscriptionKeys.secondaryKey) {
+            window.showErrorMessage(localize("CopySubscriptionKey", `Secondary Subscription Key Unexpectedly null.`));
+        } else {
+            return subscriptionKeys.secondaryKey;
+        }
+        return "";
     }
 
     public pickTreeItemImpl(expectedContextValue: string | RegExp): AzureTreeItem<IServiceTreeRoot> | undefined {

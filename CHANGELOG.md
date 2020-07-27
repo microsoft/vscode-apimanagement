@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to the "Azure Api Managment VS Code" extension will be documented in this file.
 
+## [0.1.4 - 2020-07-27]
+
+- Migrate Vscode Extesion to latest APIM Arm SDK
+
 ## [0.1.3 - 2020-04-11]
 
 ### Added
