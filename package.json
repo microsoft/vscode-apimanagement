@@ -67,7 +67,8 @@
         "onCommand:azureApiManagement.importWebAppToApi",
         "onCommand:azureApiManagement.copyDockerRunCommand",
         "onCommand:azureApiManagement.generateKubernetesDeployment",
-        "onCommand:azureApiManagement.generateNewGatewayToken"
+        "onCommand:azureApiManagement.generateNewGatewayToken",
+        "onCommand:azureApiManagement.generateFunctions"
     ],
     "main": "main",
     "contributes": {
@@ -288,6 +289,11 @@
                 "command": "azureApiManagement.generateNewGatewayToken",
                 "title": "%azureApiManagement.generateNewGatewayToken%",
                 "category": "Azure API Management"
+            },
+            {
+                "command": "azureApiManagement.generateFunctions",
+                "title": "%azureApiManagement.generateFunctions%",
+                "category": "Azure API Management"
             }
         ],
         "viewsContainers": {
@@ -427,6 +433,11 @@
                     "command": "azureApiManagement.deleteApi",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApi",
                     "group": "5@1"
+                },
+                {
+                    "command": "azureApiManagement.generateFunctions",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApi",
+                    "group": "6@1"
                 },
                 {
                     "command": "azureApiManagement.Refresh",

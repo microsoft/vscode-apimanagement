@@ -52,6 +52,7 @@ import { ProductTreeItem } from './explorer/ProductTreeItem';
 import { ServicePolicyTreeItem } from './explorer/ServicePolicyTreeItem';
 import { ServiceTreeItem } from './explorer/ServiceTreeItem';
 import { ext } from './extensionVariables';
+import { generateFunctions } from './commands/generateFunctions';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -102,6 +103,8 @@ export function activateInternal(context: vscode.ExtensionContext) {
 
     registerCommand('azureApiManagement.openExtensionWorkspaceFolder', openWorkingFolder);
     registerCommand('azureApiManagement.initializeExtensionWorkspaceFolder', setupWorkingFolder);
+
+    registerCommand('azureApiManagement.generateFunctions', async (node: ApiTreeItem) => await generateFunctions(node));
 
     registerEditors(context);
 }

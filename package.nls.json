@@ -37,5 +37,6 @@
     "azureApiManagement.importWebAppToApi": "Import Azure App Service",
     "azureApiManagement.copyDockerRunCommand": "Copy Docker Run Command",
     "azureApiManagement.generateKubernetesDeployment": "Generate Kubernetes Deployment File",
-    "azureApiManagement.generateNewGatewayToken": "Generate New Gateway Token"
+    "azureApiManagement.generateNewGatewayToken": "Generate New Gateway Token",
+    "azureApiManagement.generateFunctions": "Generate Functions"
 }
