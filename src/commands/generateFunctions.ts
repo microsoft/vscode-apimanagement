@@ -48,7 +48,22 @@ export async function generateFunctions(node?: ApiTreeItem): Promise<void> {
         async () => {
             const args: string[] = [];
             args.push(`--input-file:${openAPIFilePath}`);
-            args.push('--use:@autorest/azure-functions@0.0.1-preview-dev.20200727.5');
+            if (language.label === 'TypeScript') {
+                args.push('--use:@autorest/azure-functions-typescript@0.0.1-preview-dev');
+            } else if (language.label === 'CSharp') {
+                args.push('--use:@autorest/azure-functions-csharp@0.1.0-dev.187602791');
+                args.push('--namespace:Stencil-API');
+            } else if (language.label === 'Python'){
+                args.push('--use:@autorest/azure-functions-python@0.0.1-preview-dev.20200729.3');
+            } else if (language.label === 'Java'){
+                args.push('--use:@autorest/azure-functions-java@0.0.2-Preview');
+                args.push('--namespace:com.microsoft.azure.stencil');
+                args.push('--azure-functions-java');
+            } else {
+                throw new Error("Language not supported");
+            }
+
+            args.push('--no-namespace-folders:True');
             args.push(`--output-folder:${uris[0].fsPath}`);
             args.push('--no-async');
             args.push(`--language:${language.label.toLowerCase()}`);

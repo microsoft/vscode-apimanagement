@@ -2,7 +2,7 @@
     "name": "vscode-apimanagement",
     "displayName": "Azure API Management",
     "description": "An Azure API Management extension for Visual Studio Code.",
-    "version": "0.1.4",
+    "version": "0.1.8-alpha",
     "publisher": "ms-azuretools",
     "icon": "resources/azure-apim.png",
     "aiKey": "AIF-d9b70cd4-b9f9-4d70-929b-a071c400b217",
