@@ -19,7 +19,7 @@ export class NamedValueTreeItem extends AzureTreeItem<IServiceTreeRoot> {
 
     constructor(
         parent: AzureParentTreeItem,
-        public readonly propertyContract: ApiManagementModels.PropertyContract) {
+        public readonly propertyContract: ApiManagementModels.NamedValueContract) {
         super(parent);
         this._label = nonNullProp(this.propertyContract, 'displayName');
     }
@@ -38,7 +38,7 @@ export class NamedValueTreeItem extends AzureTreeItem<IServiceTreeRoot> {
         if (result === DialogResponses.deleteResponse) {
             const deletingMessage: string = localize("deletingNamedValue", `Deleting named value "${this.propertyContract.displayName}"...`);
             await window.withProgress({ location: ProgressLocation.Notification, title: deletingMessage }, async () => {
-                await this.root.client.property.deleteMethod(this.root.resourceGroupName, this.root.serviceName, nonNullProp(this.propertyContract, "name"), '*');
+                await this.root.client.namedValue.deleteMethod(this.root.resourceGroupName, this.root.serviceName, nonNullProp(this.propertyContract, "name"), '*');
             });
             // don't wait
             window.showInformationMessage(localize("deletedNamedValue", `Successfully deleted named value "${this.propertyContract.displayName}".`));
@@ -49,14 +49,14 @@ export class NamedValueTreeItem extends AzureTreeItem<IServiceTreeRoot> {
     }
 
     public async updateValue(newValue: string, secret?: boolean) : Promise<void> {
-        const propertyContract = <ApiManagementModels.PropertyContract> {
+        const propertyContract = <ApiManagementModels.NamedValueCreateContract> {
             displayName: nonNullProp(this.propertyContract, "displayName"),
             value: newValue,
             secret: secret
         };
 
         try {
-            await this.root.client.property.createOrUpdate(this.root.resourceGroupName, this.root.serviceName, nonNullProp(this.propertyContract, "name"), propertyContract);
+            await this.root.client.namedValue.createOrUpdate(this.root.resourceGroupName, this.root.serviceName, nonNullProp(this.propertyContract, "name"), propertyContract);
             await this.refresh();
         } catch (error) {
             throw new Error(processError(error, localize("updateNamedValueFailed", `Could not update the value for ${this.propertyContract.displayName}`)));
@@ -65,8 +65,8 @@ export class NamedValueTreeItem extends AzureTreeItem<IServiceTreeRoot> {
 
     public async getValue() : Promise<string> {
         try {
-            const property = await this.root.client.property.get(this.root.resourceGroupName, this.root.serviceName, nonNullProp(this.propertyContract, "name"));
-            return property.value;
+            const property = await this.root.client.namedValue.get(this.root.resourceGroupName, this.root.serviceName, nonNullProp(this.propertyContract, "name"));
+            return property.value === undefined ? "" : property.value;
         } catch (error) {
             throw new Error(processError(error, localize("getNamedValueFailed", `Could not retrieve the value for ${this.propertyContract.displayName}`)));
         }

@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ApiContract, BackendCredentialsContract, OperationCollection, OperationContract, PropertyContract } from "azure-arm-apimanagement/lib/models";
+import { ApiContract, BackendCredentialsContract, NamedValueCreateContract, OperationCollection, OperationContract } from "azure-arm-apimanagement/lib/models";
 import { Site } from "azure-arm-website/lib/models";
 import { ProgressLocation, window } from "vscode";
 import { getSetBackendPolicy } from "../../azure/apim/policyHelper";
@@ -133,12 +133,12 @@ async function addOperationsToExistingApi(node: ApiTreeItem | ApisTreeItem, apiI
         }
         ext.outputChannel.appendLine(localize("importFunctionApp", `Getting host key from Function App ${funcAppName}...`));
         const hostKey = await funcAppService.addFuncHostKeyForApim(node.root.serviceName);
-        const propertyId = apiUtil.displayNameToIdentifier(`${funcAppName}-key`);
-        ext.outputChannel.appendLine(localize("importFunctionApp", `Creating new named value for the Function host key ${propertyId}...`));
-        await createPropertyItem(node, propertyId, hostKey);
+        const namedValueId = apiUtil.displayNameToIdentifier(`${funcAppName}-key`);
+        ext.outputChannel.appendLine(localize("importFunctionApp", `Creating new named value for the Function host key ${namedValueId}...`));
+        await createPropertyItem(node, namedValueId, hostKey);
 
         const backendCredentials: BackendCredentialsContract = {
-            header: { "x-functions-key": [`{{${propertyId}}}`] }
+            header: { "x-functions-key": [`{{${namedValueId}}}`] }
         };
 
         const backendId = apiUtil.displayNameToIdentifier(funcAppName);
@@ -209,14 +209,14 @@ async function pickFunctions(funcAppService: FunctionAppService): Promise<IFunct
 }
 
 // Create secret named value for function app hostkey
-async function createPropertyItem(node: ApisTreeItem | ApiTreeItem, propertyId: string, hostKey: string): Promise<void> {
-    const propertyContract: PropertyContract = {
-        displayName: propertyId,
+async function createPropertyItem(node: ApisTreeItem | ApiTreeItem, namedValueId: string, hostKey: string): Promise<void> {
+    const namedValueContract: NamedValueCreateContract = {
+        displayName: namedValueId,
         value: hostKey,
         tags: ["key", "function", "auto"],
         secret: true
     };
-    await node.root.client.property.createOrUpdate(node.root.resourceGroupName, node.root.serviceName, propertyId, propertyContract);
+    await node.root.client.namedValue.createOrUpdate(node.root.resourceGroupName, node.root.serviceName, namedValueId, namedValueContract);
 }
 
 // create new operation for each function and method

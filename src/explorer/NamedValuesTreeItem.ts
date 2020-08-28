@@ -31,9 +31,9 @@ export class NamedValuesTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
             this._nextLink = undefined;
         }
 
-        const propertyCollection: ApiManagementModels.PropertyCollection = this._nextLink === undefined ?
-        await this.root.client.property.listByService(this.root.resourceGroupName, this.root.serviceName,  {top: topItemCount}) :
-        await this.root.client.property.listByServiceNext(this._nextLink);
+        const propertyCollection: ApiManagementModels.NamedValueCollection = this._nextLink === undefined ?
+        await this.root.client.namedValue.listByService(this.root.resourceGroupName, this.root.serviceName,  {top: topItemCount}) :
+        await this.root.client.namedValue.listByServiceNext(this._nextLink);
 
         this._nextLink = propertyCollection.nextLink;
 
@@ -41,8 +41,8 @@ export class NamedValuesTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
             this,
             propertyCollection,
             "invalidApiManagementNamedValue",
-            async (prop: ApiManagementModels.PropertyContract) => new NamedValueTreeItem(this, prop),
-            (prop: ApiManagementModels.PropertyContract) => {
+            async (prop: ApiManagementModels.NamedValueContract) => new NamedValueTreeItem(this, prop),
+            (prop: ApiManagementModels.NamedValueContract) => {
                 return prop.name;
             });
     }
@@ -52,14 +52,14 @@ export class NamedValuesTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
             const keyName = userOptions.key;
             showCreatingTreeItem(keyName);
 
-            const propertyContract = <ApiManagementModels.PropertyContract> {
+            const propertyContract = <ApiManagementModels.NamedValueCreateContract> {
                 displayName: keyName,
                 value: userOptions.value,
                 secret: userOptions.secret
             };
 
             try {
-                const property = await this.root.client.property.createOrUpdate(this.root.resourceGroupName, this.root.serviceName, keyName, propertyContract);
+                const property = await this.root.client.namedValue.createOrUpdate(this.root.resourceGroupName, this.root.serviceName, keyName, propertyContract);
                 return new NamedValueTreeItem(this, property);
             } catch (error) {
                 throw new Error(processError(error, localize("createNamedValueFailed", `Failed to create the named value ${userOptions.key}`)));

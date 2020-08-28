@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ApiContract, BackendContract, BackendCredentialsContract, OperationCollection, OperationContract, PropertyContract } from "azure-arm-apimanagement/lib/models";
+import { ApiContract, BackendContract, BackendCredentialsContract, NamedValueCreateContract, OperationCollection, OperationContract } from "azure-arm-apimanagement/lib/models";
 import WebSiteManagementClient from "azure-arm-website";
 import { Site, WebAppCollection } from "azure-arm-website/lib/models";
 import { ProgressLocation, window } from "vscode";
@@ -267,7 +267,7 @@ async function importFromSwagger(webAppConfig: IWebAppContract, webAppName: stri
                     const operations = await apiUtil.getAllOperationsForApi(node.root, apiName);
                     const propertyNamesToUpdate: string[] = [];
                     for (const operation of operations) {
-                        let secretProperty: PropertyContract | undefined;
+                        let secretProperty: NamedValueCreateContract | undefined;
 
                         if (securityKeys) {
                             const operationKey = operation.urlTemplate.split("?")[0];
@@ -280,7 +280,7 @@ async function importFromSwagger(webAppConfig: IWebAppContract, webAppName: stri
 
                             if (secretProperty && propertyNamesToUpdate.indexOf(nonNullValue(secretProperty.name)) === -1) {
                                 propertyNamesToUpdate.push(nonNullValue(secretProperty.name));
-                                await node.root.client.property.createOrUpdate(node.root.resourceGroupName, node.root.serviceName, nonNullValue(secretProperty.id), secretProperty);
+                                await node.root.client.namedValue.createOrUpdate(node.root.resourceGroupName, node.root.serviceName, nonNullValue(secretProperty.id), secretProperty);
                             }
                         }
                         await assignAppDataToOperation(operation, curApi, secretProperty, node!.root);
@@ -298,7 +298,7 @@ async function importFromSwagger(webAppConfig: IWebAppContract, webAppName: stri
     }
 }
 
-async function assignAppDataToOperation(operation: OperationContract, api: ApiContract, secret: PropertyContract | undefined, root: IServiceTreeRoot): Promise<void> {
+async function assignAppDataToOperation(operation: OperationContract, api: ApiContract, secret: NamedValueCreateContract | undefined, root: IServiceTreeRoot): Promise<void> {
     let triggerUrl;
 
     const inboundPolicies: Object[] = [];
@@ -424,7 +424,7 @@ function getSecurityKeys(swaggerObject: IOpenApiImportObject, appName: string): 
             }
             const securityDefinitions = nonNullValue(swaggerObject.securityDefinitions);
             Object.keys(securityDefinitions).forEach((definition) => {
-                let property: PropertyContract;
+                let property: NamedValueCreateContract;
                 const def: ISecurityType = securityDefinitions[definition];
                 const id = getBsonObjectId();
                 if (def.in === "query") {
