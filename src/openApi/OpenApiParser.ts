@@ -59,7 +59,7 @@ export class OpenApiParser {
         if (version === "2.0") {
             const oai20 = <IOpenApi20>source;
 
-            oai20.host = proxyHostName;
+            //oai20.host = proxyHostName;
 
             if (basePath) {
                 oai20.basePath = basePath;
