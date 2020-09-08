@@ -18,7 +18,7 @@ export async function debugApiPolicy(node?: ApiOperationTreeItem): Promise<void>
     // tslint:disable-next-line: no-non-null-assertion
     const gatewayAddress = getDebugGatewayAddressUrl(node!.root.serviceName);
     const managementUrl = `${node.root.environment.resourceManagerEndpointUrl}/subscriptions/${node.root.subscriptionId}/resourceGroups/${node.root.resourceGroupName}/providers/microsoft.apimanagement/service/${node.root.serviceName}`;
-    const mode = "development";
+    //const mode = "development";
 
     const operationData = await node.getOperationDebugInfo();
     const debugConfig: vscode.DebugConfiguration = {
@@ -45,17 +45,17 @@ export async function debugApiPolicy(node?: ApiOperationTreeItem): Promise<void>
     //     fileName: `test.http`
     // };
 
-    const debugConfig3: vscode.DebugConfiguration = {
-        type: "apim-policy",
-        request: "launch",
-        name: "Attach to APIM",
-        stopOnEntry: true,
-        gatewayAddress: 'wss://proxy.apim.net/debug-0123456789abcdef',
-        managementAddress: 'https://management.apim.net/subscriptions/x/resourceGroups/x/providers/microsoft.apimanagement/service/x',
-        managementAuth: 'SharedAccessSignature integration&202007291723&gW9Iqbv5D2Y9VnyI/Hn8qLYAJv7oeUVmPzQ7cfafcx7P7852gYjSV7a4xmO1kfy5MyJA/l6wJiMZQCiMgJ/Xng==',
-        operationData: getLocalDebugOperationData2(),
-        fileName: `${nameUtil(node.root)}.http`
-    };
+    // const debugConfig3: vscode.DebugConfiguration = {
+    //     type: "apim-policy",
+    //     request: "launch",
+    //     name: "Attach to APIM",
+    //     stopOnEntry: true,
+    //     gatewayAddress: 'wss://proxy.apim.net/debug-0123456789abcdef',
+    //     managementAddress: 'https://management.apim.net/subscriptions/x/resourceGroups/x/providers/microsoft.apimanagement/service/x',
+    //     managementAuth: 'SharedAccessSignature integration&202009301703&Ru/q/gwBrph0DDYHCo6DSRj3wpyeb8sZIlLCX26zpSYXkb46KCp8OLA0m2qmuD1XetjfzM3Y9njnTOuW5SSH5A==',
+    //     operationData: getLocalDebugOperationData2(),
+    //     fileName: `${nameUtil(node.root)}.http`
+    // };
 
     // tslint:disable-next-line: no-non-null-assertion
     // const httpFileEditor = await createOperationTestFile(node!, OperationRunMode.debug);
@@ -64,12 +64,12 @@ export async function debugApiPolicy(node?: ApiOperationTreeItem): Promise<void>
     // });
     //httpFileEditor.hide();
     if (!vscode.debug.activeDebugSession) {
-        //await vscode.debug.startDebugging(undefined, debugConfig);
-        if (mode === "development") {
-            await vscode.debug.startDebugging(undefined, debugConfig3);
-        } else {
-            await vscode.debug.startDebugging(undefined, debugConfig);
-        }
+        await vscode.debug.startDebugging(undefined, debugConfig);
+        // if (mode === "development") {
+        //     await vscode.debug.startDebugging(undefined, debugConfig3);
+        // } else {
+        //     await vscode.debug.startDebugging(undefined, debugConfig);
+        // }
         vscode.debug.onDidTerminateDebugSession(_ => {
             //vscode.commands.executeCommand('workbench.action.closeActiveEditor');
             //httpFileEditor.hide();
@@ -93,8 +93,8 @@ x-test: 12345`;
 export function getLocalDebugOperationData2(): string {
     return `
 GET https://proxy.apim.net/echo/resource
-Ocp-Apim-Subscription-Key: 79084039b8fe46179a89aaeddfe6b878
-Ocp-Apim-Debug: 79084039b8fe46179a89aaeddfe6b878`;
+Ocp-Apim-Subscription-Key: c1fe6a5605744bb7ab51c5a815a412cd
+Ocp-Apim-Debug: c1fe6a5605744bb7ab51c5a815a412cd`;
 }
 
 export function getDebugGatewayAddressUrl(serviceName: string): string {
