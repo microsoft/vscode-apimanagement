@@ -22,7 +22,8 @@ export class ServiceCreateStep extends AzureWizardExecuteStep<IServiceWizardCont
         wizardContext.service = await wizardContext.client.apiManagementService.createOrUpdate(nonNullValueAndProp(wizardContext.resourceGroup, 'name'), nonNullProp(wizardContext, 'serviceName'), <ApiManagementServiceResource>{
             location: nonNullValueAndProp(wizardContext.location, 'name'),
             sku: <ApiManagementModels.ApiManagementServiceSkuProperties>{
-                name: nonNullValueAndProp(wizardContext, 'sku')
+                name: nonNullValueAndProp(wizardContext, 'sku'),
+                capacity: wizardContext.sku === 'Consumption' ? 0 : 1
             },
             publisherEmail: nonNullValueAndProp(wizardContext, 'email'),
             publisherName: nonNullValueAndProp(wizardContext, 'email')
