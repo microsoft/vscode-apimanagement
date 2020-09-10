@@ -23,6 +23,7 @@ import { UiThread } from './uiThread';
 // tslint:disable: no-non-null-assertion
 // tslint:disable: no-for-in
 // tslint:disable: forin
+// tslint:disable: no-var-requires
 const { Subject } = require('await-notify');
 
 interface ILaunchRequestArguments extends DebugProtocol.LaunchRequestArguments {
