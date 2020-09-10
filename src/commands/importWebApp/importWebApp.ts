@@ -155,7 +155,7 @@ export function createXmlPolicyForSwaggerOperations(backendId: string): string {
 export async function setAppBackendEntity(node: ApisTreeItem | ApiTreeItem, backendId: string, appName: string, appPath: string, appResourceGroup: string, webAppName: string, BackendCredentials?: BackendCredentialsContract): Promise<void> {
     const nbackend: BackendContract = {
         description: `${appName}`,
-        resourceId: getWebAppResourceId(node.root.environment.managementEndpointUrl, node.root.subscriptionId, appResourceGroup, webAppName),
+        resourceId: getWebAppResourceId(node.root.environment.resourceManagerEndpointUrl, node.root.subscriptionId, appResourceGroup, webAppName),
         url: appPath,
         id: backendId,
         name: backendId,

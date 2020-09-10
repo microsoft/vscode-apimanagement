@@ -12,6 +12,7 @@ import { addApiToGateway } from './commands/addApiToGateway';
 import { addApiToProduct } from './commands/addApiToProduct';
 import { copySubscriptionKey } from './commands/copySubscriptionKey';
 import { createService } from './commands/createService';
+import { debugPolicy } from './commands/debugPolicies/debugPolicy';
 import { deleteNode } from './commands/deleteNode';
 import { copyDockerRunCommand, generateKubernetesDeployment } from './commands/deployGateway';
 import { extractAPI, extractService } from './commands/extract';
@@ -26,6 +27,7 @@ import { openWorkingFolder } from './commands/openWorkingFolder';
 import { setupWorkingFolder } from './commands/setupWorkingFolder';
 import { testOperation } from './commands/testOperation';
 import { doubleClickDebounceDelay } from './constants';
+import { activate } from './debugger/extension';
 import { ApiManagementProvider } from './explorer/ApiManagementProvider';
 import { ApiOperationTreeItem } from './explorer/ApiOperationTreeItem';
 import { ApiPolicyTreeItem } from './explorer/ApiPolicyTreeItem';
@@ -99,11 +101,14 @@ export function activateInternal(context: vscode.ExtensionContext) {
     registerCommand('azureApiManagement.copyDockerRunCommand', async (node: GatewayTreeItem) => await copyDockerRunCommand(node));
     registerCommand('azureApiManagement.generateKubernetesDeployment', async (node: GatewayTreeItem) => await generateKubernetesDeployment(node));
     registerCommand('azureApiManagement.generateNewGatewayToken', async (node: GatewayTreeItem) => await generateNewGatewayToken(node));
+    registerCommand('azureApiManagement.debugPolicy', async (node: ApiOperationTreeItem) => await debugPolicy(node));
 
     registerCommand('azureApiManagement.openExtensionWorkspaceFolder', openWorkingFolder);
     registerCommand('azureApiManagement.initializeExtensionWorkspaceFolder', setupWorkingFolder);
 
     registerEditors(context);
+
+    activate(context); // activeta debug context
 }
 
 function registerEditors(context: vscode.ExtensionContext) : void {

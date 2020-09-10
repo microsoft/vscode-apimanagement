@@ -30,3 +30,15 @@ export interface IGatewayTokenList {
     primary: string;
     secondary: string;
 }
+
+export interface IMasterSubscription {
+    id : string;
+    name : string;
+    properties: ISubscriptionProperty;
+}
+
+export interface ISubscriptionProperty {
+    displayName: string;
+    primaryKey: string;
+    secondaryKey: string;
+}

@@ -4,6 +4,8 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { ApiContract, ApiRevisionContract } from "azure-arm-apimanagement/lib/models";
+import { ApimService } from "../azure/apim/ApimService";
+import { IMasterSubscription } from "../azure/apim/contracts";
 import { IOperationTreeRoot } from "../explorer/IOperationTreeRoot";
 import { nonNullOrEmptyValue, nonNullProp } from "../utils/nonNull";
 import { ConsoleOperation } from "./ConsoleOperation";
@@ -43,6 +45,77 @@ export class OperationConsole {
         requestSummary += `\n\n${consoleOperation.request.body}`;
 
         return requestSummary;
+    }
+
+    public async buildDebugRequestInfo(root: IOperationTreeRoot): Promise<string> {
+        const results = await Promise.all([
+            root.client.apiManagementService.get(root.resourceGroupName, root.serviceName),
+            root.client.api.get(root.resourceGroupName, root.serviceName, root.apiName),
+            root.client.apiOperation.get(root.resourceGroupName, root.serviceName, root.apiName, root.opName),
+            root.client.apiRevision.listByService(root.resourceGroupName, root.serviceName, root.apiName)]);
+
+        const service = results[0];
+        const api = results[1];
+        const operation = results[2];
+
+        const hostName = nonNullProp(service, "gatewayUrl").split("/")[2];
+        const consoleOperation = new ConsoleOperation(hostName, operation);
+        let revision: ApiRevisionContract | undefined;
+
+        if (api.apiRevision) {
+            const revisions = results[3];
+            revision = revisions.find((r) => r.apiRevision === api.apiRevision);
+        }
+
+        const url = `${this.getRequestUrl(consoleOperation, api, revision)}`;
+        const method = consoleOperation.method;
+
+        let requestSummary = `${method} ${url} HTTP/1.1\n`;
+
+        const headers = this.getDebugHeaders();
+        const apimService = new ApimService(root.credentials, root.environment.resourceManagerEndpointUrl, root.subscriptionId, root.resourceGroupName, root.serviceName);
+        const masterSubscriptionObj = await apimService.getSubscriptionMasterkey();
+        const masterSubscription = <IMasterSubscription>JSON.parse(masterSubscriptionObj);
+        headers.forEach(header => {
+            requestSummary += `${header}: ${masterSubscription.properties.primaryKey}\n`;
+        });
+        requestSummary += "Ocp-Apim-Trace: true\n";
+        if (consoleOperation.request.body) {
+            requestSummary += `\n\n${consoleOperation.request.body}`;
+        }
+
+        return requestSummary;
+    }
+
+    // public async buildDebugRequestInfo(root: IOperationTreeRoot): Promise<string> {
+    //     const operation = await root.client.apiOperation.get(root.resourceGroupName, root.serviceName, root.apiName, root.opName);
+    //     const url = getAPIHostUrl(root.serviceName);
+    //     const method = operation.method;
+    //     let body: string | undefined;
+    //     if (operation.request && operation.request.representations && operation.request.representations.length > 0) {
+    //         if (operation.request.representations[0].sample) {
+    //             body = operation.request.representations[0].sample;
+    //         }
+    //     }
+    //     let requestSummary = `${method} ${url} HTTP/1.1\n`;
+
+    //     const headers = this.getDebugHeaders();
+    //     const apimService = new ApimService(root.credentials, root.environment.resourceManagerEndpointUrl, root.subscriptionId, root.resourceGroupName, root.serviceName);
+    //     const masterSubscriptionObj = await apimService.getSubscriptionMasterkey();
+    //     const masterSubscription = <IMasterSubscription>JSON.parse(masterSubscriptionObj);
+    //     headers.forEach(header => {
+    //         requestSummary += `${header}: ${masterSubscription.properties.primaryKey}\n`;
+    //     });
+
+    //     if (body) {
+    //         requestSummary += `\n\n${body}`;
+    //     }
+
+    //     return requestSummary;
+    // }
+
+    private getDebugHeaders(): string[] {
+        return ["Ocp-Apim-Subscription-Key", "Ocp-Apim-Debug"];
     }
 
     private getRequestUrl(consoleOperation: ConsoleOperation, api: ApiContract, revision: ApiRevisionContract | undefined): string {

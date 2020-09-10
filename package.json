@@ -33,6 +33,7 @@
         "onCommand:azureApiManagement.selectSubscriptions",
         "onView:azureApiManagementExplorer",
         "onLanguage:policy",
+        "onLanguage:apim-policy",
         "onCommand:azureApiManagement.createService",
         "onCommand:azureApiManagement.deleteService",
         "onCommand:azureApiManagement.copySubscriptionKey",
@@ -67,10 +68,50 @@
         "onCommand:azureApiManagement.importWebAppToApi",
         "onCommand:azureApiManagement.copyDockerRunCommand",
         "onCommand:azureApiManagement.generateKubernetesDeployment",
-        "onCommand:azureApiManagement.generateNewGatewayToken"
+        "onCommand:azureApiManagement.generateNewGatewayToken",
+        "onCommand:azureApiManagement.debugPolicy"
     ],
     "main": "main",
     "contributes": {
+        "breakpoints": [
+            {
+                "language": "apim-policy"
+            }
+        ],
+        "languages": [
+            {
+                "id": "apim-policy",
+                "mimetypes": [
+                    "application/vnd.ms-azure-apim.policy.raw+xml"
+                ]
+            }
+        ],
+        "debuggers": [
+            {
+                "type": "apim-policy",
+                "label": "Attach to APIM",
+                "runtime": "node",
+                "configurationAttributes": {
+                    "launch": {
+                        "properties": {
+                            "stopOnEntry": {
+                                "type": "boolean",
+                                "description": "Automatically stop after launch.",
+                                "default": true
+                            }
+                        }
+                    }
+                },
+                "initialConfigurations": [
+                    {
+                        "type": "apim-policy",
+                        "request": "launch",
+                        "name": "Attach to APIM",
+                        "stopOnEntry": true
+                    }
+                ]
+            }
+        ],
         "jsonValidation": [
             {
                 "fileMatch": "/*-api-arm.json",
@@ -275,6 +316,11 @@
                 "category": "Azure API Management"
             },
             {
+                "command": "azureApiManagement.debugPolicy",
+                "title": "%azureApiManagement.debugPolicy%",
+                "category": "Azure API Management"
+            },
+            {
                 "command": "azureApiManagement.copyDockerRunCommand",
                 "title": "%azureApiManagement.copyDockerRunCommand%",
                 "category": "Azure API Management"
@@ -444,6 +490,11 @@
                     "group": "1@1"
                 },
                 {
+                    "command": "azureApiManagement.debugPolicy",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApiOperation",
+                    "group": "2@1"
+                },
+                {
                     "command": "azureApiManagement.createNamedValue",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementNamedValues",
                     "group": "1@1"
@@ -542,38 +593,46 @@
     "devDependencies": {
         "@types/fs-extra": "^4.0.3",
         "@types/gulp": "^4.0.6",
-        "@types/node": "^10.0.0",
-        "@types/request": "^2.47.0",
-        "@types/request-promise": "^4.1.43",
-        "@types/swagger-parser": "^4.0.3",
         "@types/mocha": "^5.2.6",
-        "tslint": "^5.7.0",
-        "typescript": "^3.3.1",
-        "ts-node": "^7.0.1",
-        "tslint-microsoft-contrib": "5.0.1",
-        "vscode-extension-telemetry": "^0.0.18",
+        "@types/node": "^8.10.59",
+        "@types/request": "^2.48.4",
+        "@types/request-promise": "^4.1.46",
+        "@types/request-promise-native": "^1.0.17",
+        "@types/swagger-parser": "^4.0.3",
+        "@types/ws": "^6.0.4",
         "gulp": "^4.0.0",
-        "vsce": "^1.59.0",
-        "vscode": "^1.1.33",
-        "vscode-azureextensiondev": "0.1.8",
-        "webpack": "4.29.6",
-        "webpack-cli": "^3.3.0",
         "mocha": "^5.2.0",
-        "mocha-junit-reporter": "^1.18.0",
-        "mocha-multi-reporters": "^1.1.7"
+        "mocha-junit-reporter": "^1.23.3",
+        "mocha-multi-reporters": "^1.1.7",
+        "ts-node": "^7.0.1",
+        "tslint": "^5.20.1",
+        "tslint-microsoft-contrib": "5.0.1",
+        "typescript": "^3.8.3",
+        "vsce": "^1.74.0",
+        "vscode": "^1.1.36",
+        "vscode-azureextensiondev": "0.1.8",
+        "vscode-debugadapter-testsupport": "1.40.2",
+        "vscode-extension-telemetry": "^0.0.18",
+        "webpack": "4.29.6",
+        "webpack-cli": "^3.3.11"
     },
     "dependencies": {
-        "@types/xml": "^1.0.3",
+        "@types/xml": "^1.0.4",
+        "await-notify": "1.0.1",
         "azure-arm-apimanagement": "^6.0.0",
         "azure-arm-resource": "^3.0.0-preview",
         "azure-arm-website": "5.7.0",
         "fs-extra": "^4.0.2",
         "opn": "^5.3.0",
-        "request": "^2.83.0",
-        "request-promise": "^4.2.2",
+        "request": "^2.88.2",
+        "request-promise": "^4.2.5",
+        "request-promise-native": "^1.0.8",
         "swagger-parser": "^6.0.5",
         "vscode-azureextensionui": "^0.23.3",
-        "vscode-nls": "^4.1.0"
+        "vscode-debugadapter": "^1.39.1",
+        "vscode-debugprotocol": "^1.39.0",
+        "vscode-nls": "^4.1.2",
+        "ws": "^7.2.3"
     },
     "extensionDependencies": [
         "ms-vscode.azure-account",
