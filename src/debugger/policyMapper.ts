@@ -90,7 +90,6 @@ export class PolicyMapper {
 				if (nameStart > 0 && !name) {
 					name = this.xml.substring(nameStart, this.index);
 					const curkey = this.stack.length === 0 ? `${name}[1]` : this.stack.join('/') + `/${name}[1]`;
-					//const curkey = this.stack.reduce((a, b) => `${a}/${b}`) + `${name}[1]`;
 					if (this.count[curkey]) {
 						this.stack.push(name + `[${this.count[curkey] + 1}]`);
 						this.count[curkey]++;
@@ -124,7 +123,6 @@ export class PolicyMapper {
 				if (nameStart >= 0 && !name) {
 					name = this.xml.substring(nameStart, this.index);
 					const curkey = this.stack.length === 0 ? `${name}[1]` : this.stack.join('/') + `/${name}[1]`;
-					//const curkey = this.stack.reduce((a, b) => `${a}/${b}`) + `${name}[1]`;
 					if (this.count[curkey]) {
 						this.stack.push(name + `[${this.count[curkey] + 1}]`);
 						this.count[curkey]++;

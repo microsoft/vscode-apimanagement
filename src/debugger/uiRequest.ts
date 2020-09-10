@@ -1,14 +1,8 @@
 import { PolicySource } from "./policySource";
 import { UiThread } from "./uiThread";
 
-// tslint:disable: no-unsafe-any
 // tslint:disable: indent
 // tslint:disable: export-name
-// tslint:disable: strict-boolean-expressions
-// tslint:disable: typedef
-// tslint:disable: no-non-null-assertion
-// tslint:disable: no-for-in
-// tslint:disable: forin
 
 export class UiRequest {
 
@@ -27,13 +21,13 @@ export class UiRequest {
 		this.productId = productId;
 	}
 
-	public addNewThread(gatewayThread: number, policySource: PolicySource) {
+	public addNewThread(gatewayThread: number, policySource: PolicySource): UiThread {
 		let thread: UiThread;
 		this.threads.push(thread = new UiThread(gatewayThread, this.operationId, this.apiId, this.productId, policySource));
 		return thread;
 	}
 
-	public findThreadByStackFrameId(id: number) {
+	public findThreadByStackFrameId(id: number): UiThread | null {
 		for (const thread of this.threads) {
 			if (thread.containsStackFrame(id)) {
 				return thread;
@@ -43,7 +37,7 @@ export class UiRequest {
 		return null;
 	}
 
-	public findThreadById(id: number) {
+	public findThreadById(id: number): UiThread | null {
 		for (const thread of this.threads) {
 			if (thread.id === id) {
 				return thread;
@@ -53,7 +47,7 @@ export class UiRequest {
 		return null;
 	}
 
-	public findThreadByUiId(uiId: number) {
+	public findThreadByUiId(uiId: number): UiThread | null {
 		for (const thread of this.threads) {
 			if (thread.uiId === uiId) {
 				return thread;

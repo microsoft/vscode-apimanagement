@@ -3,11 +3,9 @@ import { DebugProtocol } from 'vscode-debugprotocol';
 import { StackFrameContract, StackFrameScopeContract } from './debuggerConnection';
 import { PolicySource } from './policySource';
 
-// tslint:disable: no-unsafe-any
 // tslint:disable: indent
 // tslint:disable: export-name
 // tslint:disable: strict-boolean-expressions
-// tslint:disable: typedef
 // tslint:disable: no-non-null-assertion
 // tslint:disable: no-for-in
 // tslint:disable: forin
@@ -19,8 +17,8 @@ interface PendingSource {
 }
 
 export class UiThread {
-	private static NextThreadId = 1;
-	private static NextStackFrameId = 1;
+	private static NextThreadId: number = 1;
+	private static NextStackFrameId: number = 1;
 
 	public id: number;
 	public uiId: number;
@@ -43,7 +41,7 @@ export class UiThread {
 		this.policySource = policySource;
 	}
 
-	private static addPendingSource(pendingSources: PendingSource[], frame: StackFrameContract, stackFrame: StackFrame) {
+	private static addPendingSource(pendingSources: PendingSource[], frame: StackFrameContract, stackFrame: StackFrame): void {
 		let pendingSource = pendingSources.find(s => s.scopeId === frame.scopeId);
 		if (!pendingSource) {
 			pendingSources.push(pendingSource = {
@@ -55,7 +53,7 @@ export class UiThread {
 		pendingSource.stackFrames.push(stackFrame);
 	}
 
-	public containsStackFrame(id: number) {
+	public containsStackFrame(id: number): boolean {
 		for (const key in this.stackFrames) {
 			if (this.stackFrames[key].id === id) {
 				return true;
@@ -66,7 +64,7 @@ export class UiThread {
 	}
 
 	// tslint:disable-next-line: cyclomatic-complexity
-	public async getStackFrames(frames: StackFrameContract[]) {
+	public async getStackFrames(frames: StackFrameContract[]): Promise<StackFrame[]> {
 		if (!frames.length) {
 			return [];
 		}
@@ -84,6 +82,7 @@ export class UiThread {
 		let path: string[] = [];
 		for (const frame of allFrames.reverse()) {
 			if (!path.length || prevFrame && (prevFrame.scopeId !== frame.scopeId)) {
+				// tslint:disable-next-line: prefer-template
 				path = ['policies[1]', frame.section + "[1]"];
 			}
 			prevFrame = frame;
@@ -117,15 +116,6 @@ export class UiThread {
 				stackFrame.source = policy && policy.source;
 			}
 
-			// if (!stackFrame.line && !stackFrame.column && !stackFrame.endLine && !stackFrame.endColumn) {
-			// 	const location = this.policySource.getPolicyLocation(frame.scopeId, item.key);
-			// 	if (location) {
-			// 		stackFrame.line = location.line;
-			// 		stackFrame.column = location.column;
-			// 		stackFrame.endLine = location.endLine;
-			// 		stackFrame.endColumn = location.endColumn;
-			// 	}
-			// }
 			const location = this.policySource.getPolicyLocation(frame.scopeId, item.key);
 			if (location) {
 				stackFrame.line = location.line;
@@ -184,7 +174,7 @@ export class UiThread {
 		return allFrames;
 	}
 
-	private getStackFrame(frame: StackFrameContract, path: string, pendingSources: PendingSource[]) {
+	private getStackFrame(frame: StackFrameContract, path: string, pendingSources: PendingSource[]): StackFrame {
 		const frameKey = `${frame.scopeId}/${path}`;
 		let stackFrame = this.stackFrames[frameKey];
 		if (!stackFrame) {

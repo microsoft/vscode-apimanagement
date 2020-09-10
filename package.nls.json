@@ -38,5 +38,5 @@
     "azureApiManagement.copyDockerRunCommand": "Copy Docker Run Command",
     "azureApiManagement.generateKubernetesDeployment": "Generate Kubernetes Deployment File",
     "azureApiManagement.generateNewGatewayToken": "Generate New Gateway Token",
-    "azureApiManagement.debugApiPolicy": "Start Policy Debugging"
+    "azureApiManagement.debugPolicy": "Start Policy Debugging"
 }

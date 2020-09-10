@@ -69,7 +69,7 @@
         "onCommand:azureApiManagement.copyDockerRunCommand",
         "onCommand:azureApiManagement.generateKubernetesDeployment",
         "onCommand:azureApiManagement.generateNewGatewayToken",
-        "onCommand:azureApiManagement.debugApiPolicy"
+        "onCommand:azureApiManagement.debugPolicy"
     ],
     "main": "main",
     "contributes": {
@@ -316,8 +316,8 @@
                 "category": "Azure API Management"
             },
             {
-                "command": "azureApiManagement.debugApiPolicy",
-                "title": "%azureApiManagement.debugApiPolicy%",
+                "command": "azureApiManagement.debugPolicy",
+                "title": "%azureApiManagement.debugPolicy%",
                 "category": "Azure API Management"
             },
             {
@@ -490,7 +490,7 @@
                     "group": "1@1"
                 },
                 {
-                    "command": "azureApiManagement.debugApiPolicy",
+                    "command": "azureApiManagement.debugPolicy",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApiOperation",
                     "group": "2@1"
                 },
