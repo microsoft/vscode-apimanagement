@@ -16,6 +16,7 @@ import { debugPolicy } from './commands/debugPolicies/debugPolicy';
 import { deleteNode } from './commands/deleteNode';
 import { copyDockerRunCommand, generateKubernetesDeployment } from './commands/deployGateway';
 import { extractAPI, extractService } from './commands/extract';
+import { generateFunctions } from './commands/generateFunctions';
 import { generateNewGatewayToken } from './commands/generateNewGatewayToken';
 import { importFunctionApp } from './commands/importFunctionApp/importFunctionApp';
 import { importFunctionAppToApi } from './commands/importFunctionApp/importFunctionApp';
@@ -105,6 +106,8 @@ export function activateInternal(context: vscode.ExtensionContext) {
 
     registerCommand('azureApiManagement.openExtensionWorkspaceFolder', openWorkingFolder);
     registerCommand('azureApiManagement.initializeExtensionWorkspaceFolder', setupWorkingFolder);
+
+    registerCommand('azureApiManagement.generateFunctions', async (node: ApiTreeItem) => await generateFunctions(node));
 
     registerEditors(context);
 

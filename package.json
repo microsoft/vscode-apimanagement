@@ -69,7 +69,8 @@
         "onCommand:azureApiManagement.copyDockerRunCommand",
         "onCommand:azureApiManagement.generateKubernetesDeployment",
         "onCommand:azureApiManagement.generateNewGatewayToken",
-        "onCommand:azureApiManagement.debugPolicy"
+        "onCommand:azureApiManagement.debugPolicy",
+        "onCommand:azureApiManagement.generateFunctions"
     ],
     "main": "main",
     "contributes": {
@@ -334,6 +335,11 @@
                 "command": "azureApiManagement.generateNewGatewayToken",
                 "title": "%azureApiManagement.generateNewGatewayToken%",
                 "category": "Azure API Management"
+            },
+            {
+                "command": "azureApiManagement.generateFunctions",
+                "title": "%azureApiManagement.generateFunctions%",
+                "category": "Azure API Management"
             }
         ],
         "viewsContainers": {
@@ -460,19 +466,24 @@
                     "group": "2@2"
                 },
                 {
-                    "command": "azureApiManagement.extractApi",
+                    "command": "azureApiManagement.generateFunctions",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApi",
                     "group": "3@1"
                 },
                 {
-                    "command": "azureApiManagement.Refresh",
+                    "command": "azureApiManagement.extractApi",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApi",
                     "group": "4@1"
                 },
                 {
-                    "command": "azureApiManagement.deleteApi",
+                    "command": "azureApiManagement.Refresh",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApi",
                     "group": "5@1"
+                },
+                {
+                    "command": "azureApiManagement.deleteApi",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApi",
+                    "group": "6@1"
                 },
                 {
                     "command": "azureApiManagement.Refresh",
