@@ -45,7 +45,7 @@ export async function generateFunctions(node?: ApiTreeItem): Promise<void> {
         await window.withProgress(
             {
                 location: ProgressLocation.Notification,
-                title: localize("installAutorest", `Installing autorest...`),
+                title: localize("installAutorest", `Installing AutoRest (http://aka.ms/autorest)...`),
                 cancellable: false
             },
             async () => {
@@ -63,17 +63,30 @@ export async function generateFunctions(node?: ApiTreeItem): Promise<void> {
         },
         async () => {
             const args: string[] = [];
-            args.push(`--input-file:${openAPIFilePath}`);
-            args.push('--use:@autorest/azure-functions@0.0.1-preview-dev.20200727.5');
-            args.push(`--output-folder:${uris[0].fsPath}`);
-            args.push('--no-async');
-            args.push(`--language:${language.label.toLowerCase()}`);
+            args.push(`--input-file:${openAPIFilePath} --version:3.0.6314`);
+
+            if (language.label === 'TypeScript') {
+                args.push('--azure-functions-typescript');
+                args.push('--no-namespace-folders:True');
+            } else if (language.label === 'CSharp') {
+                args.push('--namespace:Microsoft.Azure.Stencil');
+                args.push('--azure-functions-csharp');
+            } else if (language.label === 'Java') {
+                args.push('--namespace:com.microsoft.azure.stencil');
+                args.push('--azure-functions-java');
+            } else if (language.label === 'Python') {
+                args.push('--azure-functions-python');
+                args.push('--no-namespace-folders:True');
+                args.push('--no-async');
+            } else {
+                throw new Error(localize("notSupported", "Not a supported language. We currently support C#, Java, Python, and Typescript"));
+            }
 
             ext.outputChannel.show();
             await cpUtils.executeCommand(ext.outputChannel, undefined, 'autorest', ...args);
         }
     ).then(async () => {
-        window.showInformationMessage(localize("openAPIDownloaded", `Generated functions for API '${node!.apiContract.name} successfully.`));
+        window.showInformationMessage(localize("openAPIDownloaded", `Generated Azure Functions app for API '${node!.apiContract.name} successfully.`));
     });
 }
 

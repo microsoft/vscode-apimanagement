@@ -39,5 +39,5 @@
     "azureApiManagement.generateKubernetesDeployment": "Generate Kubernetes Deployment File",
     "azureApiManagement.generateNewGatewayToken": "Generate New Gateway Token",
     "azureApiManagement.debugPolicy": "Start Policy Debugging",
-    "azureApiManagement.generateFunctions": "Generate Functions from API"
+    "azureApiManagement.generateFunctions": "Generate Azure Functions"
 }
