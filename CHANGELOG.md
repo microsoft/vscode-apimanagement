@@ -1,6 +1,9 @@
 # Change Log
 All notable changes to the "Azure Api Managment VS Code" extension will be documented in this file.
 
+## [0.1.6 - 2020-09-22]
+
+- Policy debugging
 
 ## [0.1.5 - 2020-09-08]
 
