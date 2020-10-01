@@ -25,6 +25,7 @@ All you need is an Azure Subscription to get started. If you don't have one, [cl
 -   Import Azure Functions - Transform HttpTriggers into APIs
 -   Import App Service WebApp
 -   Manage Self-Hosted Gateways
+-   Policy Debugging
 
 ## Create an API Management instance using defaults
 
@@ -71,6 +72,9 @@ Please note: only JSON format is supported currently.
 
 ## Deploy Gateway with Docker or Kubernetes
 ![deployGateway](resources/deployGw.gif)
+
+## Debug Policy
+![debugPolicy](resources/debug.gif)
 
 ## Intellisense for Policy Expressions.
 
