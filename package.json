@@ -629,6 +629,7 @@
     },
     "dependencies": {
         "@types/xml": "^1.0.4",
+        "autorest": "^3.0.6247",
         "await-notify": "1.0.1",
         "azure-arm-apimanagement": "^6.0.0",
         "azure-arm-resource": "^3.0.0-preview",

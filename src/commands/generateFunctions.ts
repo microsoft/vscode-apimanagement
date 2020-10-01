@@ -19,9 +19,19 @@ export async function generateFunctions(node?: ApiTreeItem): Promise<void> {
     const openApiEditor: OpenApiEditor = new OpenApiEditor();
     const openAPIDocString = await openApiEditor.getData(node);
 
-    const languages = ['Python', 'CSharp', 'TypeScript', 'Java'];
+    // tslint:disable-next-line: no-unsafe-any
+    const languages : string[] = Object.keys(languageTypes).map(key => languageTypes[key]);
     const language = await ext.ui.showQuickPick(
         languages.map((s) => {return { label: s, description: '', detail: '' }; }), { placeHolder: "Select language", canPickMany: false});
+
+    if (!await checkEnvironmentInstalled(language.label)) {
+        throw new Error(`You haven't installed '${language.label}' on your machine, please install '${language.label}' to continue.`);
+    }
+
+    let namespace = "";
+    if (language.label === languageTypes.CSharp || language.label === languageTypes.Java) {
+        namespace = await askNamespace(language.label);
+    }
 
     const uris = await askFolder();
 
@@ -40,21 +50,6 @@ export async function generateFunctions(node?: ApiTreeItem): Promise<void> {
         window.showInformationMessage(localize("openAPIDownloaded", `Downloaded OpenAPI Document for API '${node!.apiContract.name} successfully.`));
     });
 
-    const autoRestInstalled = await isAutoRestInstalled();
-    if (!autoRestInstalled) {
-        await window.withProgress(
-            {
-                location: ProgressLocation.Notification,
-                title: localize("installAutorest", `Installing AutoRest (http://aka.ms/autorest)...`),
-                cancellable: false
-            },
-            async () => {
-                await cpUtils.executeCommand(ext.outputChannel, undefined, 'npm install -g autorest');
-            }).then(async () => {
-                window.showInformationMessage(localize("installAutorest", `Autorest installed successfully.`));
-            });
-    }
-
     await window.withProgress(
         {
             location: ProgressLocation.Notification,
@@ -64,15 +59,16 @@ export async function generateFunctions(node?: ApiTreeItem): Promise<void> {
         async () => {
             const args: string[] = [];
             args.push(`--input-file:${openAPIFilePath} --version:3.0.6314`);
+            args.push(`--output-folder:${uris[0].fsPath}`);
 
             if (language.label === 'TypeScript') {
                 args.push('--azure-functions-typescript');
                 args.push('--no-namespace-folders:True');
             } else if (language.label === 'CSharp') {
-                args.push('--namespace:Microsoft.Azure.Stencil');
+                args.push(`--namespace:${namespace}`);
                 args.push('--azure-functions-csharp');
             } else if (language.label === 'Java') {
-                args.push('--namespace:com.microsoft.azure.stencil');
+                args.push(`--namespace:${namespace}`);
                 args.push('--azure-functions-java');
             } else if (language.label === 'Python') {
                 args.push('--azure-functions-python');
@@ -90,15 +86,6 @@ export async function generateFunctions(node?: ApiTreeItem): Promise<void> {
     });
 }
 
-async function isAutoRestInstalled(): Promise<boolean> {
-    try {
-        await cpUtils.executeCommand(undefined, undefined, 'autorest', '--help');
-        return true;
-    } catch (error) {
-        return false;
-    }
-}
-
 async function askFolder(): Promise<Uri[]> {
     const openDialogOptions: OpenDialogOptions = {
         canSelectFiles: false,
@@ -114,4 +101,56 @@ async function askFolder(): Promise<Uri[]> {
         openDialogOptions.defaultUri = Uri.file(rootPath);
     }
     return await ext.ui.showOpenDialog(openDialogOptions);
+}
+
+async function askNamespace(language: string): Promise<string> {
+    const namespacePrompt: string = localize('namespacePrompt', 'Enter namespace folder.');
+    const defaultName = language === languageTypes.CSharp ? "Microsoft.Azure.Stencil" : "com.microsoft.azure.stencil";
+    return (await ext.ui.showInputBox({
+        prompt: namespacePrompt,
+        value: defaultName,
+        validateInput: async (value: string | undefined): Promise<string | undefined> => {
+            value = value ? value.trim() : '';
+            return undefined;
+        }
+    })).trim();
+}
+
+async function checkEnvironmentInstalled(language: string): Promise<boolean> {
+    let command = "";
+    switch (language) {
+        case languageTypes.CSharp: {
+            command = "dotnet -h";
+            break;
+        }
+        case languageTypes.Java: {
+            command = "java -version";
+            break;
+        }
+        case languageTypes.Python: {
+            command = "python --version";
+            break;
+        }
+        case languageTypes.TypeScript: {
+            command = "tsc --version";
+            break;
+        }
+        default: {
+            throw new Error("Invalid Language Type.");
+        }
+    }
+
+    try {
+        await cpUtils.executeCommand(undefined, undefined, command);
+        return true;
+    } catch (error) {
+        return false;
+    }
+}
+
+enum languageTypes {
+    Python = 'Python',
+    CSharp = 'CSharp',
+    TypeScript = 'TypeScript',
+    Java = 'Java'
 }
