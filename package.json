@@ -467,7 +467,7 @@
                 },
                 {
                     "command": "azureApiManagement.generateFunctions",
-                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApi",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApi && config.azureApiManagement.enableCreateFunctionApp == true",
                     "group": "3@1"
                 },
                 {
@@ -580,6 +580,11 @@
                         "type": "boolean",
                         "default": false,
                         "description": "%azureApiManagement.advancedPolicyAuthoringExperience%"
+                    },
+                    "azureApiManagement.enableCreateFunctionApp": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "%azureApiManagement.enableCreateFunctionApp%"
                     }
                 }
             }
@@ -629,7 +634,6 @@
     },
     "dependencies": {
         "@types/xml": "^1.0.4",
-        "autorest": "^3.0.6247",
         "await-notify": "1.0.1",
         "azure-arm-apimanagement": "^6.0.0",
         "azure-arm-resource": "^3.0.0-preview",
@@ -644,7 +648,8 @@
         "vscode-debugadapter": "^1.39.1",
         "vscode-debugprotocol": "^1.39.0",
         "vscode-nls": "^4.1.2",
-        "ws": "^7.2.3"
+        "ws": "^7.2.3",
+        "xregexp": "^4.3.0"
     },
     "extensionDependencies": [
         "ms-vscode.azure-account",
