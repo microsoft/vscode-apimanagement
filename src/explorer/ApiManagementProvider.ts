@@ -82,7 +82,7 @@ export class ApiManagementProvider extends SubscriptionTreeItem {
         wizardContext.email = this.root.userId;
 
         const advancedCreationKey: string = 'advancedCreation';
-// tslint:disable-next-line: strict-boolean-expressions
+        // tslint:disable-next-line: strict-boolean-expressions
         const advancedCreation: boolean = !!getWorkspaceSetting(advancedCreationKey);
         actionContext.properties.advancedCreation = String(advancedCreation);
         if (!advancedCreation) {
