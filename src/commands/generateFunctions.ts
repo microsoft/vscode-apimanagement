@@ -124,7 +124,7 @@ async function askFolder(): Promise<Uri[]> {
         canSelectFiles: false,
         canSelectFolders: true,
         canSelectMany: false,
-        openLabel: "Select Functions App Location",
+        openLabel: "Functions Location",
         filters: {
             JSON: ["json"]
         }
