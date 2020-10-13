@@ -1,3 +1,8 @@
+/*---------------------------------------------------------------------------------------------
+*  Copyright (c) Microsoft Corporation. All rights reserved.
+*  Licensed under the MIT License. See License.txt in the project root for license information.
+*--------------------------------------------------------------------------------------------*/
+
 import * as fse from 'fs-extra';
 import * as path from 'path';
 import * as vscode from 'vscode';
@@ -80,8 +85,8 @@ export async function generateFunctions(node?: ApiTreeItem): Promise<void> {
         },
         async () => {
             const args: string[] = [];
-            args.push(`--input-file:${openAPIFilePath} --version:3.0.6314`);
-            args.push(`--output-folder:${uris[0].fsPath}`);
+            args.push(`--input-file:${cpUtils.wrapArgInQuotes(openAPIFilePath)}`);
+            args.push(`--output-folder:${cpUtils.wrapArgInQuotes(uris[0].fsPath)}`);
 
             switch (language.label) {
                 case languageTypes.TypeScript:
@@ -119,7 +124,7 @@ async function askFolder(): Promise<Uri[]> {
         canSelectFiles: false,
         canSelectFolders: true,
         canSelectMany: false,
-        openLabel: "Functions Location",
+        openLabel: "Select Functions App Location",
         filters: {
             JSON: ["json"]
         }
@@ -132,8 +137,8 @@ async function askFolder(): Promise<Uri[]> {
 }
 
 async function askJavaNamespace(): Promise<string> {
-    const namespacePrompt: string = localize('namespacePrompt', 'Enter Java namespace folder.');
-    const defaultName =  "com.microsoft.azure.stencil";
+    const namespacePrompt: string = localize('namespacePrompt', 'Enter Java Package Name.');
+    const defaultName =  "com.function";
     return (await ext.ui.showInputBox({
         prompt: namespacePrompt,
         value: defaultName,
@@ -146,7 +151,7 @@ async function askJavaNamespace(): Promise<string> {
 
 async function askCSharpNamespace(): Promise<string> {
     const namespacePrompt: string = localize('namespacePrompt', 'Enter CSharp namespace folder.');
-    const defaultName = "Microsoft.Azure.Stencil";
+    const defaultName = "Company.Function";
     return (await ext.ui.showInputBox({
         prompt: namespacePrompt,
         value: defaultName,
