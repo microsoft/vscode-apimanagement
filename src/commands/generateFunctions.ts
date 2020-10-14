@@ -50,7 +50,7 @@ export async function generateFunctions(node?: ApiTreeItem): Promise<void> {
         languages.map((s) => {return { label: s, description: '', detail: '' }; }), { placeHolder: "Select language", canPickMany: false});
 
     if (!await checkEnvironmentInstalled(language.label)) {
-        throw new Error(`You haven't installed '${language.label}' on your machine, please install '${language.label}' to continue.`);
+        throw new Error(`'${language.label}' is not installed on your machine, please install '${language.label}' to continue.`);
     }
 
     let namespace = "";
@@ -67,20 +67,20 @@ export async function generateFunctions(node?: ApiTreeItem): Promise<void> {
     await window.withProgress(
         {
             location: ProgressLocation.Notification,
-            title: localize("openAPI", `Downloading OpenAPI Document for API '${node.apiContract.name}'...`),
+            title: localize("openAPI", `Downloading OpenAPI Specification for API '${node.apiContract.name}'...`),
             cancellable: false
         },
         async () => {
             await fse.writeFile(openAPIFilePath, openAPIDocString);
         }
     ).then(async () => {
-        window.showInformationMessage(localize("openAPIDownloaded", `Downloaded OpenAPI Document for API '${node!.apiContract.name} successfully.`));
+        window.showInformationMessage(localize("openAPIDownloaded", `Downloaded OpenAPI Specification for API '${node!.apiContract.name} successfully.`));
     });
 
     await window.withProgress(
         {
             location: ProgressLocation.Notification,
-            title: localize("generateFunctions", `Generating functions for API '${node.apiContract.name}'...`),
+            title: localize("generateFunctions", `Scaffolding Azure Functions for API '${node.apiContract.name}'...`),
             cancellable: false
         },
         async () => {
@@ -107,7 +107,7 @@ export async function generateFunctions(node?: ApiTreeItem): Promise<void> {
                     args.push('--no-async');
                     break;
                 default:
-                    throw new Error(localize("notSupported", "Not a supported language. We currently support C#, Java, Python, and Typescript"));
+                    throw new Error(localize("notSupported", "Only C#, Java, Python, and Typescript are supported"));
             }
 
             ext.outputChannel.show();
@@ -115,7 +115,7 @@ export async function generateFunctions(node?: ApiTreeItem): Promise<void> {
             await promptOpenFileFolder(uris[0].fsPath);
         }
     ).then(async () => {
-        window.showInformationMessage(localize("openAPIDownloaded", `Generated Azure Functions app for API '${node!.apiContract.name} successfully.`));
+        window.showInformationMessage(localize("openAPIDownloaded", `Scaffolded Azure Functions for API '${node!.apiContract.name} successfully.`));
     });
 }
 
