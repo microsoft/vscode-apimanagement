@@ -44,8 +44,12 @@ export abstract class BaseArmResourceEditor<TRoot extends IServiceTreeRoot> exte
         }
     }
 
-    public async getFilename(context: AzureTreeItem<TRoot>): Promise<string> {
+    public async getDiffFilename(context: AzureTreeItem<TRoot>): Promise<string> {
         return `${nameUtil(context.root)}-${this.entityType.toLowerCase()}-arm.json`;
+    }
+
+    public async getFilename(context: AzureTreeItem<TRoot>): Promise<string> {
+        return `${nameUtil(context.root)}-${this.entityType.toLowerCase()}-arm-tempFile.json`;
     }
 
     public async getSize(): Promise<number> {
