@@ -340,6 +340,11 @@
                 "command": "azureApiManagement.generateFunctions",
                 "title": "%azureApiManagement.generateFunctions%",
                 "category": "Azure API Management"
+            },
+            {
+                "command": "azureApiManagement.openDiffEditor",
+                "title": "Start file diffing",
+                "icon": "./resources/diff.svg"
             }
         ],
         "viewsContainers": {
@@ -361,7 +366,13 @@
             ]
         },
         "menus": {
-            "editor/title": [],
+            "editor/title": [
+                {
+                    "when": "isEditorEnabled",
+                    "command": "azureApiManagement.openDiffEditor",
+                    "group": "navigation"
+                }
+            ],
             "commandPalette": [
                 {
                     "command": "azureApiManagement.Refresh",

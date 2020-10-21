@@ -72,7 +72,8 @@ export class OperationConsole {
 
         let requestSummary = `${method} ${url} HTTP/1.1\n`;
 
-        const headers = this.getDebugHeaders();
+        const subscriptionHeader = api.subscriptionKeyParameterNames?.header;
+        const headers = this.getDebugHeaders(subscriptionHeader);
         const apimService = new ApimService(root.credentials, root.environment.resourceManagerEndpointUrl, root.subscriptionId, root.resourceGroupName, root.serviceName);
         const masterSubscriptionObj = await apimService.getSubscriptionMasterkey();
         const masterSubscription = <IMasterSubscription>JSON.parse(masterSubscriptionObj);
@@ -87,34 +88,11 @@ export class OperationConsole {
         return requestSummary;
     }
 
-    // public async buildDebugRequestInfo(root: IOperationTreeRoot): Promise<string> {
-    //     const operation = await root.client.apiOperation.get(root.resourceGroupName, root.serviceName, root.apiName, root.opName);
-    //     const url = getAPIHostUrl(root.serviceName);
-    //     const method = operation.method;
-    //     let body: string | undefined;
-    //     if (operation.request && operation.request.representations && operation.request.representations.length > 0) {
-    //         if (operation.request.representations[0].sample) {
-    //             body = operation.request.representations[0].sample;
-    //         }
-    //     }
-    //     let requestSummary = `${method} ${url} HTTP/1.1\n`;
+    private getDebugHeaders(subscriptionHeader?: string): string[] {
+        if (subscriptionHeader) {
+            return [subscriptionHeader, "Ocp-Apim-Debug"];
 
-    //     const headers = this.getDebugHeaders();
-    //     const apimService = new ApimService(root.credentials, root.environment.resourceManagerEndpointUrl, root.subscriptionId, root.resourceGroupName, root.serviceName);
-    //     const masterSubscriptionObj = await apimService.getSubscriptionMasterkey();
-    //     const masterSubscription = <IMasterSubscription>JSON.parse(masterSubscriptionObj);
-    //     headers.forEach(header => {
-    //         requestSummary += `${header}: ${masterSubscription.properties.primaryKey}\n`;
-    //     });
-
-    //     if (body) {
-    //         requestSummary += `\n\n${body}`;
-    //     }
-
-    //     return requestSummary;
-    // }
-
-    private getDebugHeaders(): string[] {
+        }
         return ["Ocp-Apim-Subscription-Key", "Ocp-Apim-Debug"];
     }
 

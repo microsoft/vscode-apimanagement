@@ -23,10 +23,12 @@ export abstract class Editor<ContextT> implements vscode.Disposable {
     public abstract getData(context: ContextT): Promise<string>;
     public abstract updateData(context: ContextT, data: string): Promise<string>;
     public abstract getFilename(context: ContextT): Promise<string>;
+    public abstract getDiffFilename(context: ContextT): Promise<string>;
     public abstract getSaveConfirmationText(context: ContextT): Promise<string>;
     public abstract getSize(context: ContextT): Promise<number>;
     public async showEditor(context: ContextT, sizeLimit?: number /* in Megabytes */): Promise<void> {
         const fileName: string = await this.getFilename(context);
+        const originFileName: string = await this.getDiffFilename(context);
         this.appendLineToOutput(localize('opening', 'Opening "{0}"...', fileName));
         if (sizeLimit !== undefined) {
             const size: number = await this.getSize(context);
@@ -37,6 +39,7 @@ export abstract class Editor<ContextT> implements vscode.Disposable {
         }
 
         const localFilePath: string = await createTemporaryFile(fileName);
+        const localOriginPath: string = await createTemporaryFile(originFileName);
         const document: vscode.TextDocument = await vscode.workspace.openTextDocument(localFilePath);
         if (document.isDirty) {
             const overwriteFlag = await vscode.window.showWarningMessage(`You are about to overwrite "${fileName}", which has unsaved changes. Do you want to continue?`, { modal: true }, DialogResponses.yes, DialogResponses.cancel);
@@ -47,6 +50,9 @@ export abstract class Editor<ContextT> implements vscode.Disposable {
 
         this.fileMap[localFilePath] = [document, context];
         const data: string = await this.getData(context);
+        // store an original copy of the data
+        await fse.writeFile(localOriginPath, data);
+
         const textEditor: vscode.TextEditor = await vscode.window.showTextDocument(document);
         await this.updateEditor(data, textEditor);
     }
