@@ -8,6 +8,7 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import { AzureParentTreeItem, AzureTreeDataProvider, AzureTreeItem, AzureUserInput, createTelemetryReporter, IActionContext, registerCommand, registerEvent, registerUIExtensionVariables } from 'vscode-azureextensionui';
+import { addApiFilter } from './commands/addApiFilter';
 import { addApiToGateway } from './commands/addApiToGateway';
 import { addApiToProduct } from './commands/addApiToProduct';
 import { copySubscriptionKey } from './commands/copySubscriptionKey';
@@ -26,6 +27,7 @@ import { createNamedValue, updateNamedValue } from './commands/manageNamedValue'
 import { openDiffEditor } from './commands/openDiffEditor';
 import { openInPortal } from './commands/openInPortal';
 import { openWorkingFolder } from './commands/openWorkingFolder';
+import { removeApiFilter } from './commands/removeApiFilter';
 import { setupWorkingFolder } from './commands/setupWorkingFolder';
 import { testOperation } from './commands/testOperation';
 import { doubleClickDebounceDelay } from './constants';
@@ -101,6 +103,8 @@ export function activateInternal(context: vscode.ExtensionContext) {
     registerCommand('azureApiManagement.importFunctionAppToApi', async (node: ApiTreeItem) => await importFunctionAppToApi(node));
     registerCommand('azureApiManagement.importWebApp', async (node: ApisTreeItem) => await importWebApp(node));
     registerCommand('azureApiManagement.importWebAppToApi', async (node: ApiTreeItem) => await importWebAppToApi(node));
+    registerCommand('azureApiManagement.addApiFilter', async (node: ApisTreeItem) => await addApiFilter(node));
+    registerCommand('azureApiManagement.removeApiFilter', async (node: ApisTreeItem) => await removeApiFilter(node));
     registerCommand('azureApiManagement.copyDockerRunCommand', async (node: GatewayTreeItem) => await copyDockerRunCommand(node));
     registerCommand('azureApiManagement.generateKubernetesDeployment', async (node: GatewayTreeItem) => await generateKubernetesDeployment(node));
     registerCommand('azureApiManagement.generateNewGatewayToken', async (node: GatewayTreeItem) => await generateNewGatewayToken(node));
