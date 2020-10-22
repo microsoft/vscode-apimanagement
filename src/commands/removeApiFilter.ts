@@ -13,4 +13,9 @@ export async function removeApiFilter(node?: ApisTreeItem): Promise<void> {
         const serviceNode = <ServiceTreeItem>await ext.tree.showTreeItemPicker(ServiceTreeItem.contextValue);
         node = serviceNode.apisTreeItem;
     }
+
+    node.filterValue = undefined;
+
+    // tslint:disable:no-non-null-assertion
+    await node!.refresh();
 }
