@@ -26,6 +26,8 @@ All you need is an Azure Subscription to get started. If you don't have one, [cl
 -   Import App Service WebApp
 -   Manage Self-Hosted Gateways
 -   Policy Debugging
+-   Scaffold Azure Functions
+-   Policy\OpenAPI\Arm files Diffing
 
 ## Create an API Management instance using defaults
 
@@ -75,6 +77,12 @@ Please note: only JSON format is supported currently.
 
 ## Debug Policy
 ![debugPolicy](resources/debug.gif)
+
+## Scaffold Azure Functions
+![generateFunctions](resources/stencil.gif)
+
+## Policy\OpenAPI\Arm files Diffing
+![diffing](resources/diffing.gif)
 
 ## Intellisense for Policy Expressions.
 

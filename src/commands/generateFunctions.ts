@@ -30,6 +30,7 @@ const identifierRegex: RegExp = XRegExp(`^${identifierOrKeyword}$`);
 const keywords: string[] = ['abstract', 'as', 'base', 'bool', 'break', 'byte', 'case', 'catch', 'char', 'checked', 'class', 'const', 'continue', 'decimal', 'default', 'delegate', 'do', 'double', 'else', 'enum', 'event', 'explicit', 'extern', 'false', 'finally', 'fixed', 'float', 'for', 'foreach', 'goto', 'if', 'implicit', 'in', 'int', 'interface', 'internal', 'is', 'lock', 'long', 'namespace', 'new', 'null', 'object', 'operator', 'out', 'override', 'params', 'private', 'protected', 'public', 'readonly', 'ref', 'return', 'sbyte', 'sealed', 'short', 'sizeof', 'stackalloc', 'static', 'string', 'struct', 'switch', 'this', 'throw', 'true', 'try', 'typeof', 'uint', 'ulong', 'unchecked', 'unsafe', 'ushort', 'using', 'virtual', 'void', 'volatile', 'while'];
 
 // tslint:disable: no-non-null-assertion
+// tslint:disable-next-line: max-func-body-length
 export async function generateFunctions(node?: ApiTreeItem): Promise<void> {
     if (!node) {
         node = <ApiTreeItem>await ext.tree.showTreeItemPicker(ApiTreeItem.contextValue);
@@ -45,9 +46,9 @@ export async function generateFunctions(node?: ApiTreeItem): Promise<void> {
     }
 
     // tslint:disable-next-line: no-unsafe-any
-    const languages : string[] = Object.keys(languageTypes).map(key => languageTypes[key]);
+    const languages: string[] = Object.keys(languageTypes).map(key => languageTypes[key]);
     const language = await ext.ui.showQuickPick(
-        languages.map((s) => {return { label: s, description: '', detail: '' }; }), { placeHolder: "Select language", canPickMany: false});
+        languages.map((s) => { return { label: s, description: '', detail: '' }; }), { placeHolder: "Select language", canPickMany: false });
 
     if (!await checkEnvironmentInstalled(language.label)) {
         throw new Error(`'${language.label}' is not installed on your machine, please install '${language.label}' to continue.`);
@@ -111,7 +112,19 @@ export async function generateFunctions(node?: ApiTreeItem): Promise<void> {
             }
 
             ext.outputChannel.show();
-            await cpUtils.executeCommand(ext.outputChannel, undefined, 'autorest', ...args);
+            try {
+                await cpUtils.executeCommand(ext.outputChannel, undefined, 'autorest', ...args);
+            } catch (error) {
+                if (language.label === languageTypes.CSharp) {
+                    const message: string = localize('genFunction', 'Failed to generate Functions using C# generator due to a known Issue. Click "Learn more" for more details on installation steps.');
+                    window.showErrorMessage(message, DialogResponses.learnMore).then(async result => {
+                        if (result === DialogResponses.learnMore) {
+                            await openUrl('https://github.com/Azure/autorest.csharp/issues/927');
+                        }
+                    });
+                    return;
+                }
+            }
             await promptOpenFileFolder(uris[0].fsPath);
         }
     ).then(async () => {
@@ -138,7 +151,7 @@ async function askFolder(): Promise<Uri[]> {
 
 async function askJavaNamespace(): Promise<string> {
     const namespacePrompt: string = localize('namespacePrompt', 'Enter Java Package Name.');
-    const defaultName =  "com.function";
+    const defaultName = "com.function";
     return (await ext.ui.showInputBox({
         prompt: namespacePrompt,
         value: defaultName,
