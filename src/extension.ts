@@ -105,6 +105,7 @@ export function activateInternal(context: vscode.ExtensionContext) {
     registerCommand('azureApiManagement.importWebAppToApi', async (node: ApiTreeItem) => await importWebAppToApi(node));
     registerCommand('azureApiManagement.addApiFilter', async (node: ApisTreeItem) => await addApiFilter(node));
     registerCommand('azureApiManagement.removeApiFilter', async (node: ApisTreeItem) => await removeApiFilter(node));
+    registerCommand('azureApiManagement.setApiFilter', async (node: ApisTreeItem) => await addApiFilter(node));
     registerCommand('azureApiManagement.copyDockerRunCommand', async (node: GatewayTreeItem) => await copyDockerRunCommand(node));
     registerCommand('azureApiManagement.generateKubernetesDeployment', async (node: GatewayTreeItem) => await generateKubernetesDeployment(node));
     registerCommand('azureApiManagement.generateNewGatewayToken', async (node: GatewayTreeItem) => await generateNewGatewayToken(node));

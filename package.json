@@ -329,6 +329,15 @@
                 "category": "Azure API Management"
             },
             {
+                "command": "azureApiManagement.setApiFilter",
+                "title": "%azureApiManagement.setApiFilter%",
+                "icon": {
+                    "light": "resources/light/filter.svg",
+                    "dark": "resources/dark/filter.svg"
+                }
+            },
+
+            {
                 "command": "azureApiManagement.debugPolicy",
                 "title": "%azureApiManagement.debugPolicy%",
                 "category": "Azure API Management"
@@ -477,6 +486,11 @@
                     "command": "azureApiManagement.addApiFilter",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApis",
                     "group": "4@1"
+                },
+                {
+                    "command": "azureApiManagement.setApiFilter",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApis",
+                    "group": "inline"
                 },
                 {
                     "command": "azureApiManagement.removeApiFilter",
