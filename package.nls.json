@@ -40,5 +40,5 @@
     "azureApiManagement.generateNewGatewayToken": "Generate New Gateway Token",
     "azureApiManagement.debugPolicy": "Start Policy Debugging",
     "azureApiManagement.generateFunctions": "Scaffold Azure Functions",
-    "azureApiManagement.enableCreateFunctionApp": "(Experimental Feature) Enables scaffolding Azure Functions functionality"
+    "azureApiManagement.scaffoldAzureFunctions": "(Experimental Feature) Enables scaffolding Azure Functions functionality"
 }

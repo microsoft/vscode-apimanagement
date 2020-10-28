@@ -65,6 +65,8 @@ export async function generateFunctions(node?: ApiTreeItem): Promise<void> {
 
     const openAPIFilePath = path.join(uris[0].fsPath, `${node!.apiContract.name}.json`);
 
+    let isSucceeded = false;
+
     await window.withProgress(
         {
             location: ProgressLocation.Notification,
@@ -111,24 +113,34 @@ export async function generateFunctions(node?: ApiTreeItem): Promise<void> {
                     throw new Error(localize("notSupported", "Only C#, Java, Python, and Typescript are supported"));
             }
 
-            ext.outputChannel.show();
+            if (language.label === languageTypes.CSharp) {
+                const versionResult = await cpUtils.executeCommand(undefined, undefined, 'dotnet --version');
+                if (!versionResult.startsWith('3.')) {
+                    throw new Error(localize('genFunction', 'Failed to generate Functions. Please update dotnet version to 3.0.0 and above.'));
+                }
+            }
+
             try {
+                ext.outputChannel.show();
                 await cpUtils.executeCommand(ext.outputChannel, undefined, 'autorest', ...args);
+                await promptOpenFileFolder(uris[0].fsPath);
+                isSucceeded = true;
             } catch (error) {
                 if (language.label === languageTypes.CSharp) {
                     const message: string = localize('genFunction', 'Failed to generate Functions using C# generator due to a known Issue. Click "Learn more" for more details on installation steps.');
+                    // tslint:disable-next-line: no-shadowed-variable
                     window.showErrorMessage(message, DialogResponses.learnMore).then(async result => {
                         if (result === DialogResponses.learnMore) {
-                            await openUrl('https://github.com/Azure/autorest.csharp/issues/927');
+                            await openUrl('https://github.com/Azure/autorest.azure-functions/issues');
                         }
                     });
-                    return;
                 }
             }
-            await promptOpenFileFolder(uris[0].fsPath);
         }
     ).then(async () => {
-        window.showInformationMessage(localize("openAPIDownloaded", `Scaffolded Azure Functions for API '${node!.apiContract.name} successfully.`));
+        if (isSucceeded) {
+            window.showInformationMessage(localize("openAPIDownloaded", `Scaffolded Azure Functions for API '${node!.apiContract.name} successfully.`));
+        }
     });
 }
 
