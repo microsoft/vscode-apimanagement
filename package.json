@@ -343,8 +343,11 @@
             },
             {
                 "command": "azureApiManagement.openDiffEditor",
-                "title": "Start file diffing",
-                "icon": "./resources/diff.svg"
+                "title": "Show diffs against the last saved version",
+                "icon": {
+                    "light": "resources/light/diff.svg",
+                    "dark": "resources/dark/diff.svg"
+                }
             }
         ],
         "viewsContainers": {
@@ -478,7 +481,7 @@
                 },
                 {
                     "command": "azureApiManagement.generateFunctions",
-                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApi && config.azureApiManagement.enableCreateFunctionApp == true",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApi && config.azureApiManagement.scaffoldAzureFunctions == true",
                     "group": "3@1"
                 },
                 {
@@ -592,10 +595,10 @@
                         "default": false,
                         "description": "%azureApiManagement.advancedPolicyAuthoringExperience%"
                     },
-                    "azureApiManagement.enableCreateFunctionApp": {
+                    "azureApiManagement.scaffoldAzureFunctions": {
                         "type": "boolean",
                         "default": false,
-                        "description": "%azureApiManagement.enableCreateFunctionApp%"
+                        "description": "%azureApiManagement.scaffoldAzureFunctions%"
                     }
                 }
             }
