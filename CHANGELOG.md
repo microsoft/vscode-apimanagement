@@ -1,6 +1,11 @@
 # Change Log
 All notable changes to the "Azure Api Managment VS Code" extension will be documented in this file.
 
+## [0.1.7 - 2020-10-30]
+
+- Scaffold Azure Functions
+- Show diffs against last saved version
+
 ## [0.1.6 - 2020-09-22]
 
 - Policy debugging

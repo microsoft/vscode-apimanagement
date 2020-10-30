@@ -27,7 +27,7 @@ All you need is an Azure Subscription to get started. If you don't have one, [cl
 -   Manage Self-Hosted Gateways
 -   Policy Debugging
 -   Scaffold Azure Functions
--   Policy\OpenAPI\Arm files Diffing
+-   Show diffs against last saved version
 
 ## Create an API Management instance using defaults
 
@@ -81,7 +81,7 @@ Please note: only JSON format is supported currently.
 ## Scaffold Azure Functions
 ![generateFunctions](resources/stencil.gif)
 
-## Policy\OpenAPI\Arm files Diffing
+## Show diffs against last saved version
 ![diffing](resources/diffing.gif)
 
 ## Intellisense for Policy Expressions.
