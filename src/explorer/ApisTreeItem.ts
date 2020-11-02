@@ -59,9 +59,10 @@ export class ApisTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
                         apiVersionSetTreeItem.addApiToSet(api);
                         return undefined;
                     }
-                } else {
+                } else if (api.isCurrent !== undefined && api.isCurrent === true) {
                     return new ApiTreeItem(this, api);
                 }
+                return undefined;
             },
             (api: ApiManagementModels.ApiContract) => {
                 return api.name;

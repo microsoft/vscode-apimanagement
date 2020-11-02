@@ -26,6 +26,7 @@ import { createNamedValue, updateNamedValue } from './commands/manageNamedValue'
 import { openDiffEditor } from './commands/openDiffEditor';
 import { openInPortal } from './commands/openInPortal';
 import { openWorkingFolder } from './commands/openWorkingFolder';
+import { revisions } from './commands/revisions';
 import { setupWorkingFolder } from './commands/setupWorkingFolder';
 import { testOperation } from './commands/testOperation';
 import { doubleClickDebounceDelay } from './constants';
@@ -111,7 +112,7 @@ export function activateInternal(context: vscode.ExtensionContext) {
     registerCommand('azureApiManagement.openDiffEditor', async (uri: vscode.Uri) => await openDiffEditor(uri));
 
     registerCommand('azureApiManagement.generateFunctions', async (node: ApiTreeItem) => await generateFunctions(node));
-
+    registerCommand('azureApiManagement.revisions', async (node: ApiTreeItem) => await revisions(node));
     registerEditors(context);
 
     activate(context); // activeta debug context

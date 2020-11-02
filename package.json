@@ -70,7 +70,8 @@
         "onCommand:azureApiManagement.generateKubernetesDeployment",
         "onCommand:azureApiManagement.generateNewGatewayToken",
         "onCommand:azureApiManagement.debugPolicy",
-        "onCommand:azureApiManagement.generateFunctions"
+        "onCommand:azureApiManagement.generateFunctions",
+        "onCommand:azureApiManagement.revisions"
     ],
     "main": "main",
     "contributes": {
@@ -342,6 +343,11 @@
                 "category": "Azure API Management"
             },
             {
+                "command": "azureApiManagement.revisions",
+                "title": "%azureApiManagement.revisions%",
+                "category": "Azure API Management"
+            },
+            {
                 "command": "azureApiManagement.openDiffEditor",
                 "title": "Show diffs against the last saved version",
                 "icon": {
@@ -490,14 +496,19 @@
                     "group": "4@1"
                 },
                 {
-                    "command": "azureApiManagement.Refresh",
+                    "command": "azureApiManagement.revisions",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApi",
                     "group": "5@1"
                 },
                 {
-                    "command": "azureApiManagement.deleteApi",
+                    "command": "azureApiManagement.Refresh",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApi",
                     "group": "6@1"
+                },
+                {
+                    "command": "azureApiManagement.deleteApi",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApi",
+                    "group": "7@1"
                 },
                 {
                     "command": "azureApiManagement.Refresh",
@@ -653,6 +664,7 @@
         "azure-arm-resource": "^3.0.0-preview",
         "azure-arm-website": "5.7.0",
         "fs-extra": "^4.0.2",
+        "guid-typescript": "^1.0.9",
         "opn": "^5.3.0",
         "request": "^2.88.2",
         "request-promise": "^4.2.5",

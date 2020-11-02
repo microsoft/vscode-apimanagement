@@ -4,6 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { ApiManagementModels } from "azure-arm-apimanagement";
+import { ApiContract } from "azure-arm-apimanagement/lib/models";
 import { ProgressLocation, window } from "vscode";
 import { AzureParentTreeItem, AzureTreeItem, DialogResponses, ISubscriptionRoot, UserCancelledError } from "vscode-azureextensionui";
 import { localize } from "../localize";
@@ -16,16 +17,17 @@ import { IApiTreeRoot } from "./IApiTreeRoot";
 import { IServiceTreeRoot } from "./IServiceTreeRoot";
 import { OperationPolicyTreeItem } from "./OperationPolicyTreeItem";
 
+// tslint:disable: no-non-null-assertion
 export class ApiTreeItem extends AzureParentTreeItem<IApiTreeRoot> {
     public static contextValue: string = 'azureApiManagementApi';
     public contextValue: string = ApiTreeItem.contextValue;
     public readonly commandId: string = 'azureApiManagement.showArmApi';
-    public readonly policyTreeItem: ApiPolicyTreeItem;
+    public policyTreeItem: ApiPolicyTreeItem;
 
     private _name: string;
     private _label: string;
     private _root: IApiTreeRoot;
-    private readonly _operationsTreeItem: ApiOperationsTreeItem;
+    private _operationsTreeItem: ApiOperationsTreeItem;
 
     constructor(
         parent: AzureParentTreeItem,
@@ -40,7 +42,7 @@ export class ApiTreeItem extends AzureParentTreeItem<IApiTreeRoot> {
         }
 
         this._name = nonNullProp(this.apiContract, 'name');
-        this._root = this.createRoot(parent.root);
+        this._root = this.createRoot(parent.root, this._name);
         this._operationsTreeItem = new ApiOperationsTreeItem(this);
         this.policyTreeItem = new ApiPolicyTreeItem(this);
     }
@@ -93,9 +95,27 @@ export class ApiTreeItem extends AzureParentTreeItem<IApiTreeRoot> {
         return undefined;
     }
 
-    private createRoot(subRoot: ISubscriptionRoot): IApiTreeRoot {
+    public async reloadApi(api: ApiContract): Promise<void> {
+        this._name = nonNullProp(api, 'name');
+        // tslint:disable-next-line: no-non-null-assertion
+        this._root = this.createRoot(this.parent!.root, nonNullProp(api, 'name'));
+        this._label = this.getRevisionDisplayName(api);
+        this._operationsTreeItem = new ApiOperationsTreeItem(this);
+        this.policyTreeItem = new ApiPolicyTreeItem(this);
+    }
+
+    private getRevisionDisplayName(api: ApiContract): string {
+        if (api.isCurrent !== undefined && api.isCurrent === true) {
+            return api.displayName!;
+        } else {
+            const revNumber = api.name!.split(';rev=')[1];
+            return api.displayName!.concat(';rev=', revNumber);
+        }
+    }
+
+    private createRoot(subRoot: ISubscriptionRoot, apiName: string): IApiTreeRoot {
         return Object.assign({}, <IServiceTreeRoot>subRoot, {
-            apiName: nonNullProp(this.apiContract, 'name')
+            apiName: apiName
         });
     }
 }
