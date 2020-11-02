@@ -24,6 +24,7 @@ export class ApisTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
     public static contextValue: string = 'azureApiManagementApis';
     public label: string = "APIs";
     public contextValue: string = ApisTreeItem.contextValue;
+    public filterValue: string | undefined;
     public readonly childTypeLabel: string = localize('azureApiManagement.Api', 'API');
     private _nextLink: string | undefined;
 
@@ -37,7 +38,7 @@ export class ApisTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
         }
 
         const apiCollection: ApiManagementModels.ApiCollection = this._nextLink === undefined ?
-            await this.root.client.api.listByService(this.root.resourceGroupName, this.root.serviceName, { expandApiVersionSet: true, top: topItemCount }) :
+            await this.root.client.api.listByService(this.root.resourceGroupName, this.root.serviceName, { filter: this.filterValue, expandApiVersionSet: true, top: topItemCount }) :
             await this.root.client.api.listByServiceNext(this._nextLink);
 
         this._nextLink = apiCollection.nextLink;
