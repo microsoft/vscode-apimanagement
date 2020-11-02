@@ -18,20 +18,18 @@ export async function revisions(node?: ApiTreeItem): Promise<void> {
 
     const options = ["Make Current", "Switch Revisions"];
     const commands = await ext.ui.showQuickPick(options.map((s) => { return { label: s }; }), { canPickMany: false });
+
     if (commands.label === "Switch Revisions") {
-        const nodeApiName = node.root.apiName.split(";rev=")[0];
-        const apiRevisions: ApiRevisionCollection = await node.root.client.apiRevision.listByService(node.root.resourceGroupName, node.root.serviceName, nodeApiName);
-        const pickedApiRevision = await ext.ui.showQuickPick(apiRevisions.map((s) => {
-            return { label: s.isCurrent !== undefined && s.isCurrent === true ? "Current" : s.apiId!, apiId:  s.apiId!};
-        }),                                                  { canPickMany: false });
-        const apiName = pickedApiRevision.apiId.replace("/apis/", "");
-        const pickedApi = await node.root.client.api.get(node.root.resourceGroupName, node.root.serviceName, apiName);
+        const pickedApi = await listRevisions(node);
+
         await node.reloadApi(pickedApi);
         await node.refresh();
-        window.showInformationMessage(localize("switchRevisions", `Switched to revision ${apiName} sucecessfully.`));
+        window.showInformationMessage(localize("switchRevisions", `Switched to revision ${pickedApi.name!} sucecessfully.`));
+
     } else if (commands.label === "Make Current") {
         const apiRevision = await listRevisions(node);
         const notes = await askReleaseNotes();
+
         const apiRelease: ApiReleaseContract = {
             apiId: "/apis/".concat(apiRevision.name!),
             notes: notes
