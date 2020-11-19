@@ -21,7 +21,7 @@ export async function debugPolicy(node?: ApiOperationTreeItem): Promise<void> {
         name: "Attach to APIM",
         stopOnEntry: true,
         // tslint:disable-next-line: no-non-null-assertion
-        gatewayAddress: getDebugGatewayAddressUrl(node!.root.serviceName),
+        gatewayAddress: await getDebugGatewayAddressUrl(node!),
         managementAddress: getManagementUrl(node.root),
         subscriptionId: node.root.subscriptionId,
         operationData: operationData,
@@ -56,8 +56,12 @@ function getManagementUrl(root: IOperationTreeRoot): string {
     return `${root.environment.resourceManagerEndpointUrl}/subscriptions/${root.subscriptionId}/resourceGroups/${root.resourceGroupName}/providers/microsoft.apimanagement/service/${root.serviceName}`;
 }
 
-function getDebugGatewayAddressUrl(serviceName: string): string {
-    return `wss://${serviceName}.azure-api.net/debug-0123456789abcdef`;
+async function getDebugGatewayAddressUrl(node: ApiOperationTreeItem): Promise<string> {
+
+    const service = await node.root.client.apiManagementService.get(node.root.resourceGroupName, node.root.serviceName);
+    // tslint:disable-next-line: no-non-null-assertion
+    const hostNameConfig = service.hostnameConfigurations![0].hostName;
+    return `wss://${hostNameConfig}/debug-0123456789abcdef`;
 }
 
 // function getLocalDebugOperationData2(): string {
