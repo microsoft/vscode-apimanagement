@@ -60,8 +60,13 @@ async function getDebugGatewayAddressUrl(node: ApiOperationTreeItem): Promise<st
 
     const service = await node.root.client.apiManagementService.get(node.root.resourceGroupName, node.root.serviceName);
     // tslint:disable-next-line: no-non-null-assertion
-    const hostNameConfig = service.hostnameConfigurations![0].hostName;
-    return `wss://${hostNameConfig}/debug-0123456789abcdef`;
+    const hostNameConfigs = service.hostnameConfigurations!;
+    for (const hostNameConfig of hostNameConfigs) {
+        if (hostNameConfig.type === "Proxy") {
+            return `wss://${hostNameConfig.hostName}/debug-0123456789abcdef`;
+        }
+    }
+    throw new Error("Please make sure proxy host url is usable.");
 }
 
 // function getLocalDebugOperationData2(): string {
