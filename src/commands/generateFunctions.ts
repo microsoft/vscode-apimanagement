@@ -115,7 +115,8 @@ export async function generateFunctions(node?: ApiTreeItem): Promise<void> {
 
             if (language.label === languageTypes.CSharp) {
                 const versionResult = await cpUtils.executeCommand(undefined, undefined, 'dotnet --version');
-                if (!versionResult.startsWith('3.')) {
+                const versionNumber = Number(versionResult.charAt(0));
+                if (versionNumber < 3) {
                     throw new Error(localize('genFunction', 'Failed to generate Functions. Please update dotnet version to 3.0.0 and above.'));
                 }
             }

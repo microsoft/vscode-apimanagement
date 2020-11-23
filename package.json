@@ -644,7 +644,7 @@
                     },
                     "azureApiManagement.scaffoldAzureFunctions": {
                         "type": "boolean",
-                        "default": false,
+                        "default": true,
                         "description": "%azureApiManagement.scaffoldAzureFunctions%"
                     }
                 }
