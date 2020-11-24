@@ -32,7 +32,8 @@ export async function importWebAppToApi(node?: ApiTreeItem): Promise<void> {
     ext.outputChannel.show();
 
     // tslint:disable: no-non-null-assertion
-    const pickedWebApp: Site = await getPickedWebApp(node, webAppKind.webApp);
+    const webAppSubscriptionId = await azureClientUtil.selectSubscription();
+    const pickedWebApp: Site = await getPickedWebApp(node, webAppKind.webApp, webAppSubscriptionId);
     const webAppResourceGroup = nonNullValue(pickedWebApp.resourceGroup);
     const webAppName = nonNullValue(pickedWebApp.name);
     const webConfigbaseUrl = getWebConfigbaseUrl(node!.root.environment.resourceManagerEndpointUrl, node!.root.subscriptionId, webAppResourceGroup, webAppName);
@@ -56,10 +57,11 @@ export async function importWebApp(node?: ApisTreeItem): Promise<void> {
 
     ext.outputChannel.show();
 
-    const pickedWebApp: Site = await getPickedWebApp(node, webAppKind.webApp);
+    const webAppSubscriptionId = await azureClientUtil.selectSubscription();
+    const pickedWebApp: Site = await getPickedWebApp(node, webAppKind.webApp, webAppSubscriptionId);
     const webAppResourceGroup = nonNullValue(pickedWebApp.resourceGroup);
     const webAppName = nonNullValue(pickedWebApp.name);
-    const webConfigbaseUrl = getWebConfigbaseUrl(node!.root.environment.resourceManagerEndpointUrl, node!.root.subscriptionId, webAppResourceGroup, webAppName);
+    const webConfigbaseUrl = getWebConfigbaseUrl(node!.root.environment.resourceManagerEndpointUrl, webAppSubscriptionId, webAppResourceGroup, webAppName);
     const webAppConfigStr: string = await requestUtil(webConfigbaseUrl, node.root.credentials, "GET");
 
     const webAppConfig: IWebAppContract = JSON.parse(webAppConfigStr);
@@ -72,7 +74,7 @@ export async function importWebApp(node?: ApisTreeItem): Promise<void> {
     }
 }
 
-export async function getPickedWebApp(node: ApiTreeItem | ApisTreeItem, webAppType: webAppKind): Promise<Site> {
+export async function getPickedWebApp(node: ApiTreeItem | ApisTreeItem, webAppType: webAppKind, subscriptionId: string): Promise<Site> {
     let allWebApps: Site[] = [];
     const appType = webAppType === webAppKind.webApp ? "Web Apps" : "Function Apps";
     await window.withProgress(
@@ -82,7 +84,7 @@ export async function getPickedWebApp(node: ApiTreeItem | ApisTreeItem, webAppTy
             cancellable: false
         },
         async () => {
-            const client = azureClientUtil.getClient(node.root.credentials, node.root.subscriptionId, node.root.environment);
+            const client = azureClientUtil.getClient(node.root.credentials, subscriptionId, node.root.environment);
             allWebApps = await listWebApps(client, webAppType);
         }
     ).then(async () => {

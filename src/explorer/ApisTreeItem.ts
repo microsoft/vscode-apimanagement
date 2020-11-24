@@ -45,6 +45,10 @@ export class ApisTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
 
         const versionSetMap: Map<string, ApiVersionSetTreeItem> = new Map<string, ApiVersionSetTreeItem>();
 
+        // if (this.filterValue !== undefined && apiCollection.length === 0) {
+        //     window.showWarningMessage(localize("NoApiFound", "No matching API found."));
+        // }
+
         return await createTreeItemsWithErrorHandling(
             this,
             apiCollection,

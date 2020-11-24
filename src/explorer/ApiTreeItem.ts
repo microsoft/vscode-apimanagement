@@ -31,7 +31,7 @@ export class ApiTreeItem extends AzureParentTreeItem<IApiTreeRoot> {
 
     constructor(
         parent: AzureParentTreeItem,
-        public readonly apiContract: ApiManagementModels.ApiContract,
+        public apiContract: ApiManagementModels.ApiContract,
         apiVersion?: string) {
         super(parent);
 
@@ -96,6 +96,7 @@ export class ApiTreeItem extends AzureParentTreeItem<IApiTreeRoot> {
     }
 
     public async reloadApi(api: ApiContract): Promise<void> {
+        this.apiContract = api;
         this._name = nonNullProp(api, 'name');
         // tslint:disable-next-line: no-non-null-assertion
         this._root = this.createRoot(this.parent!.root, nonNullProp(api, 'name'));

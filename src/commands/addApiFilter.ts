@@ -3,6 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+import { ApiCollection } from "azure-arm-apimanagement/lib/models";
 import { ApisTreeItem } from "../explorer/ApisTreeItem";
 import { ServiceTreeItem } from '../explorer/ServiceTreeItem';
 import { ext } from "../extensionVariables";
@@ -19,6 +20,17 @@ export async function addApiFilter(node?: ApisTreeItem): Promise<void> {
     node.filterValue = (filterInput === "")
         ? node.filterValue = undefined
         : node.filterValue = `contains(properties/displayName,'${filterInput}')`;
+
+    let nextLink: string | undefined;
+    const apiCollection: ApiCollection = nextLink === undefined ?
+    await node.root.client.api.listByService(node.root.resourceGroupName, node.root.serviceName, { filter: node.filterValue, expandApiVersionSet: true, top: 100}) :
+    await node.root.client.api.listByServiceNext(nextLink);
+
+    while (nextLink !== undefined) {
+        const curApiCollection: ApiCollection = await node.root.client.api.listByServiceNext(nextLink);
+        nextLink = curApiCollection.nextLink;
+        apiCollection.concat(curApiCollection);
+    }
 
     // tslint:disable:no-non-null-assertion
     await node!.refresh();

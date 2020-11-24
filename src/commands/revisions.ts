@@ -5,7 +5,7 @@
 
 import { ApiContract, ApiReleaseContract, ApiRevisionCollection } from "azure-arm-apimanagement/lib/models";
 import { Guid } from "guid-typescript";
-import { window } from "vscode";
+import { MessageItem, ProgressLocation, window } from "vscode";
 import { ApiTreeItem } from "../explorer/ApiTreeItem";
 import { ext } from "../extensionVariables";
 import { localize } from "../localize";
@@ -27,18 +27,40 @@ export async function revisions(node?: ApiTreeItem): Promise<void> {
         window.showInformationMessage(localize("switchRevisions", `Switched to revision ${pickedApi.name!} sucecessfully.`));
 
     } else if (commands.label === "Make Current") {
-        const apiRevision = await listRevisions(node);
-        const notes = await askReleaseNotes();
-
-        const apiRelease: ApiReleaseContract = {
-            apiId: "/apis/".concat(apiRevision.name!),
-            notes: notes
-        };
-        const pickedApiName = node.root.apiName.split(";rev=")[0];
-        const releaseId = Guid.create().toString();
-        await node.root.client.apiRelease.createOrUpdate(node.root.resourceGroupName, node.root.serviceName, pickedApiName, releaseId, apiRelease);
-        await node.refresh();
-        window.showInformationMessage(localize("makeCurrent", `The revision ${apiRevision.name!} has been made current successfully.`));
+        if (node!.apiContract.isCurrent) {
+            window.showInformationMessage(localize("releaseRev", 'This revision is already current.'));
+        } else {
+            const yes: MessageItem = { title: localize('Yes', "Yes") };
+            const no: MessageItem = { title: localize('No', "No") };
+            const message: string = localize('shouldRelease', `You are current on ${node!.apiContract.name!}. This revision will become the public implementation of your API. Are you sure you want to continue?`);
+            const result = await window.showInformationMessage(message, yes, no);
+            if (result === yes) {
+                await window.withProgress(
+                    {
+                        location: ProgressLocation.Notification,
+                        title: localize("releasing", "Releasing API Revision..."),
+                        cancellable: false
+                    },
+                    async () => {
+                        const apiRevName = node!.apiContract.name!;
+                        const notes = await askReleaseNotes();
+                        const apiRelease: ApiReleaseContract = {
+                            apiId: "/apis/".concat(apiRevName),
+                            notes: notes
+                        };
+                        const pickedApiName = node!.root.apiName.split(";rev=")[0];
+                        const releaseId = Guid.create().toString();
+                        await node!.root.client.apiRelease.createOrUpdate(node!.root.resourceGroupName, node!.root.serviceName, pickedApiName, releaseId, apiRelease);
+                        const api = await node!.root.client.api.get(node!.root.resourceGroupName, node!.root.serviceName, node!.root.apiName);
+                        await node!.reloadApi(api);
+                        await node!.refresh();
+                        window.showInformationMessage(localize("makeCurrent", `The revision ${apiRevName} has been made current successfully.`));
+                    }
+                ).then(async () => {
+                    window.showInformationMessage(localize("releaseRevision", "Releasing current revision has completed successfully."));
+                });
+            }
+        }
     }
 }
 
@@ -59,7 +81,7 @@ async function listRevisions(node: ApiTreeItem): Promise<ApiContract> {
     const nodeApiName = node.root.apiName.split(";rev=")[0];
     const apiRevisions: ApiRevisionCollection = await node.root.client.apiRevision.listByService(node.root.resourceGroupName, node.root.serviceName, nodeApiName);
     const apiIds = apiRevisions.map((s) => {
-        return s.isCurrent !== undefined && s.isCurrent === true ? "Current" : s.apiId!;
+        return s.isCurrent !== undefined && s.isCurrent === true ? s.apiId!.concat("(Current)") : s.apiId!;
     });
     const pickedApiRevision = await ext.ui.showQuickPick(apiIds.map((s) => { return { label: s }; }), { canPickMany: false });
     const apiName = pickedApiRevision.label.replace("/apis/", "");
