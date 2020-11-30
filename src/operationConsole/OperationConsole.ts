@@ -44,6 +44,9 @@ export class OperationConsole {
 
         requestSummary += `\n\n${consoleOperation.request.body}`;
 
+        // add comment
+        requestSummary += `//You can get subscription key by right click your service and choose "Copy Subcription Key", you can also set environment variable for the subscription key following this Link: https://code.visualstudio.com/docs/editor/variables-reference#_environment-variables `;
+
         return requestSummary;
     }
 

@@ -29,8 +29,11 @@ export namespace azureClientUtil {
         if (azureAccount.status !== 'LoggedIn') {
             throw new Error("Please Log in at first!");
         }
-        const subscriptionIds : string[] = azureAccount.filters.map(filter => filter.subscription.subscriptionId);
-        const subscriptionId = await ext.ui.showQuickPick(subscriptionIds.map((s) => { return { label: s}; }), { canPickMany: false });
-        return subscriptionId.label;
+        const subscriptions : {id: string, name: string}[] = azureAccount.filters.map(filter => {return {id: filter.subscription.subscriptionId, name: filter.subscription.displayName}; });
+        const subscriptionId = await ext.ui.showQuickPick(subscriptions.map((s) => {
+            const option = s.id.concat(' (', s.name, ')');
+            return { label: option, subscriptionId: s.id};
+        }),                                               { canPickMany: false });
+        return subscriptionId.subscriptionId;
     }
 }

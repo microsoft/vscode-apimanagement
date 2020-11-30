@@ -46,31 +46,29 @@ export class ApisTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
 
             this._nextLink = apiCollection.nextLink;
 
-            apisToLoad = apiCollection.map((s) => s);
+            apisToLoad = apiCollection.map((s) => s).filter(s => apiUtil.isNotApiRevision(s));
         }
 
         const versionSetMap: Map<string, ApiVersionSetTreeItem> = new Map<string, ApiVersionSetTreeItem>();
-
-        // if (this.filterValue !== undefined && apiCollection.length === 0) {
-        //     window.showWarningMessage(localize("NoApiFound", "No matching API found."));
-        // }
 
         return await createTreeItemsWithErrorHandling(
             this,
             apisToLoad,
             "invalidApiManagementApi",
             async (api: ApiManagementModels.ApiContract) => {
-                if (api.apiVersionSetId && api.apiVersionSet) {
+                if (api.apiVersionSetId) {
                     let apiVersionSetTreeItem = versionSetMap.get(api.apiVersionSetId);
                     if (!apiVersionSetTreeItem) {
                         apiVersionSetTreeItem = new ApiVersionSetTreeItem(this, api);
                         versionSetMap.set(api.apiVersionSetId, apiVersionSetTreeItem);
                         return apiVersionSetTreeItem;
                     } else {
-                        apiVersionSetTreeItem.addApiToSet(api);
+                        if (apiUtil.isNotApiRevision(api)) {
+                            apiVersionSetTreeItem.addApiToSet(api);
+                        }
                         return undefined;
                     }
-                } else if (api.isCurrent !== undefined && api.isCurrent === true) {
+                } else if (apiUtil.isNotApiRevision(api)) {
                     return new ApiTreeItem(this, api);
                 }
                 return undefined;
