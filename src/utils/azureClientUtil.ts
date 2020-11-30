@@ -23,6 +23,7 @@ export namespace azureClientUtil {
     // tslint:disable: no-unsafe-any
     export async function selectSubscription(): Promise<string> {
         const azureAccountExtension = vscode.extensions.getExtension('ms-vscode.azure-account');
+        // tslint:disable-next-line: no-non-null-assertion
         const azureAccount = azureAccountExtension!.exports;
         await azureAccount.waitForFilters();
         if (azureAccount.status !== 'LoggedIn') {

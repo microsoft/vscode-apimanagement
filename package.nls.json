@@ -32,7 +32,6 @@
     "azureApiManagement.importFunctionApp": "Import from Azure Functions",
     "azureApiManagement.importFunctionAppToApi": "Import Azure Functions",
     "azureApiManagement.addApiFilter": "Filter APIs",
-    "azureApiManagement.removeApiFilter": "Reset filter",
     "azureApiManagement.setApiFilter": "Set API filter...",
     "azureApiManagement.addApiToGateway": "Add API to Gateway",
     "azureApiManagement.removeApiFromGateway": "Remove API from Gateway",

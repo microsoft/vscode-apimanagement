@@ -67,7 +67,6 @@
         "onCommand:azureApiManagement.importWebApp",
         "onCommand:azureApiManagement.importWebAppToApi",
         "onCommand:azureApiManagement.addApiFilter",
-        "onCommand:azureApiManagement.removeApiFilter",
         "onCommand:azureApiManagement.copyDockerRunCommand",
         "onCommand:azureApiManagement.generateKubernetesDeployment",
         "onCommand:azureApiManagement.generateNewGatewayToken",
@@ -325,11 +324,6 @@
                 "category": "Azure API Management"
             },
             {
-                "command": "azureApiManagement.removeApiFilter",
-                "title": "%azureApiManagement.removeApiFilter%",
-                "category": "Azure API Management"
-            },
-            {
                 "command": "azureApiManagement.setApiFilter",
                 "title": "%azureApiManagement.setApiFilter%",
                 "icon": {
@@ -337,7 +331,6 @@
                     "dark": "resources/dark/filter.svg"
                 }
             },
-
             {
                 "command": "azureApiManagement.debugPolicy",
                 "title": "%azureApiManagement.debugPolicy%",
@@ -500,11 +493,6 @@
                     "command": "azureApiManagement.setApiFilter",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApis",
                     "group": "inline"
-                },
-                {
-                    "command": "azureApiManagement.removeApiFilter",
-                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApis",
-                    "group": "4@2"
                 },
                 {
                     "command": "azureApiManagement.showApi",

@@ -24,7 +24,8 @@ export class ApisTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
     public static contextValue: string = 'azureApiManagementApis';
     public label: string = "APIs";
     public contextValue: string = ApisTreeItem.contextValue;
-    public filterValue: string | undefined;
+    public selectedApis: ApiContract[] = [];
+    //public filterValue: string | undefined;
     public readonly childTypeLabel: string = localize('azureApiManagement.Api', 'API');
     private _nextLink: string | undefined;
 
@@ -37,11 +38,16 @@ export class ApisTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
             this._nextLink = undefined;
         }
 
-        const apiCollection: ApiManagementModels.ApiCollection = this._nextLink === undefined ?
-            await this.root.client.api.listByService(this.root.resourceGroupName, this.root.serviceName, { filter: this.filterValue, expandApiVersionSet: true, top: topItemCount }) :
+        let apisToLoad : ApiContract[] = this.selectedApis;
+        if (this.selectedApis.length === 0) {
+            const apiCollection: ApiManagementModels.ApiCollection = this._nextLink === undefined ?
+            await this.root.client.api.listByService(this.root.resourceGroupName, this.root.serviceName, { expandApiVersionSet: true, top: topItemCount }) :
             await this.root.client.api.listByServiceNext(this._nextLink);
 
-        this._nextLink = apiCollection.nextLink;
+            this._nextLink = apiCollection.nextLink;
+
+            apisToLoad = apiCollection.map((s) => s);
+        }
 
         const versionSetMap: Map<string, ApiVersionSetTreeItem> = new Map<string, ApiVersionSetTreeItem>();
 
@@ -51,7 +57,7 @@ export class ApisTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
 
         return await createTreeItemsWithErrorHandling(
             this,
-            apiCollection,
+            apisToLoad,
             "invalidApiManagementApi",
             async (api: ApiManagementModels.ApiContract) => {
                 if (api.apiVersionSetId && api.apiVersionSet) {
