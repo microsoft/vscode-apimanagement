@@ -89,7 +89,7 @@ Please note: only JSON format is supported currently.
 ![SwitchRevision](resources/SwitchRevision.gif)
 
 ## Release API Revision
-![ReleaseRevision](resource/ReleaseRevision.gif)
+![ReleaseRevision](resources/ReleaseRevision.gif)
 
 ## Intellisense for Policy Expressions.
 
