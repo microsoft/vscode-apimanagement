@@ -29,6 +29,7 @@ All you need is an Azure Subscription to get started. If you don't have one, [cl
 -   Scaffold Azure Functions
 -   Show diffs against last saved version
 -   Switch / Release API Revisions
+-   API Filter
 
 ## Create an API Management instance using defaults
 
@@ -90,6 +91,9 @@ Please note: only JSON format is supported currently.
 
 ## Release API Revision
 ![ReleaseRevision](resources/ReleaseRevision.gif)
+
+## API Filter
+![apiFilter](resources/apiFilter.gif)
 
 ## Intellisense for Policy Expressions.
 
