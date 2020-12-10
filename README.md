@@ -28,6 +28,7 @@ All you need is an Azure Subscription to get started. If you don't have one, [cl
 -   Policy Debugging
 -   Scaffold Azure Functions
 -   Show diffs against last saved version
+-   Switch / Release API Revisions
 
 ## Create an API Management instance using defaults
 
@@ -83,6 +84,12 @@ Please note: only JSON format is supported currently.
 
 ## Show diffs against last saved version
 ![diffing](resources/diffing.gif)
+
+## Switch API Revision
+![SwitchRevision](resources/SwitchRevision.gif)
+
+## Release API Revision
+![ReleaseRevision](resource/ReleaseRevision.gif)
 
 ## Intellisense for Policy Expressions.
 

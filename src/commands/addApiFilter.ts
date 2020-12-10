@@ -39,7 +39,13 @@ export async function addApiFilter(node?: ApisTreeItem): Promise<void> {
                 apiName = apiName.concat(" (VersionSet) - Original");
             }
         }
-        return {label: apiName, api: s};
+        let picked = false;
+        for (const api of node!.selectedApis) {
+            if (api.name! === s.name!) {
+                picked = true;
+            }
+        }
+        return {label: apiName, api: s, picked: picked};
     }),                                      { canPickMany: true, placeHolder: 'Select APIs'});
 
     node.selectedApis = picks.map((s) => s.api);

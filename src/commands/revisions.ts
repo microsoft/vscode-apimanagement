@@ -32,7 +32,7 @@ export async function revisions(node?: ApiTreeItem): Promise<void> {
         } else {
             const yes: MessageItem = { title: localize('Yes', "Yes") };
             const no: MessageItem = { title: localize('No', "No") };
-            const message: string = localize('shouldRelease', `You are current on ${node!.apiContract.name!}. This revision will become the public implementation of your API. Are you sure you want to continue?`);
+            const message: string = localize('shouldRelease', `You are currently on ${node!.apiContract.name!}. This revision will become the public implementation of your API. Are you sure you want to continue?`);
             const result = await window.showInformationMessage(message, yes, no);
             if (result === yes) {
                 await window.withProgress(
@@ -54,10 +54,9 @@ export async function revisions(node?: ApiTreeItem): Promise<void> {
                         const api = await node!.root.client.api.get(node!.root.resourceGroupName, node!.root.serviceName, node!.root.apiName);
                         await node!.reloadApi(api);
                         await node!.refresh();
-                        window.showInformationMessage(localize("makeCurrent", `The revision ${apiRevName} has been made current successfully.`));
                     }
                 ).then(async () => {
-                    window.showInformationMessage(localize("releaseRevision", "Releasing current revision has completed successfully."));
+                    window.showInformationMessage(localize("releaseRevision", "Releasing current revision has been completed successfully."));
                 });
             }
         }

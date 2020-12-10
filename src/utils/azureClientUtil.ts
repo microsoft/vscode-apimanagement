@@ -33,7 +33,7 @@ export namespace azureClientUtil {
         const subscriptionId = await ext.ui.showQuickPick(subscriptions.map((s) => {
             const option = s.id.concat(' (', s.name, ')');
             return { label: option, subscriptionId: s.id};
-        }),                                               { canPickMany: false });
+        }),                                               { canPickMany: false, placeHolder: "Please choose the Azure subscription"});
         return subscriptionId.subscriptionId;
     }
 }
