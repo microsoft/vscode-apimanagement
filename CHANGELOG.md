@@ -1,6 +1,13 @@
 # Change Log
 All notable changes to the "Azure Api Managment VS Code" extension will be documented in this file.
 
+## [0.1.8 - 2020-12-10]
+
+- Switch / Release API Revisions
+- API filter
+- Import Azure Function/Web App from different Subscriptions
+- Small bug fixes
+
 ## [0.1.7 - 2020-10-30]
 
 - Scaffold Azure Functions
