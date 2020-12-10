@@ -27,7 +27,7 @@ import { createNamedValue, updateNamedValue } from './commands/manageNamedValue'
 import { openDiffEditor } from './commands/openDiffEditor';
 import { openInPortal } from './commands/openInPortal';
 import { openWorkingFolder } from './commands/openWorkingFolder';
-import { removeApiFilter } from './commands/removeApiFilter';
+import { revisions } from './commands/revisions';
 import { setupWorkingFolder } from './commands/setupWorkingFolder';
 import { testOperation } from './commands/testOperation';
 import { doubleClickDebounceDelay } from './constants';
@@ -104,7 +104,6 @@ export function activateInternal(context: vscode.ExtensionContext) {
     registerCommand('azureApiManagement.importWebApp', async (node: ApisTreeItem) => await importWebApp(node));
     registerCommand('azureApiManagement.importWebAppToApi', async (node: ApiTreeItem) => await importWebAppToApi(node));
     registerCommand('azureApiManagement.addApiFilter', async (node: ApisTreeItem) => await addApiFilter(node));
-    registerCommand('azureApiManagement.removeApiFilter', async (node: ApisTreeItem) => await removeApiFilter(node));
     registerCommand('azureApiManagement.setApiFilter', async (node: ApisTreeItem) => await addApiFilter(node));
     registerCommand('azureApiManagement.copyDockerRunCommand', async (node: GatewayTreeItem) => await copyDockerRunCommand(node));
     registerCommand('azureApiManagement.generateKubernetesDeployment', async (node: GatewayTreeItem) => await generateKubernetesDeployment(node));
@@ -116,7 +115,7 @@ export function activateInternal(context: vscode.ExtensionContext) {
     registerCommand('azureApiManagement.openDiffEditor', async (uri: vscode.Uri) => await openDiffEditor(uri));
 
     registerCommand('azureApiManagement.generateFunctions', async (node: ApiTreeItem) => await generateFunctions(node));
-
+    registerCommand('azureApiManagement.revisions', async (node: ApiTreeItem) => await revisions(node));
     registerEditors(context);
 
     activate(context); // activeta debug context

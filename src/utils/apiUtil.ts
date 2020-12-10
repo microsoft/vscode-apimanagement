@@ -105,4 +105,8 @@ export namespace apiUtil {
         }
         return operations;
     }
+
+    export function isNotApiRevision(api: ApiContract): boolean {
+        return api.isCurrent !== undefined && api.isCurrent === true;
+    }
 }

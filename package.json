@@ -2,7 +2,7 @@
     "name": "vscode-apimanagement",
     "displayName": "Azure API Management",
     "description": "An Azure API Management extension for Visual Studio Code.",
-    "version": "0.1.7",
+    "version": "0.1.8",
     "publisher": "ms-azuretools",
     "icon": "resources/azure-apim.png",
     "aiKey": "AIF-d9b70cd4-b9f9-4d70-929b-a071c400b217",
@@ -67,12 +67,12 @@
         "onCommand:azureApiManagement.importWebApp",
         "onCommand:azureApiManagement.importWebAppToApi",
         "onCommand:azureApiManagement.addApiFilter",
-        "onCommand:azureApiManagement.removeApiFilter",
         "onCommand:azureApiManagement.copyDockerRunCommand",
         "onCommand:azureApiManagement.generateKubernetesDeployment",
         "onCommand:azureApiManagement.generateNewGatewayToken",
         "onCommand:azureApiManagement.debugPolicy",
-        "onCommand:azureApiManagement.generateFunctions"
+        "onCommand:azureApiManagement.generateFunctions",
+        "onCommand:azureApiManagement.revisions"
     ],
     "main": "main",
     "contributes": {
@@ -324,11 +324,6 @@
                 "category": "Azure API Management"
             },
             {
-                "command": "azureApiManagement.removeApiFilter",
-                "title": "%azureApiManagement.removeApiFilter%",
-                "category": "Azure API Management"
-            },
-            {
                 "command": "azureApiManagement.setApiFilter",
                 "title": "%azureApiManagement.setApiFilter%",
                 "icon": {
@@ -336,7 +331,6 @@
                     "dark": "resources/dark/filter.svg"
                 }
             },
-
             {
                 "command": "azureApiManagement.debugPolicy",
                 "title": "%azureApiManagement.debugPolicy%",
@@ -360,6 +354,11 @@
             {
                 "command": "azureApiManagement.generateFunctions",
                 "title": "%azureApiManagement.generateFunctions%",
+                "category": "Azure API Management"
+            },
+            {
+                "command": "azureApiManagement.revisions",
+                "title": "%azureApiManagement.revisions%",
                 "category": "Azure API Management"
             },
             {
@@ -496,11 +495,6 @@
                     "group": "inline"
                 },
                 {
-                    "command": "azureApiManagement.removeApiFilter",
-                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApis",
-                    "group": "4@2"
-                },
-                {
                     "command": "azureApiManagement.showApi",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApi",
                     "group": "1@1"
@@ -526,14 +520,19 @@
                     "group": "4@1"
                 },
                 {
-                    "command": "azureApiManagement.Refresh",
+                    "command": "azureApiManagement.revisions",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApi",
                     "group": "5@1"
                 },
                 {
-                    "command": "azureApiManagement.deleteApi",
+                    "command": "azureApiManagement.Refresh",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApi",
                     "group": "6@1"
+                },
+                {
+                    "command": "azureApiManagement.deleteApi",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApi",
+                    "group": "7@1"
                 },
                 {
                     "command": "azureApiManagement.Refresh",
@@ -689,6 +688,7 @@
         "azure-arm-resource": "^3.0.0-preview",
         "azure-arm-website": "5.7.0",
         "fs-extra": "^4.0.2",
+        "guid-typescript": "^1.0.9",
         "opn": "^5.3.0",
         "request": "^2.88.2",
         "request-promise": "^4.2.5",
