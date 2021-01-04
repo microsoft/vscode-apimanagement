@@ -7,7 +7,7 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
-import { AzureParentTreeItem, AzExtTreeDataProvider, AzureTreeItem, AzureUserInput, createTelemetryReporter, IActionContext, registerCommand, registerEvent, registerUIExtensionVariables } from 'vscode-azureextensionui';
+import { AzureParentTreeItem, AzureTreeDataProvider, AzureTreeItem, AzureUserInput, createTelemetryReporter, IActionContext, registerCommand, registerEvent, registerUIExtensionVariables } from 'vscode-azureextensionui';
 import { addApiFilter } from './commands/addApiFilter';
 import { addApiToGateway } from './commands/addApiToGateway';
 import { addApiToProduct } from './commands/addApiToProduct';
@@ -73,7 +73,7 @@ export function activateInternal(context: vscode.ExtensionContext) {
 
     registerUIExtensionVariables(ext);
 
-    const tree = new AzExtTreeDataProvider(ApiManagementProvider, 'azureApiManagement.LoadMore');
+    const tree = new AzureTreeDataProvider(ApiManagementProvider, 'azureApiManagement.LoadMore');
     ext.tree = tree;
     context.subscriptions.push(tree);
     context.subscriptions.push(vscode.window.registerTreeDataProvider('azureApiManagementExplorer', tree));

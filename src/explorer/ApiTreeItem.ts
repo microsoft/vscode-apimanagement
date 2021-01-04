@@ -4,7 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { ApiManagementModels } from "@azure/arm-apimanagement";
-import { ApiContract } from "azure-arm-apimanagement/lib/models";
+import { ApiContract } from "@azure/arm-apimanagement/src/models";
 import { ProgressLocation, window } from "vscode";
 import { AzureParentTreeItem, AzureTreeItem, DialogResponses, ISubscriptionContext, UserCancelledError } from "vscode-azureextensionui";
 import { localize } from "../localize";

@@ -5,7 +5,7 @@
 
 import { ApiManagementClient, ApiManagementModels } from '@azure/arm-apimanagement';
 import { MessageItem } from 'vscode';
-import { AzExtTreeItem, AzureTreeItem, AzureWizard, AzureWizardExecuteStep, AzureWizardPromptStep, createAzureClient, IActionContext, LocationListStep, parseError, ResourceGroupCreateStep, ResourceGroupListStep, SubscriptionTreeItemBase } from 'vscode-azureextensionui';
+import { AzureTreeItem, AzureWizard, AzureWizardExecuteStep, AzureWizardPromptStep, createAzureClient, IActionContext, LocationListStep, parseError, ResourceGroupCreateStep, ResourceGroupListStep, SubscriptionTreeItemBase } from 'vscode-azureextensionui';
 import { IServiceWizardContext } from '../commands/createService/IServiceWizardContext';
 import { ServiceCreateStep } from '../commands/createService/ServiceCreateStep';
 import { ServiceNameStep } from '../commands/createService/ServiceNameStep';
@@ -26,7 +26,7 @@ export class ApiManagementProvider extends SubscriptionTreeItemBase {
         return this._nextLink !== undefined;
     }
 
-    public async loadMoreChildrenImpl(clearCache: boolean): Promise<AzExtTreeItem[]> {
+    public async loadMoreChildrenImpl(clearCache: boolean): Promise<AzureTreeItem[]> {
         if (clearCache) {
             this._nextLink = undefined;
         }
