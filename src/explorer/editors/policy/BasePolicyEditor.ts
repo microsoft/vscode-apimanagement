@@ -45,8 +45,12 @@ export abstract class BasePolicyEditor<TRoot extends IServiceTreeRoot> extends E
         }
     }
 
-    public async getFilename(context: AzureTreeItem<TRoot>): Promise<string> {
+    public async getDiffFilename(context: AzureTreeItem<TRoot>): Promise<string> {
         return `${nameUtil(context.root)}.policy.cshtml`;
+    }
+
+    public async getFilename(context: AzureTreeItem<TRoot>): Promise<string> {
+        return `${nameUtil(context.root)}-tempFile.policy.cshtml`;
     }
 
     public async updateData(context: AzureTreeItem<TRoot>, data: string): Promise<string> {

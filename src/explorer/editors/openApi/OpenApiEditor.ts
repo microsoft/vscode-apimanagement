@@ -85,8 +85,12 @@ export class OpenApiEditor extends Editor<ApiTreeItem> {
         }
     }
 
-    public async getFilename(context: ApiTreeItem): Promise<string> {
+    public async getDiffFilename(context: ApiTreeItem): Promise<string> {
         return `${context.root.serviceName}-${context.root.apiName}-openapi.json`;
+    }
+
+    public async getFilename(context: ApiTreeItem): Promise<string> {
+        return `${context.root.serviceName}-${context.root.apiName}-openapi-tempFile.json`;
     }
 
     public async getSize(): Promise<number> {

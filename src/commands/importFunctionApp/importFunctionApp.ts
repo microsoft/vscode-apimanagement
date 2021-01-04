@@ -16,6 +16,7 @@ import { ServiceTreeItem } from "../../explorer/ServiceTreeItem";
 import { ext } from "../../extensionVariables";
 import { localize } from "../../localize";
 import { apiUtil } from "../../utils/apiUtil";
+import { azureClientUtil } from "../../utils/azureClientUtil";
 import { nonNullOrEmptyValue } from "../../utils/nonNull";
 import { createImportXmlPolicy, getPickedWebApp, setAppBackendEntity, webAppKind } from "../importWebApp/importWebApp";
 import { parseUrlTemplate } from "./parseUrlTemplate";
@@ -29,11 +30,12 @@ export async function importFunctionAppToApi(node?: ApiTreeItem): Promise<void> 
     ext.outputChannel.appendLine(localize("importFunctionApp", `Import Function App started...`));
 
     ext.outputChannel.appendLine(localize("importFunctionApp", "Getting Function Apps..."));
-    const functionApp = await getPickedWebApp(node, webAppKind.functionApp);
+    const functionSubscriptionId = await azureClientUtil.selectSubscription();
+    const functionApp = await getPickedWebApp(node, webAppKind.functionApp, functionSubscriptionId);
     const funcName = nonNullOrEmptyValue(functionApp.name);
     const funcAppResourceGroup = nonNullOrEmptyValue(functionApp.resourceGroup);
 
-    const funcAppService = new FunctionAppService(node.root.credentials, node.root.environment.resourceManagerEndpointUrl, node.root.subscriptionId, funcAppResourceGroup, funcName);
+    const funcAppService = new FunctionAppService(node.root.credentials, node.root.environment.resourceManagerEndpointUrl, functionSubscriptionId, funcAppResourceGroup, funcName);
     const pickedFuncs = await pickFunctions(funcAppService);
     window.withProgress(
         {
@@ -64,11 +66,12 @@ export async function importFunctionApp(node?: ApisTreeItem): Promise<void> {
 
     ext.outputChannel.show();
     ext.outputChannel.appendLine(localize("importFunctionApp", "Getting Function Apps..."));
-    const functionApp = await getPickedWebApp(node, webAppKind.functionApp);
+    const functionSubscriptionId = await azureClientUtil.selectSubscription();
+    const functionApp = await getPickedWebApp(node, webAppKind.functionApp, functionSubscriptionId);
     const funcName = nonNullOrEmptyValue(functionApp.name);
     const funcAppResourceGroup = nonNullOrEmptyValue(functionApp.resourceGroup);
 
-    const funcAppService = new FunctionAppService(node.root.credentials, node.root.environment.resourceManagerEndpointUrl, node.root.subscriptionId, funcAppResourceGroup, funcName);
+    const funcAppService = new FunctionAppService(node.root.credentials, node.root.environment.resourceManagerEndpointUrl, functionSubscriptionId, funcAppResourceGroup, funcName);
     const pickedFuncs = await pickFunctions(funcAppService);
     const apiName = await apiUtil.askApiName(funcName);
     const apiId = apiUtil.genApiId(apiName);

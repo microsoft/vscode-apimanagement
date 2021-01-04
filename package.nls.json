@@ -31,6 +31,8 @@
     "azureApiManagement.extractApi": "Extract API",
     "azureApiManagement.importFunctionApp": "Import from Azure Functions",
     "azureApiManagement.importFunctionAppToApi": "Import Azure Functions",
+    "azureApiManagement.addApiFilter": "Filter APIs",
+    "azureApiManagement.setApiFilter": "Set API filter...",
     "azureApiManagement.addApiToGateway": "Add API to Gateway",
     "azureApiManagement.removeApiFromGateway": "Remove API from Gateway",
     "azureApiManagement.importWebApp": "Import from Azure App Service",
@@ -40,5 +42,6 @@
     "azureApiManagement.generateNewGatewayToken": "Generate New Gateway Token",
     "azureApiManagement.debugPolicy": "Start Policy Debugging",
     "azureApiManagement.generateFunctions": "Scaffold Azure Functions",
-    "azureApiManagement.enableCreateFunctionApp": "(Experimental Feature) Enables scaffolding Azure Functions functionality"
+    "azureApiManagement.scaffoldAzureFunctions": "(Experimental Feature) Enables scaffolding Azure Functions from API definition.",
+    "azureApiManagement.revisions": "API Revisions"
 }

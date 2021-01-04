@@ -8,6 +8,7 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import { AzureParentTreeItem, AzExtTreeDataProvider, AzureTreeItem, AzureUserInput, createTelemetryReporter, IActionContext, registerCommand, registerEvent, registerUIExtensionVariables } from 'vscode-azureextensionui';
+import { addApiFilter } from './commands/addApiFilter';
 import { addApiToGateway } from './commands/addApiToGateway';
 import { addApiToProduct } from './commands/addApiToProduct';
 import { copySubscriptionKey } from './commands/copySubscriptionKey';
@@ -23,8 +24,10 @@ import { importFunctionAppToApi } from './commands/importFunctionApp/importFunct
 import { importOpenApi } from './commands/importOpenApi';
 import { importWebApp, importWebAppToApi } from './commands/importWebApp/importWebApp';
 import { createNamedValue, updateNamedValue } from './commands/manageNamedValue';
+import { openDiffEditor } from './commands/openDiffEditor';
 import { openInPortal } from './commands/openInPortal';
 import { openWorkingFolder } from './commands/openWorkingFolder';
+import { revisions } from './commands/revisions';
 import { setupWorkingFolder } from './commands/setupWorkingFolder';
 import { testOperation } from './commands/testOperation';
 import { doubleClickDebounceDelay } from './constants';
@@ -66,6 +69,7 @@ export function activateInternal(context: vscode.ExtensionContext) {
     ext.outputChannel = vscode.window.createOutputChannel('Azure API Management');
     context.subscriptions.push(ext.outputChannel);
     ext.ui = new AzureUserInput(context.globalState);
+    vscode.commands.executeCommand('setContext', 'isEditorEnabled', false);
 
     registerUIExtensionVariables(ext);
 
@@ -99,6 +103,8 @@ export function activateInternal(context: vscode.ExtensionContext) {
     registerCommand('azureApiManagement.importFunctionAppToApi', async (node: ApiTreeItem) => await importFunctionAppToApi(node));
     registerCommand('azureApiManagement.importWebApp', async (node: ApisTreeItem) => await importWebApp(node));
     registerCommand('azureApiManagement.importWebAppToApi', async (node: ApiTreeItem) => await importWebAppToApi(node));
+    registerCommand('azureApiManagement.addApiFilter', async (node: ApisTreeItem) => await addApiFilter(node));
+    registerCommand('azureApiManagement.setApiFilter', async (node: ApisTreeItem) => await addApiFilter(node));
     registerCommand('azureApiManagement.copyDockerRunCommand', async (node: GatewayTreeItem) => await copyDockerRunCommand(node));
     registerCommand('azureApiManagement.generateKubernetesDeployment', async (node: GatewayTreeItem) => await generateKubernetesDeployment(node));
     registerCommand('azureApiManagement.generateNewGatewayToken', async (node: GatewayTreeItem) => await generateNewGatewayToken(node));
@@ -106,105 +112,107 @@ export function activateInternal(context: vscode.ExtensionContext) {
 
     registerCommand('azureApiManagement.openExtensionWorkspaceFolder', openWorkingFolder);
     registerCommand('azureApiManagement.initializeExtensionWorkspaceFolder', setupWorkingFolder);
+    registerCommand('azureApiManagement.openDiffEditor', async (uri: vscode.Uri) => await openDiffEditor(uri));
 
     registerCommand('azureApiManagement.generateFunctions', async (node: ApiTreeItem) => await generateFunctions(node));
-
+    registerCommand('azureApiManagement.revisions', async (node: ApiTreeItem) => await revisions(node));
     registerEditors(context);
 
     activate(context); // activeta debug context
 }
 
+// tslint:disable-next-line: max-func-body-length
 function registerEditors(context: vscode.ExtensionContext) : void {
     const apiResourceEditor: ApiResourceEditor = new ApiResourceEditor();
     context.subscriptions.push(apiResourceEditor);
     registerEvent('azureApiManagement.ApiResourceEditor.onDidSaveTextDocument', vscode.workspace.onDidSaveTextDocument, async function (this: IActionContext, doc: vscode.TextDocument): Promise<void> { await apiResourceEditor.onDidSaveTextDocument(this, context.globalState, doc); });
-
     registerCommand('azureApiManagement.showArmApi', async (node?: ApiTreeItem) => {
         if (!node) {
             node = <ApiTreeItem>await ext.tree.showTreeItemPicker(ApiTreeItem.contextValue);
         }
         await apiResourceEditor.showEditor(node);
+        vscode.commands.executeCommand('setContext', 'isEditorEnabled', true);
     },              doubleClickDebounceDelay);
 
     const operationResourceEditor: OperationResourceEditor = new OperationResourceEditor();
     context.subscriptions.push(operationResourceEditor);
     registerEvent('azureApiManagement.OperationResourceEditor.onDidSaveTextDocument', vscode.workspace.onDidSaveTextDocument, async function (this: IActionContext, doc: vscode.TextDocument): Promise<void> { await operationResourceEditor.onDidSaveTextDocument(this, context.globalState, doc); });
-
     registerCommand('azureApiManagement.showArmApiOperation', async (node?: ApiOperationTreeItem) => {
         if (!node) {
             node = <ApiOperationTreeItem>await ext.tree.showTreeItemPicker(ApiOperationTreeItem.contextValue);
         }
         await operationResourceEditor.showEditor(node);
+        vscode.commands.executeCommand('setContext', 'isEditorEnabled', true);
     },              doubleClickDebounceDelay);
 
     const productResourceEditor: ProductResourceEditor = new ProductResourceEditor();
     context.subscriptions.push(productResourceEditor);
     registerEvent('azureApiManagement.ProductResourceEditor.onDidSaveTextDocument', vscode.workspace.onDidSaveTextDocument, async function (this: IActionContext, doc: vscode.TextDocument): Promise<void> { await productResourceEditor.onDidSaveTextDocument(this, context.globalState, doc); });
-
     registerCommand('azureApiManagement.showArmProduct', async (node?: ProductTreeItem) => {
         if (!node) {
             node = <ProductTreeItem>await ext.tree.showTreeItemPicker(ProductTreeItem.contextValue);
         }
         await productResourceEditor.showEditor(node);
+        vscode.commands.executeCommand('setContext', 'isEditorEnabled', true);
     },              doubleClickDebounceDelay);
 
     const apiEditor: OpenApiEditor = new OpenApiEditor();
     context.subscriptions.push(apiEditor);
     registerEvent('azureApiManagement.apiEditor.onDidSaveTextDocument', vscode.workspace.onDidSaveTextDocument, async function (this: IActionContext, doc: vscode.TextDocument): Promise<void> { await apiEditor.onDidSaveTextDocument(this, context.globalState, doc); });
-
     registerCommand('azureApiManagement.showApi', async (node?: ApiTreeItem) => {
         if (!node) {
             node = <ApiTreeItem>await ext.tree.showTreeItemPicker(ApiTreeItem.contextValue);
         }
         await apiEditor.showEditor(node);
+        vscode.commands.executeCommand('setContext', 'isEditorEnabled', true);
     },              doubleClickDebounceDelay);
 
     const servicePolicyEditor: ServicePolicyEditor = new ServicePolicyEditor();
     context.subscriptions.push(servicePolicyEditor);
     registerEvent('azureApiManagement.servicePolicyEditor.onDidSaveTextDocument', vscode.workspace.onDidSaveTextDocument, async function (this: IActionContext, doc: vscode.TextDocument): Promise<void> { await servicePolicyEditor.onDidSaveTextDocument(this, context.globalState, doc); });
-
     registerCommand('azureApiManagement.showServicePolicy', async (node?: ServicePolicyTreeItem) => {
         if (!node) {
             const serviceNode = <ServiceTreeItem>await ext.tree.showTreeItemPicker(ServiceTreeItem.contextValue);
             node = serviceNode.servicePolicyTreeItem;
         }
         await servicePolicyEditor.showEditor(node);
+        vscode.commands.executeCommand('setContext', 'isEditorEnabled', true);
     },              doubleClickDebounceDelay);
 
     const apiPolicyEditor: ApiPolicyEditor = new ApiPolicyEditor();
     context.subscriptions.push(apiPolicyEditor);
     registerEvent('azureApiManagement.apiPolicyEditor.onDidSaveTextDocument', vscode.workspace.onDidSaveTextDocument, async function (this: IActionContext, doc: vscode.TextDocument): Promise<void> { await apiPolicyEditor.onDidSaveTextDocument(this, context.globalState, doc); });
-
     registerCommand('azureApiManagement.showApiPolicy', async (node?: ApiPolicyTreeItem) => {
         if (!node) {
             const apiNode = <ApiTreeItem>await ext.tree.showTreeItemPicker(ApiTreeItem.contextValue);
             node = apiNode.policyTreeItem;
         }
         await apiPolicyEditor.showEditor(node);
+        vscode.commands.executeCommand('setContext', 'isEditorEnabled', true);
     },              doubleClickDebounceDelay);
 
     const operationPolicyEditor: OperationPolicyEditor = new OperationPolicyEditor();
     context.subscriptions.push(operationPolicyEditor);
     registerEvent('azureApiManagement.operationPolicyEditor.onDidSaveTextDocument', vscode.workspace.onDidSaveTextDocument, async function (this: IActionContext, doc: vscode.TextDocument): Promise<void> { await operationPolicyEditor.onDidSaveTextDocument(this, context.globalState, doc); });
-
     registerCommand('azureApiManagement.showOperationPolicy', async (node?: OperationPolicyTreeItem) => {
         if (!node) {
             const operationNode = <ApiOperationTreeItem>await ext.tree.showTreeItemPicker(ApiOperationTreeItem.contextValue);
             node = operationNode.policyTreeItem;
         }
         await operationPolicyEditor.showEditor(node);
+        vscode.commands.executeCommand('setContext', 'isEditorEnabled', true);
     },              doubleClickDebounceDelay);
 
     const productPolicyEditor: ProductPolicyEditor = new ProductPolicyEditor();
     context.subscriptions.push(productPolicyEditor);
     registerEvent('azureApiManagement.productPolicyEditor.onDidSaveTextDocument', vscode.workspace.onDidSaveTextDocument, async function (this: IActionContext, doc: vscode.TextDocument): Promise<void> { await productPolicyEditor.onDidSaveTextDocument(this, context.globalState, doc); });
-
     registerCommand('azureApiManagement.showProductPolicy', async (node?: ProductPolicyTreeItem) => {
         if (!node) {
             const productNode = <ProductTreeItem>await ext.tree.showTreeItemPicker(ProductTreeItem.contextValue);
             node = productNode.policyTreeItem;
         }
         await productPolicyEditor.showEditor(node);
+        vscode.commands.executeCommand('setContext', 'isEditorEnabled', true);
     },              doubleClickDebounceDelay);
 }
 

@@ -25,6 +25,8 @@ export class ApisTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
     public static contextValue: string = 'azureApiManagementApis';
     public label: string = "APIs";
     public contextValue: string = ApisTreeItem.contextValue;
+    public selectedApis: ApiContract[] = [];
+    //public filterValue: string | undefined;
     public readonly childTypeLabel: string = localize('azureApiManagement.Api', 'API');
     private _nextLink: string | undefined;
 
@@ -37,31 +39,39 @@ export class ApisTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
             this._nextLink = undefined;
         }
 
-        const apiCollection: ApiManagementModels.ApiCollection = this._nextLink === undefined ?
+        let apisToLoad : ApiContract[] = this.selectedApis;
+        if (this.selectedApis.length === 0) {
+            const apiCollection: ApiManagementModels.ApiCollection = this._nextLink === undefined ?
             await this.root.client.api.listByService(this.root.resourceGroupName, this.root.serviceName, { expandApiVersionSet: true, top: topItemCount }) :
             await this.root.client.api.listByServiceNext(this._nextLink);
 
-        this._nextLink = apiCollection.nextLink;
+            this._nextLink = apiCollection.nextLink;
+
+            apisToLoad = apiCollection.map((s) => s).filter(s => apiUtil.isNotApiRevision(s));
+        }
 
         const versionSetMap: Map<string, ApiVersionSetTreeItem> = new Map<string, ApiVersionSetTreeItem>();
-
-        return await this.createTreeItemsWithErrorHandling(
-            apiCollection,
+        return await createTreeItemsWithErrorHandling(
+            this,
+            apisToLoad,
             "invalidApiManagementApi",
             async (api: ApiManagementModels.ApiContract) => {
-                if (api.apiVersionSetId && api.apiVersionSet) {
+                if (api.apiVersionSetId) {
                     let apiVersionSetTreeItem = versionSetMap.get(api.apiVersionSetId);
                     if (!apiVersionSetTreeItem) {
                         apiVersionSetTreeItem = new ApiVersionSetTreeItem(this, api);
                         versionSetMap.set(api.apiVersionSetId, apiVersionSetTreeItem);
                         return apiVersionSetTreeItem;
                     } else {
-                        apiVersionSetTreeItem.addApiToSet(api);
+                        if (apiUtil.isNotApiRevision(api)) {
+                            apiVersionSetTreeItem.addApiToSet(api);
+                        }
                         return undefined;
                     }
-                } else {
+                } else if (apiUtil.isNotApiRevision(api)) {
                     return new ApiTreeItem(this, api);
                 }
+                return undefined;
             },
             (api: ApiManagementModels.ApiContract) => {
                 return api.name;
