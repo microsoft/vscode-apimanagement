@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ApiManagementModels } from "azure-arm-apimanagement";
+import { ApiManagementModels } from "@azure/arm-apimanagement";
 import { ProgressLocation, window } from "vscode";
 import { AzureParentTreeItem, AzureTreeItem, DialogResponses, UserCancelledError } from "vscode-azureextensionui";
 import { localize } from "../localize";
@@ -14,6 +14,7 @@ import { IProductTreeRoot } from "./IProductTreeRoot";
 export class ProductApiTreeItem extends AzureTreeItem<IProductTreeRoot> {
     public static contextValue: string = 'azureApiManagementProductApi';
     public contextValue: string = ProductApiTreeItem.contextValue;
+
     private _label: string;
 
     constructor(
@@ -27,6 +28,7 @@ export class ProductApiTreeItem extends AzureTreeItem<IProductTreeRoot> {
         return this._label;
     }
 
+    // @ts-ignore
     public get iconPath(): { light: string, dark: string } {
         return treeUtils.getThemedIconPath('api');
     }

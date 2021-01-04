@@ -633,9 +633,9 @@
         "webpack-cli": "^3.3.11"
     },
     "dependencies": {
+        "@azure/arm-apimanagement": "^6.0.0",
         "@types/xml": "^1.0.4",
         "await-notify": "1.0.1",
-        "azure-arm-apimanagement": "^6.0.0",
         "azure-arm-resource": "^3.0.0-preview",
         "azure-arm-website": "5.7.0",
         "fs-extra": "^4.0.2",

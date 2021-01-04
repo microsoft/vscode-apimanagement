@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ApiContract, BackendCredentialsContract, NamedValueCreateContract, OperationCollection, OperationContract } from "azure-arm-apimanagement/lib/models";
+import { ApiContract, BackendCredentialsContract, NamedValueCreateContract, OperationCollection, OperationContract } from "@azure/arm-apimanagement/src/models";
 import { Site } from "azure-arm-website/lib/models";
 import { ProgressLocation, window } from "vscode";
 import { getSetBackendPolicy } from "../../azure/apim/policyHelper";

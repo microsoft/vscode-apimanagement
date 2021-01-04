@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ApiManagementModels } from "azure-arm-apimanagement";
+import { ApiManagementModels } from "@azure/arm-apimanagement";
 import { AzureParentTreeItem, AzureTreeItem, ISubscriptionRoot } from "vscode-azureextensionui";
 import { nonNullProp } from "../utils/nonNull";
 import { treeUtils } from "../utils/treeUtils";

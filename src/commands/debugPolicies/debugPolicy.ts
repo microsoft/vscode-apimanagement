@@ -11,6 +11,7 @@ import { nameUtil } from '../../utils/nameUtil';
 
 export async function debugPolicy(node?: ApiOperationTreeItem): Promise<void> {
     if (!node) {
+        // tslint:disable-next-line: no-unsafe-any
         node = <ApiOperationTreeItem>await ext.tree.showTreeItemPicker(ApiOperationTreeItem.contextValue);
     }
 

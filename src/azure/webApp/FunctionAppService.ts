@@ -4,6 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { ServiceClientCredentials } from "ms-rest";
+import { TokenCredentialsBase } from "vscode-azureextensionui";
 import * as Constants from "../../constants";
 import { nonNullOrEmptyValue } from "../../utils/nonNull";
 import { requestUtil } from "../../utils/requestUtil";
@@ -18,7 +19,7 @@ export class FunctionAppService {
     public resourceGroup: string;
     public functionName: string;
 
-    constructor(credentials: ServiceClientCredentials, endPointUrl: string, subscriptionId: string, resourceGroup: string, functionName: string) {
+    constructor(credentials: TokenCredentialsBase, endPointUrl: string, subscriptionId: string, resourceGroup: string, functionName: string) {
         this.baseUrl = this.genSiteUrl(endPointUrl, subscriptionId, resourceGroup, functionName);
         this.credentials = credentials;
         this.endPointUrl = endPointUrl;

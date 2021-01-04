@@ -3,9 +3,9 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ApiManagementClient, ApiManagementModels } from 'azure-arm-apimanagement';
+import { ApiManagementClient, ApiManagementModels } from '@azure/arm-apimanagement';
 import { MessageItem } from 'vscode';
-import { AzureTreeItem, AzureWizard, AzureWizardExecuteStep, AzureWizardPromptStep, createAzureClient, createTreeItemsWithErrorHandling, IActionContext, LocationListStep, parseError, ResourceGroupCreateStep, ResourceGroupListStep, SubscriptionTreeItem } from 'vscode-azureextensionui';
+import { AzExtTreeItem, AzureTreeItem, AzureWizard, AzureWizardExecuteStep, AzureWizardPromptStep, createAzureClient, IActionContext, LocationListStep, parseError, ResourceGroupCreateStep, ResourceGroupListStep, SubscriptionTreeItemBase } from 'vscode-azureextensionui';
 import { IServiceWizardContext } from '../commands/createService/IServiceWizardContext';
 import { ServiceCreateStep } from '../commands/createService/ServiceCreateStep';
 import { ServiceNameStep } from '../commands/createService/ServiceNameStep';
@@ -17,7 +17,7 @@ import { nonNullProp } from '../utils/nonNull';
 import { getWorkspaceSetting, updateGlobalSetting } from '../vsCodeConfig/settings';
 import { ServiceTreeItem } from './ServiceTreeItem';
 
-export class ApiManagementProvider extends SubscriptionTreeItem {
+export class ApiManagementProvider extends SubscriptionTreeItemBase {
     public readonly childTypeLabel: string = localize('azureApiManagement.ApimService', 'API Management Service');
 
     private _nextLink: string | undefined;
@@ -26,7 +26,7 @@ export class ApiManagementProvider extends SubscriptionTreeItem {
         return this._nextLink !== undefined;
     }
 
-    public async loadMoreChildrenImpl(clearCache: boolean): Promise<AzureTreeItem[]> {
+    public async loadMoreChildrenImpl(clearCache: boolean): Promise<AzExtTreeItem[]> {
         if (clearCache) {
             this._nextLink = undefined;
         }
@@ -50,20 +50,22 @@ export class ApiManagementProvider extends SubscriptionTreeItem {
 
         this._nextLink = apiManagementServiceList.nextLink;
 
-        return createTreeItemsWithErrorHandling(
-            this,
+        return this.createTreeItemsWithErrorHandling(
             apiManagementServiceList,
             "invalidApiManagementService",
+            // @ts-ignore
             async (service: ApiManagementModels.ApiManagementServiceResource) => new ServiceTreeItem(this, client, service),
             (service: ApiManagementModels.ApiManagementServiceResource) => {
                 return service.name;
             });
     }
 
+    // @ts-ignore
     public async createChildImpl(showCreatingTreeItem: (label: string) => void, userOptions?: { actionContext: IActionContext; resourceGroup?: string }): Promise<AzureTreeItem> {
         // Ideally actionContext should always be defined, but there's a bug with the NodePicker. Create a 'fake' actionContext until that bug is fixed
         // https://github.com/Microsoft/vscode-azuretools/issues/120
         // tslint:disable-next-line:strict-boolean-expressions
+        // @ts-ignore
         const actionContext: IActionContext = userOptions ? userOptions.actionContext : <IActionContext>{ properties: {}, measurements: {} };
         const client: ApiManagementClient = createAzureClient(this.root, ApiManagementClient);
 

@@ -3,9 +3,9 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ApiManagementClient, ApiManagementModels } from "azure-arm-apimanagement";
+import { ApiManagementClient, ApiManagementModels } from "@azure/arm-apimanagement";
 import { ProgressLocation, window } from "vscode";
-import { AzureParentTreeItem, AzureTreeItem, DialogResponses, ISubscriptionRoot, UserCancelledError } from "vscode-azureextensionui";
+import { AzureParentTreeItem, AzureTreeItem, DialogResponses, ISubscriptionContext, UserCancelledError } from "vscode-azureextensionui";
 import { localize } from "../localize";
 import { getResourceGroupFromId } from "../utils/azure";
 import { nonNullProp, nonNullValue } from "../utils/nonNull";
@@ -26,14 +26,17 @@ import { ServicePolicyTreeItem } from "./ServicePolicyTreeItem";
 
 export class ServiceTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
 
+    // @ts-ignore
     public get root(): IServiceTreeRoot {
         return this._root;
     }
 
+    // @ts-ignore
     public get iconPath(): { light: string, dark: string } {
         return treeUtils.getThemedIconPath('apim');
     }
 
+    // @ts-ignore
     public get id(): string {
         return nonNullProp(this.apiManagementService, 'id');
     }
@@ -59,6 +62,7 @@ export class ServiceTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
         this.apisTreeItem = new ApisTreeItem(this);
         this.productsTreeItem = new ProductsTreeItem(this);
         this.namedValuesTreeItem = new NamedValuesTreeItem(this);
+        //parent.iconPath =
 
         const sku = nonNullValue(this.apiManagementService.sku.name);
         if (sku === 'Developer' || sku === 'Premium') {
@@ -116,7 +120,7 @@ export class ServiceTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
         }
     }
 
-    private createRoot(subRoot: ISubscriptionRoot, client: ApiManagementClient): IServiceTreeRoot {
+    private createRoot(subRoot: ISubscriptionContext, client: ApiManagementClient): IServiceTreeRoot {
         return Object.assign({}, subRoot, {
             client: client,
             serviceName : nonNullProp(this.apiManagementService, 'name'),

@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ApiManagementModels } from "azure-arm-apimanagement";
+import { ApiManagementModels } from "@azure/arm-apimanagement";
 import { AzureParentTreeItem, AzureTreeItem, createTreeItemsWithErrorHandling } from "vscode-azureextensionui";
 import { topItemCount } from "../constants";
 import { treeUtils } from "../utils/treeUtils";

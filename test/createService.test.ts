@@ -11,7 +11,7 @@ import { IHookCallbackContext, ISuiteCallbackContext } from 'mocha';
 //import * as vscode from 'vscode';
 import { AzureParentTreeItem } from 'vscode-azureextensionui';
 //import { ApiManagementProvider, AzureTreeDataProvider, ext, getRandomHexString, TestAzureAccount, TestUserInput, treeUtils } from '../extension.bundle';
-import { ApiManagementProvider, AzureTreeDataProvider, ext, TestAzureAccount, treeUtils } from '../extension.bundle';
+import { ApiManagementProvider, AzExtTreeDataProvider, ext, TestAzureAccount, treeUtils } from '../extension.bundle';
 import { longRunningTestsEnabled } from './global.test';
 //import { runWithApimSetting } from './runWithSetting';
 
@@ -30,7 +30,7 @@ suite('Create Azure Resources', async function (this: ISuiteCallbackContext): Pr
 
         this.timeout(120 * 1000);
         await testAccount.signIn();
-        ext.tree = new AzureTreeDataProvider(ApiManagementProvider, 'azureApiManagement.startTesting', undefined, testAccount);
+        ext.tree = new AzExtTreeDataProvider(ApiManagementProvider, 'azureApiManagement.startTesting', undefined, testAccount);
         const rootNode : AzureParentTreeItem = await treeUtils.getRootNode(ext.tree);
         rootNode.root.userId = "vscodeapimtest@microsoft.com"; // userId doesnt exist for service principal.
         //apiManagementClient = getApiManagementClient(testAccount);

@@ -3,8 +3,8 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ApiManagementModels } from "azure-arm-apimanagement";
-import { AzureParentTreeItem, AzureTreeItem, createTreeItemsWithErrorHandling } from "vscode-azureextensionui";
+import { ApiManagementModels } from "@azure/arm-apimanagement";
+import { AzExtTreeItem, AzureParentTreeItem } from "vscode-azureextensionui";
 import { topItemCount } from "../constants";
 import { localize } from "../localize";
 import { processError } from "../utils/errorUtil";
@@ -13,6 +13,7 @@ import { IProductTreeRoot } from "./IProductTreeRoot";
 import { ProductApiTreeItem } from "./ProductApiTreeItem";
 
 export class ProductApisTreeItem extends AzureParentTreeItem<IProductTreeRoot> {
+    // @ts-ignore
     public get iconPath(): { light: string, dark: string } {
         return treeUtils.getThemedIconPath('list');
     }
@@ -26,7 +27,7 @@ export class ProductApisTreeItem extends AzureParentTreeItem<IProductTreeRoot> {
         return this._nextLink !== undefined;
     }
 
-    public async loadMoreChildrenImpl(clearCache: boolean): Promise<AzureTreeItem<IProductTreeRoot>[]> {
+    public async loadMoreChildrenImpl(clearCache: boolean): Promise<AzExtTreeItem[]> {
         if (clearCache) {
             this._nextLink = undefined;
         }
@@ -37,16 +38,17 @@ export class ProductApisTreeItem extends AzureParentTreeItem<IProductTreeRoot> {
 
         this._nextLink = productApisCollection.nextLink;
 
-        return createTreeItemsWithErrorHandling(
-            this,
+        return this.createTreeItemsWithErrorHandling(
             productApisCollection,
             "invalidApiManagementProductApi",
+            // @ts-ignore
             async (api: ApiManagementModels.ApiContract) => new ProductApiTreeItem(this, api),
             (api: ApiManagementModels.ApiContract) => {
                 return api.name;
             });
     }
 
+    // @ts-ignore
     public async createChildImpl(showCreatingTreeItem: (label: string) => void, userOptions?: { apiName: string }): Promise<ProductApiTreeItem> {
         if (userOptions && userOptions.apiName) {
             const apiName = userOptions.apiName;
@@ -54,6 +56,7 @@ export class ProductApisTreeItem extends AzureParentTreeItem<IProductTreeRoot> {
 
             try {
                 const product = await this.root.client.productApi.createOrUpdate(this.root.resourceGroupName, this.root.serviceName, this.root.productName, apiName);
+                // @ts-ignore
                 return new ProductApiTreeItem(this, product);
             } catch (error) {
                 throw new Error(processError(error, localize("addApiToProductFailed", `Failed to add '${apiName}' to product '${this.root.productName}'.`)));

@@ -3,9 +3,9 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ApiManagementModels } from "azure-arm-apimanagement";
-import { ApiContract, ApiCreateOrUpdateParameter } from "azure-arm-apimanagement/lib/models";
-import { AzureParentTreeItem, AzureTreeItem, createTreeItemsWithErrorHandling } from "vscode-azureextensionui";
+import { ApiManagementModels } from "@azure/arm-apimanagement";
+import { ApiContract, ApiCreateOrUpdateParameter } from "@azure/arm-apimanagement/src/models";
+import { AzExtTreeItem, AzureParentTreeItem } from "vscode-azureextensionui";
 import { topItemCount } from "../constants";
 import { localize } from "../localize";
 import { IOpenApiImportObject } from "../openApi/OpenApiImportObject";
@@ -18,6 +18,7 @@ import { IServiceTreeRoot } from "./IServiceTreeRoot";
 
 export class ApisTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
 
+    // @ts-ignore
     public get iconPath(): { light: string, dark: string } {
         return treeUtils.getThemedIconPath('list');
     }
@@ -31,7 +32,7 @@ export class ApisTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
         return this._nextLink !== undefined;
     }
 
-    public async loadMoreChildrenImpl(clearCache: boolean): Promise<AzureTreeItem<IServiceTreeRoot>[]> {
+    public async loadMoreChildrenImpl(clearCache: boolean): Promise<AzExtTreeItem[]> {
         if (clearCache) {
             this._nextLink = undefined;
         }
@@ -44,8 +45,7 @@ export class ApisTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
 
         const versionSetMap: Map<string, ApiVersionSetTreeItem> = new Map<string, ApiVersionSetTreeItem>();
 
-        return await createTreeItemsWithErrorHandling(
-            this,
+        return await this.createTreeItemsWithErrorHandling(
             apiCollection,
             "invalidApiManagementApi",
             async (api: ApiManagementModels.ApiContract) => {

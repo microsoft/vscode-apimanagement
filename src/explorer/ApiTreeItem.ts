@@ -3,9 +3,9 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ApiManagementModels } from "azure-arm-apimanagement";
+import { ApiManagementModels } from "@azure/arm-apimanagement";
 import { ProgressLocation, window } from "vscode";
-import { AzureParentTreeItem, AzureTreeItem, DialogResponses, ISubscriptionRoot, UserCancelledError } from "vscode-azureextensionui";
+import { AzureParentTreeItem, AzureTreeItem, DialogResponses, ISubscriptionContext, UserCancelledError } from "vscode-azureextensionui";
 import { localize } from "../localize";
 import { nonNullProp } from "../utils/nonNull";
 import { treeUtils } from "../utils/treeUtils";
@@ -85,6 +85,7 @@ export class ApiTreeItem extends AzureParentTreeItem<IApiTreeRoot> {
         }
     }
 
+    // @ts-ignore
     public pickTreeItemImpl(expectedContextValue: string | RegExp): AzureTreeItem<IApiTreeRoot> | undefined {
         if (expectedContextValue === OperationPolicyTreeItem.contextValue
             || expectedContextValue === ApiOperationTreeItem.contextValue ) {
@@ -93,7 +94,7 @@ export class ApiTreeItem extends AzureParentTreeItem<IApiTreeRoot> {
         return undefined;
     }
 
-    private createRoot(subRoot: ISubscriptionRoot): IApiTreeRoot {
+    private createRoot(subRoot: ISubscriptionContext): IApiTreeRoot {
         return Object.assign({}, <IServiceTreeRoot>subRoot, {
             apiName: nonNullProp(this.apiContract, 'name')
         });

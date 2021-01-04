@@ -3,8 +3,8 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ApiManagementModels } from "azure-arm-apimanagement";
-import { AzureParentTreeItem, AzureTreeItem, createTreeItemsWithErrorHandling } from "vscode-azureextensionui";
+import { ApiManagementModels } from "@azure/arm-apimanagement";
+import { AzExtTreeItem, AzureParentTreeItem } from "vscode-azureextensionui";
 import { topItemCount } from "../constants";
 import { localize } from "../localize";
 import { processError } from "../utils/errorUtil";
@@ -26,7 +26,7 @@ export class NamedValuesTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
         return this._nextLink !== undefined;
     }
 
-    public async loadMoreChildrenImpl(clearCache: boolean): Promise<AzureTreeItem<IServiceTreeRoot>[]> {
+    public async loadMoreChildrenImpl(clearCache: boolean): Promise<AzExtTreeItem[]> {
         if (clearCache) {
             this._nextLink = undefined;
         }
@@ -37,16 +37,17 @@ export class NamedValuesTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
 
         this._nextLink = propertyCollection.nextLink;
 
-        return createTreeItemsWithErrorHandling(
-            this,
+        return this.createTreeItemsWithErrorHandling(
             propertyCollection,
             "invalidApiManagementNamedValue",
+            // @ts-ignore
             async (prop: ApiManagementModels.NamedValueContract) => new NamedValueTreeItem(this, prop),
             (prop: ApiManagementModels.NamedValueContract) => {
                 return prop.name;
             });
     }
 
+    // @ts-ignore
     public async createChildImpl(showCreatingTreeItem: (label: string) => void, userOptions?: { key: string, value: string, secret?: boolean }): Promise<NamedValueTreeItem> {
         if (userOptions && userOptions.key && userOptions.value) {
             const keyName = userOptions.key;
@@ -60,6 +61,7 @@ export class NamedValuesTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
 
             try {
                 const property = await this.root.client.namedValue.createOrUpdate(this.root.resourceGroupName, this.root.serviceName, keyName, propertyContract);
+                // @ts-ignore
                 return new NamedValueTreeItem(this, property);
             } catch (error) {
                 throw new Error(processError(error, localize("createNamedValueFailed", `Failed to create the named value ${userOptions.key}`)));
