@@ -26,17 +26,14 @@ import { ServicePolicyTreeItem } from "./ServicePolicyTreeItem";
 
 export class ServiceTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
 
-    // @ts-ignore
     public get root(): IServiceTreeRoot {
         return this._root;
     }
 
-    // @ts-ignore
     public get iconPath(): { light: string, dark: string } {
         return treeUtils.getThemedIconPath('apim');
     }
 
-    // @ts-ignore
     public get id(): string {
         return nonNullProp(this.apiManagementService, 'id');
     }
@@ -68,6 +65,10 @@ export class ServiceTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
         if (sku === 'Developer' || sku === 'Premium') {
             this.gatewaysTreeItem = new GatewaysTreeItem(this);
         }
+    }
+
+    public static createEnvironmentTreeItem(parent: AzureParentTreeItem, apiManagementClient: ApiManagementClient, apiManagementService: ApiManagementModels.ApiManagementServiceResource): ServiceTreeItem {
+        return new ServiceTreeItem(parent, apiManagementClient, apiManagementService);
     }
 
     public async loadMoreChildrenImpl(): Promise<AzureTreeItem<IServiceTreeRoot>[]> {
@@ -104,20 +105,24 @@ export class ServiceTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
         return "";
     }
 
-    public pickTreeItemImpl(expectedContextValue: string | RegExp): AzureTreeItem<IServiceTreeRoot> | undefined {
-        if (expectedContextValue === ApiTreeItem.contextValue
-            || expectedContextValue === ApiPolicyTreeItem.contextValue
-            || expectedContextValue === ApiOperationTreeItem.contextValue
-            || expectedContextValue === OperationPolicyTreeItem.contextValue) {
-            return this.apisTreeItem;
-        } else if (expectedContextValue === NamedValueTreeItem.contextValue) {
-            return this.namedValuesTreeItem;
-        } else if (expectedContextValue === ProductTreeItem.contextValue
-            ||  expectedContextValue === ProductPolicyTreeItem.contextValue) {
-                return this.productsTreeItem;
-        } else {
-            return undefined;
+    public pickTreeItemImpl(expectedContextValues: (string | RegExp)[]): AzureTreeItem<IServiceTreeRoot> | undefined {
+        for (const expectedContextValue of expectedContextValues) {
+            switch (expectedContextValue) {
+                case ApiTreeItem.contextValue:
+                case ApiPolicyTreeItem.contextValue:
+                case ApiOperationTreeItem.contextValue:
+                case OperationPolicyTreeItem.contextValue:
+                    return this.apisTreeItem;
+                case NamedValueTreeItem.contextValue:
+                    return this.namedValuesTreeItem;
+                case ProductTreeItem.contextValue:
+                case ProductPolicyTreeItem.contextValue:
+                    return this.productsTreeItem;
+                default:
+            }
         }
+
+        return undefined;
     }
 
     private createRoot(subRoot: ISubscriptionContext, client: ApiManagementClient): IServiceTreeRoot {

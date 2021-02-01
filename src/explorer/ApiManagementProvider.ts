@@ -5,7 +5,7 @@
 
 import { ApiManagementClient, ApiManagementModels } from '@azure/arm-apimanagement';
 import { MessageItem } from 'vscode';
-import { AzureTreeItem, AzureWizard, AzureWizardExecuteStep, AzureWizardPromptStep, createAzureClient, IActionContext, LocationListStep, parseError, ResourceGroupCreateStep, ResourceGroupListStep, SubscriptionTreeItemBase } from 'vscode-azureextensionui';
+import { AzureTreeItem, AzureWizard, AzureWizardExecuteStep, AzureWizardPromptStep, createAzureClient, LocationListStep, parseError, ResourceGroupCreateStep, ResourceGroupListStep, SubscriptionTreeItemBase, ICreateChildImplContext, IErrorHandlingContext, ITelemetryContext, AzExtTreeItem, AzureParentTreeItem } from 'vscode-azureextensionui';
 import { IServiceWizardContext } from '../commands/createService/IServiceWizardContext';
 import { ServiceCreateStep } from '../commands/createService/ServiceCreateStep';
 import { ServiceNameStep } from '../commands/createService/ServiceNameStep';
@@ -26,7 +26,7 @@ export class ApiManagementProvider extends SubscriptionTreeItemBase {
         return this._nextLink !== undefined;
     }
 
-    public async loadMoreChildrenImpl(clearCache: boolean): Promise<AzureTreeItem[]> {
+    public async loadMoreChildrenImpl(clearCache: boolean): Promise<AzExtTreeItem[]> {
         if (clearCache) {
             this._nextLink = undefined;
         }
@@ -50,31 +50,36 @@ export class ApiManagementProvider extends SubscriptionTreeItemBase {
 
         this._nextLink = apiManagementServiceList.nextLink;
 
-        return this.createTreeItemsWithErrorHandling(
+        return await this.createTreeItemsWithErrorHandling(
             apiManagementServiceList,
             "invalidApiManagementService",
-            // @ts-ignore
-            async (service: ApiManagementModels.ApiManagementServiceResource) => new ServiceTreeItem(this, client, service),
+            (service: ApiManagementModels.ApiManagementServiceResource) => new ServiceTreeItem(this, client, service),
             (service: ApiManagementModels.ApiManagementServiceResource) => {
                 return service.name;
             });
     }
 
-    // @ts-ignore
-    public async createChildImpl(showCreatingTreeItem: (label: string) => void, userOptions?: { actionContext: IActionContext; resourceGroup?: string }): Promise<AzureTreeItem> {
-        // Ideally actionContext should always be defined, but there's a bug with the NodePicker. Create a 'fake' actionContext until that bug is fixed
-        // https://github.com/Microsoft/vscode-azuretools/issues/120
-        // tslint:disable-next-line:strict-boolean-expressions
-        // @ts-ignore
-        const actionContext: IActionContext = userOptions ? userOptions.actionContext : <IActionContext>{ properties: {}, measurements: {} };
+    // what are we doing here
+    public async createChildImpl(context: ICreateChildImplContext): Promise<AzureParentTreeItem> {
+        //const actionContext: ICreateChildImplContext = context;
         const client: ApiManagementClient = createAzureClient(this.root, ApiManagementClient);
 
+        const errorhandler: IErrorHandlingContext = {
+            issueProperties: {}
+        };
+
+        // question
         const wizardContext: IServiceWizardContext = {
             client: client,
             subscriptionId: this.root.subscriptionId,
             subscriptionDisplayName: this.root.subscriptionDisplayName,
             credentials: this.root.credentials,
-            environment: this.root.environment
+            environment: this.root.environment,
+            subscriptionPath: "", // keep it this way for now
+            userId: this.root.userId,
+            tenantId: "",
+            errorHandling: errorhandler, // keep it empty for now
+            ...context
         };
 
         const promptSteps: AzureWizardPromptStep<IServiceWizardContext>[] = [];
@@ -86,15 +91,16 @@ export class ApiManagementProvider extends SubscriptionTreeItemBase {
         const advancedCreationKey: string = 'advancedCreation';
         // tslint:disable-next-line: strict-boolean-expressions
         const advancedCreation: boolean = !!getWorkspaceSetting(advancedCreationKey);
-        actionContext.properties.advancedCreation = String(advancedCreation);
+        //actionContext.advancedCreation = advancedCreation;
         if (!advancedCreation) {
             wizardContext.sku = "Consumption";
             await LocationListStep.setLocation(wizardContext, 'westus');
             executeSteps.push(new ResourceGroupCreateStep());
         } else {
             promptSteps.push(new ServiceSkuStep());
-            promptSteps.push(new LocationListStep());
+            //promptSteps.push(new LocationListStep());
             promptSteps.push(new ResourceGroupListStep());
+            LocationListStep.addStep(wizardContext, promptSteps);
         }
 
         executeSteps.push(new ServiceCreateStep());
@@ -102,8 +108,8 @@ export class ApiManagementProvider extends SubscriptionTreeItemBase {
         const title: string = localize('serviceCreatingTitle', 'Create new API Management instance in Azure');
         const wizard: AzureWizard<IServiceWizardContext> = new AzureWizard(wizardContext, { promptSteps, executeSteps, title });
 
-        await wizard.prompt(actionContext);
-        showCreatingTreeItem(nonNullProp(wizardContext, 'serviceName'));
+        await wizard.prompt();
+        context.showCreatingTreeItem(nonNullProp(wizardContext, 'serviceName'));
 
         if (!advancedCreation) {
             const newName: string | undefined = await wizardContext.relatedNameTask;
@@ -114,7 +120,7 @@ export class ApiManagementProvider extends SubscriptionTreeItemBase {
         }
 
         try {
-            await wizard.execute(actionContext);
+            await wizard.execute();
         } catch (error) {
             if (!parseError(error).isUserCancelledError && !advancedCreation) {
                 const message: string = localize('tryAdvancedCreate', 'Modify the setting "{0}.{1}" if you want to change the default values when creating a API Management Instance in Azure.', extensionPrefix, advancedCreationKey);

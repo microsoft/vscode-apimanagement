@@ -87,7 +87,6 @@ export class ApiTreeItem extends AzureParentTreeItem<IApiTreeRoot> {
         }
     }
 
-    // @ts-ignore
     public pickTreeItemImpl(expectedContextValue: string | RegExp): AzureTreeItem<IApiTreeRoot> | undefined {
         if (expectedContextValue === OperationPolicyTreeItem.contextValue
             || expectedContextValue === ApiOperationTreeItem.contextValue ) {

@@ -51,8 +51,7 @@ export class ApisTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
         }
 
         const versionSetMap: Map<string, ApiVersionSetTreeItem> = new Map<string, ApiVersionSetTreeItem>();
-        return await createTreeItemsWithErrorHandling(
-            this,
+        return await this.createTreeItemsWithErrorHandling(
             apisToLoad,
             "invalidApiManagementApi",
             async (api: ApiManagementModels.ApiContract) => {
@@ -60,7 +59,8 @@ export class ApisTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
                     let apiVersionSetTreeItem = versionSetMap.get(api.apiVersionSetId);
                     if (!apiVersionSetTreeItem) {
                         apiVersionSetTreeItem = new ApiVersionSetTreeItem(this, api);
-                        versionSetMap.set(api.apiVersionSetId, apiVersionSetTreeItem);
+                        // tslint:disable-next-line: no-non-null-assertion
+                        versionSetMap.set(api.apiVersionSetId, apiVersionSetTreeItem!);
                         return apiVersionSetTreeItem;
                     } else {
                         if (apiUtil.isNotApiRevision(api)) {

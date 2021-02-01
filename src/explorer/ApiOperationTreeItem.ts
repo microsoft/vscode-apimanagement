@@ -3,9 +3,9 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ApiManagementModels } from "azure-arm-apimanagement";
+import { ApiManagementModels } from "@azure/arm-apimanagement";
 import { ProgressLocation, window } from "vscode";
-import { AzureParentTreeItem, AzureTreeItem, DialogResponses, ISubscriptionRoot, UserCancelledError } from "vscode-azureextensionui";
+import { AzureParentTreeItem, AzureTreeItem, DialogResponses, ISubscriptionContext, UserCancelledError } from "vscode-azureextensionui";
 import { localize } from "../localize";
 import { OperationConsole } from "../operationConsole/OperationConsole";
 import { nonNullProp } from "../utils/nonNull";
@@ -84,7 +84,7 @@ export class ApiOperationTreeItem extends AzureParentTreeItem<IOperationTreeRoot
         return await new OperationConsole().buildDebugRequestInfo(this.root);
     }
 
-    private createRoot(subRoot: ISubscriptionRoot): IOperationTreeRoot {
+    private createRoot(subRoot: ISubscriptionContext): IOperationTreeRoot {
         return Object.assign({}, <IApiTreeRoot>subRoot, {
             opName : nonNullProp(this.operationContract, 'name')
         });

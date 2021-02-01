@@ -5,9 +5,9 @@
 
 import { ApiManagementClient } from '@azure/arm-apimanagement';
 import { ApiManagementServiceResource } from '@azure/arm-apimanagement/src/models';
-import { IResourceGroupWizardContext, IStorageAccountWizardContext } from 'vscode-azureextensionui';
+import { IResourceGroupWizardContext } from 'vscode-azureextensionui';
 
-export interface IServiceWizardContext extends IResourceGroupWizardContext, IStorageAccountWizardContext {
+export interface IServiceWizardContext extends IResourceGroupWizardContext {
     client: ApiManagementClient;
     sku? : string;
     email? : string;
