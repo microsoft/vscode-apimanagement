@@ -3,8 +3,8 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+import { TokenCredentialsBase } from "@azure/ms-rest-nodeauth";
 import { HttpMethods, WebResource } from "ms-rest";
-import { ServiceClientCredentials } from "ms-rest";
 import * as request from 'request-promise';
 import { appendExtensionUserAgent } from "vscode-azureextensionui";
 import { signRequest } from "./signRequest";
@@ -12,7 +12,7 @@ import { signRequest } from "./signRequest";
 export type nRequest = WebResource & request.RequestPromiseOptions;
 
 // tslint:disable-next-line: no-any
-export async function requestUtil<T>(url: string, credentials?: ServiceClientCredentials, method?: HttpMethods, body?: any): Promise<T> {
+export async function requestUtil<T>(url: string, credentials?: TokenCredentialsBase, method?: HttpMethods, body?: any): Promise<T> {
     const requestOptions: WebResource = new WebResource();
     requestOptions.headers = {
         ['User-Agent']: appendExtensionUserAgent()
@@ -40,7 +40,7 @@ export async function sendRequest<T>(httpReq: nRequest): Promise<T> {
     return await <Thenable<T>>request(httpReq).promise();
 }
 
-export async function getBearerToken(url: string, method: HttpMethods, credentials: ServiceClientCredentials): Promise<string> {
+export async function getBearerToken(url: string, method: HttpMethods, credentials: TokenCredentialsBase): Promise<string> {
     const requestOptions: WebResource = new WebResource();
     requestOptions.headers = {
         ['User-Agent']: appendExtensionUserAgent()

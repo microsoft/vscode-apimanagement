@@ -87,10 +87,14 @@ export class ApiTreeItem extends AzureParentTreeItem<IApiTreeRoot> {
         }
     }
 
-    public pickTreeItemImpl(expectedContextValue: string | RegExp): AzureTreeItem<IApiTreeRoot> | undefined {
-        if (expectedContextValue === OperationPolicyTreeItem.contextValue
-            || expectedContextValue === ApiOperationTreeItem.contextValue ) {
-            return this._operationsTreeItem;
+    public pickTreeItemImpl(expectedContextValues: (string | RegExp)[]): AzureTreeItem<IApiTreeRoot> | undefined {
+        for (const expectedContextValue of expectedContextValues) {
+            switch (expectedContextValue) {
+                case OperationPolicyTreeItem.contextValue:
+                case ApiOperationTreeItem.contextValue:
+                    return this._operationsTreeItem;
+            default:
+            }
         }
         return undefined;
     }
@@ -98,8 +102,7 @@ export class ApiTreeItem extends AzureParentTreeItem<IApiTreeRoot> {
     public async reloadApi(api: ApiContract): Promise<void> {
         this.apiContract = api;
         this._name = nonNullProp(api, 'name');
-        // tslint:disable-next-line: no-non-null-assertion
-        this._root = this.createRoot(this.parent!.root, nonNullProp(api, 'name'));
+        //this._root = this.createRoot(this.parent, nonNullProp(api, 'name'));
         this._label = this.getRevisionDisplayName(api);
         this._operationsTreeItem = new ApiOperationsTreeItem(this);
         this.policyTreeItem = new ApiPolicyTreeItem(this);

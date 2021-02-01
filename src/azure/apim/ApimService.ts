@@ -3,20 +3,21 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ServiceClientCredentials } from "ms-rest";
+//import { ServiceClientCredentials } from "ms-rest-js";
+import { TokenCredentialsBase } from "@azure/ms-rest-nodeauth";
 import { requestUtil } from "../../utils/requestUtil";
 import { IGatewayApiContract, IGatewayContract, IGatewayToken } from "./contracts";
 
 export class ApimService {
     public baseUrl: string;
-    public credentials: ServiceClientCredentials;
+    public credentials: TokenCredentialsBase;
     public endPointUrl: string;
     public subscriptionId: string;
     public resourceGroup: string;
     public serviceName: string;
     private readonly apiVersion: string = "2018-06-01-preview";
 
-    constructor(credentials: ServiceClientCredentials, endPointUrl: string, subscriptionId: string, resourceGroup: string, serviceName: string) {
+    constructor(credentials: TokenCredentialsBase, endPointUrl: string, subscriptionId: string, resourceGroup: string, serviceName: string) {
         this.baseUrl = this.genSiteUrl(endPointUrl, subscriptionId, resourceGroup, serviceName);
         this.credentials = credentials;
         this.endPointUrl = endPointUrl;

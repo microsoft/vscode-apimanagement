@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { AzureParentTreeItem, AzureTreeItem, createTreeItemsWithErrorHandling } from "vscode-azureextensionui";
+import { AzExtTreeItem, AzureParentTreeItem } from "vscode-azureextensionui";
 import { ApimService } from "../azure/apim/ApimService";
 import { IGatewayApiContract } from "../azure/apim/contracts";
 import { localize } from "../localize";
@@ -26,7 +26,7 @@ export class GatewayApisTreeItem extends AzureParentTreeItem<IGatewayTreeRoot> {
         return this._nextLink !== undefined;
     }
 
-    public async loadMoreChildrenImpl(clearCache: boolean): Promise<AzureTreeItem<IGatewayTreeRoot>[]> {
+    public async loadMoreChildrenImpl(clearCache: boolean): Promise<AzExtTreeItem[]> {
         if (clearCache) {
             this._nextLink = undefined;
         }
@@ -35,8 +35,7 @@ export class GatewayApisTreeItem extends AzureParentTreeItem<IGatewayTreeRoot> {
 
         const gatewayApis: IGatewayApiContract[] = await apimService.listGatewayApis(this.root.gatewayName);
 
-        return createTreeItemsWithErrorHandling(
-            this,
+        return this.createTreeItemsWithErrorHandling(
             gatewayApis,
             "invalidApiManagementGatewayApi",
             async (api: IGatewayApiContract) => new GatewayApiTreeItem(this, api),

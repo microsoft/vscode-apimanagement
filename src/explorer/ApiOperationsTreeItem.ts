@@ -12,7 +12,7 @@ import { ApiOperationTreeItem } from "./ApiOperationTreeItem";
 import { IApiTreeRoot } from "./IApiTreeRoot";
 
 export class ApiOperationsTreeItem extends AzureParentTreeItem<IApiTreeRoot> {
-    // @ts-ignore
+
     public get iconPath(): { light: string, dark: string } {
         return treeUtils.getThemedIconPath('list');
     }
