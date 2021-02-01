@@ -24,7 +24,6 @@ export interface IApiTreeItemContext extends ICreateChildImplContext {
 
 export class ApisTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
 
-    // @ts-ignore
     public get iconPath(): { light: string, dark: string } {
         return treeUtils.getThemedIconPath('list');
     }

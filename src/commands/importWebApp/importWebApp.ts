@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ApiContract, BackendContract, BackendCredentialsContract, NamedValueCreateContract, OperationCollection, OperationContract } from "azure-arm-apimanagement/lib/models";
+import { ApiContract, BackendContract, BackendCredentialsContract, NamedValueCreateContract, OperationCollection, OperationContract } from "@azure/arm-apimanagement/src/models";
 import WebSiteManagementClient from "azure-arm-website";
 import { Site, WebAppCollection } from "azure-arm-website/lib/models";
 import { ProgressLocation, window } from "vscode";
@@ -26,6 +26,7 @@ import { requestUtil } from "../../utils/requestUtil";
 
 export async function importWebAppToApi(node?: ApiTreeItem): Promise<void> {
     if (!node) {
+        // tslint:disable-next-line: no-unsafe-any
         node = <ApiTreeItem>await ext.tree.showTreeItemPicker(ApiTreeItem.contextValue);
     }
 
