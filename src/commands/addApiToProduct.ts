@@ -4,6 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { ProgressLocation, window } from "vscode";
+import { IActionContext } from "vscode-azureextensionui";
 import { ApiTreeItem } from "../explorer/ApiTreeItem";
 import { ProductApisTreeItem } from "../explorer/ProductApisTreeItem";
 import { ProductsTreeItem } from "../explorer/ProductsTreeItem";
@@ -14,10 +15,10 @@ import { localize } from "../localize";
 import { nonNullProp } from "../utils/nonNull";
 
 // tslint:disable: no-any
-export async function addApiToProduct(node?: ProductApisTreeItem): Promise<void> {
+export async function addApiToProduct(context: IActionContext, node?: ProductApisTreeItem): Promise<void> {
     let productNode: ProductTreeItem;
     if (!node) {
-        productNode = <ProductTreeItem>await ext.tree.showTreeItemPicker(ProductTreeItem.contextValue);
+        productNode = <ProductTreeItem>await ext.tree.showTreeItemPicker(ProductTreeItem.contextValue, context);
         node = productNode.productApisTreeItem;
     } else {
         productNode = <ProductTreeItem>node.parent;
@@ -25,7 +26,7 @@ export async function addApiToProduct(node?: ProductApisTreeItem): Promise<void>
 
     const serviceTreeItem = <ServiceTreeItem>(<ProductsTreeItem><unknown>productNode.parent).parent;
 
-    const apiTreeItem = <ApiTreeItem>await ext.tree.showTreeItemPicker(ApiTreeItem.contextValue, serviceTreeItem);
+    const apiTreeItem = <ApiTreeItem>await ext.tree.showTreeItemPicker(ApiTreeItem.contextValue, context, serviceTreeItem);
 
     const apiName = nonNullProp(apiTreeItem.apiContract, "name");
     window.withProgress(
@@ -38,7 +39,7 @@ export async function addApiToProduct(node?: ProductApisTreeItem): Promise<void>
         async () => { return node!.createChild({ apiName: apiName}); }
     ).then(async () => {
         // tslint:disable:no-non-null-assertion
-        await node!.refresh();
+        await node!.refresh(context);
         window.showInformationMessage(localize("addedApiToProduct", `Added API '${apiName}' to product ${node!.root.productName}.`));
     });
 }

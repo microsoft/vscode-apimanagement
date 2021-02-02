@@ -3,12 +3,13 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 import * as vscode from 'vscode';
+import { IActionContext } from 'vscode-azureextensionui';
 import { ServiceTreeItem } from '../explorer/ServiceTreeItem';
 import { ext } from '../extensionVariables';
 
-export async function copySubscriptionKey(node?: ServiceTreeItem): Promise<void> {
+export async function copySubscriptionKey(context: IActionContext, node?: ServiceTreeItem): Promise<void> {
     if (!node) {
-        node = <ServiceTreeItem>await ext.tree.showTreeItemPicker(ServiceTreeItem.contextValue);
+        node = <ServiceTreeItem>await ext.tree.showTreeItemPicker(ServiceTreeItem.contextValue, context);
     }
     const key = await node.copySubscriptionKey();
     vscode.env.clipboard.writeText(key);

@@ -4,15 +4,16 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { ProgressLocation, window } from "vscode";
+import { IActionContext } from "vscode-azureextensionui";
 import { NamedValuesTreeItem } from "../explorer/NamedValuesTreeItem";
 import { NamedValueTreeItem } from "../explorer/NamedValueTreeItem";
 import { ServiceTreeItem } from "../explorer/ServiceTreeItem";
 import { ext } from "../extensionVariables";
 import { localize } from "../localize";
 
-export async function createNamedValue(node?: NamedValuesTreeItem): Promise<void> {
+export async function createNamedValue(context: IActionContext, node?: NamedValuesTreeItem): Promise<void> {
     if (!node) {
-        const serviceNode = <ServiceTreeItem>await ext.tree.showTreeItemPicker(ServiceTreeItem.contextValue);
+        const serviceNode = <ServiceTreeItem>await ext.tree.showTreeItemPicker(ServiceTreeItem.contextValue, context);
         node = serviceNode.namedValuesTreeItem;
     }
 
@@ -30,14 +31,14 @@ export async function createNamedValue(node?: NamedValuesTreeItem): Promise<void
         async () => { return node!.createChild({ key: id, value: value, secret: secret }); }
     ).then(async () => {
         // tslint:disable-next-line:no-non-null-assertion
-        await node!.refresh();
+        await node!.refresh(context);
         window.showInformationMessage(localize("creatededNamedValue", `Created named value '${id}' succesfully.`));
     });
 }
 
-export async function updateNamedValue(node?: NamedValueTreeItem): Promise<void> {
+export async function updateNamedValue(context: IActionContext, node?: NamedValueTreeItem): Promise<void> {
     if (!node) {
-        node = <NamedValueTreeItem>await ext.tree.showTreeItemPicker(NamedValueTreeItem.contextValue);
+        node = <NamedValueTreeItem>await ext.tree.showTreeItemPicker(NamedValueTreeItem.contextValue, context);
     }
 
     const displayName = node.propertyContract.displayName;
@@ -55,7 +56,7 @@ export async function updateNamedValue(node?: NamedValueTreeItem): Promise<void>
         async () => { return node!.updateValue(value, secret); }
     ).then(async () => {
         // tslint:disable-next-line:no-non-null-assertion
-        await node!.refresh();
+        await node!.refresh(context);
         window.showInformationMessage(localize("updatedNamedValue", `Updated value for '${displayName}' succesfully.`));
     });
 }

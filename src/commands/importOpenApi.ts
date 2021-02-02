@@ -5,6 +5,7 @@
 
 import * as fse from 'fs-extra';
 import { OpenDialogOptions, ProgressLocation, Uri, window, workspace } from "vscode";
+import { IActionContext } from 'vscode-azureextensionui';
 import { ApisTreeItem } from "../explorer/ApisTreeItem";
 import { ServiceTreeItem } from '../explorer/ServiceTreeItem';
 import { ext } from "../extensionVariables";
@@ -16,9 +17,9 @@ import { processError } from '../utils/errorUtil';
 import { requestUtil } from '../utils/requestUtil';
 
 // tslint:disable: no-any
-export async function importOpenApi(node?: ApisTreeItem, importUsingLink: boolean = false): Promise<void> {
+export async function importOpenApi(context: IActionContext, node?: ApisTreeItem, importUsingLink: boolean = false): Promise<void> {
     if (!node) {
-        const serviceNode = <ServiceTreeItem>await ext.tree.showTreeItemPicker(ServiceTreeItem.contextValue);
+        const serviceNode = <ServiceTreeItem>await ext.tree.showTreeItemPicker(ServiceTreeItem.contextValue, context);
         node = serviceNode.apisTreeItem;
     }
 

@@ -4,9 +4,10 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { ApiContract, BackendContract, BackendCredentialsContract, NamedValueCreateContract, OperationCollection, OperationContract } from "@azure/arm-apimanagement/src/models";
-import WebSiteManagementClient from "azure-arm-website";
-import { Site, WebAppCollection } from "azure-arm-website/lib/models";
+import { WebSiteManagementClient } from "@azure/arm-appservice";
+import { Site, WebAppCollection } from "@azure/arm-appservice/src/models";
 import { ProgressLocation, window } from "vscode";
+import { IActionContext } from "vscode-azureextensionui";
 import xml = require("xml");
 import { IOpenApiImportObject, ISecurityType, OpenApiParser } from "../../../extension.bundle";
 import { getRewriteUrlPolicy, getSetBackendPolicy, getSetHeaderPolicy, getSetMethodPolicy } from "../../azure/apim/policyHelper";
@@ -24,10 +25,10 @@ import { processError } from "../../utils/errorUtil";
 import { nonNullValue } from "../../utils/nonNull";
 import { requestUtil } from "../../utils/requestUtil";
 
-export async function importWebAppToApi(node?: ApiTreeItem): Promise<void> {
+export async function importWebAppToApi(context: IActionContext, node?: ApiTreeItem): Promise<void> {
     if (!node) {
         // tslint:disable-next-line: no-unsafe-any
-        node = <ApiTreeItem>await ext.tree.showTreeItemPicker(ApiTreeItem.contextValue);
+        node = <ApiTreeItem>await ext.tree.showTreeItemPicker(ApiTreeItem.contextValue, context);
     }
 
     ext.outputChannel.show();
@@ -50,9 +51,9 @@ export async function importWebAppToApi(node?: ApiTreeItem): Promise<void> {
     }
 }
 
-export async function importWebApp(node?: ApisTreeItem): Promise<void> {
+export async function importWebApp(context: IActionContext, node?: ApisTreeItem): Promise<void> {
     if (!node) {
-        const serviceNode = <ServiceTreeItem>await ext.tree.showTreeItemPicker(ServiceTreeItem.contextValue);
+        const serviceNode = <ServiceTreeItem>await ext.tree.showTreeItemPicker(ServiceTreeItem.contextValue, context);
         node = serviceNode.apisTreeItem;
     }
 
@@ -196,6 +197,7 @@ async function createApiWithWildCardOperations(node: ApisTreeItem, webAppName: s
             const apiId = apiUtil.genApiId(apiName);
             ext.outputChannel.appendLine(localize("importWebApp", "Creating new API..."));
             const nApi = await constructApiFromWebApp(apiId, pickedWebApp, apiName);
+            const context = 
             // tslint:disable: no-non-null-assertion
             await node!.createChild({ apiName, apiContract: nApi });
             const serviceUrl = "https://".concat(nonNullValue(nonNullValue(pickedWebApp.hostNames)[0]));

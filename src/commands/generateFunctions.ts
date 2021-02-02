@@ -7,7 +7,7 @@ import * as fse from 'fs-extra';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import { OpenDialogOptions, ProgressLocation, Uri, window, workspace } from "vscode";
-import { DialogResponses } from 'vscode-azureextensionui';
+import { DialogResponses, IActionContext } from 'vscode-azureextensionui';
 import XRegExp = require('xregexp');
 import { ApiTreeItem } from "../explorer/ApiTreeItem";
 import { OpenApiEditor } from "../explorer/editors/openApi/OpenApiEditor";
@@ -31,9 +31,9 @@ const keywords: string[] = ['abstract', 'as', 'base', 'bool', 'break', 'byte', '
 
 // tslint:disable: no-non-null-assertion
 // tslint:disable-next-line: max-func-body-length
-export async function generateFunctions(node?: ApiTreeItem): Promise<void> {
+export async function generateFunctions(context: IActionContext, node?: ApiTreeItem): Promise<void> {
     if (!node) {
-        node = <ApiTreeItem>await ext.tree.showTreeItemPicker(ApiTreeItem.contextValue);
+        node = <ApiTreeItem>await ext.tree.showTreeItemPicker(ApiTreeItem.contextValue, context);
     }
 
     ext.outputChannel.show();

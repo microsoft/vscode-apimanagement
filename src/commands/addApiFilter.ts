@@ -3,16 +3,17 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ApiCollection } from "azure-arm-apimanagement/lib/models";
+import { ApiCollection } from "@azure/arm-apimanagement/src/models";
+import { IActionContext } from "vscode-azureextensionui";
 import { ApisTreeItem } from "../explorer/ApisTreeItem";
 import { ServiceTreeItem } from '../explorer/ServiceTreeItem';
 import { ext } from "../extensionVariables";
 
 // tslint:disable: no-any
 // tslint:disable: no-non-null-assertion
-export async function addApiFilter(node?: ApisTreeItem): Promise<void> {
+export async function addApiFilter(context: IActionContext, node?: ApisTreeItem): Promise<void> {
     if (!node) {
-        const serviceNode = <ServiceTreeItem>await ext.tree.showTreeItemPicker(ServiceTreeItem.contextValue);
+        const serviceNode = <ServiceTreeItem>await ext.tree.showTreeItemPicker(ServiceTreeItem.contextValue, context);
         node = serviceNode.apisTreeItem;
     }
 

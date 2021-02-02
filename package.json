@@ -683,6 +683,7 @@
     },
     "dependencies": {
         "@azure/arm-apimanagement": "^6.0.0",
+        "@azure/arm-appservice": "^6.1.0",
         "@types/xml": "^1.0.4",
         "await-notify": "1.0.1",
         "azure-arm-resource": "^3.0.0-preview",
@@ -694,7 +695,7 @@
         "request-promise": "^4.2.5",
         "request-promise-native": "^1.0.8",
         "swagger-parser": "^6.0.5",
-        "vscode-azureextensionui": "^0.36.0",
+        "vscode-azureextensionui": "^0.38.5",
         "vscode-debugadapter": "^1.39.1",
         "vscode-debugprotocol": "^1.39.0",
         "vscode-nls": "^4.1.2",

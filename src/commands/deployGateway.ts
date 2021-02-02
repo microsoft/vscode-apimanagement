@@ -6,6 +6,7 @@
 import * as fse from 'fs-extra';
 import * as path from 'path';
 import { env, OpenDialogOptions, ProgressLocation, Uri, window, workspace } from "vscode";
+import { IActionContext } from 'vscode-azureextensionui';
 import { ApimService } from '../azure/apim/ApimService';
 import { GatewayKeyType } from '../constants';
 import * as Constants from "../constants";
@@ -14,9 +15,9 @@ import { ext } from "../extensionVariables";
 import { localize } from "../localize";
 
 // tslint:disable-next-line: export-name
-export async function copyDockerRunCommand(node?: GatewayTreeItem): Promise<void> {
+export async function copyDockerRunCommand(context: IActionContext, node?: GatewayTreeItem): Promise<void> {
   if (!node) {
-    node = <GatewayTreeItem>await ext.tree.showTreeItemPicker(GatewayTreeItem.contextValue);
+    node = <GatewayTreeItem>await ext.tree.showTreeItemPicker(GatewayTreeItem.contextValue, context);
   }
 
   ext.outputChannel.show();
@@ -48,9 +49,9 @@ export async function copyDockerRunCommand(node?: GatewayTreeItem): Promise<void
   });
 }
 
-export async function generateKubernetesDeployment(node?: GatewayTreeItem): Promise<void> {
+export async function generateKubernetesDeployment(context: IActionContext, node?: GatewayTreeItem): Promise<void> {
   if (!node) {
-    node = <GatewayTreeItem>await ext.tree.showTreeItemPicker(GatewayTreeItem.contextValue);
+    node = <GatewayTreeItem>await ext.tree.showTreeItemPicker(GatewayTreeItem.contextValue, context);
   }
 
   ext.outputChannel.show();
