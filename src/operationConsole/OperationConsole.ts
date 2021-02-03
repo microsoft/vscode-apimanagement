@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ApiContract, ApiRevisionContract } from "azure-arm-apimanagement/lib/models";
+import { ApiContract, ApiRevisionContract } from "@azure/arm-apimanagement/src/models";
 import { ApimService } from "../azure/apim/ApimService";
 import { IMasterSubscription } from "../azure/apim/contracts";
 import { IOperationTreeRoot } from "../explorer/IOperationTreeRoot";

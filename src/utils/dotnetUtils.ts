@@ -23,14 +23,14 @@ export namespace dotnetUtils {
         if (!await isDotnetInstalled()) {
             const message: string = localize('dotnetNotInstalled', 'You must have the .NET CLI installed to perform this operation.');
 
-            if (!actionContext.suppressErrorDisplay) {
+            if (!actionContext.errorHandling.suppressDisplay) {
                 // don't wait
                 vscode.window.showErrorMessage(message, DialogResponses.learnMore).then(async (result) => {
                     if (result === DialogResponses.learnMore) {
                         await openUrl('https://aka.ms/AA4ac70');
                     }
                 });
-                actionContext.suppressErrorDisplay = true;
+                actionContext.errorHandling.suppressDisplay = true;
             }
 
             throw new Error(message);

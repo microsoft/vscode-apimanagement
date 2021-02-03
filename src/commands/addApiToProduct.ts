@@ -15,7 +15,7 @@ import { localize } from "../localize";
 import { nonNullProp } from "../utils/nonNull";
 
 // tslint:disable: no-any
-export async function addApiToProduct(context: IActionContext & IProductTreeItemContext, node?: ProductApisTreeItem): Promise<void> {
+export async function addApiToProduct(context: IActionContext & Partial<IProductTreeItemContext>, node?: ProductApisTreeItem): Promise<void> {
     let productNode: ProductTreeItem;
     if (!node) {
         productNode = <ProductTreeItem>await ext.tree.showTreeItemPicker(ProductTreeItem.contextValue, context);

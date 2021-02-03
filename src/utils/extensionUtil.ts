@@ -13,14 +13,14 @@ export function checkCsharpExtensionInstalled(actionContext: IActionContext): vo
     if (!csharpExtension) {
         const message: string = localize('csharpExtensionNotInstalled', 'You must have the VSCode CSharp extension installed to improve policy authoring experience.');
 
-        if (!actionContext.suppressErrorDisplay) {
+        if (!actionContext.errorHandling.suppressDisplay) {
             // don't wait
             vscode.window.showErrorMessage(message, DialogResponses.learnMore).then(async (result) => {
                 if (result === DialogResponses.learnMore) {
                     await openUrl('https://marketplace.visualstudio.com/items?itemName=ms-vscode.csharp');
                 }
             });
-            actionContext.suppressErrorDisplay = true;
+            actionContext.errorHandling.suppressDisplay = true;
         }
 
         throw new Error(message);

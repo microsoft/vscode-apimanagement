@@ -7,7 +7,7 @@ import { AzureParentTreeItem, AzureTreeItem, IActionContext, SubscriptionTreeIte
 import { ext } from '../extensionVariables';
 import { treeUtils } from '../utils/treeUtils';
 
-export async function createService(context: IActionContext, subscription?: AzureParentTreeItem | string, resourceGroup?: string): Promise<string> {
+export async function createService(context: IActionContext, subscription?: AzureParentTreeItem | string, _resourceGroup?: string): Promise<string> {
     let node: AzureParentTreeItem;
     if (typeof subscription === 'string') {
         node = await treeUtils.getSubscriptionNode(ext.tree, subscription);

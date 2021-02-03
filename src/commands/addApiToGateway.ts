@@ -15,7 +15,7 @@ import { localize } from "../localize";
 import { nonNullProp } from "../utils/nonNull";
 
 // tslint:disable: no-any
-export async function addApiToGateway(context: IActionContext & IGatewayTreeItemContext, node?: GatewayApisTreeItem): Promise<void> {
+export async function addApiToGateway(context: IActionContext & Partial<IGatewayTreeItemContext>, node?: GatewayApisTreeItem): Promise<void> {
     let gatewayNode: GatewayTreeItem;
     if (!node) {
         gatewayNode = <GatewayTreeItem>await ext.tree.showTreeItemPicker(GatewayTreeItem.contextValue, context);

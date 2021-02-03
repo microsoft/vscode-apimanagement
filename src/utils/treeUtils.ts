@@ -4,7 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import * as path from 'path';
-import { AzureParentTreeItem, AzureTreeDataProvider, AzureTreeItem, RootTreeItem } from 'vscode-azureextensionui';
+import { AzExtTreeDataProvider, AzureParentTreeItem, AzureTreeItem, SubscriptionTreeItemBase } from 'vscode-azureextensionui';
 import { ext } from '../extensionVariables';
 import { localize } from '../localize';
 
@@ -29,7 +29,7 @@ export namespace treeUtils {
         return ext.context.asAbsolutePath('resources');
     }
 
-    export async function getSubscriptionNode(tree: AzureTreeDataProvider, subscriptionId: string): Promise<AzureParentTreeItem> {
+    export async function getSubscriptionNode(tree: AzExtTreeDataProvider, subscriptionId: string): Promise<AzureParentTreeItem> {
         const node: AzureParentTreeItem | undefined = <AzureParentTreeItem | undefined>(await tree.getChildren()).find((n: AzureTreeItem) => n.root.subscriptionId === subscriptionId);
         if (node) {
             return node;
@@ -38,8 +38,8 @@ export namespace treeUtils {
         }
     }
 
-    export async function getRootNode(tree: AzureTreeDataProvider): Promise<AzureParentTreeItem> {
-        // is there a better way than querying children?
-        return <AzureParentTreeItem>(await tree.getChildren()).find((n: AzureParentTreeItem) => n instanceof RootTreeItem);
+    export async function getRootNode(tree: AzExtTreeDataProvider): Promise<AzureParentTreeItem> {
+        // need to double check
+        return <AzureParentTreeItem>(await tree.getChildren()).find((n: AzureParentTreeItem) => n instanceof SubscriptionTreeItemBase);
     }
 }

@@ -17,7 +17,7 @@ import { processError } from '../utils/errorUtil';
 import { requestUtil } from '../utils/requestUtil';
 
 // tslint:disable: no-any
-export async function importOpenApi(context: IActionContext & IApiTreeItemContext, node?: ApisTreeItem, importUsingLink: boolean = false): Promise<void> {
+export async function importOpenApi(context: IActionContext & Partial<IApiTreeItemContext>, node?: ApisTreeItem, importUsingLink: boolean = false): Promise<void> {
     if (!node) {
         const serviceNode = <ServiceTreeItem>await ext.tree.showTreeItemPicker(ServiceTreeItem.contextValue, context);
         node = serviceNode.apisTreeItem;

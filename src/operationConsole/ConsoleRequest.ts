@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { RequestContract } from "azure-arm-apimanagement/lib/models";
+import { RequestContract } from "@azure/arm-apimanagement/src/models";
 import { ConsoleHeader } from "./ConsoleHeader";
 import { ConsoleParameter } from "./ConsoleParameter";
 

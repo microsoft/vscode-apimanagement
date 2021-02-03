@@ -59,7 +59,7 @@ export async function importFunctionAppToApi(context: IActionContext, node?: Api
     });
 }
 
-export async function importFunctionApp(context: IActionContext & IApiTreeItemContext, node?: ApisTreeItem): Promise<void> {
+export async function importFunctionApp(context: IActionContext & Partial<IApiTreeItemContext>, node?: ApisTreeItem): Promise<void> {
     if (!node) {
         const serviceNode = <ServiceTreeItem>await ext.tree.showTreeItemPicker(ServiceTreeItem.contextValue, context);
         node = serviceNode.apisTreeItem;

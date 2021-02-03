@@ -11,7 +11,7 @@ import { ServiceTreeItem } from "../explorer/ServiceTreeItem";
 import { ext } from "../extensionVariables";
 import { localize } from "../localize";
 
-export async function createNamedValue(context: IActionContext & INamedValuesTreeItemContext, node?: NamedValuesTreeItem): Promise<void> {
+export async function createNamedValue(context: IActionContext & Partial<INamedValuesTreeItemContext>, node?: NamedValuesTreeItem): Promise<void> {
     if (!node) {
         const serviceNode = <ServiceTreeItem>await ext.tree.showTreeItemPicker(ServiceTreeItem.contextValue, context);
         node = serviceNode.namedValuesTreeItem;
@@ -53,7 +53,7 @@ export async function updateNamedValue(context: IActionContext, node?: NamedValu
             cancellable: false
         },
         // tslint:disable-next-line:no-non-null-assertion
-        async () => { return node!.updateValue(value, secret); }
+        async () => { return node!.updateValue(context, value, secret); }
     ).then(async () => {
         // tslint:disable-next-line:no-non-null-assertion
         await node!.refresh(context);

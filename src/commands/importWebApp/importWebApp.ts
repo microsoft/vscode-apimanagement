@@ -51,7 +51,7 @@ export async function importWebAppToApi(context: IActionContext, node?: ApiTreeI
     }
 }
 
-export async function importWebApp(context: IActionContext & IApiTreeItemContext, node?: ApisTreeItem): Promise<void> {
+export async function importWebApp(context: IActionContext & Partial<IApiTreeItemContext>, node?: ApisTreeItem): Promise<void> {
     if (!node) {
         const serviceNode = <ServiceTreeItem>await ext.tree.showTreeItemPicker(ServiceTreeItem.contextValue, context);
         node = serviceNode.apisTreeItem;
@@ -185,7 +185,7 @@ export async function constructApiFromWebApp(apiId: string, webApp: Site, apiNam
     };
 }
 
-async function createApiWithWildCardOperations(context: IActionContext & IApiTreeItemContext, node: ApisTreeItem, webAppName: string, apiName: string, pickedWebApp: Site, webAppResourceGroup: string): Promise<void> {
+async function createApiWithWildCardOperations(context: IActionContext & Partial<IApiTreeItemContext>, node: ApisTreeItem, webAppName: string, apiName: string, pickedWebApp: Site, webAppResourceGroup: string): Promise<void> {
     window.withProgress(
         {
             location: ProgressLocation.Notification,

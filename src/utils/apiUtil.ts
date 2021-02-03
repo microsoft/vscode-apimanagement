@@ -3,8 +3,8 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ApiManagementModels } from "azure-arm-apimanagement";
-import { ApiContract, OperationCollection } from "azure-arm-apimanagement/lib/models";
+import { ApiManagementModels } from "@azure/arm-apimanagement";
+import { ApiContract, OperationCollection, Protocol } from "@azure/arm-apimanagement/src/models";
 import { window } from "vscode";
 import { AzureParentTreeItem, DialogResponses, IOpenApiImportObject, IParsedError, parseError, UserCancelledError } from "../../extension.bundle";
 import * as Constants from "../constants";
@@ -68,8 +68,20 @@ export namespace apiUtil {
 
         await checkApiExist(node, apiName);
 
-        const openApiImportPayload: ApiManagementModels.ApiCreateOrUpdateParameter = { displayName: apiName, path: apiName, format: '', value: '' };
-        openApiImportPayload.protocols = document.schemes === undefined ? ["https"] : document.schemes;
+        // import doesn't specify format
+        const openApiImportPayload: ApiManagementModels.ApiCreateOrUpdateParameter = { displayName: apiName, path: apiName, format: undefined, value: '' };
+        if (document.schemes === undefined) {
+            openApiImportPayload.protocols = ["https"];
+        } else {
+            const protocols: Protocol[] = [];
+            if (document.schemes.indexOf("http") !== -1) {
+                protocols.push("http");
+            }
+            if (document.schemes.indexOf("https") !== -1) {
+                protocols.push("https");
+            }
+            openApiImportPayload.protocols = protocols;
+        }
         openApiImportPayload.format = document.importFormat;
         openApiImportPayload.value = JSON.stringify(document.sourceDocument);
 
