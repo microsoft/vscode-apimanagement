@@ -3,8 +3,8 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ApiManagementModels } from "azure-arm-apimanagement";
-import { WebResource } from "ms-rest";
+import { ApiManagementModels } from "@azure/arm-apimanagement";
+import { WebResource } from "@azure/ms-rest-js/lib/msRest";
 import * as request from 'request-promise';
 import { ProgressLocation, window } from "vscode";
 import { appendExtensionUserAgent } from "vscode-azureextensionui";
@@ -14,7 +14,6 @@ import { IOpenApiImportObject } from "../../../openApi/OpenApiImportObject";
 import { OpenApiParser } from "../../../openApi/OpenApiParser";
 import { processError } from "../../../utils/errorUtil";
 import { nonNullProp } from "../../../utils/nonNull";
-import { signRequest } from "../../../utils/signRequest";
 import { ApiTreeItem } from "../../ApiTreeItem";
 import { Editor } from "../Editor";
 
@@ -76,7 +75,7 @@ export class OpenApiEditor extends Editor<ApiTreeItem> {
                 async () => context.root.client.api.createOrUpdate(context.root.resourceGroupName, context.root.serviceName, context.root.apiName, payload)
             ).then(async () => {
                 window.showInformationMessage(localize("updateOpenApiSucceded", `Changes to API '${context.apiContract.name}' were succefully uploaded to cloud.`));
-                await context.refresh();
+                //await context.refresh();
                 return this.getData(context);
             });
 
@@ -103,15 +102,15 @@ export class OpenApiEditor extends Editor<ApiTreeItem> {
 
     // tslint:disable-next-line:no-any
     private async requestOpenAPIDocument(context: ApiTreeItem, exportFormat: string, exportAcceptHeader: string) : Promise<any> {
-        const requestOptions: WebResource = new WebResource();
-        requestOptions.headers = {
-            ['Accept']: exportAcceptHeader,
-            ['User-Agent']: appendExtensionUserAgent()
-        };
-        requestOptions.url = this.buildAPIExportUrl(context, exportFormat);
-        await signRequest(requestOptions, context.root.client.credentials);
+        const webResource = new WebResource();
+        webResource.url = this.buildAPIExportUrl(context, exportFormat);
+        webResource.method = "GET";
+        webResource.headers.set("Accept", exportAcceptHeader);
+        webResource.headers.set("User-Agent", appendExtensionUserAgent());
+
+        await context.root.client.credentials.signRequest(webResource);
         // tslint:disable-next-line: await-promise
-        return await request(requestOptions).promise();
+        return await request(webResource).promise();
     }
 
     private buildAPIExportUrl(context: ApiTreeItem, exportFormat: string) : string {

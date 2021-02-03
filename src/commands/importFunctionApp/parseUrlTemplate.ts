@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ParameterContract } from "azure-arm-apimanagement/lib/models";
+import { ParameterContract } from "@azure/arm-apimanagement/src/models";
 
 export function parseUrlTemplate(uriTemplate: string): {
     parameters: ParameterContract[],

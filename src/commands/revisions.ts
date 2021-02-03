@@ -24,7 +24,7 @@ export async function revisions(context: IActionContext, node?: ApiTreeItem): Pr
         const pickedApi = await listRevisions(node);
 
         await node.reloadApi(pickedApi);
-        await node.refresh();
+        await node.refresh(context);
         window.showInformationMessage(localize("switchRevisions", `Switched to revision ${pickedApi.name!} sucecessfully.`));
 
     } else if (commands.label === "Make Current") {
@@ -54,7 +54,7 @@ export async function revisions(context: IActionContext, node?: ApiTreeItem): Pr
                         await node!.root.client.apiRelease.createOrUpdate(node!.root.resourceGroupName, node!.root.serviceName, pickedApiName, releaseId, apiRelease);
                         const api = await node!.root.client.api.get(node!.root.resourceGroupName, node!.root.serviceName, node!.root.apiName);
                         await node!.reloadApi(api);
-                        await node!.refresh();
+                        await node!.refresh(context);
                     }
                 ).then(async () => {
                     window.showInformationMessage(localize("releaseRevision", "Releasing current revision has been completed successfully."));

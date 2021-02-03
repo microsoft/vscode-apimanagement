@@ -4,13 +4,19 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { ApiManagementModels } from "@azure/arm-apimanagement";
-import { AzExtTreeItem, AzureParentTreeItem } from "vscode-azureextensionui";
+import { AzExtTreeItem, AzureParentTreeItem, ICreateChildImplContext } from "vscode-azureextensionui";
 import { topItemCount } from "../constants";
 import { localize } from "../localize";
 import { processError } from "../utils/errorUtil";
 import { treeUtils } from "../utils/treeUtils";
 import { IServiceTreeRoot } from "./IServiceTreeRoot";
 import { NamedValueTreeItem } from "./NamedValueTreeItem";
+
+export interface INamedValuesTreeItemContext extends ICreateChildImplContext {
+    key: string;
+    value: string;
+    secret?: boolean;
+}
 
 export class NamedValuesTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
     public get iconPath(): { light: string, dark: string } {
@@ -40,31 +46,27 @@ export class NamedValuesTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
         return this.createTreeItemsWithErrorHandling(
             propertyCollection,
             "invalidApiManagementNamedValue",
-            // @ts-ignore
             async (prop: ApiManagementModels.NamedValueContract) => new NamedValueTreeItem(this, prop),
             (prop: ApiManagementModels.NamedValueContract) => {
                 return prop.name;
             });
     }
 
-    // @ts-ignore
-    public async createChildImpl(showCreatingTreeItem: (label: string) => void, userOptions?: { key: string, value: string, secret?: boolean }): Promise<NamedValueTreeItem> {
-        if (userOptions && userOptions.key && userOptions.value) {
-            const keyName = userOptions.key;
-            showCreatingTreeItem(keyName);
+    public async createChildImpl(context: INamedValuesTreeItemContext): Promise<NamedValueTreeItem> {
+        if (context.key && context.value) {
+            context.showCreatingTreeItem(context.key);
 
             const propertyContract = <ApiManagementModels.NamedValueCreateContract> {
-                displayName: keyName,
-                value: userOptions.value,
-                secret: userOptions.secret
+                displayName: context.key,
+                value: context.value,
+                secret: context.secret
             };
 
             try {
-                const property = await this.root.client.namedValue.createOrUpdate(this.root.resourceGroupName, this.root.serviceName, keyName, propertyContract);
-                // @ts-ignore
+                const property = await this.root.client.namedValue.createOrUpdate(this.root.resourceGroupName, this.root.serviceName, context.key, propertyContract);
                 return new NamedValueTreeItem(this, property);
             } catch (error) {
-                throw new Error(processError(error, localize("createNamedValueFailed", `Failed to create the named value ${userOptions.key}`)));
+                throw new Error(processError(error, localize("createNamedValueFailed", `Failed to create the named value ${context.key}`)));
             }
         } else {
             throw Error("Key and the value are expected.");

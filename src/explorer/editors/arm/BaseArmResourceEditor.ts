@@ -36,7 +36,7 @@ export abstract class BaseArmResourceEditor<TRoot extends IServiceTreeRoot> exte
         try {
             const payload = JSON.parse(data);
             const response = await this.updateDataInternal(context, payload);
-            await context.refresh();
+            //await context.refresh();
             window.showInformationMessage(localize("updateSucceded", `Changes to ${this.entityType} were succefully uploaded to cloud.`));
             return JSON.stringify(response, null, "\t");
         } catch (error) {

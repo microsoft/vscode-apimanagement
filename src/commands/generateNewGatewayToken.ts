@@ -14,7 +14,7 @@ import { localize } from "../localize";
 
 export async function generateNewGatewayToken(context: IActionContext, node?: GatewayTreeItem): Promise<void> {
   if (!node) {
-    node = <GatewayTreeItem>await ext.tree.showTreeItemPicker(GatewayTreeItem.contextValue);
+    node = <GatewayTreeItem>await ext.tree.showTreeItemPicker(GatewayTreeItem.contextValue, context);
   }
 
   ext.outputChannel.show();

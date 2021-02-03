@@ -44,7 +44,7 @@ export async function copyDockerRunCommand(context: IActionContext, node?: Gatew
     }
   ).then(async () => {
     // tslint:disable-next-line:no-non-null-assertion
-    await node!.refresh();
+    await node!.refresh(context);
     window.showInformationMessage(localize("deployGateway", "Docker run command copied to clipboard."));
   });
 }
@@ -78,7 +78,7 @@ export async function generateKubernetesDeployment(context: IActionContext, node
       await fse.writeFile(configFilePath, depYaml);
       env.clipboard.writeText(`kubectl apply -f ${configFilePath}`);
     }).then(async () => {
-      await node!.refresh();
+      await node!.refresh(context);
       window.showInformationMessage(localize("deployGateway", `Generated file and command "kubectl apply -f configFilePath" copied to clipboard.`));
     });
 }

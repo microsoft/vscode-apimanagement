@@ -51,5 +51,5 @@ export async function addApiFilter(context: IActionContext, node?: ApisTreeItem)
 
     node.selectedApis = picks.map((s) => s.api);
     // tslint:disable:no-non-null-assertion
-    await node!.refresh();
+    await node!.refresh(context);
 }

@@ -4,7 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { ApiManagementModels } from "@azure/arm-apimanagement";
-import { AzExtTreeItem, AzureParentTreeItem } from "vscode-azureextensionui";
+import { AzExtTreeItem, AzureParentTreeItem, ICreateChildImplContext } from "vscode-azureextensionui";
 import { topItemCount } from "../constants";
 import { localize } from "../localize";
 import { processError } from "../utils/errorUtil";
@@ -12,8 +12,12 @@ import { treeUtils } from "../utils/treeUtils";
 import { IProductTreeRoot } from "./IProductTreeRoot";
 import { ProductApiTreeItem } from "./ProductApiTreeItem";
 
+export interface IProductTreeItemContext extends ICreateChildImplContext {
+    apiName: string;
+}
+
 export class ProductApisTreeItem extends AzureParentTreeItem<IProductTreeRoot> {
-    // @ts-ignore
+
     public get iconPath(): { light: string, dark: string } {
         return treeUtils.getThemedIconPath('list');
     }
@@ -41,25 +45,22 @@ export class ProductApisTreeItem extends AzureParentTreeItem<IProductTreeRoot> {
         return this.createTreeItemsWithErrorHandling(
             productApisCollection,
             "invalidApiManagementProductApi",
-            // @ts-ignore
             async (api: ApiManagementModels.ApiContract) => new ProductApiTreeItem(this, api),
             (api: ApiManagementModels.ApiContract) => {
                 return api.name;
             });
     }
 
-    // @ts-ignore
-    public async createChildImpl(showCreatingTreeItem: (label: string) => void, userOptions?: { apiName: string }): Promise<ProductApiTreeItem> {
-        if (userOptions && userOptions.apiName) {
-            const apiName = userOptions.apiName;
-            showCreatingTreeItem(apiName);
+    public async createChildImpl(context: IProductTreeItemContext): Promise<ProductApiTreeItem> {
+        if (context.apiName) {
+            context.showCreatingTreeItem(context.apiName);
 
             try {
-                const product = await this.root.client.productApi.createOrUpdate(this.root.resourceGroupName, this.root.serviceName, this.root.productName, apiName);
-                // @ts-ignore
+                const product = await this.root.client.productApi.createOrUpdate(this.root.resourceGroupName, this.root.serviceName, this.root.productName, context.apiName);
+
                 return new ProductApiTreeItem(this, product);
             } catch (error) {
-                throw new Error(processError(error, localize("addApiToProductFailed", `Failed to add '${apiName}' to product '${this.root.productName}'.`)));
+                throw new Error(processError(error, localize("addApiToProductFailed", `Failed to add '${context.apiName}' to product '${this.root.productName}'.`)));
             }
         } else {
             throw Error("Expected API name.");

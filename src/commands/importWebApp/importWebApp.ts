@@ -13,7 +13,7 @@ import { IOpenApiImportObject, ISecurityType, OpenApiParser } from "../../../ext
 import { getRewriteUrlPolicy, getSetBackendPolicy, getSetHeaderPolicy, getSetMethodPolicy } from "../../azure/apim/policyHelper";
 import { IWebAppContract } from "../../azure/webApp/contracts";
 import * as Constants from "../../constants";
-import { ApisTreeItem } from "../../explorer/ApisTreeItem";
+import { ApisTreeItem, IApiTreeItemContext } from "../../explorer/ApisTreeItem";
 import { ApiTreeItem } from "../../explorer/ApiTreeItem";
 import { IServiceTreeRoot } from "../../explorer/IServiceTreeRoot";
 import { ServiceTreeItem } from "../../explorer/ServiceTreeItem";
@@ -45,13 +45,13 @@ export async function importWebAppToApi(context: IActionContext, node?: ApiTreeI
     const webAppConfig: IWebAppContract = JSON.parse(webAppConfigStr);
     if (webAppConfig.properties.apiDefinition && webAppConfig.properties.apiDefinition.url) {
         // tslint:disable-next-line: no-non-null-assertion
-        await importFromSwagger(webAppConfig, webAppName, node!.root.apiName, node!, pickedWebApp);
+        await importFromSwagger(context, webAppConfig, webAppName, node!.root.apiName, node!, pickedWebApp);
     } else {
         ext.outputChannel.appendLine(localize("importWebApp", "API Definition not specified for Webapp..."));
     }
 }
 
-export async function importWebApp(context: IActionContext, node?: ApisTreeItem): Promise<void> {
+export async function importWebApp(context: IActionContext & IApiTreeItemContext, node?: ApisTreeItem): Promise<void> {
     if (!node) {
         const serviceNode = <ServiceTreeItem>await ext.tree.showTreeItemPicker(ServiceTreeItem.contextValue, context);
         node = serviceNode.apisTreeItem;
@@ -70,9 +70,9 @@ export async function importWebApp(context: IActionContext, node?: ApisTreeItem)
     const apiName = await apiUtil.askApiName(webAppName);
     if (webAppConfig.properties.apiDefinition && webAppConfig.properties.apiDefinition.url) {
         ext.outputChannel.appendLine(localize("importWebApp", "Importing Web App from swagger object..."));
-        await importFromSwagger(webAppConfig, webAppName, apiName, node, pickedWebApp);
+        await importFromSwagger(context, webAppConfig, webAppName, apiName, node, pickedWebApp);
     } else {
-        await createApiWithWildCardOperations(node, webAppName, apiName, pickedWebApp, webAppResourceGroup);
+        await createApiWithWildCardOperations(context, node, webAppName, apiName, pickedWebApp, webAppResourceGroup);
     }
 }
 
@@ -185,7 +185,7 @@ export async function constructApiFromWebApp(apiId: string, webApp: Site, apiNam
     };
 }
 
-async function createApiWithWildCardOperations(node: ApisTreeItem, webAppName: string, apiName: string, pickedWebApp: Site, webAppResourceGroup: string): Promise<void> {
+async function createApiWithWildCardOperations(context: IActionContext & IApiTreeItemContext, node: ApisTreeItem, webAppName: string, apiName: string, pickedWebApp: Site, webAppResourceGroup: string): Promise<void> {
     window.withProgress(
         {
             location: ProgressLocation.Notification,
@@ -197,9 +197,11 @@ async function createApiWithWildCardOperations(node: ApisTreeItem, webAppName: s
             const apiId = apiUtil.genApiId(apiName);
             ext.outputChannel.appendLine(localize("importWebApp", "Creating new API..."));
             const nApi = await constructApiFromWebApp(apiId, pickedWebApp, apiName);
-            const context = 
-            // tslint:disable: no-non-null-assertion
-            await node!.createChild({ apiName, apiContract: nApi });
+
+            context.apiName = apiName;
+            context.apiContract = nApi;
+
+            await node!.createChild(context);
             const serviceUrl = "https://".concat(nonNullValue(nonNullValue(pickedWebApp.hostNames)[0]));
             const backendId = `WebApp_${apiUtil.displayNameToIdentifier(webAppName)}`;
             await setAppBackendEntity(node!, backendId, apiName, serviceUrl, webAppResourceGroup, webAppName);
@@ -216,7 +218,7 @@ async function createApiWithWildCardOperations(node: ApisTreeItem, webAppName: s
         }
     ).then(async () => {
         // tslint:disable-next-line:no-non-null-assertion
-        await node!.refresh();
+        await node!.refresh(context);
         window.showInformationMessage(localize("importWebApp", `Imported Web App '${webAppName}' to API Management succesfully.`));
     });
 }
@@ -231,7 +233,7 @@ function getWebConfigbaseUrl(endpointUrl: string, subscriptionId: string, webApp
     return `${endpointUrl}/subscriptions/${subscriptionId}/resourceGroups/${webAppResourceGroup}/providers/Microsoft.web/sites/${webAppName}/config/web?api-version=${Constants.webAppApiVersion20190801}`;
 }
 
-async function importFromSwagger(webAppConfig: IWebAppContract, webAppName: string, apiName: string, node: ApiTreeItem | ApisTreeItem, pickedWebApp: Site): Promise<void> {
+async function importFromSwagger(context: IActionContext & Partial<IApiTreeItemContext>, webAppConfig: IWebAppContract, webAppName: string, apiName: string, node: ApiTreeItem | ApisTreeItem, pickedWebApp: Site): Promise<void> {
     // tslint:disable-next-line: no-non-null-assertion
     const docStr: string = await requestUtil(webAppConfig.properties.apiDefinition!.url!);
     if (docStr !== undefined && docStr.trim() !== "") {
@@ -253,7 +255,9 @@ async function importFromSwagger(webAppConfig: IWebAppContract, webAppName: stri
                         curApi = await node!.root.client.api.get(node!.root.resourceGroupName, node!.root.serviceName, apiName);
                     } else {
                         ext.outputChannel.appendLine(localize("importWebApp", "Creating new API..."));
-                        await node.createChild({ apiName: apiName, document: document });
+                        context.apiName = apiName;
+                        context.document = document;
+                        await node.createChild(context);
                         ext.outputChannel.appendLine(localize("importWebApp", "Updating API service url..."));
                         curApi = await node!.root.client.api.get(node!.root.resourceGroupName, node!.root.serviceName, apiName);
                         curApi.serviceUrl = "";
@@ -297,7 +301,7 @@ async function importFromSwagger(webAppConfig: IWebAppContract, webAppName: stri
             }
         ).then(async () => {
             // tslint:disable-next-line:no-non-null-assertion
-            await node!.refresh();
+            await node!.refresh(context);
             window.showInformationMessage(localize("importWebApp", `Imported Web App '${webAppName}' to API Management succesfully.`));
         });
     }

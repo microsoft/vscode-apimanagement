@@ -5,34 +5,34 @@
 
 import { ProgressLocation, window } from "vscode";
 import { IActionContext } from "vscode-azureextensionui";
-import { NamedValuesTreeItem } from "../explorer/NamedValuesTreeItem";
+import { INamedValuesTreeItemContext, NamedValuesTreeItem } from "../explorer/NamedValuesTreeItem";
 import { NamedValueTreeItem } from "../explorer/NamedValueTreeItem";
 import { ServiceTreeItem } from "../explorer/ServiceTreeItem";
 import { ext } from "../extensionVariables";
 import { localize } from "../localize";
 
-export async function createNamedValue(context: IActionContext, node?: NamedValuesTreeItem): Promise<void> {
+export async function createNamedValue(context: IActionContext & INamedValuesTreeItemContext, node?: NamedValuesTreeItem): Promise<void> {
     if (!node) {
         const serviceNode = <ServiceTreeItem>await ext.tree.showTreeItemPicker(ServiceTreeItem.contextValue, context);
         node = serviceNode.namedValuesTreeItem;
     }
 
-    const id = await askId();
-    const value = await askValue();
-    const secret = await isSecret();
+    context.key = await askId();
+    context.value = await askValue();
+    context.secret = await isSecret();
 
     window.withProgress(
         {
             location: ProgressLocation.Notification,
-            title: localize("createNamedValue", `Creating named value '${id}' in API Management service ${node.root.serviceName} ...`),
+            title: localize("createNamedValue", `Creating named value '${context.key}' in API Management service ${node.root.serviceName} ...`),
             cancellable: false
         },
         // tslint:disable-next-line:no-non-null-assertion
-        async () => { return node!.createChild({ key: id, value: value, secret: secret }); }
+        async () => { return node!.createChild(context); }
     ).then(async () => {
         // tslint:disable-next-line:no-non-null-assertion
         await node!.refresh(context);
-        window.showInformationMessage(localize("creatededNamedValue", `Created named value '${id}' succesfully.`));
+        window.showInformationMessage(localize("creatededNamedValue", `Created named value '${context.key}' succesfully.`));
     });
 }
 

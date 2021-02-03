@@ -6,7 +6,7 @@
 import * as fse from 'fs-extra';
 import { OpenDialogOptions, ProgressLocation, Uri, window, workspace } from "vscode";
 import { IActionContext } from 'vscode-azureextensionui';
-import { ApisTreeItem } from "../explorer/ApisTreeItem";
+import { ApisTreeItem, IApiTreeItemContext } from "../explorer/ApisTreeItem";
 import { ServiceTreeItem } from '../explorer/ServiceTreeItem';
 import { ext } from "../extensionVariables";
 import { localize } from "../localize";
@@ -17,7 +17,7 @@ import { processError } from '../utils/errorUtil';
 import { requestUtil } from '../utils/requestUtil';
 
 // tslint:disable: no-any
-export async function importOpenApi(context: IActionContext, node?: ApisTreeItem, importUsingLink: boolean = false): Promise<void> {
+export async function importOpenApi(context: IActionContext & IApiTreeItemContext, node?: ApisTreeItem, importUsingLink: boolean = false): Promise<void> {
     if (!node) {
         const serviceNode = <ServiceTreeItem>await ext.tree.showTreeItemPicker(ServiceTreeItem.contextValue, context);
         node = serviceNode.apisTreeItem;
@@ -38,6 +38,9 @@ export async function importOpenApi(context: IActionContext, node?: ApisTreeItem
         const documentJson = JSON.parse(documentString);
         const document = await parseDocument(documentJson);
         const apiName = await apiUtil.askApiName();
+        context.apiName = apiName;
+        context.document = document;
+
         window.withProgress(
             {
                 location: ProgressLocation.Notification,
@@ -45,10 +48,10 @@ export async function importOpenApi(context: IActionContext, node?: ApisTreeItem
                 cancellable: false
             },
             // tslint:disable-next-line:no-non-null-assertion
-            async () => { return node!.createChild({ apiName: apiName, document: document }); }
+            async () => { return node!.createChild(context); }
         ).then(async () => {
             // tslint:disable-next-line:no-non-null-assertion
-            await node!.refresh();
+            await node!.refresh(context);
             window.showInformationMessage(localize("importedApi", `Imported API '${apiName}' to API Management succesfully.`));
         });
     }
