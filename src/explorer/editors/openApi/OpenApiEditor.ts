@@ -5,7 +5,7 @@
 
 import { ApiManagementModels } from "@azure/arm-apimanagement";
 import { WebResource } from "@azure/ms-rest-js/lib/msRest";
-import * as request from 'request-promise';
+import requestPromise from 'request-promise';
 import { ProgressLocation, window } from "vscode";
 import { appendExtensionUserAgent } from "vscode-azureextensionui";
 import { openApiAcceptHeader, openApiExport, openApiSchema, showSavePromptConfigKey, swaggerAcceptHeader, swaggerExport, swaggerSchema } from "../../../constants";
@@ -110,7 +110,7 @@ export class OpenApiEditor extends Editor<ApiTreeItem> {
 
         await context.root.client.credentials.signRequest(webResource);
         // tslint:disable-next-line: await-promise
-        return await request(webResource).promise();
+        return await requestPromise(webResource).promise();
     }
 
     private buildAPIExportUrl(context: ApiTreeItem, exportFormat: string) : string {

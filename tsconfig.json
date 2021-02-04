@@ -4,7 +4,8 @@
         "target": "es6",
         "outDir": "out",
         "lib": [
-            "es6"
+            "es6",
+            "DOM"
         ],
         "sourceMap": true,
         "rootDir": ".",
@@ -13,16 +14,19 @@
         "noImplicitReturns": true,
         "strictNullChecks": true,
         "noUnusedParameters": true,
+        "esModuleInterop": true,
         "baseUrl": "./",
         "paths": {
             "*": [
                 "node_modules/vscode/*",
                 "*"
             ]
-        }
+        },
+        "skipLibCheck": true
     },
     "exclude": [
         "node_modules",
-        ".vscode-test"
+        ".vscode-test",
+        "gulpfile.ts"
     ]
 }

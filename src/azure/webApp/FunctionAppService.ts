@@ -3,8 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ServiceClientCredentials } from "ms-rest";
-import { TokenCredentialsBase } from "vscode-azureextensionui";
+import { TokenCredentialsBase } from "@azure/ms-rest-nodeauth";
 import * as Constants from "../../constants";
 import { nonNullOrEmptyValue } from "../../utils/nonNull";
 import { requestUtil } from "../../utils/requestUtil";
@@ -13,7 +12,7 @@ import { IFunctionContract } from "./contracts";
 
 export class FunctionAppService {
     public baseUrl: string;
-    public credentials: ServiceClientCredentials;
+    public credentials: TokenCredentialsBase;
     public endPointUrl: string;
     public subscriptionId: string;
     public resourceGroup: string;

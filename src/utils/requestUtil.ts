@@ -5,10 +5,10 @@
 
 import { HttpMethods, WebResource } from "@azure/ms-rest-js/lib/msRest";
 import { TokenCredentialsBase } from "@azure/ms-rest-nodeauth";
-import * as request from 'request-promise';
+import requestPromise from 'request-promise';
 import { appendExtensionUserAgent } from "vscode-azureextensionui";
 
-export type nRequest = WebResource & request.RequestPromiseOptions;
+export type nRequest = WebResource & requestPromise.RequestPromiseOptions;
 
 // tslint:disable-next-line: no-any
 export async function requestUtil<T>(url: string, credentials?: TokenCredentialsBase, method?: HttpMethods, body?: any): Promise<T> {
@@ -23,7 +23,7 @@ export async function requestUtil<T>(url: string, credentials?: TokenCredentials
     }
     if (method !== "PUT" && !body) {
         // tslint:disable-next-line: await-promise
-        const response = await request(requestOptions).promise();
+        const response = await requestPromise(requestOptions).promise();
         return <T>(response);
     } else {
         const newRequest = <nRequest>requestOptions;
@@ -34,7 +34,7 @@ export async function requestUtil<T>(url: string, credentials?: TokenCredentials
 }
 
 export async function sendRequest<T>(httpReq: nRequest): Promise<T> {
-    return await <Thenable<T>>request(httpReq).promise();
+    return await <Thenable<T>>requestPromise(httpReq).promise();
 }
 
 export async function getBearerToken(url: string, method: HttpMethods, credentials: TokenCredentialsBase): Promise<string> {
