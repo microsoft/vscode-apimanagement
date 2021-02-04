@@ -9,7 +9,7 @@ import * as os from 'os';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import { TestOutputChannel } from 'vscode-azureextensiondev';
-import { ext, getRandomHexString, parseError, TestUserInput } from '../extension.bundle';
+import { ext, getRandomHexString, parseError } from '../extension.bundle';
 
 export let longRunningTestsEnabled: boolean;
 export const testFolderPath: string = path.join(os.tmpdir(), `azureApiManagementTest${getRandomHexString()}`);
@@ -22,7 +22,7 @@ suiteSetup(async function (this: IHookCallbackContext): Promise<void> {
 
     await vscode.commands.executeCommand('azureApiManagement.Refresh'); // activate the extension before tests begin
     ext.outputChannel = new TestOutputChannel();
-    ext.ui = new TestUserInput([]);
+    //ext.ui = new AzureUserInput();
 
     // tslint:disable-next-line:strict-boolean-expressions
     longRunningTestsEnabled = !/^(false|0)?$/i.test(process.env.ENABLE_LONG_RUNNING_TESTS || '');
