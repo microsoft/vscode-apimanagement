@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { HttpMethods, WebResource } from "@azure/ms-rest-js/lib/msRest";
+import { HttpMethods, WebResource } from "@azure/ms-rest-js";
 import { TokenCredentialsBase } from "@azure/ms-rest-nodeauth";
 import requestPromise from 'request-promise';
 import { appendExtensionUserAgent } from "vscode-azureextensionui";

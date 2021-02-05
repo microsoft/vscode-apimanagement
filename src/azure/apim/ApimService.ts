@@ -3,7 +3,6 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-//import { ServiceClientCredentials } from "ms-rest-js";
 import { TokenCredentialsBase } from "@azure/ms-rest-nodeauth";
 import { requestUtil } from "../../utils/requestUtil";
 import { IGatewayApiContract, IGatewayContract, IGatewayToken } from "./contracts";

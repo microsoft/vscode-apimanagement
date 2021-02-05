@@ -4,7 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { ApiManagementModels } from "@azure/arm-apimanagement";
-import { WebResource } from "@azure/ms-rest-js/lib/msRest";
+import { WebResource } from "@azure/ms-rest-js";
 import requestPromise from 'request-promise';
 import { ProgressLocation, window } from "vscode";
 import { appendExtensionUserAgent } from "vscode-azureextensionui";
