@@ -3,11 +3,12 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+import { HttpMethods, HttpOperationResponse, ParameterValue, ServiceClient } from "@azure/ms-rest-js";
 import { TokenCredentialsBase } from "@azure/ms-rest-nodeauth";
+import { createGenericClient } from "vscode-azureextensionui";
 import * as Constants from "../../constants";
 import { nonNullOrEmptyValue } from "../../utils/nonNull";
-import { requestUtil } from "../../utils/requestUtil";
-import { IFunctionHostKeyContract, IFunctionKeys, IWebAppContract } from "./contracts";
+import { IFunctionKeys, IWebAppContract } from "./contracts";
 import { IFunctionContract } from "./contracts";
 
 export class FunctionAppService {
@@ -29,10 +30,9 @@ export class FunctionAppService {
 
     // Get all functions from a function app
     public async listAllFunctions(): Promise<IFunctionContract[]> {
-        const queryUrl = `${this.baseUrl}/functions?api-version=${Constants.functionAppApiVersion}`;
-        const funcAppObj: string = await requestUtil(queryUrl, this.credentials);
+        const result = await this.request(`${this.baseUrl}/functions?api-version=${Constants.functionAppApiVersion}`, "GET");
         // tslint:disable-next-line: no-unsafe-any
-        return JSON.parse(funcAppObj).value;
+        return <IFunctionContract[]>(result.parsedBody.value);
     }
 
     // check if the imported function app already has the hostkey, otherwise created
@@ -56,22 +56,21 @@ export class FunctionAppService {
         } else if (!webAppConfig.properties.apiManagementConfig.id) {
             webAppConfig.properties.apiManagementConfig.id = apiConfigId;
         }
-        const webConfigUrl = `${this.baseUrl}/config/web?api-version=${Constants.functionAppApiVersion}`;
-        await requestUtil(webConfigUrl, this.credentials, "PUT", webAppConfig);
+        await this.request(`${this.baseUrl}/config/web?api-version=${Constants.functionAppApiVersion}`, "PUT", undefined, webAppConfig);
     }
 
     // Get function app config
     private async getFuncAppConfig(): Promise<IWebAppContract> {
         const webConfigUrl = `${this.baseUrl}/config/web?api-version=${Constants.functionAppApiVersion}`;
-        const res: string =  await requestUtil(webConfigUrl, this.credentials, "GET");
-        const result = JSON.parse(res);
-        return <IWebAppContract>result;
+        const result = await this.request(webConfigUrl, "GET");
+        return <IWebAppContract>result.parsedBody;
     }
 
     // Get function hostkey
     private async getFuncHostKeys(): Promise<IFunctionKeys> {
         const url = `${this.baseUrl}/host/default/listkeys?api-version=${Constants.functionAppApiVersion}`;
-        return await requestUtil(url, this.credentials, "POST");
+        const result = await this.request(url, "POST");
+        return <IFunctionKeys>result.parsedBody;
     }
 
     // Get site url
@@ -82,7 +81,19 @@ export class FunctionAppService {
     // Create function hostkey for our apim service
     private async createFuncHostKey(funcKeyName: string): Promise<string> {
         const funcKeyUrl = `${this.baseUrl}/host/default/functionkeys/${funcKeyName}?api-version=${Constants.functionAppCreateKeyApiVersion}`;
-        const response: IFunctionHostKeyContract = await requestUtil(funcKeyUrl, this.credentials, "PUT", {properties: {}});
-        return nonNullOrEmptyValue(response.properties.value);
+        const result = await this.request(funcKeyUrl, "PUT", undefined, {properties: {}});
+        // tslint:disable-next-line: no-unsafe-any
+        return nonNullOrEmptyValue(<string>result.parsedBody.value);
+    }
+
+    // tslint:disable-next-line: no-any
+    private async request(url: string, method: HttpMethods, queryParameters?: { [key: string]: any | ParameterValue }, body?: any): Promise<HttpOperationResponse> {
+        const client: ServiceClient = await createGenericClient(this.credentials);
+        return await client.sendRequest({
+            method: method,
+            url: url,
+            queryParameters: queryParameters,
+            body: body
+        });
     }
 }

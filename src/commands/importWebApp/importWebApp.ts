@@ -23,7 +23,7 @@ import { apiUtil } from "../../utils/apiUtil";
 import { azureClientUtil } from "../../utils/azureClientUtil";
 import { processError } from "../../utils/errorUtil";
 import { nonNullValue } from "../../utils/nonNull";
-import { requestUtil } from "../../utils/requestUtil";
+import { request } from "../../utils/requestUtil";
 
 export async function importWebAppToApi(context: IActionContext, node?: ApiTreeItem): Promise<void> {
     if (!node) {
@@ -39,7 +39,8 @@ export async function importWebAppToApi(context: IActionContext, node?: ApiTreeI
     const webAppResourceGroup = nonNullValue(pickedWebApp.resourceGroup);
     const webAppName = nonNullValue(pickedWebApp.name);
     const webConfigbaseUrl = getWebConfigbaseUrl(node!.root.environment.resourceManagerEndpointUrl, node!.root.subscriptionId, webAppResourceGroup, webAppName);
-    const webAppConfigStr: string = await requestUtil(webConfigbaseUrl, node.root.credentials, "GET");
+    // tslint:disable-next-line: no-unsafe-any
+    const webAppConfigStr: string = (await request(node.root.credentials, webConfigbaseUrl, "GET")).parsedBody;
 
     // tslint:disable: no-unsafe-any
     const webAppConfig: IWebAppContract = JSON.parse(webAppConfigStr);
@@ -64,7 +65,7 @@ export async function importWebApp(context: IActionContext & Partial<IApiTreeIte
     const webAppResourceGroup = nonNullValue(pickedWebApp.resourceGroup);
     const webAppName = nonNullValue(pickedWebApp.name);
     const webConfigbaseUrl = getWebConfigbaseUrl(node!.root.environment.resourceManagerEndpointUrl, webAppSubscriptionId, webAppResourceGroup, webAppName);
-    const webAppConfigStr: string = await requestUtil(webConfigbaseUrl, node.root.credentials, "GET");
+    const webAppConfigStr: string = (await request(node.root.credentials, webConfigbaseUrl, "GET")).parsedBody;
 
     const webAppConfig: IWebAppContract = JSON.parse(webAppConfigStr);
     const apiName = await apiUtil.askApiName(webAppName);
@@ -235,7 +236,7 @@ function getWebConfigbaseUrl(endpointUrl: string, subscriptionId: string, webApp
 
 async function importFromSwagger(context: IActionContext & Partial<IApiTreeItemContext>, webAppConfig: IWebAppContract, webAppName: string, apiName: string, node: ApiTreeItem | ApisTreeItem, pickedWebApp: Site): Promise<void> {
     // tslint:disable-next-line: no-non-null-assertion
-    const docStr: string = await requestUtil(webAppConfig.properties.apiDefinition!.url!);
+    const docStr: string = (await request(node.root.credentials, webAppConfig.properties.apiDefinition!.url!, "GET")).parsedBody;
     if (docStr !== undefined && docStr.trim() !== "") {
         const documentJson = JSON.parse(docStr);
         const document = await parseDocument(documentJson);
