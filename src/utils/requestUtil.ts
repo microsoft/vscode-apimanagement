@@ -25,6 +25,7 @@ export async function sendRequest<T>(httpReq: nRequest): Promise<T> {
     return await <Thenable<T>>requestPromise(httpReq).promise();
 }
 
+// tslint:disable: no-unsafe-any
 export async function getBearerToken(url: string, method: HttpMethods, credentials: TokenCredentialsBase): Promise<string> {
     const requestOptions: WebResource = new WebResource();
     requestOptions.headers.set("User-Agent", appendExtensionUserAgent());
@@ -36,7 +37,8 @@ export async function getBearerToken(url: string, method: HttpMethods, credentia
         throw err;
     }
     const headers = requestOptions.headers;
-    const authToken = headers.get('authorization');
+    // tslint:disable-next-line: no-string-literal
+    const authToken : string = headers['authorization'];
     if (authToken === undefined) {
         throw new Error("Authorization header is missing");
     } else {

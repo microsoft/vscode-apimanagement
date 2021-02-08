@@ -6,7 +6,7 @@
 import { HttpOperationResponse, ServiceClient } from "@azure/ms-rest-js";
 import { TokenCredentialsBase } from "@azure/ms-rest-nodeauth";
 import { createGenericClient } from "vscode-azureextensionui";
-import { IGatewayApiContract, IGatewayContract } from "./contracts";
+import { IGatewayApiContract, IGatewayContract, IMasterSubscription } from "./contracts";
 
 export class ApimService {
     public baseUrl: string;
@@ -81,14 +81,14 @@ export class ApimService {
         return result.parsedBody.value;
     }
 
-    public async getSubscriptionMasterkey(): Promise<string> {
+    public async getSubscriptionMasterkey(): Promise<IMasterSubscription> {
         const client: ServiceClient = await createGenericClient(this.credentials);
         const result: HttpOperationResponse = await client.sendRequest({
             method: "GET",
             url: `${this.baseUrl}/subscriptions/master?api-version=${this.apiVersion}`
         });
         // tslint:disable-next-line: no-unsafe-any
-        return result.parsedBody.value;
+        return result.parsedBody;
     }
 
     private genSiteUrl(endPointUrl: string, subscriptionId: string, resourceGroup: string, serviceName: string): string {

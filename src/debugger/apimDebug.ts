@@ -424,7 +424,19 @@ export class ApimDebugSession extends LoggingDebugSession {
 			}
 		});
 
-		return snippets.map(s => s.content.substring(1, /[\s>/]/.exec(s.content)!.index));
+		const allPolicies: string[] = [];
+		let index = 0;
+		for (const snippet of snippets) {
+			if (snippet.content !== undefined && snippet.content !== "") {
+				const idx = /[\s>/]/.exec(snippet.content)!.index;
+				allPolicies[index] = snippet.content.substring(1, idx);
+				index += 1;
+			}
+		}
+
+		// tslint:disable-next-line: no-unnecessary-local-variable
+		//const allPolicies = snippets.filter(s => s.content !== undefined).map(s => s.content.substring(1, /[\s>/]/.exec(s.content)!.index));
+		return allPolicies;
 	}
 
 	private findThreadByUiId(id: number): [UiRequest, UiThread] | null {
