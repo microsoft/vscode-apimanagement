@@ -12,8 +12,7 @@ import * as vscode from 'vscode';
 import { ISubscriptionContext, TestAzureAccount} from 'vscode-azureextensiondev';
 import { AzExtTreeDataProvider, AzureParentTreeItem } from 'vscode-azureextensionui';
 //import { ApiManagementProvider, AzureTreeDataProvider, ext, getRandomHexString, TestAzureAccount, TestUserInput, treeUtils } from '../extension.bundle';
-import { ext, treeUtils } from '../extension.bundle';
-import { AzureAccountTreeItem } from '../src/explorer/AzureAccountTreeItem';
+import { AzureAccountTreeItem, ext, treeUtils } from '../extension.bundle';
 import { longRunningTestsEnabled } from './global.test';
 //import { runWithApimSetting } from './runWithSetting';
 

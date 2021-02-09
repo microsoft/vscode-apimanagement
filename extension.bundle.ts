@@ -28,3 +28,4 @@ export * from './src/openApi/OpenApiImportObject';
 export { treeUtils } from './src/utils/treeUtils';
 export * from './src/utils/azure';
 export * from './src/utils/nameUtil';
+export * from './src/explorer/AzureAccountTreeItem';
