@@ -3,14 +3,15 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ApiContract, BackendCredentialsContract, NamedValueCreateContract, OperationCollection, OperationContract } from "azure-arm-apimanagement/lib/models";
-import { Site } from "azure-arm-website/lib/models";
+import { ApiContract, BackendCredentialsContract, NamedValueCreateContract, OperationCollection, OperationContract } from "@azure/arm-apimanagement/src/models";
+import { Site } from "@azure/arm-appservice/src/models";
 import { ProgressLocation, window } from "vscode";
+import { IActionContext } from "vscode-azureextensionui";
 import { getSetBackendPolicy } from "../../azure/apim/policyHelper";
 import { IFunctionContract } from "../../azure/webApp/contracts";
 import { FunctionAppService } from "../../azure/webApp/FunctionAppService";
 import * as Constants from "../../constants";
-import { ApisTreeItem } from "../../explorer/ApisTreeItem";
+import { ApisTreeItem, IApiTreeItemContext } from "../../explorer/ApisTreeItem";
 import { ApiTreeItem } from "../../explorer/ApiTreeItem";
 import { ServiceTreeItem } from "../../explorer/ServiceTreeItem";
 import { ext } from "../../extensionVariables";
@@ -21,9 +22,9 @@ import { nonNullOrEmptyValue } from "../../utils/nonNull";
 import { createImportXmlPolicy, getPickedWebApp, setAppBackendEntity, webAppKind } from "../importWebApp/importWebApp";
 import { parseUrlTemplate } from "./parseUrlTemplate";
 
-export async function importFunctionAppToApi(node?: ApiTreeItem): Promise<void> {
+export async function importFunctionAppToApi(context: IActionContext, node?: ApiTreeItem): Promise<void> {
     if (!node) {
-        node = <ApiTreeItem>await ext.tree.showTreeItemPicker(ApiTreeItem.contextValue);
+        node = <ApiTreeItem>await ext.tree.showTreeItemPicker(ApiTreeItem.contextValue, context);
     }
 
     ext.outputChannel.show();
@@ -53,14 +54,14 @@ export async function importFunctionAppToApi(node?: ApiTreeItem): Promise<void> 
         }
     ).then(async () => {
         // tslint:disable-next-line:no-non-null-assertion
-        await node!.refresh();
+        await node!.refresh(context);
         window.showInformationMessage(localize("importFunctionApp", `Imported Function App succesfully.`));
     });
 }
 
-export async function importFunctionApp(node?: ApisTreeItem): Promise<void> {
+export async function importFunctionApp(context: IActionContext & Partial<IApiTreeItemContext>, node?: ApisTreeItem): Promise<void> {
     if (!node) {
-        const serviceNode = <ServiceTreeItem>await ext.tree.showTreeItemPicker(ServiceTreeItem.contextValue);
+        const serviceNode = <ServiceTreeItem>await ext.tree.showTreeItemPicker(ServiceTreeItem.contextValue, context);
         node = serviceNode.apisTreeItem;
     }
 
@@ -86,7 +87,10 @@ export async function importFunctionApp(node?: ApisTreeItem): Promise<void> {
             if (node) {
                 ext.outputChannel.appendLine(localize("importFunctionApp", `Creating API...`));
                 const nApi = await constructApiFromFunctionApp(apiId, functionApp, apiName);
-                await node.createChild({ apiName, apiContract: nApi });
+
+                context.apiName = apiName;
+                context.apiContract = nApi;
+                await node.createChild(context);
                 ext.outputChannel.appendLine(localize("importFunctionApp", `New API with name ${apiName} created...`));
                 await addOperationsToExistingApi(node, apiId, pickedFuncs, funcName, apiName, funcAppService);
                 ext.outputChannel.appendLine(localize("importFunctionApp", `Linking API Management instance to Function App...`));
@@ -96,7 +100,7 @@ export async function importFunctionApp(node?: ApisTreeItem): Promise<void> {
         }
     ).then(async () => {
         // tslint:disable-next-line:no-non-null-assertion
-        await node!.refresh();
+        await node!.refresh(context);
         window.showInformationMessage(localize("importFunctionApp", `Imported Function App successfully.`));
     });
 }

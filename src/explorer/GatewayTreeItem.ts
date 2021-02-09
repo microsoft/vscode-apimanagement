@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { AzureParentTreeItem, AzureTreeItem, ISubscriptionRoot } from "vscode-azureextensionui";
+import { AzureParentTreeItem, AzureTreeItem, ISubscriptionContext } from "vscode-azureextensionui";
 import { IGatewayContract } from "../azure/apim/contracts";
 import { nonNullProp } from "../utils/nonNull";
 import { treeUtils } from "../utils/treeUtils";
@@ -50,7 +50,7 @@ export class GatewayTreeItem extends AzureParentTreeItem<IGatewayTreeRoot> {
         return [this.gatewayApisTreeItem];
     }
 
-    private createRoot(subRoot: ISubscriptionRoot): IGatewayTreeRoot {
+    private createRoot(subRoot: ISubscriptionContext): IGatewayTreeRoot {
         return Object.assign({}, <IServiceTreeRoot>subRoot, {
             gatewayName: nonNullProp(this.gatewayContract, 'name')
         });

@@ -3,9 +3,9 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ApiManagementModels } from "azure-arm-apimanagement";
-import { ApiContract, ApiCreateOrUpdateParameter } from "azure-arm-apimanagement/lib/models";
-import { AzureParentTreeItem, AzureTreeItem, createTreeItemsWithErrorHandling } from "vscode-azureextensionui";
+import { ApiManagementModels } from "@azure/arm-apimanagement";
+import { ApiContract, ApiCreateOrUpdateParameter } from "@azure/arm-apimanagement/src/models";
+import { AzExtTreeItem, AzureParentTreeItem, ICreateChildImplContext } from "vscode-azureextensionui";
 import { topItemCount } from "../constants";
 import { localize } from "../localize";
 import { IOpenApiImportObject } from "../openApi/OpenApiImportObject";
@@ -15,6 +15,12 @@ import { treeUtils } from "../utils/treeUtils";
 import { ApiTreeItem } from "./ApiTreeItem";
 import { ApiVersionSetTreeItem } from "./ApiVersionSetTreeItem";
 import { IServiceTreeRoot } from "./IServiceTreeRoot";
+
+export interface IApiTreeItemContext extends ICreateChildImplContext {
+    apiName: string;
+    document?: IOpenApiImportObject;
+    apiContract?: ApiContract;
+}
 
 export class ApisTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
 
@@ -33,7 +39,7 @@ export class ApisTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
         return this._nextLink !== undefined;
     }
 
-    public async loadMoreChildrenImpl(clearCache: boolean): Promise<AzureTreeItem<IServiceTreeRoot>[]> {
+    public async loadMoreChildrenImpl(clearCache: boolean): Promise<AzExtTreeItem[]> {
         if (clearCache) {
             this._nextLink = undefined;
         }
@@ -50,9 +56,7 @@ export class ApisTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
         }
 
         const versionSetMap: Map<string, ApiVersionSetTreeItem> = new Map<string, ApiVersionSetTreeItem>();
-
-        return await createTreeItemsWithErrorHandling(
-            this,
+        return await this.createTreeItemsWithErrorHandling(
             apisToLoad,
             "invalidApiManagementApi",
             async (api: ApiManagementModels.ApiContract) => {
@@ -60,7 +64,8 @@ export class ApisTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
                     let apiVersionSetTreeItem = versionSetMap.get(api.apiVersionSetId);
                     if (!apiVersionSetTreeItem) {
                         apiVersionSetTreeItem = new ApiVersionSetTreeItem(this, api);
-                        versionSetMap.set(api.apiVersionSetId, apiVersionSetTreeItem);
+                        // tslint:disable-next-line: no-non-null-assertion
+                        versionSetMap.set(api.apiVersionSetId, apiVersionSetTreeItem!);
                         return apiVersionSetTreeItem;
                     } else {
                         if (apiUtil.isNotApiRevision(api)) {
@@ -78,13 +83,11 @@ export class ApisTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
             });
     }
 
-    public async createChildImpl(showCreatingTreeItem: (label: string) => void, userOptions?: { apiName: string, document?: IOpenApiImportObject, apiContract?: ApiContract }): Promise<ApiTreeItem> {
-        if (userOptions) {
-            if (userOptions.document) {
-                return await this.createApiFromOpenApi(showCreatingTreeItem, userOptions.apiName, userOptions.document);
-            } else if (userOptions.apiContract) {
-                return await this.createApiWithApiContract(showCreatingTreeItem, userOptions.apiName, userOptions.apiContract);
-            }
+    public async createChildImpl(context: IApiTreeItemContext): Promise<ApiTreeItem> {
+        if (context.document) {
+            return await this.createApiFromOpenApi(context.showCreatingTreeItem, context.apiName, context.document);
+        } else if (context.apiContract) {
+            return await this.createApiWithApiContract(context.showCreatingTreeItem, context.apiName, context.apiContract);
         }
         throw Error("Missing one or more userOptions when creating new Api");
     }

@@ -3,14 +3,20 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ApiManagementModels } from "azure-arm-apimanagement";
-import { AzureParentTreeItem, AzureTreeItem, createTreeItemsWithErrorHandling } from "vscode-azureextensionui";
+import { ApiManagementModels } from "@azure/arm-apimanagement";
+import { AzExtTreeItem, AzureParentTreeItem, ICreateChildImplContext } from "vscode-azureextensionui";
 import { topItemCount } from "../constants";
 import { localize } from "../localize";
 import { processError } from "../utils/errorUtil";
 import { treeUtils } from "../utils/treeUtils";
 import { IServiceTreeRoot } from "./IServiceTreeRoot";
 import { NamedValueTreeItem } from "./NamedValueTreeItem";
+
+export interface INamedValuesTreeItemContext extends ICreateChildImplContext {
+    key: string;
+    value: string;
+    secret?: boolean;
+}
 
 export class NamedValuesTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
     public get iconPath(): { light: string, dark: string } {
@@ -26,7 +32,7 @@ export class NamedValuesTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
         return this._nextLink !== undefined;
     }
 
-    public async loadMoreChildrenImpl(clearCache: boolean): Promise<AzureTreeItem<IServiceTreeRoot>[]> {
+    public async loadMoreChildrenImpl(clearCache: boolean): Promise<AzExtTreeItem[]> {
         if (clearCache) {
             this._nextLink = undefined;
         }
@@ -37,8 +43,7 @@ export class NamedValuesTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
 
         this._nextLink = propertyCollection.nextLink;
 
-        return createTreeItemsWithErrorHandling(
-            this,
+        return this.createTreeItemsWithErrorHandling(
             propertyCollection,
             "invalidApiManagementNamedValue",
             async (prop: ApiManagementModels.NamedValueContract) => new NamedValueTreeItem(this, prop),
@@ -47,22 +52,21 @@ export class NamedValuesTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
             });
     }
 
-    public async createChildImpl(showCreatingTreeItem: (label: string) => void, userOptions?: { key: string, value: string, secret?: boolean }): Promise<NamedValueTreeItem> {
-        if (userOptions && userOptions.key && userOptions.value) {
-            const keyName = userOptions.key;
-            showCreatingTreeItem(keyName);
+    public async createChildImpl(context: INamedValuesTreeItemContext): Promise<NamedValueTreeItem> {
+        if (context.key && context.value) {
+            context.showCreatingTreeItem(context.key);
 
             const propertyContract = <ApiManagementModels.NamedValueCreateContract> {
-                displayName: keyName,
-                value: userOptions.value,
-                secret: userOptions.secret
+                displayName: context.key,
+                value: context.value,
+                secret: context.secret
             };
 
             try {
-                const property = await this.root.client.namedValue.createOrUpdate(this.root.resourceGroupName, this.root.serviceName, keyName, propertyContract);
+                const property = await this.root.client.namedValue.createOrUpdate(this.root.resourceGroupName, this.root.serviceName, context.key, propertyContract);
                 return new NamedValueTreeItem(this, property);
             } catch (error) {
-                throw new Error(processError(error, localize("createNamedValueFailed", `Failed to create the named value ${userOptions.key}`)));
+                throw new Error(processError(error, localize("createNamedValueFailed", `Failed to create the named value ${context.key}`)));
             }
         } else {
             throw Error("Key and the value are expected.");

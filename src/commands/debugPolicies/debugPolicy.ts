@@ -4,14 +4,16 @@
  *--------------------------------------------------------------------------------------------*/
 
 import * as vscode from 'vscode';
+import { IActionContext } from 'vscode-azureextensionui';
 import { ApiOperationTreeItem } from '../../explorer/ApiOperationTreeItem';
 import { IOperationTreeRoot } from '../../explorer/IOperationTreeRoot';
 import { ext } from "../../extensionVariables";
 import { nameUtil } from '../../utils/nameUtil';
 
-export async function debugPolicy(node?: ApiOperationTreeItem): Promise<void> {
+export async function debugPolicy(context: IActionContext, node?: ApiOperationTreeItem): Promise<void> {
     if (!node) {
-        node = <ApiOperationTreeItem>await ext.tree.showTreeItemPicker(ApiOperationTreeItem.contextValue);
+        // tslint:disable-next-line: no-unsafe-any
+        node = <ApiOperationTreeItem>await ext.tree.showTreeItemPicker(ApiOperationTreeItem.contextValue, context);
     }
 
     const operationData = await node.getOperationDebugInfo();

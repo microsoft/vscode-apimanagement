@@ -3,11 +3,11 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ServiceClientCredentials } from "ms-rest";
-import { AzureEnvironment } from 'ms-rest-azure';
+import { Environment } from "@azure/ms-rest-azure-env";
+import { TokenCredentialsBase } from "@azure/ms-rest-nodeauth";
 
 export interface IAzureClientInfo {
-    credentials: ServiceClientCredentials;
+    credentials: TokenCredentialsBase;
     subscriptionId: string;
-    environment: AzureEnvironment;
+    environment: Environment;
 }

@@ -4,8 +4,9 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { ProgressLocation, window } from "vscode";
+import { IActionContext } from "vscode-azureextensionui";
 import { ApiTreeItem } from "../explorer/ApiTreeItem";
-import { ProductApisTreeItem } from "../explorer/ProductApisTreeItem";
+import { IProductTreeItemContext, ProductApisTreeItem } from "../explorer/ProductApisTreeItem";
 import { ProductsTreeItem } from "../explorer/ProductsTreeItem";
 import { ProductTreeItem } from "../explorer/ProductTreeItem";
 import { ServiceTreeItem } from "../explorer/ServiceTreeItem";
@@ -14,10 +15,10 @@ import { localize } from "../localize";
 import { nonNullProp } from "../utils/nonNull";
 
 // tslint:disable: no-any
-export async function addApiToProduct(node?: ProductApisTreeItem): Promise<void> {
+export async function addApiToProduct(context: IActionContext & Partial<IProductTreeItemContext>, node?: ProductApisTreeItem): Promise<void> {
     let productNode: ProductTreeItem;
     if (!node) {
-        productNode = <ProductTreeItem>await ext.tree.showTreeItemPicker(ProductTreeItem.contextValue);
+        productNode = <ProductTreeItem>await ext.tree.showTreeItemPicker(ProductTreeItem.contextValue, context);
         node = productNode.productApisTreeItem;
     } else {
         productNode = <ProductTreeItem>node.parent;
@@ -25,9 +26,11 @@ export async function addApiToProduct(node?: ProductApisTreeItem): Promise<void>
 
     const serviceTreeItem = <ServiceTreeItem>(<ProductsTreeItem><unknown>productNode.parent).parent;
 
-    const apiTreeItem = <ApiTreeItem>await ext.tree.showTreeItemPicker(ApiTreeItem.contextValue, serviceTreeItem);
+    const apiTreeItem = <ApiTreeItem>await ext.tree.showTreeItemPicker(ApiTreeItem.contextValue, context, serviceTreeItem);
 
     const apiName = nonNullProp(apiTreeItem.apiContract, "name");
+    context.apiName = apiName;
+
     window.withProgress(
         {
             location: ProgressLocation.Notification,
@@ -35,10 +38,10 @@ export async function addApiToProduct(node?: ProductApisTreeItem): Promise<void>
             cancellable: false
         },
         // tslint:disable-next-line:no-non-null-assertion
-        async () => { return node!.createChild({ apiName: apiName}); }
+        async () => { return node!.createChild(context); }
     ).then(async () => {
         // tslint:disable:no-non-null-assertion
-        await node!.refresh();
+        await node!.refresh(context);
         window.showInformationMessage(localize("addedApiToProduct", `Added API '${apiName}' to product ${node!.root.productName}.`));
     });
 }

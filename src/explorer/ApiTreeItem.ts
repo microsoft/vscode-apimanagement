@@ -3,10 +3,10 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ApiManagementModels } from "azure-arm-apimanagement";
-import { ApiContract } from "azure-arm-apimanagement/lib/models";
+import { ApiManagementModels } from "@azure/arm-apimanagement";
+import { ApiContract } from "@azure/arm-apimanagement/src/models";
 import { ProgressLocation, window } from "vscode";
-import { AzureParentTreeItem, AzureTreeItem, DialogResponses, ISubscriptionRoot, UserCancelledError } from "vscode-azureextensionui";
+import { AzureParentTreeItem, AzureTreeItem, DialogResponses, ISubscriptionContext, UserCancelledError } from "vscode-azureextensionui";
 import { localize } from "../localize";
 import { nonNullProp } from "../utils/nonNull";
 import { treeUtils } from "../utils/treeUtils";
@@ -87,10 +87,14 @@ export class ApiTreeItem extends AzureParentTreeItem<IApiTreeRoot> {
         }
     }
 
-    public pickTreeItemImpl(expectedContextValue: string | RegExp): AzureTreeItem<IApiTreeRoot> | undefined {
-        if (expectedContextValue === OperationPolicyTreeItem.contextValue
-            || expectedContextValue === ApiOperationTreeItem.contextValue ) {
-            return this._operationsTreeItem;
+    public pickTreeItemImpl(expectedContextValues: (string | RegExp)[]): AzureTreeItem<IApiTreeRoot> | undefined {
+        for (const expectedContextValue of expectedContextValues) {
+            switch (expectedContextValue) {
+                case OperationPolicyTreeItem.contextValue:
+                case ApiOperationTreeItem.contextValue:
+                    return this._operationsTreeItem;
+            default:
+            }
         }
         return undefined;
     }
@@ -98,8 +102,7 @@ export class ApiTreeItem extends AzureParentTreeItem<IApiTreeRoot> {
     public async reloadApi(api: ApiContract): Promise<void> {
         this.apiContract = api;
         this._name = nonNullProp(api, 'name');
-        // tslint:disable-next-line: no-non-null-assertion
-        this._root = this.createRoot(this.parent!.root, nonNullProp(api, 'name'));
+        //this._root = this.createRoot(this.parent, nonNullProp(api, 'name'));
         this._label = this.getRevisionDisplayName(api);
         this._operationsTreeItem = new ApiOperationsTreeItem(this);
         this.policyTreeItem = new ApiPolicyTreeItem(this);
@@ -114,7 +117,7 @@ export class ApiTreeItem extends AzureParentTreeItem<IApiTreeRoot> {
         }
     }
 
-    private createRoot(subRoot: ISubscriptionRoot, apiName: string): IApiTreeRoot {
+    private createRoot(subRoot: ISubscriptionContext, apiName: string): IApiTreeRoot {
         return Object.assign({}, <IServiceTreeRoot>subRoot, {
             apiName: apiName
         });

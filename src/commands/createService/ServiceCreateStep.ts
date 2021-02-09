@@ -3,8 +3,8 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ApiManagementModels } from "azure-arm-apimanagement";
-import { ApiManagementServiceResource } from "azure-arm-apimanagement/lib/models";
+import { ApiManagementModels } from "@azure/arm-apimanagement";
+import { ApiManagementServiceResource } from "@azure/arm-apimanagement/src/models";
 import { MessageItem, Progress, window } from "vscode";
 import { AzureWizardExecuteStep } from "vscode-azureextensionui";
 import { ext } from "../../extensionVariables";

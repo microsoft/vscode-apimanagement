@@ -3,16 +3,17 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ApiContract, BackendContract, BackendCredentialsContract, NamedValueCreateContract, OperationCollection, OperationContract } from "azure-arm-apimanagement/lib/models";
-import WebSiteManagementClient from "azure-arm-website";
-import { Site, WebAppCollection } from "azure-arm-website/lib/models";
+import { ApiContract, BackendContract, BackendCredentialsContract, NamedValueCreateContract, OperationCollection, OperationContract } from "@azure/arm-apimanagement/src/models";
+import { WebSiteManagementClient } from "@azure/arm-appservice";
+import { Site, WebAppCollection } from "@azure/arm-appservice/src/models";
 import { ProgressLocation, window } from "vscode";
+import { IActionContext } from "vscode-azureextensionui";
 import xml = require("xml");
 import { IOpenApiImportObject, ISecurityType, OpenApiParser } from "../../../extension.bundle";
 import { getRewriteUrlPolicy, getSetBackendPolicy, getSetHeaderPolicy, getSetMethodPolicy } from "../../azure/apim/policyHelper";
 import { IWebAppContract } from "../../azure/webApp/contracts";
 import * as Constants from "../../constants";
-import { ApisTreeItem } from "../../explorer/ApisTreeItem";
+import { ApisTreeItem, IApiTreeItemContext } from "../../explorer/ApisTreeItem";
 import { ApiTreeItem } from "../../explorer/ApiTreeItem";
 import { IServiceTreeRoot } from "../../explorer/IServiceTreeRoot";
 import { ServiceTreeItem } from "../../explorer/ServiceTreeItem";
@@ -22,11 +23,12 @@ import { apiUtil } from "../../utils/apiUtil";
 import { azureClientUtil } from "../../utils/azureClientUtil";
 import { processError } from "../../utils/errorUtil";
 import { nonNullValue } from "../../utils/nonNull";
-import { requestUtil } from "../../utils/requestUtil";
+import { request } from "../../utils/requestUtil";
 
-export async function importWebAppToApi(node?: ApiTreeItem): Promise<void> {
+export async function importWebAppToApi(context: IActionContext, node?: ApiTreeItem): Promise<void> {
     if (!node) {
-        node = <ApiTreeItem>await ext.tree.showTreeItemPicker(ApiTreeItem.contextValue);
+        // tslint:disable-next-line: no-unsafe-any
+        node = <ApiTreeItem>await ext.tree.showTreeItemPicker(ApiTreeItem.contextValue, context);
     }
 
     ext.outputChannel.show();
@@ -37,21 +39,22 @@ export async function importWebAppToApi(node?: ApiTreeItem): Promise<void> {
     const webAppResourceGroup = nonNullValue(pickedWebApp.resourceGroup);
     const webAppName = nonNullValue(pickedWebApp.name);
     const webConfigbaseUrl = getWebConfigbaseUrl(node!.root.environment.resourceManagerEndpointUrl, node!.root.subscriptionId, webAppResourceGroup, webAppName);
-    const webAppConfigStr: string = await requestUtil(webConfigbaseUrl, node.root.credentials, "GET");
+    // tslint:disable-next-line: no-unsafe-any
+    const webAppConfigStr: string = (await request(node.root.credentials, webConfigbaseUrl, "GET")).parsedBody;
 
     // tslint:disable: no-unsafe-any
     const webAppConfig: IWebAppContract = JSON.parse(webAppConfigStr);
     if (webAppConfig.properties.apiDefinition && webAppConfig.properties.apiDefinition.url) {
         // tslint:disable-next-line: no-non-null-assertion
-        await importFromSwagger(webAppConfig, webAppName, node!.root.apiName, node!, pickedWebApp);
+        await importFromSwagger(context, webAppConfig, webAppName, node!.root.apiName, node!, pickedWebApp);
     } else {
         ext.outputChannel.appendLine(localize("importWebApp", "API Definition not specified for Webapp..."));
     }
 }
 
-export async function importWebApp(node?: ApisTreeItem): Promise<void> {
+export async function importWebApp(context: IActionContext & Partial<IApiTreeItemContext>, node?: ApisTreeItem): Promise<void> {
     if (!node) {
-        const serviceNode = <ServiceTreeItem>await ext.tree.showTreeItemPicker(ServiceTreeItem.contextValue);
+        const serviceNode = <ServiceTreeItem>await ext.tree.showTreeItemPicker(ServiceTreeItem.contextValue, context);
         node = serviceNode.apisTreeItem;
     }
 
@@ -62,15 +65,15 @@ export async function importWebApp(node?: ApisTreeItem): Promise<void> {
     const webAppResourceGroup = nonNullValue(pickedWebApp.resourceGroup);
     const webAppName = nonNullValue(pickedWebApp.name);
     const webConfigbaseUrl = getWebConfigbaseUrl(node!.root.environment.resourceManagerEndpointUrl, webAppSubscriptionId, webAppResourceGroup, webAppName);
-    const webAppConfigStr: string = await requestUtil(webConfigbaseUrl, node.root.credentials, "GET");
+    const webAppConfigStr: string = (await request(node.root.credentials, webConfigbaseUrl, "GET")).parsedBody;
 
     const webAppConfig: IWebAppContract = JSON.parse(webAppConfigStr);
     const apiName = await apiUtil.askApiName(webAppName);
     if (webAppConfig.properties.apiDefinition && webAppConfig.properties.apiDefinition.url) {
         ext.outputChannel.appendLine(localize("importWebApp", "Importing Web App from swagger object..."));
-        await importFromSwagger(webAppConfig, webAppName, apiName, node, pickedWebApp);
+        await importFromSwagger(context, webAppConfig, webAppName, apiName, node, pickedWebApp);
     } else {
-        await createApiWithWildCardOperations(node, webAppName, apiName, pickedWebApp, webAppResourceGroup);
+        await createApiWithWildCardOperations(context, node, webAppName, apiName, pickedWebApp, webAppResourceGroup);
     }
 }
 
@@ -183,7 +186,7 @@ export async function constructApiFromWebApp(apiId: string, webApp: Site, apiNam
     };
 }
 
-async function createApiWithWildCardOperations(node: ApisTreeItem, webAppName: string, apiName: string, pickedWebApp: Site, webAppResourceGroup: string): Promise<void> {
+async function createApiWithWildCardOperations(context: IActionContext & Partial<IApiTreeItemContext>, node: ApisTreeItem, webAppName: string, apiName: string, pickedWebApp: Site, webAppResourceGroup: string): Promise<void> {
     window.withProgress(
         {
             location: ProgressLocation.Notification,
@@ -195,8 +198,11 @@ async function createApiWithWildCardOperations(node: ApisTreeItem, webAppName: s
             const apiId = apiUtil.genApiId(apiName);
             ext.outputChannel.appendLine(localize("importWebApp", "Creating new API..."));
             const nApi = await constructApiFromWebApp(apiId, pickedWebApp, apiName);
-            // tslint:disable: no-non-null-assertion
-            await node!.createChild({ apiName, apiContract: nApi });
+
+            context.apiName = apiName;
+            context.apiContract = nApi;
+
+            await node!.createChild(context);
             const serviceUrl = "https://".concat(nonNullValue(nonNullValue(pickedWebApp.hostNames)[0]));
             const backendId = `WebApp_${apiUtil.displayNameToIdentifier(webAppName)}`;
             await setAppBackendEntity(node!, backendId, apiName, serviceUrl, webAppResourceGroup, webAppName);
@@ -213,7 +219,7 @@ async function createApiWithWildCardOperations(node: ApisTreeItem, webAppName: s
         }
     ).then(async () => {
         // tslint:disable-next-line:no-non-null-assertion
-        await node!.refresh();
+        await node!.refresh(context);
         window.showInformationMessage(localize("importWebApp", `Imported Web App '${webAppName}' to API Management succesfully.`));
     });
 }
@@ -228,9 +234,9 @@ function getWebConfigbaseUrl(endpointUrl: string, subscriptionId: string, webApp
     return `${endpointUrl}/subscriptions/${subscriptionId}/resourceGroups/${webAppResourceGroup}/providers/Microsoft.web/sites/${webAppName}/config/web?api-version=${Constants.webAppApiVersion20190801}`;
 }
 
-async function importFromSwagger(webAppConfig: IWebAppContract, webAppName: string, apiName: string, node: ApiTreeItem | ApisTreeItem, pickedWebApp: Site): Promise<void> {
+async function importFromSwagger(context: IActionContext & Partial<IApiTreeItemContext>, webAppConfig: IWebAppContract, webAppName: string, apiName: string, node: ApiTreeItem | ApisTreeItem, pickedWebApp: Site): Promise<void> {
     // tslint:disable-next-line: no-non-null-assertion
-    const docStr: string = await requestUtil(webAppConfig.properties.apiDefinition!.url!);
+    const docStr: string = (await request(node.root.credentials, webAppConfig.properties.apiDefinition!.url!, "GET")).parsedBody;
     if (docStr !== undefined && docStr.trim() !== "") {
         const documentJson = JSON.parse(docStr);
         const document = await parseDocument(documentJson);
@@ -250,7 +256,9 @@ async function importFromSwagger(webAppConfig: IWebAppContract, webAppName: stri
                         curApi = await node!.root.client.api.get(node!.root.resourceGroupName, node!.root.serviceName, apiName);
                     } else {
                         ext.outputChannel.appendLine(localize("importWebApp", "Creating new API..."));
-                        await node.createChild({ apiName: apiName, document: document });
+                        context.apiName = apiName;
+                        context.document = document;
+                        await node.createChild(context);
                         ext.outputChannel.appendLine(localize("importWebApp", "Updating API service url..."));
                         curApi = await node!.root.client.api.get(node!.root.resourceGroupName, node!.root.serviceName, apiName);
                         curApi.serviceUrl = "";
@@ -294,7 +302,7 @@ async function importFromSwagger(webAppConfig: IWebAppContract, webAppName: stri
             }
         ).then(async () => {
             // tslint:disable-next-line:no-non-null-assertion
-            await node!.refresh();
+            await node!.refresh(context);
             window.showInformationMessage(localize("importWebApp", `Imported Web App '${webAppName}' to API Management succesfully.`));
         });
     }

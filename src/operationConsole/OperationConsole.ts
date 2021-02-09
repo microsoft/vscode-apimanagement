@@ -3,9 +3,8 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ApiContract, ApiRevisionContract } from "azure-arm-apimanagement/lib/models";
+import { ApiContract, ApiRevisionContract } from "@azure/arm-apimanagement/src/models";
 import { ApimService } from "../azure/apim/ApimService";
-import { IMasterSubscription } from "../azure/apim/contracts";
 import { IOperationTreeRoot } from "../explorer/IOperationTreeRoot";
 import { nonNullOrEmptyValue, nonNullProp } from "../utils/nonNull";
 import { ConsoleOperation } from "./ConsoleOperation";
@@ -81,8 +80,7 @@ export class OperationConsole {
         const subscriptionHeader = api.subscriptionKeyParameterNames?.header;
         const headers = this.getDebugHeaders(subscriptionHeader);
         const apimService = new ApimService(root.credentials, root.environment.resourceManagerEndpointUrl, root.subscriptionId, root.resourceGroupName, root.serviceName);
-        const masterSubscriptionObj = await apimService.getSubscriptionMasterkey();
-        const masterSubscription = <IMasterSubscription>JSON.parse(masterSubscriptionObj);
+        const masterSubscription = await apimService.getSubscriptionMasterkey();
         headers.forEach(header => {
             requestSummary += `${header}: ${masterSubscription.properties.primaryKey}\n`;
         });

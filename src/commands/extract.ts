@@ -6,6 +6,7 @@
 import * as fse from 'fs-extra';
 import * as path from 'path';
 import { OpenDialogOptions, ProgressLocation, Uri, window, workspace } from "vscode";
+import { IActionContext } from 'vscode-azureextensionui';
 import * as Constants from '../constants';
 import { ApiTreeItem } from '../explorer/ApiTreeItem';
 import { ServiceTreeItem } from '../explorer/ServiceTreeItem';
@@ -15,17 +16,17 @@ import { azUtils } from '../utils/azUtils';
 import { cpUtils } from '../utils/cpUtils';
 import { dotnetUtils } from '../utils/dotnetUtils';
 
-export async function extractService(node?: ServiceTreeItem): Promise<void> {
+export async function extractService(context: IActionContext, node?: ServiceTreeItem): Promise<void> {
     if (!node) {
-        node = <ServiceTreeItem>await ext.tree.showTreeItemPicker(ServiceTreeItem.contextValue);
+        node = <ServiceTreeItem>await ext.tree.showTreeItemPicker(ServiceTreeItem.contextValue, context);
     }
 
     await extract(node);
 }
 
-export async function extractAPI(node?: ApiTreeItem): Promise<void> {
+export async function extractAPI(context: IActionContext, node?: ApiTreeItem): Promise<void> {
     if (!node) {
-        node = <ApiTreeItem>await ext.tree.showTreeItemPicker(ApiTreeItem.contextValue);
+        node = <ApiTreeItem>await ext.tree.showTreeItemPicker(ApiTreeItem.contextValue, context);
     }
 
     const apiName = node.apiContract.name === undefined ? "" : node.apiContract.name;

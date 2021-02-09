@@ -3,8 +3,8 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ApiManagementModels } from "azure-arm-apimanagement";
-import { AzureParentTreeItem, AzureTreeItem, ISubscriptionRoot } from "vscode-azureextensionui";
+import { ApiManagementModels } from "@azure/arm-apimanagement";
+import { AzureParentTreeItem, AzureTreeItem, ISubscriptionContext } from "vscode-azureextensionui";
 import { nonNullProp } from "../utils/nonNull";
 import { treeUtils } from "../utils/treeUtils";
 import { IProductTreeRoot } from "./IProductTreeRoot";
@@ -54,7 +54,7 @@ export class ProductTreeItem extends AzureParentTreeItem<IProductTreeRoot> {
         return [this.productApisTreeItem, this.policyTreeItem];
     }
 
-    private createRoot(subRoot: ISubscriptionRoot): IProductTreeRoot {
+    private createRoot(subRoot: ISubscriptionContext): IProductTreeRoot {
         return Object.assign({}, <IServiceTreeRoot>subRoot, {
             productName: nonNullProp(this.productContract, 'name')
         });

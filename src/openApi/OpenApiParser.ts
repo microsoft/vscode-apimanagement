@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import * as SwaggerParser from "swagger-parser";
+import { parse } from "swagger-parser";
 import { Uri } from "vscode";
 import { parseError } from "vscode-azureextensionui";
 import { ext } from "../extensionVariables";
@@ -15,7 +15,7 @@ export class OpenApiParser {
         // tslint:disable-next-line:no-any
         let parsed: any;
         try {
-            parsed = await SwaggerParser.parse(source);
+            parsed = await parse(source);
         } catch (e) {
             const message: string = localize("openApiParseError", "Could not parse the OpenAPI document.");
             ext.outputChannel.appendLine(message);

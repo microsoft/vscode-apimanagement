@@ -4,40 +4,41 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { ProgressLocation, window } from "vscode";
-import { NamedValuesTreeItem } from "../explorer/NamedValuesTreeItem";
+import { IActionContext } from "vscode-azureextensionui";
+import { INamedValuesTreeItemContext, NamedValuesTreeItem } from "../explorer/NamedValuesTreeItem";
 import { NamedValueTreeItem } from "../explorer/NamedValueTreeItem";
 import { ServiceTreeItem } from "../explorer/ServiceTreeItem";
 import { ext } from "../extensionVariables";
 import { localize } from "../localize";
 
-export async function createNamedValue(node?: NamedValuesTreeItem): Promise<void> {
+export async function createNamedValue(context: IActionContext & Partial<INamedValuesTreeItemContext>, node?: NamedValuesTreeItem): Promise<void> {
     if (!node) {
-        const serviceNode = <ServiceTreeItem>await ext.tree.showTreeItemPicker(ServiceTreeItem.contextValue);
+        const serviceNode = <ServiceTreeItem>await ext.tree.showTreeItemPicker(ServiceTreeItem.contextValue, context);
         node = serviceNode.namedValuesTreeItem;
     }
 
-    const id = await askId();
-    const value = await askValue();
-    const secret = await isSecret();
+    context.key = await askId();
+    context.value = await askValue();
+    context.secret = await isSecret();
 
     window.withProgress(
         {
             location: ProgressLocation.Notification,
-            title: localize("createNamedValue", `Creating named value '${id}' in API Management service ${node.root.serviceName} ...`),
+            title: localize("createNamedValue", `Creating named value '${context.key}' in API Management service ${node.root.serviceName} ...`),
             cancellable: false
         },
         // tslint:disable-next-line:no-non-null-assertion
-        async () => { return node!.createChild({ key: id, value: value, secret: secret }); }
+        async () => { return node!.createChild(context); }
     ).then(async () => {
         // tslint:disable-next-line:no-non-null-assertion
-        await node!.refresh();
-        window.showInformationMessage(localize("creatededNamedValue", `Created named value '${id}' succesfully.`));
+        await node!.refresh(context);
+        window.showInformationMessage(localize("creatededNamedValue", `Created named value '${context.key}' succesfully.`));
     });
 }
 
-export async function updateNamedValue(node?: NamedValueTreeItem): Promise<void> {
+export async function updateNamedValue(context: IActionContext, node?: NamedValueTreeItem): Promise<void> {
     if (!node) {
-        node = <NamedValueTreeItem>await ext.tree.showTreeItemPicker(NamedValueTreeItem.contextValue);
+        node = <NamedValueTreeItem>await ext.tree.showTreeItemPicker(NamedValueTreeItem.contextValue, context);
     }
 
     const displayName = node.propertyContract.displayName;
@@ -52,10 +53,10 @@ export async function updateNamedValue(node?: NamedValueTreeItem): Promise<void>
             cancellable: false
         },
         // tslint:disable-next-line:no-non-null-assertion
-        async () => { return node!.updateValue(value, secret); }
+        async () => { return node!.updateValue(context, value, secret); }
     ).then(async () => {
         // tslint:disable-next-line:no-non-null-assertion
-        await node!.refresh();
+        await node!.refresh(context);
         window.showInformationMessage(localize("updatedNamedValue", `Updated value for '${displayName}' succesfully.`));
     });
 }

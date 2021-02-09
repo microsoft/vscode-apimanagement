@@ -2,16 +2,16 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-import { WebSiteManagementClient } from "azure-arm-website";
-import { ServiceClientCredentials } from "ms-rest";
-import { AzureEnvironment } from 'ms-rest-azure';
+import { WebSiteManagementClient } from "@azure/arm-appservice";
+import { Environment } from '@azure/ms-rest-azure-env';
+import { TokenCredentialsBase } from "@azure/ms-rest-nodeauth";
 import * as vscode from 'vscode';
 import { createAzureClient } from "vscode-azureextensionui";
 import { IAzureClientInfo } from "../azure/azureClientInfo";
 import { ext } from "../extensionVariables";
 
 export namespace azureClientUtil {
-    export function getClient(credentials: ServiceClientCredentials, subscriptionId: string, environment: AzureEnvironment): WebSiteManagementClient {
+    export function getClient(credentials: TokenCredentialsBase, subscriptionId: string, environment: Environment): WebSiteManagementClient {
         const clientInfo: IAzureClientInfo = {
             credentials: credentials,
             subscriptionId: subscriptionId,

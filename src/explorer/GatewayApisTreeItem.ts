@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { AzureParentTreeItem, AzureTreeItem, createTreeItemsWithErrorHandling } from "vscode-azureextensionui";
+import { AzExtTreeItem, AzureParentTreeItem, ICreateChildImplContext } from "vscode-azureextensionui";
 import { ApimService } from "../azure/apim/ApimService";
 import { IGatewayApiContract } from "../azure/apim/contracts";
 import { localize } from "../localize";
@@ -11,6 +11,10 @@ import { processError } from "../utils/errorUtil";
 import { treeUtils } from "../utils/treeUtils";
 import { GatewayApiTreeItem } from "./GatewayApiTreeItem";
 import { IGatewayTreeRoot } from "./IGatewayTreeRoot";
+
+export interface IGatewayTreeItemContext extends ICreateChildImplContext {
+    apiName: string;
+}
 
 export class GatewayApisTreeItem extends AzureParentTreeItem<IGatewayTreeRoot> {
     public get iconPath(): { light: string, dark: string } {
@@ -26,7 +30,7 @@ export class GatewayApisTreeItem extends AzureParentTreeItem<IGatewayTreeRoot> {
         return this._nextLink !== undefined;
     }
 
-    public async loadMoreChildrenImpl(clearCache: boolean): Promise<AzureTreeItem<IGatewayTreeRoot>[]> {
+    public async loadMoreChildrenImpl(clearCache: boolean): Promise<AzExtTreeItem[]> {
         if (clearCache) {
             this._nextLink = undefined;
         }
@@ -35,8 +39,7 @@ export class GatewayApisTreeItem extends AzureParentTreeItem<IGatewayTreeRoot> {
 
         const gatewayApis: IGatewayApiContract[] = await apimService.listGatewayApis(this.root.gatewayName);
 
-        return createTreeItemsWithErrorHandling(
-            this,
+        return this.createTreeItemsWithErrorHandling(
             gatewayApis,
             "invalidApiManagementGatewayApi",
             async (api: IGatewayApiContract) => new GatewayApiTreeItem(this, api),
@@ -45,10 +48,10 @@ export class GatewayApisTreeItem extends AzureParentTreeItem<IGatewayTreeRoot> {
             });
     }
 
-    public async createChildImpl(showCreatingTreeItem: (label: string) => void, userOptions?: { apiName: string }): Promise<GatewayApiTreeItem> {
-        if (userOptions && userOptions.apiName) {
-            const apiName = userOptions.apiName;
-            showCreatingTreeItem(apiName);
+    public async createChildImpl(context: IGatewayTreeItemContext): Promise<GatewayApiTreeItem> {
+        if (context.apiName) {
+            const apiName = context.apiName;
+            context.showCreatingTreeItem(apiName);
 
             try {
                 const apimService = new ApimService(this.root.credentials, this.root.environment.resourceManagerEndpointUrl, this.root.subscriptionId, this.root.resourceGroupName, this.root.serviceName);

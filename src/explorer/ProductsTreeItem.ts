@@ -3,8 +3,8 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ApiManagementModels } from "azure-arm-apimanagement";
-import { AzureParentTreeItem, AzureTreeItem, createTreeItemsWithErrorHandling } from "vscode-azureextensionui";
+import { ApiManagementModels } from "@azure/arm-apimanagement";
+import { AzExtTreeItem, AzureParentTreeItem } from "vscode-azureextensionui";
 import { topItemCount } from "../constants";
 import { treeUtils } from "../utils/treeUtils";
 import { IServiceTreeRoot } from "./IServiceTreeRoot";
@@ -23,7 +23,7 @@ export class ProductsTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
         return this._nextLink !== undefined;
     }
 
-    public async loadMoreChildrenImpl(clearCache: boolean): Promise<AzureTreeItem<IServiceTreeRoot>[]> {
+    public async loadMoreChildrenImpl(clearCache: boolean): Promise<AzExtTreeItem[]> {
         if (clearCache) {
             this._nextLink = undefined;
         }
@@ -34,8 +34,7 @@ export class ProductsTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
 
         this._nextLink = productCollection.nextLink;
 
-        return createTreeItemsWithErrorHandling(
-            this,
+        return this.createTreeItemsWithErrorHandling(
             productCollection,
             "invalidApiManagementProduct",
             async (product: ApiManagementModels.ProductContract) => new ProductTreeItem(this, product),

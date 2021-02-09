@@ -3,9 +3,9 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ApiManagementModels } from "azure-arm-apimanagement";
+import { ApiManagementModels } from "@azure/arm-apimanagement";
 import { ProgressLocation, window } from "vscode";
-import { AzureParentTreeItem, AzureTreeItem, DialogResponses, UserCancelledError } from "vscode-azureextensionui";
+import { AzureParentTreeItem, AzureTreeItem, DialogResponses, IActionContext, UserCancelledError } from "vscode-azureextensionui";
 import { localize } from "../localize";
 import { processError } from "../utils/errorUtil";
 import { nonNullProp } from "../utils/nonNull";
@@ -48,7 +48,7 @@ export class NamedValueTreeItem extends AzureTreeItem<IServiceTreeRoot> {
         }
     }
 
-    public async updateValue(newValue: string, secret?: boolean) : Promise<void> {
+    public async updateValue(context: IActionContext, newValue: string, secret?: boolean) : Promise<void> {
         const propertyContract = <ApiManagementModels.NamedValueCreateContract> {
             displayName: nonNullProp(this.propertyContract, "displayName"),
             value: newValue,
@@ -57,7 +57,7 @@ export class NamedValueTreeItem extends AzureTreeItem<IServiceTreeRoot> {
 
         try {
             await this.root.client.namedValue.createOrUpdate(this.root.resourceGroupName, this.root.serviceName, nonNullProp(this.propertyContract, "name"), propertyContract);
-            await this.refresh();
+            await this.refresh(context);
         } catch (error) {
             throw new Error(processError(error, localize("updateNamedValueFailed", `Could not update the value for ${this.propertyContract.displayName}`)));
         }

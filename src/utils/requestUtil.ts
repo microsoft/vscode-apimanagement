@@ -3,56 +3,45 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { HttpMethods, WebResource } from "ms-rest";
-import { ServiceClientCredentials } from "ms-rest";
-import * as request from 'request-promise';
-import { appendExtensionUserAgent } from "vscode-azureextensionui";
-import { signRequest } from "./signRequest";
+import { HttpMethods, HttpOperationResponse, ParameterValue, ServiceClient, WebResource } from "@azure/ms-rest-js";
+import { TokenCredentialsBase } from "@azure/ms-rest-nodeauth";
+import requestPromise from 'request-promise';
+import { appendExtensionUserAgent, createGenericClient } from "vscode-azureextensionui";
 
-export type nRequest = WebResource & request.RequestPromiseOptions;
+export type nRequest = WebResource & requestPromise.RequestPromiseOptions;
 
 // tslint:disable-next-line: no-any
-export async function requestUtil<T>(url: string, credentials?: ServiceClientCredentials, method?: HttpMethods, body?: any): Promise<T> {
-    const requestOptions: WebResource = new WebResource();
-    requestOptions.headers = {
-        ['User-Agent']: appendExtensionUserAgent()
-    };
-    requestOptions.url = url;
-    if (method) {
-        requestOptions.method = method;
-    }
-    if (credentials) {
-        await signRequest(requestOptions, credentials);
-    }
-    if (method !== "PUT" && !body) {
-        // tslint:disable-next-line: await-promise
-        const response = await request(requestOptions).promise();
-        return <T>(response);
-    } else {
-        const newRequest = <nRequest>requestOptions;
-        newRequest.body = body;
-        newRequest.json = true;
-        return await sendRequest(newRequest);
-    }
+export async function request(credentials: TokenCredentialsBase, url: string, method: HttpMethods, queryParameters?: { [key: string]: any | ParameterValue }, body?: any): Promise<HttpOperationResponse> {
+    const client: ServiceClient = await createGenericClient(credentials);
+    return await client.sendRequest({
+        method: method,
+        url: url,
+        queryParameters: queryParameters,
+        body: body
+    });
 }
 
 export async function sendRequest<T>(httpReq: nRequest): Promise<T> {
-    return await <Thenable<T>>request(httpReq).promise();
+    return await <Thenable<T>>requestPromise(httpReq).promise();
 }
 
-export async function getBearerToken(url: string, method: HttpMethods, credentials: ServiceClientCredentials): Promise<string> {
+// tslint:disable: no-unsafe-any
+export async function getBearerToken(url: string, method: HttpMethods, credentials: TokenCredentialsBase): Promise<string> {
     const requestOptions: WebResource = new WebResource();
-    requestOptions.headers = {
-        ['User-Agent']: appendExtensionUserAgent()
-    };
+    requestOptions.headers.set("User-Agent", appendExtensionUserAgent());
     requestOptions.url = url;
     requestOptions.method = method;
     try {
-        await signRequest(requestOptions, credentials);
+        await credentials.signRequest(requestOptions);
     } catch (err) {
         throw err;
     }
     const headers = requestOptions.headers;
     // tslint:disable-next-line: no-string-literal
-    return headers['authorization'];
+    const authToken : string = headers['authorization'];
+    if (authToken === undefined) {
+        throw new Error("Authorization header is missing");
+    } else {
+        return authToken;
+    }
 }

@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { OperationContract } from "azure-arm-apimanagement/lib/models";
+import { OperationContract } from "@azure/arm-apimanagement/src/models";
 import { nonNullProp } from "../utils/nonNull";
 import { ConsoleParameter } from "./ConsoleParameter";
 import { ConsoleRequest } from "./ConsoleRequest";

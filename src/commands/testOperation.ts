@@ -4,15 +4,16 @@
  *--------------------------------------------------------------------------------------------*/
 
 import * as vscode from 'vscode';
+import { IActionContext } from 'vscode-azureextensionui';
 import { ApiOperationTreeItem } from "../explorer/ApiOperationTreeItem";
 import { ext } from '../extensionVariables';
 import { createTemporaryFile } from "../utils/fsUtil";
 import { nameUtil } from '../utils/nameUtil';
 import { writeToEditor } from '../utils/vscodeUtils';
 
-export async function testOperation(node?: ApiOperationTreeItem): Promise<void> {
+export async function testOperation(context: IActionContext, node?: ApiOperationTreeItem): Promise<void> {
     if (!node) {
-        node = <ApiOperationTreeItem>await ext.tree.showTreeItemPicker(ApiOperationTreeItem.contextValue);
+        node = <ApiOperationTreeItem>await ext.tree.showTreeItemPicker(ApiOperationTreeItem.contextValue, context);
     }
     // tslint:disable-next-line: no-non-null-assertion
     await createOperationTestFile(node!, OperationRunMode.test);

@@ -3,17 +3,18 @@
 *  Licensed under the MIT License. See License.txt in the project root for license information.
 *--------------------------------------------------------------------------------------------*/
 
-import { ApiContract, ApiReleaseContract, ApiRevisionCollection } from "azure-arm-apimanagement/lib/models";
+import { ApiContract, ApiReleaseContract, ApiRevisionCollection } from "@azure/arm-apimanagement/src/models";
 import { Guid } from "guid-typescript";
 import { MessageItem, ProgressLocation, window } from "vscode";
+import { IActionContext } from "vscode-azureextensionui";
 import { ApiTreeItem } from "../explorer/ApiTreeItem";
 import { ext } from "../extensionVariables";
 import { localize } from "../localize";
 
 // tslint:disable: no-non-null-assertion
-export async function revisions(node?: ApiTreeItem): Promise<void> {
+export async function revisions(context: IActionContext, node?: ApiTreeItem): Promise<void> {
     if (node === undefined) {
-        node = <ApiTreeItem>await ext.tree.showTreeItemPicker(ApiTreeItem.contextValue);
+        node = <ApiTreeItem>await ext.tree.showTreeItemPicker(ApiTreeItem.contextValue, context);
     }
 
     const options = ["Make Current", "Switch Revisions"];
@@ -23,7 +24,7 @@ export async function revisions(node?: ApiTreeItem): Promise<void> {
         const pickedApi = await listRevisions(node);
 
         await node.reloadApi(pickedApi);
-        await node.refresh();
+        await node.refresh(context);
         window.showInformationMessage(localize("switchRevisions", `Switched to revision ${pickedApi.name!} sucecessfully.`));
 
     } else if (commands.label === "Make Current") {
@@ -53,7 +54,7 @@ export async function revisions(node?: ApiTreeItem): Promise<void> {
                         await node!.root.client.apiRelease.createOrUpdate(node!.root.resourceGroupName, node!.root.serviceName, pickedApiName, releaseId, apiRelease);
                         const api = await node!.root.client.api.get(node!.root.resourceGroupName, node!.root.serviceName, node!.root.apiName);
                         await node!.reloadApi(api);
-                        await node!.refresh();
+                        await node!.refresh(context);
                     }
                 ).then(async () => {
                     window.showInformationMessage(localize("releaseRevision", "Releasing current revision has been completed successfully."));

@@ -4,6 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { env, window } from "vscode";
+import { IActionContext } from "vscode-azureextensionui";
 import { ApimService } from "../azure/apim/ApimService";
 import { GatewayKeyType } from "../constants";
 import * as Constants from "../constants";
@@ -11,9 +12,9 @@ import { GatewayTreeItem } from "../explorer/GatewayTreeItem";
 import { ext } from "../extensionVariables";
 import { localize } from "../localize";
 
-export async function generateNewGatewayToken(node?: GatewayTreeItem): Promise<void> {
+export async function generateNewGatewayToken(context: IActionContext, node?: GatewayTreeItem): Promise<void> {
   if (!node) {
-    node = <GatewayTreeItem>await ext.tree.showTreeItemPicker(GatewayTreeItem.contextValue);
+    node = <GatewayTreeItem>await ext.tree.showTreeItemPicker(GatewayTreeItem.contextValue, context);
   }
 
   ext.outputChannel.show();

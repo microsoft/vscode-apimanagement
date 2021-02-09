@@ -3,7 +3,7 @@
  *--------------------------------------------------------*/
 
 import { EventEmitter } from 'events';
-import * as WebSocket from "ws";
+import WebSocket from "ws";
 
 // tslint:disable: no-unsafe-any
 // tslint:disable: indent
