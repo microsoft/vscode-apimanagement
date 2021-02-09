@@ -4,10 +4,9 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { ApiManagementModels } from "@azure/arm-apimanagement";
-import { WebResource } from "@azure/ms-rest-js";
-import requestPromise from 'request-promise';
+import { HttpOperationResponse, RequestPrepareOptions, ServiceClient } from "@azure/ms-rest-js";
 import { ProgressLocation, window } from "vscode";
-import { appendExtensionUserAgent } from "vscode-azureextensionui";
+import { appendExtensionUserAgent, createGenericClient } from "vscode-azureextensionui";
 import { openApiAcceptHeader, openApiExport, openApiSchema, showSavePromptConfigKey, swaggerAcceptHeader, swaggerExport, swaggerSchema } from "../../../constants";
 import { localize } from "../../../localize";
 import { IOpenApiImportObject } from "../../../openApi/OpenApiImportObject";
@@ -101,16 +100,18 @@ export class OpenApiEditor extends Editor<ApiTreeItem> {
     }
 
     // tslint:disable-next-line:no-any
-    private async requestOpenAPIDocument(context: ApiTreeItem, exportFormat: string, exportAcceptHeader: string) : Promise<any> {
-        const webResource = new WebResource();
-        webResource.url = this.buildAPIExportUrl(context, exportFormat);
-        webResource.method = "GET";
-        webResource.headers.set("Accept", exportAcceptHeader);
-        webResource.headers.set("User-Agent", appendExtensionUserAgent());
-
-        await context.root.client.credentials.signRequest(webResource);
-        // tslint:disable-next-line: await-promise
-        return await requestPromise(webResource).promise();
+    private async requestOpenAPIDocument(context: ApiTreeItem, exportFormat: string, exportAcceptHeader: string) : Promise<string> {
+        const client: ServiceClient = await createGenericClient(context.root.credentials);
+        const options: RequestPrepareOptions = {
+            method: "GET",
+            url: this.buildAPIExportUrl(context, exportFormat)
+        };
+        options.headers = {
+            Accept: exportAcceptHeader,
+            'User-Agent': appendExtensionUserAgent()
+        };
+        const result: HttpOperationResponse = await client.sendRequest(options);
+        return <string>result.bodyAsText;
     }
 
     private buildAPIExportUrl(context: ApiTreeItem, exportFormat: string) : string {
@@ -120,10 +121,11 @@ export class OpenApiEditor extends Editor<ApiTreeItem> {
     }
 
     // tslint:disable-next-line:no-any
-    private async processDocument(context: ApiTreeItem, swaggerDocument: any) : Promise<any> {
+    private async processDocument(context: ApiTreeItem, swaggerDocument: string) : Promise<any> {
         const openApiparser = new OpenApiParser();
+        const swagger = JSON.parse(swaggerDocument);
         // tslint:disable-next-line: no-unsafe-any
-        const importDocument = await openApiparser.parse(JSON.parse(swaggerDocument));
+        const importDocument = await openApiparser.parse(swagger);
         const sourceDocument = importDocument.sourceDocument;
         let basePath: string = importDocument.basePath !== undefined ? importDocument.basePath : "";
         if (context.apiContract.apiVersionSet && context.apiContract.apiVersionSet.versioningScheme === "Segment") {

@@ -6,12 +6,13 @@
 import * as SwaggerParser from "swagger-parser";
 import { Uri } from "vscode";
 import { parseError } from "vscode-azureextensionui";
+import { Spec } from "../../node_modules/@types/swagger-schema-official";
 import { ext } from "../extensionVariables";
 import { localize } from "../localize";
 import { IOpenApiImportObject } from "./OpenApiImportObject";
 
 export class OpenApiParser {
-    public async parse(source: string): Promise<IOpenApiImportObject> {
+    public async parse(source: string | Spec): Promise<IOpenApiImportObject> {
         // tslint:disable-next-line:no-any
         let parsed: any;
         try {
