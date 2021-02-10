@@ -177,7 +177,7 @@ export async function setAppBackendEntity(node: ApisTreeItem | ApiTreeItem, back
 // Create new api from web app
 export async function constructApiFromWebApp(apiId: string, webApp: Site, apiName: string): Promise<ApiContract> {
     return {
-        description: `Import from "${webApp.name}" Web App`,
+        description: localize("ImportWebApp", `Import from "${webApp.name}" Web App`),
         id: apiId,
         name: apiName,
         displayName: apiName,

@@ -92,11 +92,11 @@ export class OpenApiEditor extends Editor<ApiTreeItem> {
     }
 
     public async getSize(): Promise<number> {
-        throw new Error("Method not implemented.");
+        throw new Error(localize("", "Method not implemented."));
     }
 
     public async getSaveConfirmationText(context: ApiTreeItem): Promise<string> {
-        return `Saving will update the API '${context.apiContract.name}'.`;
+        return localize("", `Saving will update the API '${context.apiContract.name}'.`);
     }
 
     // tslint:disable-next-line:no-any

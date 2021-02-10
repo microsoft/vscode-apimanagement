@@ -53,7 +53,7 @@ export abstract class BaseArmResourceEditor<TRoot extends IServiceTreeRoot> exte
     }
 
     public async getSize(): Promise<number> {
-        throw new Error("Method not implemented.");
+        throw new Error(localize("", "Method not implemented."));
     }
 
     public async getSaveConfirmationText(): Promise<string> {

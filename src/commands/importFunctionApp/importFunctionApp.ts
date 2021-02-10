@@ -248,7 +248,7 @@ function getFunctionAppBase(invokeUrlTemplate: string, route: string): string {
 
 async function constructApiFromFunctionApp(apiId: string, funcApp: Site, apiName: string): Promise<ApiContract> {
     return {
-        description: `Import from "${funcApp.name}" Function App`,
+        description: localize("ImportFunction", `Import from "${funcApp.name}" Function App`),
         id: apiId,
         name: apiName,
         displayName: apiName,

@@ -7,6 +7,7 @@ import * as request from 'request-promise-native';
 import * as vscode from 'vscode';
 import { Breakpoint, Handles, InitializedEvent, Logger, logger, LoggingDebugSession, OutputEvent, Scope, StackFrame, StoppedEvent, TerminatedEvent, Thread, ThreadEvent, Variable } from 'vscode-debugadapter';
 import { DebugProtocol } from 'vscode-debugprotocol';
+import { localize } from "../localize";
 import { createTemporaryFile } from "../utils/fsUtil";
 import { getBearerToken } from '../utils/requestUtil';
 import { writeToEditor } from '../utils/vscodeUtils';
@@ -398,7 +399,7 @@ export class ApimDebugSession extends LoggingDebugSession {
 			this.sendEvent(new TerminatedEvent());
 		}).on('response', e => {
 			if (e.statusCode !== 200) {
-				this.sendEvent(new OutputEvent(`Error fetching master subscription: ${e.statusCode} ${e.statusMessage}`, 'stderr'));
+				this.sendEvent(new OutputEvent(localize("", `Error fetching master subscription: ${e.statusCode} ${e.statusMessage}`, 'stderr')));
 				this.sendEvent(new TerminatedEvent());
 			}
 		});
@@ -419,7 +420,7 @@ export class ApimDebugSession extends LoggingDebugSession {
 			this.sendEvent(new TerminatedEvent());
 		}).on('response', e => {
 			if (e.statusCode !== 200) {
-				this.sendEvent(new OutputEvent(`Error fetching policy definitions: ${e.statusCode} ${e.statusMessage}`, 'stderr'));
+				this.sendEvent(new OutputEvent(localize("", `Error fetching policy definitions: ${e.statusCode} ${e.statusMessage}`, 'stderr')));
 				this.sendEvent(new TerminatedEvent());
 			}
 		});

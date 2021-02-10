@@ -69,7 +69,7 @@ export class NamedValuesTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
                 throw new Error(processError(error, localize("createNamedValueFailed", `Failed to create the named value ${context.key}`)));
             }
         } else {
-            throw Error("Key and the value are expected.");
+            throw Error(localize("", "Key and the value are expected."));
         }
     }
  }
