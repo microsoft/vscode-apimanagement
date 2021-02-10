@@ -64,7 +64,7 @@ export class ApiOperationTreeItem extends AzureParentTreeItem<IOperationTreeRoot
         const message: string = localize("confirmDeleteOperation", `Are you sure you want to delete operation '${this.root.opName}'?`);
         const result = await window.showWarningMessage(message, { modal: true }, DialogResponses.deleteResponse, DialogResponses.cancel);
         if (result === DialogResponses.deleteResponse) {
-            const deletingMessage: string = `Deleting operation "${this.root.opName}"...`;
+            const deletingMessage: string = localize("", `Deleting operation "${this.root.opName}"...`);
             await window.withProgress({ location: ProgressLocation.Notification, title: deletingMessage }, async () => {
                 await this.root.client.apiOperation.deleteMethod(this.root.resourceGroupName, this.root.serviceName, this.root.apiName, this.root.opName, '*');
             });

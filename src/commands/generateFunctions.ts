@@ -51,7 +51,7 @@ export async function generateFunctions(context: IActionContext, node?: ApiTreeI
         languages.map((s) => { return { label: s, description: '', detail: '' }; }), { placeHolder: "Select language", canPickMany: false });
 
     if (!await checkEnvironmentInstalled(language.label)) {
-        throw new Error(`'${language.label}' is not installed on your machine, please install '${language.label}' to continue.`);
+        throw new Error(localize("genFunction", `'${language.label}' is not installed on your machine, please install '${language.label}' to continue.`));
     }
 
     let namespace = "";
@@ -150,7 +150,7 @@ async function askFolder(): Promise<Uri[]> {
         canSelectFiles: false,
         canSelectFolders: true,
         canSelectMany: false,
-        openLabel: "Functions Location",
+        openLabel: localize("FuncLoc", "Functions Location"),
         filters: {
             JSON: ["json"]
         }

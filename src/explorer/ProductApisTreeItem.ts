@@ -63,7 +63,7 @@ export class ProductApisTreeItem extends AzureParentTreeItem<IProductTreeRoot> {
                 throw new Error(processError(error, localize("addApiToProductFailed", `Failed to add '${context.apiName}' to product '${this.root.productName}'.`)));
             }
         } else {
-            throw Error("Expected API name.");
+            throw Error(localize("", "Expected API name."));
         }
     }
 }

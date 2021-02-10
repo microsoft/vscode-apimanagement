@@ -8,6 +8,7 @@ import { IActionContext } from 'vscode-azureextensionui';
 import { ApiOperationTreeItem } from '../../explorer/ApiOperationTreeItem';
 import { IOperationTreeRoot } from '../../explorer/IOperationTreeRoot';
 import { ext } from "../../extensionVariables";
+import { localize } from '../../localize';
 import { nameUtil } from '../../utils/nameUtil';
 
 export async function debugPolicy(context: IActionContext, node?: ApiOperationTreeItem): Promise<void> {
@@ -68,7 +69,7 @@ async function getDebugGatewayAddressUrl(node: ApiOperationTreeItem): Promise<st
             return `wss://${hostNameConfig.hostName}/debug-0123456789abcdef`;
         }
     }
-    throw new Error("Please make sure proxy host url is usable.");
+    throw new Error(localize("ProxyUrlError", "Please make sure proxy host url is usable."));
 }
 
 // function getLocalDebugOperationData2(): string {

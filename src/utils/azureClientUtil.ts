@@ -9,6 +9,7 @@ import * as vscode from 'vscode';
 import { createAzureClient } from "vscode-azureextensionui";
 import { IAzureClientInfo } from "../azure/azureClientInfo";
 import { ext } from "../extensionVariables";
+import { localize } from "../localize";
 
 export namespace azureClientUtil {
     export function getClient(credentials: TokenCredentialsBase, subscriptionId: string, environment: Environment): WebSiteManagementClient {
@@ -27,13 +28,13 @@ export namespace azureClientUtil {
         const azureAccount = azureAccountExtension!.exports;
         await azureAccount.waitForFilters();
         if (azureAccount.status !== 'LoggedIn') {
-            throw new Error("Please Log in at first!");
+            throw new Error(localize("", "Please Log in at first!"));
         }
         const subscriptions : {id: string, name: string}[] = azureAccount.filters.map(filter => {return {id: filter.subscription.subscriptionId, name: filter.subscription.displayName}; });
         const subscriptionId = await ext.ui.showQuickPick(subscriptions.map((s) => {
             const option = s.id.concat(' (', s.name, ')');
             return { label: option, subscriptionId: s.id};
-        }),                                               { canPickMany: false, placeHolder: "Please choose the Azure subscription"});
+        }),                                               { canPickMany: false, placeHolder: localize("", "Please choose the Azure subscription")});
         return subscriptionId.subscriptionId;
     }
 }

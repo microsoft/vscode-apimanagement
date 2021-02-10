@@ -89,7 +89,7 @@ export class ApisTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
         } else if (context.apiContract) {
             return await this.createApiWithApiContract(context.showCreatingTreeItem, context.apiName, context.apiContract);
         }
-        throw Error("Missing one or more userOptions when creating new Api");
+        throw Error(localize("", "Missing one or more userOptions when creating new Api"));
     }
 
     private async createApiFromOpenApi(showCreatingTreeItem: (label: string) => void, apiName: string, document?: IOpenApiImportObject): Promise<ApiTreeItem> {
@@ -102,7 +102,7 @@ export class ApisTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
                 throw new Error(processError(error, localize("createAPIFailed", `Failed to create the API ${apiName}`)));
             }
         } else {
-            throw Error("Expected either OpenAPI document or link.");
+            throw Error(localize("", "Expected either OpenAPI document or link."));
         }
     }
 
@@ -118,7 +118,7 @@ export class ApisTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
                 throw new Error(processError(error, localize("createAPIFailed", `Failed to create the API ${apiName}`)));
             }
         } else {
-            throw Error("Something went wrong when creating this new api.");
+            throw Error(localize("", "Something went wrong when creating this new api."));
         }
     }
 }

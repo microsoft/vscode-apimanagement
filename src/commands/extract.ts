@@ -47,10 +47,10 @@ async function extract(node: ApiTreeItem | ServiceTreeItem, apiName?: string): P
 
     if (apiName) {
         configFile = path.join(uris[0].fsPath, `${apiName}.json`);
-        noticeContent = `Extracting API ARM template '${apiName}' to '${templatesFolder}'`;
+        noticeContent = localize("Extract", `Extracting API ARM template '${apiName}' to '${templatesFolder}'`);
     } else {
         configFile = path.join(uris[0].fsPath, `${sourceApimName}.json`);
-        noticeContent = `Extracting service '${sourceApimName}' to '${templatesFolder}'`;
+        noticeContent = localize("Extract", `Extracting service '${sourceApimName}' to '${templatesFolder}'`);
     }
 
     await fse.writeFile(configFile, extractConfig);

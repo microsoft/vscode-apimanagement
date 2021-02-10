@@ -17,17 +17,17 @@ export async function revisions(context: IActionContext, node?: ApiTreeItem): Pr
         node = <ApiTreeItem>await ext.tree.showTreeItemPicker(ApiTreeItem.contextValue, context);
     }
 
-    const options = ["Make Current", "Switch Revisions"];
+    const options = [localize("", "Make Current"), localize("", "Switch Revisions")];
     const commands = await ext.ui.showQuickPick(options.map((s) => { return { label: s }; }), { canPickMany: false });
 
-    if (commands.label === "Switch Revisions") {
+    if (commands.label === localize("", "Switch Revisions")) {
         const pickedApi = await listRevisions(node);
 
         await node.reloadApi(pickedApi);
         await node.refresh(context);
         window.showInformationMessage(localize("switchRevisions", `Switched to revision ${pickedApi.name!} sucecessfully.`));
 
-    } else if (commands.label === "Make Current") {
+    } else if (commands.label === localize("", "Make Current")) {
         if (node!.apiContract.isCurrent) {
             window.showInformationMessage(localize("releaseRev", 'This revision is already current.'));
         } else {

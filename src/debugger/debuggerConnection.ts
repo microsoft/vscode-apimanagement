@@ -4,6 +4,7 @@
 
 import { EventEmitter } from 'events';
 import WebSocket from "ws";
+import { localize } from '../localize';
 
 // tslint:disable: no-unsafe-any
 // tslint:disable: indent
@@ -44,7 +45,7 @@ export class DebuggerConnection extends EventEmitter {
 				.on('error', e => {
 					if (this.connection == null || this.connection === connection) {
 						this.connection = null;
-						this.sendEvent('end', `Can't connect to gateway: ${e.message}.`);
+						this.sendEvent('end', localize("", `Can't connect to gateway: ${e.message}.`));
 					}
 					reject();
 				})

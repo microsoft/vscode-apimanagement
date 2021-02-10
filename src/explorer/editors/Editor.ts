@@ -42,7 +42,7 @@ export abstract class Editor<ContextT> implements vscode.Disposable {
         const localOriginPath: string = await createTemporaryFile(originFileName);
         const document: vscode.TextDocument = await vscode.workspace.openTextDocument(localFilePath);
         if (document.isDirty) {
-            const overwriteFlag = await vscode.window.showWarningMessage(`You are about to overwrite "${fileName}", which has unsaved changes. Do you want to continue?`, { modal: true }, DialogResponses.yes, DialogResponses.cancel);
+            const overwriteFlag = await vscode.window.showWarningMessage(localize("", `You are about to overwrite "${fileName}", which has unsaved changes. Do you want to continue?`), { modal: true }, DialogResponses.yes, DialogResponses.cancel);
             if (overwriteFlag !== DialogResponses.yes) {
                 throw new UserCancelledError();
             }
