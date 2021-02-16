@@ -7,10 +7,12 @@ import * as fse from 'fs-extra';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import { DialogResponses, IActionContext, UserCancelledError } from 'vscode-azureextensionui';
+import { policyFormat } from "../../constants";
 import { ext } from '../../extensionVariables';
 import { localize } from "../../localize";
 import { createTemporaryFile } from '../../utils/fsUtil';
 import { writeToEditor } from '../../utils/vscodeUtils';
+import { ApiPolicyTreeItem } from '../ApiPolicyTreeItem';
 
 // tslint:disable-next-line:no-unsafe-any
 export abstract class Editor<ContextT> implements vscode.Disposable {
@@ -50,12 +52,23 @@ export abstract class Editor<ContextT> implements vscode.Disposable {
 
         this.fileMap[localFilePath] = [document, context];
         const data: string = await this.getData(context);
+        // if (data === undefined) {
+        //     data = await this.getTreeItemPolicy(context);
+        // }
         // store an original copy of the data
         await fse.writeFile(localOriginPath, data);
 
         const textEditor: vscode.TextEditor = await vscode.window.showTextDocument(document);
         await this.updateEditor(data, textEditor);
     }
+
+    // public async getTreeItemPolicy(context: ContextT): Promise<string> {
+    //     if (context instanceof ApiPolicyTreeItem) {
+    //         const policy =  await context.root.client.apiPolicy.get(context.root.resourceGroupName, context.root.serviceName, context.root.apiName, { format: policyFormat });
+    //         return policy._response.bodyAsText;
+    //     }
+    //     return "";
+    // }
 
     public async updateMatchingContext(doc: vscode.Uri): Promise<void> {
         const filePath: string | undefined = Object.keys(this.fileMap).find((fsPath: string) => path.relative(doc.fsPath, fsPath) === '');
