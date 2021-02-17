@@ -72,7 +72,7 @@ export class ApimService {
         const result: HttpOperationResponse = await client.sendRequest({
             method: "POST",
             url: `https://management.azure.com/subscriptions/${this.subscriptionId}/resourceGroups/${this.resourceGroup}/providers/Microsoft.ApiManagement/service/${this.serviceName}/gateways/${gatewayName}/token?api-version=2018-06-01-preview`,
-            queryParameters: {
+            body: {
                 keyType: keyType,
                 expiry: expiryDate
             }
