@@ -4,6 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { ApiManagementClient, ApiManagementModels } from '@azure/arm-apimanagement';
+import { ApiManagementServiceListResponse } from '@azure/arm-apimanagement/src/models';
 import { MessageItem } from 'vscode';
 import { AzExtTreeItem, AzureParentTreeItem, AzureWizard, AzureWizardExecuteStep, AzureWizardPromptStep, createAzureClient, ICreateChildImplContext, IErrorHandlingContext, LocationListStep, parseError, ResourceGroupCreateStep, ResourceGroupListStep, SubscriptionTreeItemBase } from 'vscode-azureextensionui';
 import { IServiceWizardContext } from '../commands/createService/IServiceWizardContext';
@@ -32,9 +33,9 @@ export class ApiManagementProvider extends SubscriptionTreeItemBase {
         }
 
         const client: ApiManagementClient = createAzureClient(this.root, ApiManagementClient);
-        let apiManagementServiceList: ApiManagementModels.ApiManagementServiceListResult;
+        let apiManagementServiceListResponse: ApiManagementServiceListResponse;
         try {
-            apiManagementServiceList = this._nextLink === undefined ?
+            apiManagementServiceListResponse = this._nextLink === undefined ?
                 await client.apiManagementService.list() :
                 await client.apiManagementService.listNext(this._nextLink);
         } catch (error) {
@@ -48,10 +49,10 @@ export class ApiManagementProvider extends SubscriptionTreeItemBase {
             }
         }
 
-        this._nextLink = apiManagementServiceList.nextLink;
+        this._nextLink = apiManagementServiceListResponse._response.parsedBody.nextLink;
 
         return await this.createTreeItemsWithErrorHandling(
-            apiManagementServiceList,
+            apiManagementServiceListResponse._response.parsedBody,
             "invalidApiManagementService",
             (service: ApiManagementModels.ApiManagementServiceResource) => new ServiceTreeItem(this, client, service),
             (service: ApiManagementModels.ApiManagementServiceResource) => {

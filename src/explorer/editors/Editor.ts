@@ -50,6 +50,7 @@ export abstract class Editor<ContextT> implements vscode.Disposable {
 
         this.fileMap[localFilePath] = [document, context];
         const data: string = await this.getData(context);
+
         // store an original copy of the data
         await fse.writeFile(localOriginPath, data);
 
