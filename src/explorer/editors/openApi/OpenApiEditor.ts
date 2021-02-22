@@ -99,7 +99,6 @@ export class OpenApiEditor extends Editor<ApiTreeItem> {
         return localize("", `Saving will update the API '${context.apiContract.name}'.`);
     }
 
-    // tslint:disable-next-line:no-any
     private async requestOpenAPIDocument(context: ApiTreeItem, exportFormat: string, exportAcceptHeader: string) : Promise<string> {
         const client: ServiceClient = await createGenericClient(context.root.credentials);
         const options: RequestPrepareOptions = {
@@ -128,7 +127,7 @@ export class OpenApiEditor extends Editor<ApiTreeItem> {
         const importDocument = await openApiparser.parse(swagger);
         const sourceDocument = importDocument.sourceDocument;
         let basePath: string = importDocument.basePath !== undefined ? importDocument.basePath : "";
-        if (context.apiContract.apiVersionSet && context.apiContract.apiVersionSet.versioningScheme === "Segment") {
+        if (context.apiContract.apiVersionSet && context.apiContract.apiVersionSet.versioningScheme === "Segment" && sourceDocument.basePath !== undefined) {
             const versionSegment = `/${context.apiContract.apiVersion}`;
             if (basePath.endsWith(versionSegment)) {
                 // tslint:disable-next-line: no-unsafe-any
