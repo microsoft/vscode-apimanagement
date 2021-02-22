@@ -17,7 +17,7 @@ export async function revisions(context: IActionContext, node?: ApiTreeItem): Pr
         node = <ApiTreeItem>await ext.tree.showTreeItemPicker(ApiTreeItem.contextValue, context);
     }
 
-    const options = [localize("", "Make Current"), localize("", "Switch Revisions")];
+    const options = [localize("", "Make Current"), localize("", "Switch Revisions"), localize("", "Create Revision")];
     const commands = await ext.ui.showQuickPick(options.map((s) => { return { label: s }; }), { canPickMany: false });
 
     if (commands.label === localize("", "Switch Revisions")) {
@@ -61,12 +61,14 @@ export async function revisions(context: IActionContext, node?: ApiTreeItem): Pr
                 });
             }
         }
+    } else if (commands.label === localize("", "Create Revision")) {
+        await createRevision(node);
     }
 }
 
 async function askReleaseNotes(): Promise<string> {
     const releaseNotesPrompt: string = localize('namespacePrompt', 'Enter release notes.');
-    const defaultName = "New release";
+    const defaultName = localize('releaseName', "New release");
     return (await ext.ui.showInputBox({
         prompt: releaseNotesPrompt,
         value: defaultName,
@@ -86,4 +88,49 @@ async function listRevisions(node: ApiTreeItem): Promise<ApiContract> {
     const pickedApiRevision = await ext.ui.showQuickPick(apiIds.map((s) => { return { label: s }; }), { canPickMany: false });
     const apiName = pickedApiRevision.label.replace("/apis/", "");
     return await node.root.client.api.get(node.root.resourceGroupName, node.root.serviceName, apiName);
+}
+
+async function createRevision(node: ApiTreeItem): Promise<void> {
+    await window.withProgress(
+        {
+            location: ProgressLocation.Notification,
+            title: localize("creating", "Creating API Revision..."),
+            cancellable: false
+        },
+        async () => {
+            const result = await node.root.client.api.get(node.root.resourceGroupName, node.root.serviceName, node.root.apiName);
+            const curApi = result._response.parsedBody;
+            const revs = await node.root.client.apiRevision.listByService(node.root.resourceGroupName, node.root.serviceName, node.root.apiName);
+            const apiRevisions = revs.map((s) => {return s; });
+            let revNumber = 0;
+            for (const apiRev of apiRevisions) {
+                if (apiRev.apiRevision !== undefined && Number(apiRev.apiRevision) > revNumber) {
+                    revNumber = Number(apiRev.apiRevision);
+                }
+            }
+            const revDescription = await askRevisionDescription();
+            curApi.apiRevision = (revNumber + 1).toString();
+            curApi.apiRevisionDescription = revDescription;
+            curApi.isCurrent = false;
+            const apiRevId = node.root.apiName.concat(";rev=", (revNumber + 1).toString());
+            // tslint:disable-next-line: no-unnecessary-local-variable
+            const apiRevision = await node.root.client.api.createOrUpdate(node.root.resourceGroupName, node.root.serviceName, apiRevId, curApi);
+            return apiRevision;
+        }
+    ).then(async () => {
+        window.showInformationMessage(localize("createRevision", "New revision has been created successfully."));
+    });
+}
+
+async function askRevisionDescription(): Promise<string> {
+    const releaseNotesPrompt: string = localize('revisionPrompt', 'Enter revision Description.');
+    const defaultDescription: string = localize('revisionPrompt',  "New ApiRevsion");
+    return (await ext.ui.showInputBox({
+        prompt: releaseNotesPrompt,
+        value: defaultDescription,
+        validateInput: async (value: string | undefined): Promise<string | undefined> => {
+            value = value ? value.trim() : '';
+            return undefined;
+        }
+    })).trim();
 }
