@@ -10,6 +10,7 @@ import { IActionContext } from "vscode-azureextensionui";
 import { ApiTreeItem } from "../explorer/ApiTreeItem";
 import { ext } from "../extensionVariables";
 import { localize } from "../localize";
+import { nonNullOrEmptyValue } from "../utils/nonNull";
 
 // tslint:disable: no-non-null-assertion
 export async function revisions(context: IActionContext, node?: ApiTreeItem): Promise<void> {
@@ -17,7 +18,7 @@ export async function revisions(context: IActionContext, node?: ApiTreeItem): Pr
         node = <ApiTreeItem>await ext.tree.showTreeItemPicker(ApiTreeItem.contextValue, context);
     }
 
-    const options = [localize("", "Make Current"), localize("", "Switch Revisions"), localize("", "Create Revision")];
+    const options = [localize("", "Make Current"), localize("", "Switch Revisions"), localize("", "Create Revision"), localize("", "Delete Revision")];
     const commands = await ext.ui.showQuickPick(options.map((s) => { return { label: s }; }), { canPickMany: false });
 
     if (commands.label === localize("", "Switch Revisions")) {
@@ -63,6 +64,8 @@ export async function revisions(context: IActionContext, node?: ApiTreeItem): Pr
         }
     } else if (commands.label === localize("", "Create Revision")) {
         await createRevision(node);
+    } else if (commands.label === localize("", "Delete Revision")) {
+        await deleteRevision(node);
     }
 }
 
@@ -95,7 +98,7 @@ async function createRevision(node: ApiTreeItem): Promise<void> {
         {
             location: ProgressLocation.Notification,
             title: localize("creating", "Creating API Revision..."),
-            cancellable: false
+            cancellable: true
         },
         async () => {
             const result = await node.root.client.api.get(node.root.resourceGroupName, node.root.serviceName, node.root.apiName);
@@ -113,12 +116,26 @@ async function createRevision(node: ApiTreeItem): Promise<void> {
             curApi.apiRevisionDescription = revDescription;
             curApi.isCurrent = false;
             const apiRevId = node.root.apiName.concat(";rev=", (revNumber + 1).toString());
-            // tslint:disable-next-line: no-unnecessary-local-variable
-            const apiRevision = await node.root.client.api.createOrUpdate(node.root.resourceGroupName, node.root.serviceName, apiRevId, curApi);
-            return apiRevision;
+            await node.root.client.api.createOrUpdate(node.root.resourceGroupName, node.root.serviceName, apiRevId, curApi);
         }
     ).then(async () => {
         window.showInformationMessage(localize("createRevision", "New revision has been created successfully."));
+    });
+}
+
+async function deleteRevision(node: ApiTreeItem): Promise<void> {
+    await window.withProgress(
+        {
+            location: ProgressLocation.Notification,
+            title: localize("deleting", "Deleting API Revision..."),
+            cancellable: true
+        },
+        async () => {
+            const pickedApi = await listRevisions(node);
+            await node.root.client.api.deleteMethod(node.root.resourceGroupName, node.root.serviceName, nonNullOrEmptyValue(pickedApi.name), "*");
+        }
+    ).then(async () => {
+        window.showInformationMessage(localize("deleteRevision", "Delete revision has completed successfully."));
     });
 }
 
