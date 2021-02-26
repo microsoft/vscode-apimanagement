@@ -89,7 +89,7 @@ async function listRevisions(node: ApiTreeItem): Promise<ApiContract> {
         return s.isCurrent !== undefined && s.isCurrent === true ? s.apiId!.concat("(Current)") : s.apiId!;
     });
     const pickedApiRevision = await ext.ui.showQuickPick(apiIds.map((s) => { return { label: s }; }), { canPickMany: false });
-    const apiName = pickedApiRevision.label.replace("/apis/", "");
+    const apiName = pickedApiRevision.label.replace("/apis/", "").replace("(Current)", "");
     return await node.root.client.api.get(node.root.resourceGroupName, node.root.serviceName, apiName);
 }
 
