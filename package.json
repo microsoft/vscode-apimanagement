@@ -27,7 +27,6 @@
         "OpenAPI",
         "swagger"
     ],
-    "preview": true,
     "activationEvents": [
         "onCommand:azureApiManagement.Refresh",
         "onCommand:azureApiManagement.selectSubscriptions",
