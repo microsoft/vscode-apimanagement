@@ -53,7 +53,7 @@ export class ApimService {
             url: `${this.baseUrl}/gateways/${gatewayName}/apis/${apiName}?api-version=${this.apiVersion}`
         });
         // tslint:disable-next-line: no-unsafe-any
-        return <IGatewayApiContract>(result.parsedBody.value);
+        return <IGatewayApiContract>(result.parsedBody);
     }
 
     public async deleteGatewayApi(gatewayName: string, apiName: string): Promise<void> {
