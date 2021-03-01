@@ -18,10 +18,10 @@ export async function revisions(context: IActionContext, node?: ApiTreeItem): Pr
         node = <ApiTreeItem>await ext.tree.showTreeItemPicker(ApiTreeItem.contextValue, context);
     }
 
-    const options = [localize("", "Make Current"), localize("", "Switch Revisions"), localize("", "Create Revision"), localize("", "Delete Revision")];
+    const options = [localize("", "Make Current"), localize("", "Switch Revision"), localize("", "Create Revision"), localize("", "Delete Revision")];
     const commands = await ext.ui.showQuickPick(options.map((s) => { return { label: s }; }), { canPickMany: false });
 
-    if (commands.label === localize("", "Switch Revisions")) {
+    if (commands.label === localize("", "Switch Revision")) {
         const pickedApi = await listRevisions(node);
 
         await node.reloadApi(pickedApi);
@@ -97,7 +97,7 @@ async function createRevision(node: ApiTreeItem): Promise<void> {
     await window.withProgress(
         {
             location: ProgressLocation.Notification,
-            title: localize("creating", "Creating API Revision..."),
+            title: localize("creating", "Creating API revision..."),
             cancellable: true
         },
         async () => {
@@ -140,8 +140,8 @@ async function deleteRevision(node: ApiTreeItem): Promise<void> {
 }
 
 async function askRevisionDescription(): Promise<string> {
-    const releaseNotesPrompt: string = localize('revisionPrompt', 'Enter revision Description.');
-    const defaultDescription: string = localize('revisionPrompt',  "New ApiRevsion");
+    const releaseNotesPrompt: string = localize('revisionPrompt', 'Enter revision description.');
+    const defaultDescription: string = localize('revisionPrompt',  "New API revision");
     return (await ext.ui.showInputBox({
         prompt: releaseNotesPrompt,
         value: defaultDescription,
