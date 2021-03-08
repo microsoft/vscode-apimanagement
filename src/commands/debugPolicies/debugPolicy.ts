@@ -64,11 +64,16 @@ async function getDebugGatewayAddressUrl(node: ApiOperationTreeItem): Promise<st
     const service = await node.root.client.apiManagementService.get(node.root.resourceGroupName, node.root.serviceName);
     // tslint:disable-next-line: no-non-null-assertion
     const hostNameConfigs = service.hostnameConfigurations!;
-    for (const hostNameConfig of hostNameConfigs) {
-        if (hostNameConfig.type === "Proxy") {
-            return `wss://${hostNameConfig.hostName}/debug-0123456789abcdef`;
+    if (hostNameConfigs.length !== 0) {
+        if (hostNameConfigs.length > 1) {
+            const allHostNames = hostNameConfigs.filter((s) => (s.type === "Proxy"));
+            const pick = await ext.ui.showQuickPick(allHostNames.map((s) => { return {label: s.hostName, gateway: s}; }), { canPickMany: false});
+            return `wss://${pick.gateway.hostName}/debug-0123456789abcdef`;
+        } else {
+            return `wss://${hostNameConfigs[0].hostName}/debug-0123456789abcdef`;
         }
     }
+
     throw new Error(localize("ProxyUrlError", "Please make sure proxy host url is usable."));
 }
 
