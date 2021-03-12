@@ -102,8 +102,8 @@ export class ApiTreeItem extends AzureParentTreeItem<IApiTreeRoot> {
     public async reloadApi(api: ApiContract): Promise<void> {
         this.apiContract = api;
         this._name = nonNullProp(api, 'name');
-        //this._root = this.createRoot(this.parent, nonNullProp(api, 'name'));
         this._label = this.getRevisionDisplayName(api);
+        this._root = this.createRoot(this.root, this._name);
         this._operationsTreeItem = new ApiOperationsTreeItem(this);
         this.policyTreeItem = new ApiPolicyTreeItem(this);
     }
