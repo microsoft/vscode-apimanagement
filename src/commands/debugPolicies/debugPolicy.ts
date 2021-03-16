@@ -59,8 +59,14 @@ function getManagementUrl(root: IOperationTreeRoot): string {
     return `${root.environment.resourceManagerEndpointUrl}/subscriptions/${root.subscriptionId}/resourceGroups/${root.resourceGroupName}/providers/microsoft.apimanagement/service/${root.serviceName}`;
 }
 
-async function getDebugGatewayAddressUrl(node: ApiOperationTreeItem): Promise<string> {
-
+async function getDebugGatewayAddressUrl(_node: ApiOperationTreeItem): Promise<string> {
+    const valuePrompt: string = localize('valuePrompt', 'Enter value');
+    const input = await ext.ui.showInputBox({
+        prompt: valuePrompt,
+        value: ""
+    });
+    return `wss://${input}/debug-0123456789abcdef`;
+/*
     const service = await node.root.client.apiManagementService.get(node.root.resourceGroupName, node.root.serviceName);
     // tslint:disable-next-line: no-non-null-assertion
     const hostNameConfigs = service.hostnameConfigurations!;
@@ -74,7 +80,7 @@ async function getDebugGatewayAddressUrl(node: ApiOperationTreeItem): Promise<st
         }
     }
 
-    throw new Error(localize("ProxyUrlError", "Please make sure proxy host url is usable."));
+    throw new Error(localize("ProxyUrlError", "Please make sure proxy host url is usable."));*/
 }
 
 // function getLocalDebugOperationData2(): string {
