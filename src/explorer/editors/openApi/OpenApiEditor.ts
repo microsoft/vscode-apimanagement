@@ -56,7 +56,9 @@ export class OpenApiEditor extends Editor<ApiTreeItem> {
             const openApiparser = new OpenApiParser();
             openApiDocument = await openApiparser.parse(documentJson);
 
-            openApiparser.updateBackend(openApiDocument.sourceDocument, nonNullProp(context.apiContract, 'serviceUrl'));
+            if (context.apiContract.serviceUrl !== null && context.apiContract.serviceUrl !== undefined) {
+                openApiparser.updateBackend(openApiDocument.sourceDocument, nonNullProp(context.apiContract, 'serviceUrl'));
+            }
 
             const swaggerJson = JSON.stringify(openApiDocument.sourceDocument);
             const payload: ApiManagementModels.ApiCreateOrUpdateParameter = {
