@@ -206,7 +206,7 @@ function validateCSharpNamespace(value: string | undefined): string | undefined 
 
 async function validateAutorestInstalled(): Promise<boolean> {
     try {
-        await cpUtils.executeCommand(undefined, undefined, 'autorest', '--version');
+        await cpUtils.executeCommand(undefined, undefined, 'autorest', '--info');
     } catch (error) {
         const message: string = localize('autorestNotFound', 'Failed to find "autorest" | Extension needs AutoRest to generate a function app from an OpenAPI specification. Click "Learn more" for more details on installation steps.');
         window.showErrorMessage(message, DialogResponses.learnMore).then(async result => {
