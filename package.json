@@ -674,7 +674,7 @@
         "tslint-microsoft-contrib": "5.0.1",
         "typescript": "^3.8.3",
         "vsce": "^1.74.0",
-        "vscode": "^1.1.36",
+        "vscode": "^1.1.37",
         "vscode-azureextensiondev": "^0.6.0",
         "vscode-debugadapter-testsupport": "1.40.2",
         "vscode-extension-telemetry": "^0.0.18",
