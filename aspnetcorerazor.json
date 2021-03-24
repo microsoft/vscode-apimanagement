@@ -163,6 +163,20 @@
             "<forward-request timeout=\"${1:seconds}\" />"
         ]
     },
+    "invoke-dapr-binding": {
+        "prefix": "invoke-dapr-binding",
+        "description": "Uses Dapr runtime to invoke an external system via output binding.",
+        "body": [
+            "<invoke-dapr-binding name=\"$1\" operation=\"$2\" ignore-error=\"${3|true,false|}\" response-variable-name=\"$4\" timeout=\"${5:seconds}\" template=\"$6\" content-type=${7|always,content-type-json|}>",
+            "\t<metadata>",
+            "\t\t<item key=\"$1\"><!-- item-value --></item>",
+            "\t</metadata>",
+            "\t<data>",
+            "\t\t<!-- message content -->",
+            "\t</data>",
+            "</invoke-dapr-binding>"
+        ]
+    },
     "ip-filter": {
         "prefix": "ip-filter",
         "description": "Allow calls only from specific IP addresses and/or address ranges. Forbid calls from specific IP addresses and/or address ranges. Use in the inbound section at any scope.",
@@ -217,6 +231,15 @@
             "<proxy url=\"$1\" username=\"$2\" password=\"$3\" />"
         ]
     },
+    "publish-to-dapr":{
+        "prefix": "publish-to-dapr",
+        "description": "Uses Dapr runtime to publish a message to a Publish/Subscribe topic.",
+        "body": [
+            "<publish-to-dapr pubsub-name=\"$1\" topic=\"$2\" ignore-error=\"${3|true,false|}\" response-variable-name=\"$4\" timeout=\"${5:seconds}\" template=\"$6\" content-type=${7|always,content-type-json|}>",
+            "\t<!-- message content -->",
+            "</publish-to-dapr>"
+        ]
+    },    
     "quota": {
         "prefix": "quota",
         "description": "Enforce a renewable or lifetime call volume and/or bandwidth quota per subscription. Use in the inbound section at Product scope.",
@@ -317,6 +340,13 @@
             "</send-request>"
         ]
     },
+    "set-backend-service-dapr": {
+        "prefix": "set-backend-serice",
+        "description": "Uses Dapr runtime to locate and reliably communicate with a Dapr microservice.",
+        "body": [
+            "<set-backend-service backend-id=\"$1\" dapr-app-id=\"$2\" dapr-method=\"$3\" dapr-namespace=\"$4\" />"
+        ]
+    },
     "set-backend-service": {
         "prefix": "set-backend-service",
         "description": "Change backend service where the incoming calls will be directed. Use in the inbound section only at any scope.",
@@ -377,6 +407,50 @@
             "<trace source=\"$1\">",
             "\t@($2)",
             "</trace>"
+        ]
+    },
+    "validate-content": {
+        "prefix": "validate-content",
+        "description": "The validate-content policy validates the size or JSON schema of a request or response body against the API schema. Formats other than JSON aren't supported.",
+        "body": [
+            "<validate-content unspecified-content-type-action=\"${1|ignore, prevent, detect|}\" max-size=\"$2\" size-exceeded-action=\"${3|ignore, prevent, detect|}\" errors-variable-name=\"$4\">",
+            "\t<content type=\"$1\" validate-as=\"$2\" action=\"${3|ignore, prevent, detect|}\" />",
+            "</validate-content>"
+        ]
+    },
+    "validate-parameters": {
+        "prefix": "validate-parameters",
+        "description": "The validate-parameters policy validates the header, query, or path parameters in requests against the API schema.",
+        "body": [
+            "<validate-parameters specified-parameter-action=\"${1|ignore, prevent, detect|}\" unspecified-parameter-action=\"${2|ignore, prevent, detect|}\" errors-variable-name=\"$3\">",
+            "\t<headers specified-parameter-action=\"${1|ignore, prevent, detect|}\" unspecified-parameter-action=\"${2|ignore, prevent, detect|}\">",
+            "\t\t<parameter name=\"$1\" action==\"${2|ignore, prevent, detect|}\" />",
+            "\t</headers>",
+            "\t<query specified-parameter-action=\"${1|ignore, prevent, detect|}\" unspecified-parameter-action=\"${2|ignore, prevent, detect|}\">",
+            "\t\t<parameter name=\"$1\" action==\"${2|ignore, prevent, detect|}\" />",
+            "\t</query>",
+            "\t<path specified-parameter-action=\"${1|ignore, prevent, detect|}\">",
+            "\t\t<parameter name=\"$1\" action==\"${2|ignore, prevent, detect|}\" />",
+            "\t</path>",
+            "</validate-parameters>"
+        ]
+    },
+    "validate-headers": {
+        "prefix": "validate-headers",
+        "description": "The validate-headers policy validates the response headers against the API schema.",
+        "body": [
+            "<validate-headers specified-header-action=\"${1|ignore, prevent, detect|}\" unspecified-header-action=\"${2|ignore, prevent, detect|}\" errors-variable-name=\"$3\">",
+            "<\theader name=\"$1\" action=\"${2|ignore, prevent, detect|}\" />",
+            "</validate-headers>"
+        ]
+    },
+    "validate-status-code": {
+        "prefix": "validate-status-code",
+        "description": "The validate-status-code policy validates the HTTP status codes in responses against the API schema. This policy may be used to prevent leakage of backend errors, which can contain stack traces.",
+        "body": [
+            "<validate-status-code unspecified-status-code-action=\"${1|ignore, prevent, detect|}\" errors-variable-name=\"$2\">",
+            "\t<status-code code=\"$1\" action=\"${2|ignore, prevent, detect|}\" />",
+            "</validate-status-code>"
         ]
     },
     "validate-jwt": {
