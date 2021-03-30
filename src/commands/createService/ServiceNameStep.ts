@@ -18,7 +18,7 @@ export class ServiceNameStep extends AzureNameStep<IServiceWizardContext> {
             validateInput: async (value: string): Promise<string | undefined> => {
                 value = value ? value.trim() : '';
                 const nameAvailability: ApiManagementModels.ApiManagementServiceNameAvailabilityResult = await wizardContext.client.apiManagementService.checkNameAvailability({name: value});
-                if (!nameAvailability.nameAvailable) {
+                if (nameAvailability.nameAvailable !== undefined && !nameAvailability.nameAvailable) {
                     return nameAvailability.message;
                 } else {
                     return undefined;

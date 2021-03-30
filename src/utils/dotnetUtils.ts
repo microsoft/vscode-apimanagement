@@ -39,7 +39,7 @@ export namespace dotnetUtils {
 
     export async function checkDotnetInstalled(): Promise<void> {
         if (!await isDotnetInstalled()) {
-            const message: string = localize('dotnetNotInstalled', 'You must have the .NET CLI installed to perform this operation.');
+            const message: string = localize('dotnetNotInstalled', 'You must have a .NET Core SDK v2.1.x CLI installed to perform this operation.');
 
             // don't wait
             vscode.window.showErrorMessage(message, DialogResponses.learnMore).then(async (result) => {

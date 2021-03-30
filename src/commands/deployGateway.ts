@@ -5,8 +5,9 @@
 
 import * as fse from 'fs-extra';
 import * as path from 'path';
+import * as vscode from 'vscode';
 import { env, OpenDialogOptions, ProgressLocation, Uri, window, workspace } from "vscode";
-import { IActionContext } from 'vscode-azureextensionui';
+import { DialogResponses, IActionContext } from 'vscode-azureextensionui';
 import { ApimService } from '../azure/apim/ApimService';
 import { GatewayKeyType } from '../constants';
 import * as Constants from "../constants";
@@ -84,9 +85,9 @@ export async function generateKubernetesDeployment(context: IActionContext, node
 }
 
 async function askConsentToGenerateToken(): Promise<boolean> {
-  const options = ['Yes', 'No'];
-  const option = await ext.ui.showQuickPick(options.map((s) => { return { label: s, description: '', detail: '' }; }), { placeHolder: 'Command requires generating token, do you wish to proceed?', canPickMany: false });
-  return option.label === options[0];
+  const message = localize("genToken", 'Command requires generating token, do you wish to proceed?');
+  const result: vscode.MessageItem | undefined = await vscode.window.showWarningMessage(message, DialogResponses.yes, DialogResponses.no);
+  return result === DialogResponses.yes ? true : false;
 }
 
 function getDockerRunCommand(token: string, confEndpoint: string, gatewayName: string): string {

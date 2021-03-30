@@ -28,6 +28,7 @@ import { openDiffEditor } from './commands/openDiffEditor';
 import { openInPortal } from './commands/openInPortal';
 import { openWorkingFolder } from './commands/openWorkingFolder';
 import { revisions } from './commands/revisions';
+import { setCustomHostName } from './commands/SetCustomHostName';
 import { setupWorkingFolder } from './commands/setupWorkingFolder';
 import { testOperation } from './commands/testOperation';
 import { doubleClickDebounceDelay } from './constants';
@@ -127,6 +128,7 @@ function registerCommands(tree: AzExtTreeDataProvider): void {
 
     registerCommand('azureApiManagement.generateFunctions', generateFunctions);
     registerCommand('azureApiManagement.revisions', revisions);
+    registerCommand('azureApiManagement.setCustomHostName', setCustomHostName);
 }
 
 // tslint:disable-next-line: max-func-body-length
