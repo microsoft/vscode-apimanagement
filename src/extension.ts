@@ -28,7 +28,7 @@ import { openDiffEditor } from './commands/openDiffEditor';
 import { openInPortal } from './commands/openInPortal';
 import { openWorkingFolder } from './commands/openWorkingFolder';
 import { revisions } from './commands/revisions';
-import { setCustomHostName } from './commands/SetCustomHostName';
+import { setCustomHostName } from './commands/setCustomHostName';
 import { setupWorkingFolder } from './commands/setupWorkingFolder';
 import { testOperation } from './commands/testOperation';
 import { doubleClickDebounceDelay } from './constants';
