@@ -5,7 +5,9 @@
 
 import { ApiContract, ApiRevisionContract } from "@azure/arm-apimanagement/src/models";
 import { ApimService } from "../azure/apim/ApimService";
+import { gatewayHostName } from "../constants";
 import { IOperationTreeRoot } from "../explorer/IOperationTreeRoot";
+import { ext } from "../extensionVariables";
 import { nonNullOrEmptyValue, nonNullProp } from "../utils/nonNull";
 import { ConsoleOperation } from "./ConsoleOperation";
 
@@ -30,7 +32,7 @@ export class OperationConsole {
             revision = revisions.find((r) => r.apiRevision === api.apiRevision);
         }
 
-        const url = `${this.getRequestUrl(consoleOperation, api, revision)}`;
+        const url = `${this.getRequestUrl(consoleOperation, api, revision, root.serviceName)}`;
         const method = consoleOperation.method;
 
         let requestSummary = `${method} ${url} HTTP/1.1\n`;
@@ -72,7 +74,7 @@ export class OperationConsole {
             revision = revisions.find((r) => r.apiRevision === api.apiRevision);
         }
 
-        const url = `${this.getRequestUrl(consoleOperation, api, revision)}`;
+        const url = `${this.getRequestUrl(consoleOperation, api, revision, root.serviceName)}`;
         const method = consoleOperation.method;
 
         let requestSummary = `${method} ${url} HTTP/1.1\n`;
@@ -100,20 +102,31 @@ export class OperationConsole {
         return ["Ocp-Apim-Subscription-Key", "Ocp-Apim-Debug"];
     }
 
-    private getRequestUrl(consoleOperation: ConsoleOperation, api: ApiContract, revision: ApiRevisionContract | undefined): string {
+    private getRequestUrl(consoleOperation: ConsoleOperation, api: ApiContract, revision: ApiRevisionContract | undefined, serviceName: string): string {
         const protocol = nonNullProp(api, "protocols").indexOf("https") !== -1 ? "https" : "http";
         let urlTemplate = this.requestUrl(consoleOperation, api, revision);
         if (urlTemplate && urlTemplate.length > 0 && urlTemplate[urlTemplate.length - 1] === "*") {
             urlTemplate = urlTemplate.replace("*", "");
         }
-        return `${protocol}://${consoleOperation.hostName}${this.ensureLeadingSlash(urlTemplate)}`;
+        // tslint:disable-next-line: no-unsafe-any
+        const hostName : string | undefined  = ext.context.globalState.get(serviceName + gatewayHostName);
+        if (hostName === undefined) {
+            return `${protocol}://${consoleOperation.hostName}${this.ensureLeadingSlash(urlTemplate)}`;
+        } else {
+            return `${protocol}://${hostName}${this.ensureLeadingSlash(urlTemplate)}`;
+        }
     }
 
     private requestUrl(consoleOperation: ConsoleOperation, api: ApiContract, apiRevision: ApiRevisionContract | undefined): string {
         let versionPath = "";
         let revision = "";
 
+        /*
         if (api.apiVersionSet && api.apiVersion && api.apiVersionSet.versioningScheme === "Segment") {
+            versionPath = `/${api.apiVersion}`;
+        }*/
+
+        if (api.apiVersion && api.apiVersionSetId) {
             versionPath = `/${api.apiVersion}`;
         }
 
