@@ -33,8 +33,9 @@ export async function setCustomHostName(context: IActionContext, node?: ServiceT
             }
         });
     }
-    const selfDefined = localize('', "Input a new custom host name");
+    const selfDefined = localize('', "Input a hostname (for self-hosted gateway)");
     allHostNames.push({label: selfDefined, hostName: ""});
+    window.showInformationMessage(localize("", "Select the gateway hostname for testing and debugging APIs."));
     const pick = await ext.ui.showQuickPick(allHostNames.map((s) => { return {label: s.label, gateway: s}; }), { canPickMany: false});
     if (pick.label === selfDefined) {
         const namespacePrompt: string = localize('urlPrompt', 'Enter Custom Host Name.');

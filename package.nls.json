@@ -44,5 +44,5 @@
     "azureApiManagement.generateFunctions": "Scaffold Azure Functions",
     "azureApiManagement.scaffoldAzureFunctions": "(Experimental Feature) Enables scaffolding Azure Functions from API definition.",
     "azureApiManagement.revisions": "API Revisions",
-    "azureApiManagement.setCustomHostName": "Set Service Custom Host Name"
+    "azureApiManagement.setCustomHostName": "Select Gateway Host Name"
 }
