@@ -33,11 +33,12 @@ export async function setCustomHostName(context: IActionContext, node?: ServiceT
             }
         });
     }
-    const selfDefined = localize('', "Input a new custom host name");
+    const selfDefined = localize('', "Input a hostname (for self-hosted gateway)");
     allHostNames.push({label: selfDefined, hostName: ""});
+    window.showInformationMessage(localize("", "Select the gateway hostname for testing and debugging APIs."));
     const pick = await ext.ui.showQuickPick(allHostNames.map((s) => { return {label: s.label, gateway: s}; }), { canPickMany: false});
     if (pick.label === selfDefined) {
-        const namespacePrompt: string = localize('urlPrompt', 'Enter Custom Host Name.');
+        const namespacePrompt: string = localize('urlPrompt', 'Select Gateway Host Name');
         const input = await ext.ui.showInputBox({
             prompt: namespacePrompt,
             validateInput: async (value: string | undefined): Promise<string | undefined> => {
