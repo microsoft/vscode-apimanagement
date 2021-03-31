@@ -30,6 +30,7 @@ All you need is an Azure Subscription to get started. If you don't have one, [cl
 -   Show diffs against last saved version
 -   Switch / Release API Revisions
 -   API Filter
+-   Policy Debugging on Self-Hosted Gateways
 
 ## Create an API Management instance using defaults
 
@@ -94,6 +95,9 @@ Please note: only JSON format is supported currently.
 
 ## API Filter
 ![apiFilter](resources/apiFilter.gif)
+
+## Self-Hosted Gateway Debugging
+![selfHostedDebugging](resources/selfdebug.gif)
 
 ## Intellisense for Policy Expressions.
 
