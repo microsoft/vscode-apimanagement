@@ -23,6 +23,7 @@ import { ProductPolicyTreeItem } from "./ProductPolicyTreeItem";
 import { ProductsTreeItem } from "./ProductsTreeItem";
 import { ProductTreeItem } from "./ProductTreeItem";
 import { ServicePolicyTreeItem } from "./ServicePolicyTreeItem";
+import { SubscriptionsTreeItem } from "./SubscriptionsTreeItem";
 
 export class ServiceTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
 
@@ -45,6 +46,7 @@ export class ServiceTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
     public readonly namedValuesTreeItem: NamedValuesTreeItem;
     public readonly productsTreeItem: ProductsTreeItem;
     public readonly gatewaysTreeItem: GatewaysTreeItem;
+    public readonly subscriptionsTreeItem: SubscriptionsTreeItem;
 
     private _root: IServiceTreeRoot;
 
@@ -59,6 +61,7 @@ export class ServiceTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
         this.apisTreeItem = new ApisTreeItem(this);
         this.productsTreeItem = new ProductsTreeItem(this);
         this.namedValuesTreeItem = new NamedValuesTreeItem(this);
+        this.subscriptionsTreeItem = new SubscriptionsTreeItem(this);
         //parent.iconPath =
 
         const sku = nonNullValue(this.apiManagementService.sku.name);
@@ -73,9 +76,9 @@ export class ServiceTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
 
     public async loadMoreChildrenImpl(): Promise<AzureTreeItem<IServiceTreeRoot>[]> {
         if (this.gatewaysTreeItem === undefined) {
-            return [this.apisTreeItem, this.namedValuesTreeItem, this.productsTreeItem, this.servicePolicyTreeItem];
+            return [this.apisTreeItem, this.namedValuesTreeItem, this.productsTreeItem, this.servicePolicyTreeItem, this.subscriptionsTreeItem];
         }
-        return [this.apisTreeItem, this.namedValuesTreeItem, this.productsTreeItem, this.servicePolicyTreeItem, this.gatewaysTreeItem];
+        return [this.apisTreeItem, this.namedValuesTreeItem, this.productsTreeItem, this.servicePolicyTreeItem, this.gatewaysTreeItem, this.subscriptionsTreeItem];
     }
 
     public hasMoreChildrenImpl(): boolean {
