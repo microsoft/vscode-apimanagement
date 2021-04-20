@@ -65,9 +65,8 @@ export async function importWebApp(context: IActionContext & Partial<IApiTreeIte
     const webAppResourceGroup = nonNullValue(pickedWebApp.resourceGroup);
     const webAppName = nonNullValue(pickedWebApp.name);
     const webConfigbaseUrl = getWebConfigbaseUrl(node!.root.environment.resourceManagerEndpointUrl, webAppSubscriptionId, webAppResourceGroup, webAppName);
-    const webAppConfigStr: string = (await request(node.root.credentials, webConfigbaseUrl, "GET")).parsedBody;
+    const webAppConfig: IWebAppContract = (await request(node.root.credentials, webConfigbaseUrl, "GET")).parsedBody;
 
-    const webAppConfig: IWebAppContract = JSON.parse(webAppConfigStr);
     const apiName = await apiUtil.askApiName(webAppName);
     if (webAppConfig.properties.apiDefinition && webAppConfig.properties.apiDefinition.url) {
         ext.outputChannel.appendLine(localize("importWebApp", "Importing Web App from swagger object..."));

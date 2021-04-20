@@ -5,10 +5,12 @@
 
 import { ApiContract, BackendCredentialsContract, NamedValueCreateContract, OperationCollection, OperationContract } from "@azure/arm-apimanagement/src/models";
 import { Site } from "@azure/arm-appservice/src/models";
+import { WebResource } from "@azure/ms-rest-js";
 import { ProgressLocation, window } from "vscode";
 import { IActionContext } from "vscode-azureextensionui";
+import { IOpenApiImportObject, OpenApiParser } from "../../../extension.bundle";
 import { getSetBackendPolicy } from "../../azure/apim/policyHelper";
-import { IFunctionContract } from "../../azure/webApp/contracts";
+import { IFunctionContract, IWebAppContract } from "../../azure/webApp/contracts";
 import { FunctionAppService } from "../../azure/webApp/FunctionAppService";
 import * as Constants from "../../constants";
 import { ApisTreeItem, IApiTreeItemContext } from "../../explorer/ApisTreeItem";
@@ -18,10 +20,13 @@ import { ext } from "../../extensionVariables";
 import { localize } from "../../localize";
 import { apiUtil } from "../../utils/apiUtil";
 import { azureClientUtil } from "../../utils/azureClientUtil";
+import { processError } from "../../utils/errorUtil";
 import { nonNullOrEmptyValue } from "../../utils/nonNull";
+import { request, sendRequest } from "../../utils/requestUtil";
 import { createImportXmlPolicy, getPickedWebApp, setAppBackendEntity, webAppKind } from "../importWebApp/importWebApp";
 import { parseUrlTemplate } from "./parseUrlTemplate";
 
+// tslint:disable: no-unsafe-any
 export async function importFunctionAppToApi(context: IActionContext, node?: ApiTreeItem): Promise<void> {
     if (!node) {
         node = <ApiTreeItem>await ext.tree.showTreeItemPicker(ApiTreeItem.contextValue, context);
@@ -72,37 +77,132 @@ export async function importFunctionApp(context: IActionContext & Partial<IApiTr
     const funcName = nonNullOrEmptyValue(functionApp.name);
     const funcAppResourceGroup = nonNullOrEmptyValue(functionApp.resourceGroup);
 
-    const funcAppService = new FunctionAppService(node.root.credentials, node.root.environment.resourceManagerEndpointUrl, functionSubscriptionId, funcAppResourceGroup, funcName);
-    const pickedFuncs = await pickFunctions(funcAppService);
+    // tslint:disable: no-non-null-assertion
+    const webConfigbaseUrl = getWebConfigbaseUrl(node!.root.environment.resourceManagerEndpointUrl, functionSubscriptionId, funcAppResourceGroup, funcName);
+    const funcConfig: IWebAppContract = (await request(node.root.credentials, webConfigbaseUrl, "GET")).parsedBody;
     const apiName = await apiUtil.askApiName(funcName);
-    const apiId = apiUtil.genApiId(apiName);
+    if (funcConfig.properties.apiDefinition && funcConfig.properties.apiDefinition.url) {
+        ext.outputChannel.appendLine(localize("importFuncApp", "Importing Function App from swagger object..."));
+        const funcAppService = new FunctionAppService(node.root.credentials, node.root.environment.resourceManagerEndpointUrl, functionSubscriptionId, funcAppResourceGroup, funcName);
+        await importFromSwagger(funcAppService, context, funcConfig, funcName, apiName, node);
+    } else {
+        const funcAppService = new FunctionAppService(node.root.credentials, node.root.environment.resourceManagerEndpointUrl, functionSubscriptionId, funcAppResourceGroup, funcName);
+        const pickedFuncs = await pickFunctions(funcAppService);
+        const apiId = apiUtil.genApiId(apiName);
 
-    window.withProgress(
-        {
-            location: ProgressLocation.Notification,
-            title: localize("importFunctionApp", `Importing Function App '${funcName}' to API Management service ${node.root.serviceName} ...`),
-            cancellable: false
-        },
-        async () => {
-            if (node) {
-                ext.outputChannel.appendLine(localize("importFunctionApp", `Creating API...`));
-                const nApi = await constructApiFromFunctionApp(apiId, functionApp, apiName);
+        window.withProgress(
+            {
+                location: ProgressLocation.Notification,
+                title: localize("importFunctionApp", `Importing Function App '${funcName}' to API Management service ${node.root.serviceName} ...`),
+                cancellable: false
+            },
+            async () => {
+                if (node) {
+                    ext.outputChannel.appendLine(localize("importFunctionApp", `Creating API...`));
+                    const nApi = await constructApiFromFunctionApp(apiId, functionApp, apiName);
 
-                context.apiName = apiName;
-                context.apiContract = nApi;
-                await node.createChild(context);
-                ext.outputChannel.appendLine(localize("importFunctionApp", `New API with name ${apiName} created...`));
-                await addOperationsToExistingApi(node, apiId, pickedFuncs, funcName, apiName, funcAppService);
-                ext.outputChannel.appendLine(localize("importFunctionApp", `Linking API Management instance to Function App...`));
-                await funcAppService.getWebAppConfig(node.root.resourceGroupName, node.root.serviceName, apiName);
-                ext.outputChannel.appendLine(localize("importFunctionApp", `Imported Function App successfully!`));
+                    context.apiName = apiName;
+                    context.apiContract = nApi;
+                    await node.createChild(context);
+                    ext.outputChannel.appendLine(localize("importFunctionApp", `New API with name ${apiName} created...`));
+                    await addOperationsToExistingApi(node, apiId, pickedFuncs, funcName, apiName, funcAppService);
+                    ext.outputChannel.appendLine(localize("importFunctionApp", `Linking API Management instance to Function App...`));
+                    await funcAppService.getWebAppConfig(node.root.resourceGroupName, node.root.serviceName, apiName);
+                    ext.outputChannel.appendLine(localize("importFunctionApp", `Imported Function App successfully!`));
+                }
             }
-        }
-    ).then(async () => {
-        // tslint:disable-next-line:no-non-null-assertion
-        await node!.refresh(context);
-        window.showInformationMessage(localize("importFunctionApp", `Imported Function App successfully.`));
-    });
+        ).then(async () => {
+            // tslint:disable-next-line:no-non-null-assertion
+            await node!.refresh(context);
+            window.showInformationMessage(localize("importFunctionApp", `Imported Function App successfully.`));
+        });
+    }
+}
+
+// tslint:disable-next-line: max-func-body-length
+async function importFromSwagger(funcAppService: FunctionAppService, context: IActionContext & Partial<IApiTreeItemContext>, webAppConfig: IWebAppContract, webAppName: string, apiName: string, node: ApiTreeItem | ApisTreeItem): Promise<void> {
+    const webResource = new WebResource();
+    webResource.url = webAppConfig.properties.apiDefinition!.url!;
+    webResource.method = "GET";
+    const docStr : string = await sendRequest(webResource);
+    if (docStr !== undefined && docStr.trim() !== "") {
+        const documentJson = JSON.parse(docStr);
+        // tslint:disable-next-line: no-unsafe-any
+        const document = await parseDocument(documentJson);
+        await window.withProgress(
+            {
+                location: ProgressLocation.Notification,
+                title: localize("importWebApp", `Importing Function App '${webAppName}' to API Management service ${node.root.serviceName} ...`),
+                cancellable: false
+            },
+            // tslint:disable-next-line:no-non-null-assertion
+            async () => {
+                try {
+                    let curApi: ApiContract;
+                    if (node instanceof ApiTreeItem) {
+                        ext.outputChannel.appendLine(localize("importWebApp", "Updating API..."));
+                        await apiUtil.createOrUpdateApiWithSwaggerObject(node, apiName, document);
+                        curApi = await node!.root.client.api.get(node!.root.resourceGroupName, node!.root.serviceName, apiName);
+                    } else {
+                        ext.outputChannel.appendLine(localize("importWebApp", "Creating new API..."));
+                        context.apiName = apiName;
+                        context.document = document;
+                        await node.createChild(context);
+                        //ext.outputChannel.appendLine(localize("importWebApp", "Updating API service url..."));
+                        curApi = await node!.root.client.api.get(node!.root.resourceGroupName, node!.root.serviceName, apiName);
+                        //curApi.serviceUrl = "";
+                        //await node!.root.client.api.createOrUpdate(node!.root.resourceGroupName, node!.root.serviceName, apiName, curApi);
+                    }
+                    ext.outputChannel.appendLine(localize("importWebApp", "Setting up backend and policies..."));
+                    const hostKey = await funcAppService.addFuncHostKeyForApim(node.root.serviceName);
+                    const namedValueId = apiUtil.displayNameToIdentifier(`${webAppName}-key`);
+                    ext.outputChannel.appendLine(localize("importFunctionApp", `Creating new named value for the Function host key ${namedValueId}...`));
+                    await createPropertyItem(node, namedValueId, hostKey);
+
+                    const backendCredentials: BackendCredentialsContract = {
+                        header: { "x-functions-key": [`{{${namedValueId}}}`] }
+                    };
+
+                    const backendId = apiUtil.displayNameToIdentifier(webAppName);
+                    ext.outputChannel.appendLine(localize("importFunctionApp", `Creating new backend entity for the function app...`));
+                    await setAppBackendEntity(node, backendId, webAppName, curApi.serviceUrl!, funcAppService.resourceGroup, webAppName, backendCredentials);
+                    const allOperations = await node!.root.client.apiOperation.listByApi(
+                        node!.root.resourceGroupName,
+                        node!.root.serviceName,
+                        apiName
+                    );
+                    for (const operation of allOperations) {
+                        ext.outputChannel.appendLine(localize("importFunctionApp", `Creating policy for operations ${operation.name}...`));
+                        await node.root.client.apiOperationPolicy.createOrUpdate(node.root.resourceGroupName, node.root.serviceName, apiName, nonNullOrEmptyValue(operation.name), {
+                            format: "rawxml",
+                            value: createImportXmlPolicy([getSetBackendPolicy(backendId)])
+                        });
+                    }
+                    ext.outputChannel.appendLine(localize("importFuncApp", "Imported Function App successfully!..."));
+                } catch (error) {
+                    ext.outputChannel.appendLine(localize("importFuncApp", `Import failed with error ${String(error)}}`));
+                }
+            }
+        ).then(async () => {
+            // tslint:disable-next-line:no-non-null-assertion
+            await node!.refresh(context);
+            window.showInformationMessage(localize("importWebApp", `Imported Function App '${webAppName}' to API Management succesfully.`));
+        });
+    }
+}
+
+// tslint:disable: no-any
+async function parseDocument(documentJson: any): Promise<IOpenApiImportObject> {
+    try {
+        // tslint:disable-next-line: no-unsafe-any
+        return await new OpenApiParser().parse(documentJson);
+    } catch (error) {
+        throw new Error(processError(error, localize("openApiJsonParseError", "Could not parse the provided OpenAPI document.")));
+    }
+}
+
+function getWebConfigbaseUrl(endpointUrl: string, subscriptionId: string, webAppResourceGroup: string, webAppName: string): string {
+    return `${endpointUrl}/subscriptions/${subscriptionId}/resourceGroups/${webAppResourceGroup}/providers/Microsoft.web/sites/${webAppName}/config/web?api-version=${Constants.webAppApiVersion20190801}`;
 }
 
 async function addOperationsToExistingApi(node: ApiTreeItem | ApisTreeItem, apiId: string, funcs: IFunctionContract[], funcAppName: string, apiName: string, funcAppService: FunctionAppService): Promise<void> {
