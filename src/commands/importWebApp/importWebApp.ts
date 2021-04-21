@@ -6,6 +6,7 @@
 import { ApiContract, BackendContract, BackendCredentialsContract, NamedValueCreateContract, OperationCollection, OperationContract } from "@azure/arm-apimanagement/src/models";
 import { WebSiteManagementClient } from "@azure/arm-appservice";
 import { Site, WebAppCollection } from "@azure/arm-appservice/src/models";
+import { WebResource } from "@azure/ms-rest-js";
 import { ProgressLocation, window } from "vscode";
 import { IActionContext } from "vscode-azureextensionui";
 import xml = require("xml");
@@ -23,7 +24,7 @@ import { apiUtil } from "../../utils/apiUtil";
 import { azureClientUtil } from "../../utils/azureClientUtil";
 import { processError } from "../../utils/errorUtil";
 import { nonNullValue } from "../../utils/nonNull";
-import { request } from "../../utils/requestUtil";
+import { request, sendRequest } from "../../utils/requestUtil";
 
 export async function importWebAppToApi(context: IActionContext, node?: ApiTreeItem): Promise<void> {
     if (!node) {
@@ -234,8 +235,10 @@ function getWebConfigbaseUrl(endpointUrl: string, subscriptionId: string, webApp
 }
 
 async function importFromSwagger(context: IActionContext & Partial<IApiTreeItemContext>, webAppConfig: IWebAppContract, webAppName: string, apiName: string, node: ApiTreeItem | ApisTreeItem, pickedWebApp: Site): Promise<void> {
-    // tslint:disable-next-line: no-non-null-assertion
-    const docStr: string = (await request(node.root.credentials, webAppConfig.properties.apiDefinition!.url!, "GET")).parsedBody;
+    const webResource = new WebResource();
+    webResource.url = webAppConfig.properties.apiDefinition!.url!;
+    webResource.method = "GET";
+    const docStr : string = await sendRequest(webResource);
     if (docStr !== undefined && docStr.trim() !== "") {
         const documentJson = JSON.parse(docStr);
         const document = await parseDocument(documentJson);
