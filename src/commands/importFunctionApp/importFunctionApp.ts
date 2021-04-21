@@ -120,7 +120,7 @@ export async function importFunctionApp(context: IActionContext & Partial<IApiTr
 }
 
 // tslint:disable-next-line: max-func-body-length
-async function importFromSwagger(funcAppService: FunctionAppService, context: IActionContext & Partial<IApiTreeItemContext>, webAppConfig: IWebAppContract, webAppName: string, apiName: string, node: ApiTreeItem | ApisTreeItem): Promise<void> {
+async function importFromSwagger(funcAppService: FunctionAppService, context: IActionContext & Partial<IApiTreeItemContext>, webAppConfig: IWebAppContract, funcAppName: string, apiName: string, node: ApiTreeItem | ApisTreeItem): Promise<void> {
     const webResource = new WebResource();
     webResource.url = webAppConfig.properties.apiDefinition!.url!;
     webResource.method = "GET";
@@ -132,7 +132,7 @@ async function importFromSwagger(funcAppService: FunctionAppService, context: IA
         await window.withProgress(
             {
                 location: ProgressLocation.Notification,
-                title: localize("importWebApp", `Importing Function App '${webAppName}' to API Management service ${node.root.serviceName} ...`),
+                title: localize("importFunctionApp", `Importing Function App '${funcAppName}' to API Management service ${node.root.serviceName} ...`),
                 cancellable: false
             },
             // tslint:disable-next-line:no-non-null-assertion
@@ -140,11 +140,11 @@ async function importFromSwagger(funcAppService: FunctionAppService, context: IA
                 try {
                     let curApi: ApiContract;
                     if (node instanceof ApiTreeItem) {
-                        ext.outputChannel.appendLine(localize("importWebApp", "Updating API..."));
+                        ext.outputChannel.appendLine(localize("importFunctionApp", "Updating API..."));
                         await apiUtil.createOrUpdateApiWithSwaggerObject(node, apiName, document);
                         curApi = await node!.root.client.api.get(node!.root.resourceGroupName, node!.root.serviceName, apiName);
                     } else {
-                        ext.outputChannel.appendLine(localize("importWebApp", "Creating new API..."));
+                        ext.outputChannel.appendLine(localize("importFunctionApp", "Creating new API..."));
                         context.apiName = apiName;
                         context.document = document;
                         await node.createChild(context);
@@ -153,9 +153,9 @@ async function importFromSwagger(funcAppService: FunctionAppService, context: IA
                         //curApi.serviceUrl = "";
                         //await node!.root.client.api.createOrUpdate(node!.root.resourceGroupName, node!.root.serviceName, apiName, curApi);
                     }
-                    ext.outputChannel.appendLine(localize("importWebApp", "Setting up backend and policies..."));
+                    ext.outputChannel.appendLine(localize("importFunctionApp", "Setting up backend and policies..."));
                     const hostKey = await funcAppService.addFuncHostKeyForApim(node.root.serviceName);
-                    const namedValueId = apiUtil.displayNameToIdentifier(`${webAppName}-key`);
+                    const namedValueId = apiUtil.displayNameToIdentifier(`${funcAppName}-key`);
                     ext.outputChannel.appendLine(localize("importFunctionApp", `Creating new named value for the Function host key ${namedValueId}...`));
                     await createPropertyItem(node, namedValueId, hostKey);
 
@@ -163,9 +163,9 @@ async function importFromSwagger(funcAppService: FunctionAppService, context: IA
                         header: { "x-functions-key": [`{{${namedValueId}}}`] }
                     };
 
-                    const backendId = apiUtil.displayNameToIdentifier(webAppName);
+                    const backendId = apiUtil.displayNameToIdentifier(funcAppName);
                     ext.outputChannel.appendLine(localize("importFunctionApp", `Creating new backend entity for the function app...`));
-                    await setAppBackendEntity(node, backendId, webAppName, curApi.serviceUrl!, funcAppService.resourceGroup, webAppName, backendCredentials);
+                    await setAppBackendEntity(node, backendId, funcAppName, curApi.serviceUrl!, funcAppService.resourceGroup, funcAppName, backendCredentials);
                     const allOperations = await node!.root.client.apiOperation.listByApi(
                         node!.root.resourceGroupName,
                         node!.root.serviceName,
@@ -186,7 +186,7 @@ async function importFromSwagger(funcAppService: FunctionAppService, context: IA
         ).then(async () => {
             // tslint:disable-next-line:no-non-null-assertion
             await node!.refresh(context);
-            window.showInformationMessage(localize("importWebApp", `Imported Function App '${webAppName}' to API Management succesfully.`));
+            window.showInformationMessage(localize("importFuncApp", `Imported Function App '${funcAppName}' to API Management succesfully.`));
         });
     }
 }
