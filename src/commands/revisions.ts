@@ -3,7 +3,7 @@
 *  Licensed under the MIT License. See License.txt in the project root for license information.
 *--------------------------------------------------------------------------------------------*/
 
-import { ApiContract, ApiReleaseContract, ApiRevisionCollection } from "@azure/arm-apimanagement/src/models";
+import { ApiContract, ApiCreateOrUpdateParameter, ApiReleaseContract, ApiRevisionCollection } from "@azure/arm-apimanagement/src/models";
 import { Guid } from "guid-typescript";
 import { MessageItem, ProgressLocation, window } from "vscode";
 import { IActionContext } from "vscode-azureextensionui";
@@ -63,7 +63,7 @@ export async function revisions(context: IActionContext, node?: ApiTreeItem): Pr
             }
         }
     } else if (commands.label === localize("", "Create Revision")) {
-        await createRevision(node);
+        await createRevision(node, context);
     } else if (commands.label === localize("", "Delete Revision")) {
         await deleteRevision(node);
     }
@@ -93,7 +93,7 @@ async function listRevisions(node: ApiTreeItem): Promise<ApiContract> {
     return await node.root.client.api.get(node.root.resourceGroupName, node.root.serviceName, apiName);
 }
 
-async function createRevision(node: ApiTreeItem): Promise<void> {
+async function createRevision(node: ApiTreeItem, context: IActionContext): Promise<void> {
     await window.withProgress(
         {
             location: ProgressLocation.Notification,
@@ -112,11 +112,20 @@ async function createRevision(node: ApiTreeItem): Promise<void> {
                 }
             }
             const revDescription = await askRevisionDescription();
+            const newApiRev : ApiCreateOrUpdateParameter = {
+                sourceApiId: "/apis/".concat(curApi.id!),
+                apiRevisionDescription: revDescription,
+                path: curApi.path,
+                isCurrent: false
+            };
             curApi.apiRevision = (revNumber + 1).toString();
             curApi.apiRevisionDescription = revDescription;
             curApi.isCurrent = false;
+            curApi.sourceApiId =  "/apis/".concat(curApi.id!);
             const apiRevId = node.root.apiName.concat(";rev=", (revNumber + 1).toString());
-            await node.root.client.api.createOrUpdate(node.root.resourceGroupName, node.root.serviceName, apiRevId, curApi);
+            const resApi = await node.root.client.api.createOrUpdate(node.root.resourceGroupName, node.root.serviceName, apiRevId, newApiRev);
+            await node.reloadApi(resApi);
+            await node.refresh(context);
         }
     ).then(async () => {
         window.showInformationMessage(localize("createRevision", "New revision has been created successfully."));
