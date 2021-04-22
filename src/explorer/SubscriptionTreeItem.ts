@@ -56,7 +56,6 @@ export class SubscriptionTreeItem extends AzureTreeItem<ISubscriptionTreeRoot> {
             await window.withProgress({ location: ProgressLocation.Notification, title: deletingMessage }, async () => {
                 await this.root.client.subscription.deleteMethod(this.root.resourceGroupName, this.root.serviceName, this.root.subscriptionSid, '*');
             });
-            // don't wait
             window.showInformationMessage(localize("deletedSubscription", `Successfully deleted Subscription "${this.root.subscriptionSid}".`));
 
         } else {
