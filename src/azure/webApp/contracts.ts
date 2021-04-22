@@ -3,6 +3,8 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+import { SubscriptionState } from "@azure/arm-apimanagement/src/models";
+
 export interface IFunctionContract {
     id: string;
     name: string;
@@ -53,6 +55,15 @@ export interface IFunctionConfigItem {
     direction: string;
     methods?: string[];
     route?: string;
+}
+
+export interface ISubscriptionContract {
+    scope: string;
+    displayName: string;
+    name: string;
+    allowTracing: boolean;
+    ownerId: string;
+    state: SubscriptionState;
 }
 
 export interface IFunctionKeys {
