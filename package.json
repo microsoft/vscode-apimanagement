@@ -716,7 +716,7 @@
     },
     "dependencies": {
         "@azure/arm-apimanagement": "^6.0.0",
-        "@azure/arm-appservice": "^6.1.0",
+        "@azure/arm-appservice": "^7.0.0",
         "@azure/arm-resources": "^4.0.0",
         "@types/xml": "^1.0.4",
         "adal-node": "^0.2.2",

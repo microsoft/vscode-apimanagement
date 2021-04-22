@@ -83,7 +83,7 @@ export class FunctionAppService {
         const funcKeyUrl = `${this.baseUrl}/host/default/functionkeys/${funcKeyName}?api-version=${Constants.functionAppCreateKeyApiVersion}`;
         const result = await this.request(funcKeyUrl, "PUT", undefined, {properties: {}});
         // tslint:disable-next-line: no-unsafe-any
-        return nonNullOrEmptyValue(<string>result.parsedBody.value);
+        return nonNullOrEmptyValue(<string>result.parsedBody.properties.value);
     }
 
     // tslint:disable-next-line: no-any
