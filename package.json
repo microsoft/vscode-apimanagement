@@ -72,7 +72,9 @@
         "onCommand:azureApiManagement.debugPolicy",
         "onCommand:azureApiManagement.generateFunctions",
         "onCommand:azureApiManagement.revisions",
-        "onCommand:azureApiManagement.setCustomHostName"
+        "onCommand:azureApiManagement.setCustomHostName",
+        "onCommand:azureApiManagement.createSubscription",
+        "onCommand:azureApiManagement.deleteSubscription"
     ],
     "main": "main",
     "contributes": {
@@ -241,6 +243,16 @@
             {
                 "command": "azureApiManagement.createNamedValue",
                 "title": "%azureApiManagement.createNamedValue%",
+                "category": "Azure API Management"
+            },
+            {
+                "command": "azureApiManagement.createSubscription",
+                "title": "%azureApiManagement.createSubscription%",
+                "category": "Azure API Management"
+            },
+            {
+                "command": "azureApiManagement.deleteSubscription",
+                "title": "%azureApiManagement.deleteSubscription%",
                 "category": "Azure API Management"
             },
             {
@@ -612,6 +624,16 @@
                     "command": "azureApiManagement.generateNewGatewayToken",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementGatewayTreeItem",
                     "group": "1@3"
+                },
+                {
+                    "command": "azureApiManagement.createSubscription",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementSubscriptions",
+                    "group": "1@1"
+                },
+                {
+                    "command": "azureApiManagement.deleteSubscription",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementSubscriptionTreeItem",
+                    "group": "1@1"
                 }
             ]
         },

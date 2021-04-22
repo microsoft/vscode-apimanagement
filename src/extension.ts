@@ -24,6 +24,7 @@ import { importFunctionAppToApi } from './commands/importFunctionApp/importFunct
 import { importOpenApi } from './commands/importOpenApi';
 import { importWebApp, importWebAppToApi } from './commands/importWebApp/importWebApp';
 import { createNamedValue, updateNamedValue } from './commands/manageNamedValue';
+import { createSubscription } from './commands/manageSubscriptions';
 import { openDiffEditor } from './commands/openDiffEditor';
 import { openInPortal } from './commands/openInPortal';
 import { openWorkingFolder } from './commands/openWorkingFolder';
@@ -58,6 +59,7 @@ import { ProductPolicyTreeItem } from './explorer/ProductPolicyTreeItem';
 import { ProductTreeItem } from './explorer/ProductTreeItem';
 import { ServicePolicyTreeItem } from './explorer/ServicePolicyTreeItem';
 import { ServiceTreeItem } from './explorer/ServiceTreeItem';
+import { SubscriptionTreeItem } from './explorer/SubscriptionTreeItem';
 import { ext } from './extensionVariables';
 
 // this method is called when your extension is activated
@@ -129,6 +131,8 @@ function registerCommands(tree: AzExtTreeDataProvider): void {
     registerCommand('azureApiManagement.generateFunctions', generateFunctions);
     registerCommand('azureApiManagement.revisions', revisions);
     registerCommand('azureApiManagement.setCustomHostName', setCustomHostName);
+    registerCommand('azureApiManagement.createSubscription', createSubscription);
+    registerCommand('azureApiManagement.deleteSubscription', async (context: IActionContext, node?: AzureTreeItem) => await deleteNode(context, SubscriptionTreeItem.contextValue, node));
 }
 
 // tslint:disable-next-line: max-func-body-length

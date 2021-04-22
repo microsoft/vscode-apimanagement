@@ -24,8 +24,8 @@ export async function createSubscription(context: IActionContext, node?: Subscri
     const name = await askName(node);
     const displayName = await askDisplayname();
     const allowTrace = await askTrace();
-    let scope = await askScope();
     const user = await askUser(node);
+    let scope = await askScope();
     if (scope === "All APIs") {
         scope = "/apis";
     } else if (scope === "API") {
@@ -52,6 +52,7 @@ export async function createSubscription(context: IActionContext, node?: Subscri
         },
         async () => {
             await node!.root.client.subscription.createOrUpdate(node!.root.resourceGroupName, node!.root.serviceName, name, subContract);
+            await node!.refresh(context);
         }
     ).then(async () => {
         window.showInformationMessage(localize("createSubscription", "Subscription has been created successfully."));
@@ -114,7 +115,7 @@ async function askScope(): Promise<string> {
 
 async function askUser(node: SubscriptionsTreeItem): Promise<{ label: string; value: UserContract; }> {
     const users = await node.root.client.user.listByService(node.root.resourceGroupName, node.root.serviceName);
-    return (await ext.ui.showQuickPick(users.map((s) => { return {label: s.name!.concat(" (").concat(s.email!).concat(")"), value: s}; }), { canPickMany: false, placeHolder: 'Select User'}));
+    return (await ext.ui.showQuickPick(users.map((s) => { return {label: s.firstName!.concat(s.lastName!).concat(" (").concat(s.email!).concat(")"), value: s}; }), { canPickMany: false, placeHolder: 'Select User'}));
 }
 
 async function askAPI(node: SubscriptionsTreeItem): Promise<{ label: string; value: ApiContract; }> {
