@@ -41,7 +41,7 @@ export class SubscriptionTreeItem extends AzureTreeItem<ISubscriptionTreeRoot> {
     }
 
     public get iconPath(): { light: string, dark: string } {
-        return treeUtils.getThemedIconPath('gateway');
+        return treeUtils.getThemedIconPath('subscription');
     }
 
     public hasMoreChildrenImpl(): boolean {
