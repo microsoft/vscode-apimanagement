@@ -3,10 +3,10 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ServiceClient } from '@azure/ms-rest-js';
+import { WebResource } from '@azure/ms-rest-js';
 import * as fse from 'fs-extra';
 import { OpenDialogOptions, ProgressLocation, Uri, window, workspace } from "vscode";
-import { createGenericClient, IActionContext } from 'vscode-azureextensionui';
+import { IActionContext } from 'vscode-azureextensionui';
 import { ApisTreeItem, IApiTreeItemContext } from "../explorer/ApisTreeItem";
 import { ServiceTreeItem } from '../explorer/ServiceTreeItem';
 import { ext } from "../extensionVariables";
@@ -15,6 +15,7 @@ import { IOpenApiImportObject } from "../openApi/OpenApiImportObject";
 import { OpenApiParser } from '../openApi/OpenApiParser';
 import { apiUtil } from '../utils/apiUtil';
 import { processError } from '../utils/errorUtil';
+import { sendRequest } from '../utils/requestUtil';
 
 // tslint:disable: no-any
 export async function importOpenApi(context: IActionContext & Partial<IApiTreeItemContext>, node?: ApisTreeItem, importUsingLink: boolean = false): Promise<void> {
@@ -31,12 +32,18 @@ export async function importOpenApi(context: IActionContext & Partial<IApiTreeIt
         documentString = fileContent.toString();
     } else {
         const openApiLink = await askLink();
+        const webResource = new WebResource();
+        webResource.url = openApiLink;
+        webResource.method = "GET";
+        documentString = await sendRequest(webResource);
+
+        /*
         const client: ServiceClient = await createGenericClient(node.root.credentials);
         const result =  await client.sendRequest({
             method: "GET",
             url: openApiLink
         });
-        documentString = <string>result.parsedBody;
+        documentString = <string>result.parsedBody;*/
     }
 
     if (documentString !== undefined && documentString.trim() !== "") {
