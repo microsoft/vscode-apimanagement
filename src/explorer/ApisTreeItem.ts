@@ -5,8 +5,8 @@
 
 import { ApiManagementModels } from "@azure/arm-apimanagement";
 import { ApiContract, ApiCreateOrUpdateParameter } from "@azure/arm-apimanagement/src/models";
-import { AzExtTreeItem, AzureParentTreeItem, ICreateChildImplContext } from "vscode-azureextensionui";
-import { topItemCount } from "../constants";
+import { ServiceClient } from "@azure/ms-rest-js";
+import { AzExtTreeItem, AzureParentTreeItem, createGenericClient, ICreateChildImplContext } from "vscode-azureextensionui";
 import { localize } from "../localize";
 import { IOpenApiImportObject } from "../openApi/OpenApiImportObject";
 import { apiUtil } from "../utils/apiUtil";
@@ -46,12 +46,23 @@ export class ApisTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
 
         let apisToLoad : ApiContract[] = this.selectedApis;
         if (this.selectedApis.length === 0) {
+            /*
             const apiCollection: ApiManagementModels.ApiCollection = this._nextLink === undefined ?
             await this.root.client.api.listByService(this.root.resourceGroupName, this.root.serviceName, { expandApiVersionSet: true, top: topItemCount }) :
             await this.root.client.api.listByServiceNext(this._nextLink);
 
             this._nextLink = apiCollection.nextLink;
 
+            apisToLoad = apiCollection.map((s) => s).filter(s => apiUtil.isNotApiRevision(s));*/
+            const client: ServiceClient = await createGenericClient(this.root.credentials);
+            // tslint:disable-next-line: no-unsafe-any
+            const apiCollection: ApiManagementModels.ApiCollection = (await client.sendRequest({
+                method: "GET",
+                url: `https://${this.root.serviceName}.management.preview.int-azure-api.net/subscriptions/${this.root.subscriptionId}/resourceGroups/${this.root.resourceGroupName}/providers/Microsoft.ApiManagement/service/${this.root.serviceName}/apis?api-version=2021-04-01-preview`,
+                headers: {
+                    Authorization: "SharedAccessSignature integration&202106122332&mkR/KwuXqDeXgsCEN6h8H/bTu5Btks+UnvTAl+rez9cv7Iq3BfRY/z0Wm2HHt8/SUc1kHDrvTNCafH7VkcVVeg=="
+                }
+            })).parsedBody;
             apisToLoad = apiCollection.map((s) => s).filter(s => apiUtil.isNotApiRevision(s));
         }
 
