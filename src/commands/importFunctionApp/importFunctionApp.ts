@@ -178,6 +178,11 @@ async function importFromSwagger(funcAppService: FunctionAppService, context: IA
                             value: createImportXmlPolicy([getSetBackendPolicy(backendId)])
                         });
                     }
+                    ext.outputChannel.appendLine(localize("importFunctionApp", `Creating policy for API ${apiName}...`));
+                    await node.root.client.apiPolicy.createOrUpdate(node.root.resourceGroupName, node.root.serviceName, apiName, {
+                        format: "rawxml",
+                        value: createImportXmlPolicy([getSetBackendPolicy(backendId)])
+                    });
                     ext.outputChannel.appendLine(localize("importFuncApp", "Imported Function App successfully!..."));
                 } catch (error) {
                     ext.outputChannel.appendLine(localize("importFuncApp", `Import failed with error ${String(error)}}`));
