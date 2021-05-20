@@ -12,6 +12,7 @@ import { addApiFilter } from './commands/addApiFilter';
 import { addApiToGateway } from './commands/addApiToGateway';
 import { addApiToProduct } from './commands/addApiToProduct';
 import { copySubscriptionKey } from './commands/copySubscriptionKey';
+import { createGraphqlApi } from './commands/createGraphqlApi';
 import { createService } from './commands/createService';
 import { debugPolicy } from './commands/debugPolicies/debugPolicy';
 import { deleteNode } from './commands/deleteNode';
@@ -104,6 +105,7 @@ function registerCommands(tree: AzExtTreeDataProvider): void {
     registerCommand('azureApiManagement.testOperation', testOperation);
     registerCommand('azureApiManagement.importOpenApiByFile', async (context: IActionContext, node?: ApisTreeItem) => { await importOpenApi(context, node, false); });
     registerCommand('azureApiManagement.importOpenApiByLink', async (context: IActionContext, node?: ApisTreeItem) => { await importOpenApi(context, node, true); });
+    registerCommand('azureApiManagement.importGraphqlAPIByLink', async (context: IActionContext, node?: ApisTreeItem) => { await createGraphqlApi(context, node); });
     registerCommand('azureApiManagement.createNamedValue', async (context: IActionContext, node?: NamedValuesTreeItem) => { await createNamedValue(context, node); });
     registerCommand('azureApiManagement.deleteNamedValue', async (context: IActionContext, node?: AzureTreeItem) => await deleteNode(context, NamedValueTreeItem.contextValue, node));
     registerCommand('azureApiManagement.updateNamedValue', updateNamedValue);
