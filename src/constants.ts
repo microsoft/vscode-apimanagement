@@ -34,6 +34,8 @@ export const apimApiVersion = "2019-01-01";
 export const maxTokenValidTimeSpan = 29;
 export const gatewayHostName = "CustomerHostName";
 
+export const SharedAccessToken = "";
+
 export enum GatewayKeyType {
     primary = "primary",
     secondary = "secondary"

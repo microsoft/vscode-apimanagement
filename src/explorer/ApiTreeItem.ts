@@ -3,7 +3,6 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ApiManagementModels } from "@azure/arm-apimanagement";
 import { ApiContract } from "@azure/arm-apimanagement/src/models";
 import { ProgressLocation, window } from "vscode";
 import { AzureParentTreeItem, AzureTreeItem, DialogResponses, ISubscriptionContext, UserCancelledError } from "vscode-azureextensionui";
@@ -31,7 +30,7 @@ export class ApiTreeItem extends AzureParentTreeItem<IApiTreeRoot> {
 
     constructor(
         parent: AzureParentTreeItem,
-        public apiContract: ApiManagementModels.ApiContract,
+        public apiContract: ApiContract,
         apiVersion?: string) {
         super(parent);
 
@@ -42,7 +41,9 @@ export class ApiTreeItem extends AzureParentTreeItem<IApiTreeRoot> {
         }
 
         this._name = nonNullProp(this.apiContract, 'name');
-        this._root = this.createRoot(parent.root, this._name);
+        this._root = this.apiContract.apiType !== undefined ?
+             this.createRoot(parent.root, this._name, this.apiContract.apiType!.toString())
+             : this.createRoot(parent.root, this._name, undefined);
         this._operationsTreeItem = new ApiOperationsTreeItem(this);
         this.policyTreeItem = new ApiPolicyTreeItem(this);
     }
@@ -103,7 +104,7 @@ export class ApiTreeItem extends AzureParentTreeItem<IApiTreeRoot> {
         this.apiContract = api;
         this._name = nonNullProp(api, 'name');
         this._label = this.getRevisionDisplayName(api);
-        this._root = this.createRoot(this.root, this._name);
+        this._root = this.createRoot(this.root, this._name, this.apiContract.apiType!.toString());
         this._operationsTreeItem = new ApiOperationsTreeItem(this);
         this.policyTreeItem = new ApiPolicyTreeItem(this);
     }
@@ -117,9 +118,10 @@ export class ApiTreeItem extends AzureParentTreeItem<IApiTreeRoot> {
         }
     }
 
-    private createRoot(subRoot: ISubscriptionContext, apiName: string): IApiTreeRoot {
+    private createRoot(subRoot: ISubscriptionContext, apiName: string, apiType: string | undefined): IApiTreeRoot {
         return Object.assign({}, <IServiceTreeRoot>subRoot, {
-            apiName: apiName
+            apiName: apiName,
+            apiType: apiType
         });
     }
 }

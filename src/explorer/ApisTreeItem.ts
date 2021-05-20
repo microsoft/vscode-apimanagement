@@ -5,8 +5,10 @@
 
 import { ApiManagementModels } from "@azure/arm-apimanagement";
 import { ApiContract, ApiCreateOrUpdateParameter } from "@azure/arm-apimanagement/src/models";
+import requestPromise from 'request-promise';
 import { AzExtTreeItem, AzureParentTreeItem, ICreateChildImplContext } from "vscode-azureextensionui";
-import { topItemCount } from "../constants";
+import { IApiContract } from "../azure/apim/TempApiContract";
+import { SharedAccessToken, topItemCount } from "../constants";
 import { localize } from "../localize";
 import { IOpenApiImportObject } from "../openApi/OpenApiImportObject";
 import { apiUtil } from "../utils/apiUtil";
@@ -14,6 +16,7 @@ import { processError } from "../utils/errorUtil";
 import { treeUtils } from "../utils/treeUtils";
 import { ApiTreeItem } from "./ApiTreeItem";
 import { ApiVersionSetTreeItem } from "./ApiVersionSetTreeItem";
+import { GraphqlApiTreeItem } from "./GraphqlApiTreeItem";
 import { IServiceTreeRoot } from "./IServiceTreeRoot";
 
 export interface IApiTreeItemContext extends ICreateChildImplContext {
@@ -45,18 +48,45 @@ export class ApisTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
         }
 
         let apisToLoad : ApiContract[] = this.selectedApis;
+        let apisToLoad2 : IApiContract[] = [];
         if (this.selectedApis.length === 0) {
-            const apiCollection: ApiManagementModels.ApiCollection = this._nextLink === undefined ?
+            const apiCollection1: ApiManagementModels.ApiCollection = this._nextLink === undefined ?
             await this.root.client.api.listByService(this.root.resourceGroupName, this.root.serviceName, { expandApiVersionSet: true, top: topItemCount }) :
             await this.root.client.api.listByServiceNext(this._nextLink);
 
-            this._nextLink = apiCollection.nextLink;
+            this._nextLink = apiCollection1.nextLink;
 
-            apisToLoad = apiCollection.map((s) => s).filter(s => apiUtil.isNotApiRevision(s));
+            apisToLoad = apiCollection1.map((s) => s).filter(s => apiUtil.isNotApiRevision(s));
+            /*const client: ServiceClient = await createGenericClient(this.root.credentials);
+            // tslint:disable-next-line: no-unsafe-any
+            const apiCollection: ApiManagementModels.ApiCollection = (await client.sendRequest({
+                method: "GET",
+                url: `https://${this.root.serviceName}.management.preview.int-azure-api.net/subscriptions/${this.root.subscriptionId}/resourceGroups/${this.root.resourceGroupName}/providers/Microsoft.ApiManagement/service/${this.root.serviceName}/apis?api-version=2021-04-01-preview`,
+                headers: {
+                    Authorization: ""
+                }
+            })).parsedBody;*/
+            /*
+            const webResource = new WebResource();
+            webResource.url = `https://${this.root.serviceName}.management.preview.int-azure-api.net/subscriptions/${this.root.subscriptionId}/resourceGroups/${this.root.resourceGroupName}/providers/Microsoft.ApiManagement/service/${this.root.serviceName}/apis?api-version=2021-04-01-preview`;
+            webResource.method = "GET";
+            webResource.headers.set("Authorization", "");
+            const apiCollection: ApiManagementModels.ApiCollection = await sendRequest(webResource);*/
+            const requestOptions : requestPromise.RequestPromiseOptions = {
+                method: "GET",
+                headers: {
+                    Authorization: SharedAccessToken
+                }
+            };
+            const apiCollectionString = await <Thenable<string>>requestPromise(`https://${this.root.serviceName}.management.preview.int-azure-api.net/subscriptions/${this.root.subscriptionId}/resourceGroups/${this.root.resourceGroupName}/providers/Microsoft.ApiManagement/service/${this.root.serviceName}/apis?api-version=2021-04-01-preview`, requestOptions).promise();
+            // tslint:disable-next-line: no-unsafe-any
+            const apiCollectionTemp : IApiContract[] = JSON.parse(apiCollectionString).value;
+            apisToLoad2 = this.findGraphqlApis(apiCollectionTemp);
         }
 
         const versionSetMap: Map<string, ApiVersionSetTreeItem> = new Map<string, ApiVersionSetTreeItem>();
-        return await this.createTreeItemsWithErrorHandling(
+        // tslint:disable-next-line: no-unnecessary-local-variable
+        const children1 = await this.createTreeItemsWithErrorHandling(
             apisToLoad,
             "invalidApiManagementApi",
             async (api: ApiManagementModels.ApiContract) => {
@@ -81,7 +111,54 @@ export class ApisTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
             (api: ApiManagementModels.ApiContract) => {
                 return api.name;
             });
+
+        const children2 = await this.createTreeItemsWithErrorHandling(
+            apisToLoad2,
+            "invalidApiManagementApi",
+            async (api: IApiContract) => {
+                if (api.properties.isCurrent !== undefined && api.properties.isCurrent === true) {
+                    return new GraphqlApiTreeItem(this, api);
+                }
+                return undefined;
+            },
+            (api: IApiContract) => {
+                return api.name;
+            }
+        );
+        return children1.concat(children2);
     }
+
+    public findGraphqlApis(apiCollection : IApiContract[]): IApiContract[] {
+        const collection : IApiContract[] = [];
+        for (const api of apiCollection) {
+            if (api.properties.type === 'graphql') {
+                collection.push(api);
+            }
+        }
+        return collection;
+    }
+
+    /*
+    public convertToTempApiContract(apiCollectionTemp: IApiContract[]): ApiContract[] {
+        const apiCollection: ApiContract[] = [];
+        for (const api of apiCollectionTemp) {
+            const curApi : ApiContract = {
+                description: api.properties.description,
+                authenticationSettings: api.properties.authenticationSettings,
+                subscriptionKeyParameterNames: api.properties.subscriptionKeyParameterNames,
+                apiType: api.properties.type,
+                apiRevision: api.properties.apiRevision,
+                isCurrent: api.properties.isCurrent,
+                path: api.properties.path,
+                displayName: api.properties.displayName,
+                protocols: api.properties.protocols,
+                serviceUrl: api.properties.serviceUrl,
+                subscriptionRequired: api.properties.subscriptionRequired
+            };
+            apiCollection.push(curApi);
+        }
+        return apiCollection;
+    }*/
 
     public async createChildImpl(context: IApiTreeItemContext): Promise<ApiTreeItem> {
         if (context.document) {

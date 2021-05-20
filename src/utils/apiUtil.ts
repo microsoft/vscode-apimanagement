@@ -25,6 +25,13 @@ export namespace apiUtil {
         })).trim();
     }
 
+    export async function askPath(): Promise<string> {
+        const pathPrompt: string = localize('', "Enter API Path.");
+        return (await ext.ui.showInputBox({
+            prompt: pathPrompt
+        })).trim();
+    }
+
     export function genApiId(apiName: string): string {
         const identifier = displayNameToIdentifier(apiName);
         return `/apis/${identifier}`;
