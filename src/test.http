@@ -1,0 +1,4 @@
+
+POST https://api.spacex.land/graphql
+
+{"query":"{ launches { id, mission_name }}","variables":{}}

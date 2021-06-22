@@ -8,6 +8,7 @@ import { IApiContract } from "../azure/apim/TempApiContract";
 import { nonNullProp } from "../utils/nonNull";
 import { treeUtils } from "../utils/treeUtils";
 import { ApiPolicyTreeItem } from "./ApiPolicyTreeItem";
+import { GraphqlOperationsTreeItem } from "./GraphqlOperationsTreeItem";
 import { IApiTreeRoot } from "./IApiTreeRoot";
 import { IServiceTreeRoot } from "./IServiceTreeRoot";
 
@@ -20,6 +21,7 @@ export class GraphqlApiTreeItem extends AzureParentTreeItem<IApiTreeRoot> {
     private _name: string;
     private _label: string;
     private _root: IApiTreeRoot;
+    private _operationsTreeItem: GraphqlOperationsTreeItem;
 
     constructor(
         parent: AzureParentTreeItem,
@@ -37,6 +39,7 @@ export class GraphqlApiTreeItem extends AzureParentTreeItem<IApiTreeRoot> {
         this._name = nonNullProp(this.apiContract, 'name');
         this._root = this.createRoot(parent.root, this._name, this.apiContract.properties.type);
         this.policyTreeItem = new ApiPolicyTreeItem(this);
+        this._operationsTreeItem = new GraphqlOperationsTreeItem(this);
     }
 
     public get id(): string {
@@ -56,8 +59,9 @@ export class GraphqlApiTreeItem extends AzureParentTreeItem<IApiTreeRoot> {
     }
 
     public async loadMoreChildrenImpl(): Promise<AzureTreeItem<IApiTreeRoot>[]> {
-        return [this.policyTreeItem];
+        return [this._operationsTreeItem, this.policyTreeItem];
     }
+
     public hasMoreChildrenImpl(): boolean {
         return false;
     }
