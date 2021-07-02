@@ -3,15 +3,22 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+import { buildSchema, GraphQLField, GraphQLFieldMap, GraphQLNamedType, GraphQLObjectType, GraphQLSchema } from "graphql";
+import requestPromise from "request-promise";
 import { AzureParentTreeItem, AzureTreeItem, ISubscriptionContext } from "vscode-azureextensionui";
 import { IApiContract } from "../azure/apim/TempApiContract";
+import { TempSchema } from "../azure/apim/TempSchema";
+import { SharedAccessToken } from "../constants";
 import { nonNullProp } from "../utils/nonNull";
 import { treeUtils } from "../utils/treeUtils";
 import { ApiPolicyTreeItem } from "./ApiPolicyTreeItem";
-import { GraphqlOperationsTreeItem } from "./GraphqlOperationsTreeItem";
+import { GraphqlMutationsTreeItem } from "./GraphqlMutationsTreeItem";
+import { GraphqlQueriesTreeItem } from "./GraphqlQueriesTreeItem";
+import { GraphqlSubscriptionsTreeItem } from "./GraphqlSubscriptionsTreeItem";
 import { IApiTreeRoot } from "./IApiTreeRoot";
 import { IServiceTreeRoot } from "./IServiceTreeRoot";
 
+// tslint:disable: no-any
 export class GraphqlApiTreeItem extends AzureParentTreeItem<IApiTreeRoot> {
     public static contextValue: string = 'azureApiManagementGraphql';
     public contextValue: string = GraphqlApiTreeItem.contextValue;
@@ -21,7 +28,9 @@ export class GraphqlApiTreeItem extends AzureParentTreeItem<IApiTreeRoot> {
     private _name: string;
     private _label: string;
     private _root: IApiTreeRoot;
-    private _operationsTreeItem: GraphqlOperationsTreeItem;
+    private _queriesTreeItem: GraphqlQueriesTreeItem;
+    private _mutationsTreeItem: GraphqlMutationsTreeItem;
+    private _subscriptionsTreeItem: GraphqlSubscriptionsTreeItem;
 
     constructor(
         parent: AzureParentTreeItem,
@@ -39,7 +48,6 @@ export class GraphqlApiTreeItem extends AzureParentTreeItem<IApiTreeRoot> {
         this._name = nonNullProp(this.apiContract, 'name');
         this._root = this.createRoot(parent.root, this._name, this.apiContract.properties.type);
         this.policyTreeItem = new ApiPolicyTreeItem(this);
-        this._operationsTreeItem = new GraphqlOperationsTreeItem(this);
     }
 
     public get id(): string {
@@ -59,7 +67,64 @@ export class GraphqlApiTreeItem extends AzureParentTreeItem<IApiTreeRoot> {
     }
 
     public async loadMoreChildrenImpl(): Promise<AzureTreeItem<IApiTreeRoot>[]> {
-        return [this._operationsTreeItem, this.policyTreeItem];
+        const requestOptions : requestPromise.RequestPromiseOptions = {
+            method: "GET",
+            headers: {
+                Authorization: SharedAccessToken
+            }
+        };
+        const schemasString = await <Thenable<string>>requestPromise(
+            `https://${this.root.serviceName}.management.preview.int-azure-api.net/subscriptions/${this.root.subscriptionId}/resourceGroups/${this.root.resourceGroupName}/providers/Microsoft.ApiManagement/service/${this.root.serviceName}/apis/${this.root.apiName}/schemas?api-version=2021-04-01-preview`, requestOptions).promise();
+        // tslint:disable: no-unsafe-any
+        // tslint:disable-next-line: no-unnecessary-local-variable
+        const schemas : TempSchema[] = JSON.parse(schemasString).value;
+
+        const valueList: GraphQLSchema[] = [];
+        // tslint:disable-next-line: no-any
+        const queryTypes: GraphQLField<any, any, {
+            // tslint:disable-next-line: no-any
+            [key: string]: any;
+        }>[] = [];
+        const mutationTypes: GraphQLField<any, any, {
+            // tslint:disable-next-line: no-any
+            [key: string]: any;
+        }>[] = [];
+        const subscriptionTypes: GraphQLField<any, any, {
+            // tslint:disable-next-line: no-any
+            [key: string]: any;
+        }>[] = [];
+        for (const schema of schemas) {
+            const builtSchema : GraphQLSchema = buildSchema(schema.properties.document.value);
+            valueList.push(builtSchema);
+            const typeMap = builtSchema.getTypeMap();
+            for (const key of Object.keys(typeMap)) {
+                const value: GraphQLNamedType = typeMap[key];
+                if (key === "Query" && value instanceof GraphQLObjectType) {
+                    const fields: GraphQLFieldMap<any, any> = value.getFields();
+                    for (const fieldKey of Object.keys(fields)) {
+                        const fieldValue  = fields[fieldKey];
+                        queryTypes.push(fieldValue);
+                    }
+                } else if (key === "Mutation" && value instanceof GraphQLObjectType) {
+                    const fields: GraphQLFieldMap<any, any> = value.getFields();
+                    for (const fieldKey of Object.keys(fields)) {
+                        const fieldValue  = fields[fieldKey];
+                        mutationTypes.push(fieldValue);
+                    }
+                } else if (key === "Subscription" && value instanceof GraphQLObjectType) {
+                    const fields: GraphQLFieldMap<any, any> = value.getFields();
+                    for (const fieldKey of Object.keys(fields)) {
+                        const fieldValue  = fields[fieldKey];
+                        subscriptionTypes.push(fieldValue);
+                    }
+                }
+            }
+        }
+        this._queriesTreeItem = new GraphqlQueriesTreeItem(this, queryTypes);
+        this._mutationsTreeItem = new GraphqlMutationsTreeItem(this, mutationTypes);
+        this._subscriptionsTreeItem = new GraphqlSubscriptionsTreeItem(this, subscriptionTypes);
+
+        return [this._queriesTreeItem, this._mutationsTreeItem, this._subscriptionsTreeItem, this.policyTreeItem];
     }
 
     public hasMoreChildrenImpl(): boolean {
