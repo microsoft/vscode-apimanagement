@@ -605,6 +605,11 @@
                     "group": "1@1"
                 },
                 {
+                    "command": "azureApiManagement.showGraphqlAPIQuery",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementGraphqlObjectType",
+                    "group": "1@1"
+                },
+                {
                     "command": "azureApiManagement.deleteNamedValue",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementNamedValue",
                     "group": "1@2"
