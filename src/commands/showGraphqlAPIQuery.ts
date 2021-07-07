@@ -75,6 +75,10 @@ export async function showGraphqlAPIQuery(actionContext: IActionContext, node?: 
     }
     argParams = argParams.trimRight();
     argParams = argParams.substring(0, argParams.length - 1);
+    queryParams = queryParams.trimRight();
+    queryParams = queryParams.substring(0, queryParams.length - 1);
+    variables = variables.trimRight();
+    variables = variables.substring(0, variables.length - 1);
 
     if (query.type instanceof GraphQLObjectType) {
         fieldStr = fieldStr.concat(getFields(query.type.getFields()));
