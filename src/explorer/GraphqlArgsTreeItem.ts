@@ -20,6 +20,7 @@ export class GraphqlArgsTreeItem extends AzureParentTreeItem<IApiTreeRoot> {
     public _label: string;
     public contextValue: string = GraphqlArgsTreeItem.contextValue;
     public readonly childTypeLabel: string = localize('azureApiManagement.graphqlArgsList', 'graphqlArgsList');
+    public argPath: string[];
     private _nextLink: string | undefined;
 
     private arg: GraphQLArgument;
@@ -31,10 +32,13 @@ export class GraphqlArgsTreeItem extends AzureParentTreeItem<IApiTreeRoot> {
     constructor(
         parent: AzureParentTreeItem,
         // tslint:disable-next-line: no-any
-        arg: GraphQLArgument) {
+        arg: GraphQLArgument,
+        argPath: string[]) {
         super(parent);
         this.arg = arg;
         this._label = this.arg.name;
+        this.argPath = argPath;
+        this.argPath.push(arg.name);
     }
 
     public hasMoreChildrenImpl(): boolean {
@@ -52,7 +56,7 @@ export class GraphqlArgsTreeItem extends AzureParentTreeItem<IApiTreeRoot> {
             return await this.createTreeItemsWithErrorHandling(
                 fieldValues,
                 "invalidApiManagementGraphqlObjectTypes",
-                async (objectType: GraphQLInputField) => new GraphqlArgFieldTreeItem(this, objectType),
+                async (objectType: GraphQLInputField) => new GraphqlArgFieldTreeItem(this, objectType, this.argPath),
                 (objectType: GraphQLInputField) => {
                     return objectType.name;
                 });

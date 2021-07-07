@@ -7,6 +7,7 @@ import { GraphQLField, GraphQLObjectType } from "graphql";
 import { AzExtTreeItem, AzureParentTreeItem } from "vscode-azureextensionui";
 import { localize } from "../localize";
 import { treeUtils } from "../utils/treeUtils";
+import { GraphqlFieldsLeafTreeItem } from "./GraphqlFieldsLeafTreeItem";
 import { IApiTreeRoot } from "./IApiTreeRoot";
 
 // tslint:disable: no-any
@@ -15,10 +16,15 @@ export class GraphqlFieldsTreeItem extends AzureParentTreeItem<IApiTreeRoot> {
     public get iconPath(): { light: string, dark: string } {
         return treeUtils.getThemedIconPath('list');
     }
+
+    public get label() : string {
+        return this._label;
+    }
     public static contextValue: string = 'azureApiManagementGraphqlFieldsList';
     public _label: string;
     public contextValue: string = GraphqlFieldsTreeItem.contextValue;
     public readonly childTypeLabel: string = localize('azureApiManagement.graphqlFieldsList', 'graphqlFieldsList');
+    public fieldPath: string[];
     private _nextLink: string | undefined;
 
     private field: GraphQLField<any, any, {
@@ -26,20 +32,19 @@ export class GraphqlFieldsTreeItem extends AzureParentTreeItem<IApiTreeRoot> {
         [key: string]: any;
     }>;
 
-    public get label() : string {
-        return this._label;
-    }
-
     constructor(
         parent: AzureParentTreeItem,
         // tslint:disable-next-line: no-any
         field: GraphQLField<any, any, {
             // tslint:disable-next-line: no-any
             [key: string]: any;
-        }>) {
+        }>,
+        fieldPath: string[]) {
         super(parent);
         this.field = field;
         this._label = this.field.name;
+        this.fieldPath = fieldPath;
+        this.fieldPath.push(this.field.name);
     }
 
     public hasMoreChildrenImpl(): boolean {
@@ -58,7 +63,13 @@ export class GraphqlFieldsTreeItem extends AzureParentTreeItem<IApiTreeRoot> {
                 "invalidApiManagementGraphqlObjectTypes",
                 async (objectType: GraphQLField<any, any, {
                     [key: string]: any;
-                }>) => new GraphqlFieldsTreeItem(this, objectType),
+                }>) => {
+                    if (this.field.type instanceof GraphQLObjectType) {
+                        return new GraphqlFieldsTreeItem(this, objectType, this.fieldPath);
+                    } else {
+                        return new GraphqlFieldsLeafTreeItem(this, objectType, this.fieldPath);
+                    }
+                },
                 (objectType: GraphQLField<any, any, {
                     [key: string]: any;
                 }>) => {

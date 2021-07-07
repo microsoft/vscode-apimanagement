@@ -23,15 +23,12 @@ export class GraphqlQueriesTreeItem extends AzureParentTreeItem<IApiTreeRoot> {
     private _nextLink: string | undefined;
 
     private queryTypes: GraphQLField<any, any, {
-        // tslint:disable-next-line: no-any
         [key: string]: any;
     }>[];
 
     constructor(
         parent: AzureParentTreeItem,
-        // tslint:disable-next-line: no-any
         queryTypes: GraphQLField<any, any, {
-            // tslint:disable-next-line: no-any
             [key: string]: any;
         }>[]) {
         super(parent);
@@ -51,15 +48,12 @@ export class GraphqlQueriesTreeItem extends AzureParentTreeItem<IApiTreeRoot> {
             this.queryTypes,
             "invalidApiManagementGraphqlObjectTypes",
             async (objectType: GraphQLField<any, any, {
-                // tslint:disable-next-line: no-any
                 [key: string]: any;
             }>) => new GraphqlObjectTypeTreeItem(this, objectType),
             (objectType: GraphQLField<any, any, {
-                // tslint:disable-next-line: no-any
                 [key: string]: any;
             }>) => {
                 return objectType.name;
             });
-
     }
 }

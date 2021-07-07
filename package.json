@@ -46,6 +46,7 @@
         "onCommand:azureApiManagement.showApi",
         "onCommand:azureApiManagement.showArmApi",
         "onCommand:azureApiManagement.showArmGraphqlApi",
+        "onCommand:azureApiManagement.showGraphqlAPIQuery",
         "onCommand:azureApiManagement.showArmApiOperation",
         "onCommand:azureApiManagement.showArmProduct",
         "onCommand:azureApiManagement.showServicePolicy",
@@ -220,6 +221,11 @@
             {
                 "command": "azureApiManagement.showArmApi",
                 "title": "%azureApiManagement.showArmApi%",
+                "category": "Azure API Management"
+            },
+            {
+                "command": "azureApiManagement.showGraphqlAPIQuery",
+                "title": "%azureApiManagement.showGraphqlAPIQuery%",
                 "category": "Azure API Management"
             },
             {

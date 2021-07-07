@@ -19,6 +19,7 @@ export class GraphqlArgFieldTreeItem extends AzureTreeItem<IApiTreeRoot> {
     public _label: string;
     public contextValue: string = GraphqlArgFieldTreeItem.contextValue;
     public readonly childTypeLabel: string = localize('azureApiManagement.graphqlArgFieldList', 'graphqlArgFieldList');
+    public argPath: string[];
 
     private argField: GraphQLInputField;
 
@@ -29,9 +30,12 @@ export class GraphqlArgFieldTreeItem extends AzureTreeItem<IApiTreeRoot> {
     constructor(
         parent: AzureParentTreeItem,
         // tslint:disable-next-line: no-any
-        argField: GraphQLInputField) {
+        argField: GraphQLInputField,
+        argPath: string[]) {
         super(parent);
         this.argField = argField;
         this._label = this.argField.name;
+        this.argPath = argPath;
+        this.argPath.push(this.argField.name);
     }
 }

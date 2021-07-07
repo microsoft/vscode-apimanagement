@@ -7,13 +7,15 @@ import { GraphQLArgument, GraphQLField, GraphQLFieldMap, GraphQLList, GraphQLObj
 import { AzExtTreeItem, AzureParentTreeItem } from "vscode-azureextensionui";
 import { treeUtils } from "../utils/treeUtils";
 import { GraphqlArgsTreeItem } from "./GraphqlArgsTreeItem";
+import { GraphqlFieldsLeafTreeItem } from "./GraphqlFieldsLeafTreeItem";
 import { GraphqlFieldsTreeItem } from "./GraphqlFieldsTreeItem";
-import { IOperationTreeRoot } from "./IOperationTreeRoot";
+import { IApiTreeRoot } from "./IApiTreeRoot";
 
 // tslint:disable: no-any
-export class GraphqlObjectTypeTreeItem extends AzureParentTreeItem<IOperationTreeRoot> {
+export class GraphqlObjectTypeTreeItem extends AzureParentTreeItem<IApiTreeRoot> {
     public static contextValue: string = 'azureApiManagementGraphqlObjectType';
     public contextValue: string = GraphqlObjectTypeTreeItem.contextValue;
+    public readonly commandId: string = 'azureApiManagement.showGraphqlAPIQuery';
 
     private _name: string;
     private _label: string;
@@ -48,7 +50,7 @@ export class GraphqlObjectTypeTreeItem extends AzureParentTreeItem<IOperationTre
         const argsNodes = await this.createTreeItemsWithErrorHandling(
             args,
             "invalidApiManagementGraphqlObjectTypes",
-            async (objectType: GraphQLArgument) => new GraphqlArgsTreeItem(this, objectType),
+            async (objectType: GraphQLArgument) => new GraphqlArgsTreeItem(this, objectType, [this.object.name]),
             (objectType: GraphQLArgument) => {
                 return objectType.name;
             });
@@ -64,7 +66,13 @@ export class GraphqlObjectTypeTreeItem extends AzureParentTreeItem<IOperationTre
                 "invalidApiManagementGraphqlObjectTypes",
                 async (objectType: GraphQLField<any, any, {
                     [key: string]: any;
-                }>) => new GraphqlFieldsTreeItem(this, objectType),
+                }>) => {
+                    if (objectType.type instanceof GraphQLObjectType) {
+                        return new GraphqlFieldsTreeItem(this, objectType, [this.object.name]);
+                    } else {
+                        return new GraphqlFieldsLeafTreeItem(this, objectType, [this.object.name]);
+                    }
+                },
                 (objectType: GraphQLField<any, any, {
                     [key: string]: any;
                 }>) => {
@@ -79,7 +87,13 @@ export class GraphqlObjectTypeTreeItem extends AzureParentTreeItem<IOperationTre
                 "invalidApiManagementGraphqlObjectTypes",
                 async (objectType: GraphQLField<any, any, {
                     [key: string]: any;
-                }>) => new GraphqlFieldsTreeItem(this, objectType),
+                }>) => {
+                    if (objectType.type instanceof GraphQLObjectType) {
+                        return new GraphqlFieldsTreeItem(this, objectType, [this.object.name]);
+                    } else {
+                        return new GraphqlFieldsLeafTreeItem(this, objectType, [this.object.name]);
+                    }
+                },
                 (objectType: GraphQLField<any, any, {
                     [key: string]: any;
                 }>) => {

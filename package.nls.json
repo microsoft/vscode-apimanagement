@@ -12,6 +12,7 @@
     "azureApiManagement.showArmApi": "Edit API",
     "azureApiManagement.showArmGraphqlApi": "Edit Graphql API",
     "azureApiManagement.showArmApiOperation": "Edit Operation",
+    "azureApiManagement.showGraphqlAPIQuery": "Edit Graphql API query",
     "azureApiManagement.showServicePolicy": "Edit Global policy",
     "azureApiManagement.showApiPolicy": "Edit API policy",
     "azureApiManagement.showOperationPolicy": "Edit Operation policy",

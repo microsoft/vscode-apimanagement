@@ -32,6 +32,7 @@ import { openWorkingFolder } from './commands/openWorkingFolder';
 import { revisions } from './commands/revisions';
 import { setCustomHostName } from './commands/setCustomHostName';
 import { setupWorkingFolder } from './commands/setupWorkingFolder';
+import { showGraphqlAPIQuery } from './commands/showGraphqlAPIQuery';
 import { testOperation } from './commands/testOperation';
 import { doubleClickDebounceDelay } from './constants';
 import { activate } from './debugger/extension';
@@ -51,6 +52,7 @@ import { ServicePolicyEditor } from './explorer/editors/policy/ServicePolicyEdit
 import { GatewayApisTreeItem } from './explorer/GatewayApisTreeItem';
 import { GatewayApiTreeItem } from './explorer/GatewayApiTreeItem';
 import { GatewayTreeItem } from './explorer/GatewayTreeItem';
+import { GraphqlObjectTypeTreeItem } from './explorer/GraphqlObjectTypeTreeItem';
 import { NamedValuesTreeItem } from './explorer/NamedValuesTreeItem';
 import { NamedValueTreeItem } from './explorer/NamedValueTreeItem';
 import { OperationPolicyTreeItem } from './explorer/OperationPolicyTreeItem';
@@ -194,6 +196,8 @@ function registerEditors(context: vscode.ExtensionContext) : void {
         await apiEditor.showEditor(node);
         vscode.commands.executeCommand('setContext', 'isEditorEnabled', true);
     },              doubleClickDebounceDelay);
+
+    registerCommand('azureApiManagement.showGraphqlAPIQuery', async (actionContext: IActionContext, node?: GraphqlObjectTypeTreeItem) => await showGraphqlAPIQuery(actionContext, node), doubleClickDebounceDelay);
 
     const servicePolicyEditor: ServicePolicyEditor = new ServicePolicyEditor();
     context.subscriptions.push(servicePolicyEditor);
