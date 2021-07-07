@@ -56,7 +56,9 @@ export class GraphqlArgsTreeItem extends AzureParentTreeItem<IApiTreeRoot> {
             return await this.createTreeItemsWithErrorHandling(
                 fieldValues,
                 "invalidApiManagementGraphqlObjectTypes",
-                async (objectType: GraphQLInputField) => new GraphqlArgFieldTreeItem(this, objectType, this.argPath),
+                async (objectType: GraphQLInputField) => {
+                    return new GraphqlArgFieldTreeItem(this, objectType, this.argPath);
+                } ,
                 (objectType: GraphQLInputField) => {
                     return objectType.name;
                 });

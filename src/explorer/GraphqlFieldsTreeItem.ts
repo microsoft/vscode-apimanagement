@@ -64,7 +64,7 @@ export class GraphqlFieldsTreeItem extends AzureParentTreeItem<IApiTreeRoot> {
                 async (objectType: GraphQLField<any, any, {
                     [key: string]: any;
                 }>) => {
-                    if (this.field.type instanceof GraphQLObjectType) {
+                    if (objectType.type instanceof GraphQLObjectType) {
                         return new GraphqlFieldsTreeItem(this, objectType, this.fieldPath);
                     } else {
                         return new GraphqlFieldsLeafTreeItem(this, objectType, this.fieldPath);

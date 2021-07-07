@@ -3,9 +3,10 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { GraphQLArgument, GraphQLField, GraphQLFieldMap, GraphQLList, GraphQLObjectType, GraphQLOutputType } from "graphql";
+import { GraphQLArgument, GraphQLField, GraphQLFieldMap, GraphQLInputObjectType, GraphQLList, GraphQLObjectType, GraphQLOutputType } from "graphql";
 import { AzExtTreeItem, AzureParentTreeItem } from "vscode-azureextensionui";
 import { treeUtils } from "../utils/treeUtils";
+import { GraphqlArgsLeafTreeItem } from "./GraphqlArgsLeafTreeItem";
 import { GraphqlArgsTreeItem } from "./GraphqlArgsTreeItem";
 import { GraphqlFieldsLeafTreeItem } from "./GraphqlFieldsLeafTreeItem";
 import { GraphqlFieldsTreeItem } from "./GraphqlFieldsTreeItem";
@@ -50,7 +51,13 @@ export class GraphqlObjectTypeTreeItem extends AzureParentTreeItem<IApiTreeRoot>
         const argsNodes = await this.createTreeItemsWithErrorHandling(
             args,
             "invalidApiManagementGraphqlObjectTypes",
-            async (objectType: GraphQLArgument) => new GraphqlArgsTreeItem(this, objectType, [this.object.name]),
+            async (objectType: GraphQLArgument) => {
+                if (objectType.type instanceof GraphQLInputObjectType) {
+                    return new GraphqlArgsTreeItem(this, objectType, [this.object.name]);
+                } else {
+                    return new GraphqlArgsLeafTreeItem(this, objectType, [this.object.name]);
+                }
+            },
             (objectType: GraphQLArgument) => {
                 return objectType.name;
             });

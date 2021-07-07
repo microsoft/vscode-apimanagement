@@ -37,24 +37,44 @@ export async function showGraphqlAPIQuery(actionContext: IActionContext, node?: 
     const args = query.args;
     let argParams = "";
     let fieldStr = "";
+    let queryParams = "";
+    let variables = "";
     for (const arg of args) {
         if (arg.type instanceof GraphQLScalarType) {
             argParams = argParams.concat("$").concat(arg.name).concat(": ").concat(arg.type.name).concat(", ");
+            queryParams = queryParams.concat(arg.name).concat(": ").concat(`${arg.name}, `);
+            variables = variables.concat(`"${arg.name}": "", `);
         } else if (arg.type instanceof GraphQLNonNull && arg.type.ofType instanceof GraphQLScalarType) {
             argParams = argParams.concat("$").concat(arg.name).concat(": ").concat(arg.type.ofType.name).concat("!").concat(", ");
+            queryParams = queryParams.concat(arg.name).concat(": ").concat(`${arg.name}, `);
+            variables = variables.concat(`"${arg.name}": "", `);
         } else if (arg.type instanceof GraphQLInputObjectType) {
             let fieldsStr = "";
+            let queryStr = "";
+            let varaibleStr = "";
             const argFields = arg.type.getFields();
             for (const argKey of Object.keys(argFields)) {
                 const argValue = argFields[argKey];
                 if (argValue.type instanceof GraphQLScalarType) {
-                    fieldsStr = fieldsStr.concat(`${argValue.name}: ${argValue.type.name}`);
+                    fieldsStr = fieldsStr.concat(`$${argValue.name}: ${argValue.type.name}, `);
+                    queryStr = queryStr.concat(`${argValue.name}: $${argValue.type.name}, `);
+                    varaibleStr = varaibleStr.concat(`"${argValue.name}": "", `);
                 }
             }
-            const subArgs = `${arg.name}: { ${fieldsStr} }`;
-            argParams = argParams.concat("$").concat(subArgs).concat(", ");
+            fieldsStr = fieldsStr.trimRight();
+            fieldsStr = fieldsStr.substring(0, fieldsStr.length - 1);
+            queryStr = queryStr.trimRight();
+            queryStr = queryStr.substring(0, queryStr.length - 1);
+            varaibleStr = varaibleStr.trimRight();
+            varaibleStr = varaibleStr.substring(0, varaibleStr.length - 1);
+
+            argParams = argParams.concat("$").concat(`${arg.name}: { ${fieldsStr} }`).concat(", ");
+            queryParams = queryParams.concat(`${arg.name}: `).concat("$").concat(`{ ${queryStr} }`).concat(", ");
+            variables = variables.concat(`"${arg.name}": `).concat(`{ ${varaibleStr} }`).concat(", ");
         }
     }
+    argParams = argParams.trimRight();
+    argParams = argParams.substring(0, argParams.length - 1);
 
     if (query.type instanceof GraphQLObjectType) {
         fieldStr = fieldStr.concat(getFields(query.type.getFields()));
@@ -62,12 +82,12 @@ export async function showGraphqlAPIQuery(actionContext: IActionContext, node?: 
         fieldStr = fieldStr.concat(getFields(query.type.ofType.getFields()));
     }
 
-    queryBuilder = queryBuilder.concat(` query(${argParams}) \n`).concat(`\t{ ${query.name} (${argParams}) \n\t {${fieldStr}}}`);
+    queryBuilder = queryBuilder.concat(` query(${argParams}) \n`).concat(`\t{ ${query.name} (${queryParams}) \n\t{ ${fieldStr}}}`);
 
     const document: vscode.TextDocument = await vscode.workspace.openTextDocument(localFilePath);
     //await fse.writeFile(localFilePath, data);
     const textEditor: vscode.TextEditor = await vscode.window.showTextDocument(document);
-    data = data.concat("Post ").concat(serviceUrl).concat("\n\n").concat(`{ "query": "${queryBuilder}","variables":{}}`);
+    data = data.concat("Post ").concat(serviceUrl).concat("\n\n").concat(`{ "query": "${queryBuilder}", \n\t"variables": {${variables}}}`);
     // tslint:disable-next-line: strict-boolean-expressions
     if (!!textEditor) {
         await writeToEditor(textEditor, data);
@@ -83,12 +103,14 @@ function getFields(fields: GraphQLFieldMap<any, any>): string {
         const fieldValue = fields[fieldKey];
         resStr =  resStr.concat(fieldValue.name);
         if (fieldValue.type instanceof GraphQLObjectType) {
-            resStr.concat(": ");
+            resStr = resStr.concat(": ");
             const childStr = getFields(fieldValue.type.getFields());
-            resStr = resStr.concat("{").concat(childStr).concat("}");
+            resStr = resStr.concat("{ ").concat(childStr).concat("}, ");
         } else {
-            resStr.concat(", ");
+            resStr = resStr.concat(", ");
         }
     }
+    resStr = resStr.trimRight();
+    resStr = resStr.substring(0, resStr.length - 1);
     return resStr;
 }
