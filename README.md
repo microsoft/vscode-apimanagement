@@ -99,6 +99,9 @@ Please note: only JSON format is supported currently.
 ## Self-Hosted Gateway Debugging
 ![selfHostedDebugging](resources/selfdebug.gif)
 
+## Manage User Subscriptions
+![manageUserSubscription](resources/subscription.gif)
+
 ## Intellisense for Policy Expressions.
 
 Follow instructions [here](https://github.com/microsoft/vscode-apimanagement/issues/37#issuecomment-516551741).
