@@ -33,7 +33,7 @@ export async function showGraphqlAPIQuery(actionContext: IActionContext, node?: 
     // tslint:disable-next-line: no-unsafe-any
     const apiTemp : IApiContract = JSON.parse(apiContractString);
     let queryBuilder = "";
-    const serviceUrl = apiTemp.properties.serviceUrl;
+    const serviceUrl = `https://${node.root.serviceName}.azure-api.net/${apiTemp.properties.path}`;
     const args = query.args;
     let argParams = "";
     let fieldStr = "";
@@ -42,11 +42,11 @@ export async function showGraphqlAPIQuery(actionContext: IActionContext, node?: 
     for (const arg of args) {
         if (arg.type instanceof GraphQLScalarType) {
             argParams = argParams.concat("$").concat(arg.name).concat(": ").concat(arg.type.name).concat(", ");
-            queryParams = queryParams.concat(arg.name).concat(": ").concat(`${arg.name}, `);
+            queryParams = queryParams.concat(arg.name).concat(": $").concat(`${arg.name}, `);
             variables = variables.concat(`"${arg.name}": "", `);
         } else if (arg.type instanceof GraphQLNonNull && arg.type.ofType instanceof GraphQLScalarType) {
             argParams = argParams.concat("$").concat(arg.name).concat(": ").concat(arg.type.ofType.name).concat("!").concat(", ");
-            queryParams = queryParams.concat(arg.name).concat(": ").concat(`${arg.name}, `);
+            queryParams = queryParams.concat(arg.name).concat(": $").concat(`${arg.name}, `);
             variables = variables.concat(`"${arg.name}": "", `);
         } else if (arg.type instanceof GraphQLInputObjectType) {
             let fieldsStr = "";
@@ -69,7 +69,7 @@ export async function showGraphqlAPIQuery(actionContext: IActionContext, node?: 
             varaibleStr = varaibleStr.substring(0, varaibleStr.length - 1);
 
             argParams = argParams.concat("$").concat(`${arg.name}: { ${fieldsStr} }`).concat(", ");
-            queryParams = queryParams.concat(`${arg.name}: `).concat("$").concat(`{ ${queryStr} }`).concat(", ");
+            queryParams = queryParams.concat(`${arg.name}: `).concat(`{ ${queryStr} }`).concat(", ");
             variables = variables.concat(`"${arg.name}": `).concat(`{ ${varaibleStr} }`).concat(", ");
         }
     }

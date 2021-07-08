@@ -1,4 +1,4 @@
 
-POST https://api.spacex.land/graphql
+POST https://alzasloneuap03.azure-api.net/graphql-api
 
-{"query":"{ launches { id, mission_name }}","variables":{}}
+{ "query": "query($id: ID!) { ship(id: $id) { id, active } }", "variables": { "id": "GOMSTREE" } }
