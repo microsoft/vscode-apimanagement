@@ -20,7 +20,7 @@ suiteSetup(async function (this: IHookCallbackContext): Promise<void> {
 
     await fse.ensureDir(testFolderPath);
 
-    await vscode.commands.executeCommand('azureApiManagement.Refresh'); // activate the extension before tests begin
+    //await vscode.commands.executeCommand('azureApiManagement.Refresh'); // activate the extension before tests begin
     ext.outputChannel = new TestOutputChannel();
     ext.ui = new TestUserInput(vscode);
 
