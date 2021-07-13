@@ -42,6 +42,7 @@
         "onCommand:azureApiManagement.importOpenApiByLink",
         "onCommand:azureApiManagement.importGraphqlAPIByLink",
         "onCommand:azureApiManagement.testOperation",
+        "onCommand:azureApiManagement.importGraphqlSchemaByFile",
         "onCommand:azureApiManagement.openInPortal",
         "onCommand:azureApiManagement.showApi",
         "onCommand:azureApiManagement.showArmApi",
@@ -52,6 +53,7 @@
         "onCommand:azureApiManagement.showServicePolicy",
         "onCommand:azureApiManagement.showApiPolicy",
         "onCommand:azureApiManagement.showOperationPolicy",
+        "onCommand:azureApiManagement.showGraphqlSchema",
         "onCommand:azureApiManagement.createNamedValue",
         "onCommand:azureApiManagement.deleteNamedValue",
         "onCommand:azureApiManagement.updateNamedValue",
@@ -180,6 +182,16 @@
             {
                 "command": "azureApiManagement.testOperation",
                 "title": "%azureApiManagement.testOperation%",
+                "category": "Azure API Management"
+            },
+            {
+                "command": "azureApiManagement.importGraphqlSchemaByFile",
+                "title": "%azureApiManagement.importGraphqlSchemaByFile%",
+                "category": "Azure API Management"
+            },
+            {
+                "command": "azureApiManagement.showGraphqlSchema",
+                "title": "%azureApiManagement.showGraphqlSchema%",
                 "category": "Azure API Management"
             },
             {
@@ -608,6 +620,16 @@
                     "command": "azureApiManagement.showGraphqlAPIQuery",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementGraphqlObjectType",
                     "group": "1@1"
+                },
+                {
+                    "command": "azureApiManagement.importGraphqlSchemaByFile",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementGraphql",
+                    "group": "1@1"
+                },
+                {
+                    "command": "azureApiManagement.showGraphqlSchema",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementGraphql",
+                    "group": "1@2"
                 },
                 {
                     "command": "azureApiManagement.deleteNamedValue",

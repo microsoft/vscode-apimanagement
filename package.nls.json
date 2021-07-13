@@ -19,6 +19,8 @@
     "azureApiManagement.deleteApi": "Delete API",
     "azureApiManagement.deleteOperation": "Delete Operation",
     "azureApiManagement.testOperation": "Test Operation",
+    "azureApiManagement.importGraphqlSchemaByFile": "Import Graphql API schema file",
+    "azureApiManagement.showGraphqlSchema": "Open Schema",
     "azureApiManagement.advancedCreationDescription":"Enables advanced creation of Azure API Management Instance, which will prompt for several additional values instead of using a default.",
     "azureApiManagement.createNamedValue": "Create Named value",
     "azureApiManagement.deleteNamedValue": "Delete Named value",

@@ -57,21 +57,6 @@ export class ApisTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
             this._nextLink = apiCollection1.nextLink;
 
             apisToLoad = apiCollection1.map((s) => s).filter(s => apiUtil.isNotApiRevision(s));
-            /*const client: ServiceClient = await createGenericClient(this.root.credentials);
-            // tslint:disable-next-line: no-unsafe-any
-            const apiCollection: ApiManagementModels.ApiCollection = (await client.sendRequest({
-                method: "GET",
-                url: `https://${this.root.serviceName}.management.preview.int-azure-api.net/subscriptions/${this.root.subscriptionId}/resourceGroups/${this.root.resourceGroupName}/providers/Microsoft.ApiManagement/service/${this.root.serviceName}/apis?api-version=2021-04-01-preview`,
-                headers: {
-                    Authorization: ""
-                }
-            })).parsedBody;*/
-            /*
-            const webResource = new WebResource();
-            webResource.url = `https://${this.root.serviceName}.management.preview.int-azure-api.net/subscriptions/${this.root.subscriptionId}/resourceGroups/${this.root.resourceGroupName}/providers/Microsoft.ApiManagement/service/${this.root.serviceName}/apis?api-version=2021-04-01-preview`;
-            webResource.method = "GET";
-            webResource.headers.set("Authorization", "");
-            const apiCollection: ApiManagementModels.ApiCollection = await sendRequest(webResource);*/
             const requestOptions : requestPromise.RequestPromiseOptions = {
                 method: "GET",
                 headers: {
@@ -137,28 +122,6 @@ export class ApisTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
         }
         return collection;
     }
-
-    /*
-    public convertToTempApiContract(apiCollectionTemp: IApiContract[]): ApiContract[] {
-        const apiCollection: ApiContract[] = [];
-        for (const api of apiCollectionTemp) {
-            const curApi : ApiContract = {
-                description: api.properties.description,
-                authenticationSettings: api.properties.authenticationSettings,
-                subscriptionKeyParameterNames: api.properties.subscriptionKeyParameterNames,
-                apiType: api.properties.type,
-                apiRevision: api.properties.apiRevision,
-                isCurrent: api.properties.isCurrent,
-                path: api.properties.path,
-                displayName: api.properties.displayName,
-                protocols: api.properties.protocols,
-                serviceUrl: api.properties.serviceUrl,
-                subscriptionRequired: api.properties.subscriptionRequired
-            };
-            apiCollection.push(curApi);
-        }
-        return apiCollection;
-    }*/
 
     public async createChildImpl(context: IApiTreeItemContext): Promise<ApiTreeItem> {
         if (context.document) {

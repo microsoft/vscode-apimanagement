@@ -22,6 +22,7 @@ import { generateFunctions } from './commands/generateFunctions';
 import { generateNewGatewayToken } from './commands/generateNewGatewayToken';
 import { importFunctionApp } from './commands/importFunctionApp/importFunctionApp';
 import { importFunctionAppToApi } from './commands/importFunctionApp/importFunctionApp';
+import { importGraphqlSchemaByFile } from './commands/importGraphqlSchema';
 import { importOpenApi } from './commands/importOpenApi';
 import { importWebApp, importWebAppToApi } from './commands/importWebApp/importWebApp';
 import { createNamedValue, updateNamedValue } from './commands/manageNamedValue';
@@ -44,6 +45,7 @@ import { AzureAccountTreeItem } from './explorer/AzureAccountTreeItem';
 import { ApiResourceEditor } from './explorer/editors/arm/ApiResourceEditor';
 import { OperationResourceEditor } from './explorer/editors/arm/OperationResourceEditor';
 import { ProductResourceEditor } from './explorer/editors/arm/ProductResourceEditor';
+import { GraphqlApiSchemaEditor } from './explorer/editors/graphqlApiSchema/GraphqlApiSchemaEditor';
 import { OpenApiEditor } from './explorer/editors/openApi/OpenApiEditor';
 import { ApiPolicyEditor } from './explorer/editors/policy/ApiPolicyEditor';
 import { OperationPolicyEditor } from './explorer/editors/policy/OperationPolicyEditor';
@@ -52,6 +54,7 @@ import { ServicePolicyEditor } from './explorer/editors/policy/ServicePolicyEdit
 import { GatewayApisTreeItem } from './explorer/GatewayApisTreeItem';
 import { GatewayApiTreeItem } from './explorer/GatewayApiTreeItem';
 import { GatewayTreeItem } from './explorer/GatewayTreeItem';
+import { GraphqlApiTreeItem } from './explorer/GraphqlApiTreeItem';
 import { GraphqlObjectTypeTreeItem } from './explorer/GraphqlObjectTypeTreeItem';
 import { NamedValuesTreeItem } from './explorer/NamedValuesTreeItem';
 import { NamedValueTreeItem } from './explorer/NamedValueTreeItem';
@@ -127,6 +130,7 @@ function registerCommands(tree: AzExtTreeDataProvider): void {
     registerCommand('azureApiManagement.generateKubernetesDeployment', generateKubernetesDeployment);
     registerCommand('azureApiManagement.generateNewGatewayToken', generateNewGatewayToken);
     registerCommand('azureApiManagement.debugPolicy', debugPolicy);
+    registerCommand('azureApiManagement.importGraphqlSchemaByFile', importGraphqlSchemaByFile);
 
     registerCommand('azureApiManagement.openExtensionWorkspaceFolder', openWorkingFolder);
     registerCommand('azureApiManagement.initializeExtensionWorkspaceFolder', setupWorkingFolder);
@@ -181,6 +185,21 @@ function registerEditors(context: vscode.ExtensionContext) : void {
             node = <ProductTreeItem>await ext.tree.showTreeItemPicker(ProductTreeItem.contextValue, actionContext);
         }
         await productResourceEditor.showEditor(node);
+        vscode.commands.executeCommand('setContext', 'isEditorEnabled', true);
+    },              doubleClickDebounceDelay);
+
+    const graphqlApiSchemaEditor: GraphqlApiSchemaEditor = new GraphqlApiSchemaEditor();
+    context.subscriptions.push(graphqlApiSchemaEditor);
+    registerEvent('azureApiManagement.graphqlApiSchemaEditor.onDidSaveTextDocument',
+                  vscode.workspace.onDidSaveTextDocument,
+                  async (actionContext: IActionContext, doc: vscode.TextDocument) => {
+                      await graphqlApiSchemaEditor.onDidSaveTextDocument(actionContext, context.globalState, doc);
+                    });
+    registerCommand('azureApiManagement.showGraphqlSchema', async (actionContext: IActionContext, node?: GraphqlApiTreeItem) => {
+        if (!node) {
+            node = <GraphqlApiTreeItem>await ext.tree.showTreeItemPicker(GraphqlApiTreeItem.contextValue, actionContext);
+        }
+        await graphqlApiSchemaEditor.showEditor(node);
         vscode.commands.executeCommand('setContext', 'isEditorEnabled', true);
     },              doubleClickDebounceDelay);
 
