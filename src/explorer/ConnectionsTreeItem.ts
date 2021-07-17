@@ -63,7 +63,7 @@ export class ConnectionsTreeItem extends AzureParentTreeItem<ITokenProviderTreeR
                 return new ConnectionTreeItem(this, connection);
 
             } catch (error) {
-                throw new Error(processError(error, localize("addApiToProductFailed", `Failed to add '${connectionName}' to TokenProvider '${this.root.tokenProviderName}'.`)));
+                throw new Error(processError(error, localize("createConnection", `Failed to add connection '${connectionName}' to TokenProvider '${this.root.tokenProviderName}'.`)));
             }
         } else {
             throw Error("Expected Connection name.");

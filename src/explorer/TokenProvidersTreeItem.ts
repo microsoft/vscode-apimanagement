@@ -3,12 +3,21 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { AzExtTreeItem, AzureParentTreeItem } from "vscode-azureextensionui";
+import { AzExtTreeItem, AzureParentTreeItem, ICreateChildImplContext } from "vscode-azureextensionui";
 import { ApimService } from "../azure/apim/ApimService";
 import { ITokenProviderContract } from "../azure/apim/contracts";
+import { localize } from "../localize";
+import { processError } from "../utils/errorUtil";
 import { treeUtils } from "../utils/treeUtils";
 import { IServiceTreeRoot } from "./IServiceTreeRoot";
 import { TokenProviderTreeItem } from "./TokenProviderTreeItem";
+
+export interface ITokenProviderTreeItemContext extends ICreateChildImplContext {
+    tokenProviderName: string;
+    identityProvider: string;
+    clientId: string;
+    clientSecret: string;
+}
 
 export class TokenProvidersTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
     public get iconPath(): { light: string, dark: string } {
@@ -43,5 +52,26 @@ export class TokenProvidersTreeItem extends AzureParentTreeItem<IServiceTreeRoot
             (tokenProvider: ITokenProviderContract) => {
                 return tokenProvider.name;
             });
+    }
+
+    public async createChildImpl(context: ITokenProviderTreeItemContext): Promise<TokenProviderTreeItem> {
+        if (context.tokenProviderName 
+            && context.identityProvider
+            && context.clientId
+            && context.clientSecret) {
+
+            const tokenProviderName = context.tokenProviderName;
+            context.showCreatingTreeItem(tokenProviderName);
+            try {
+                const apimService = new ApimService(this.root.credentials, this.root.environment.resourceManagerEndpointUrl, this.root.subscriptionId, this.root.resourceGroupName, this.root.serviceName);
+                const tokenProvider = await apimService.createTokenProvider(context.tokenProviderName, context.identityProvider, context.clientId, context.clientSecret);
+                return new TokenProviderTreeItem(this, tokenProvider);
+
+            } catch (error) {
+                throw new Error(processError(error, localize("createTokenProvider", `Failed to create token provider '${tokenProviderName}'.`)));
+            }
+        } else {
+            throw Error("Expected Token Provder information.");
+        }
     }
  }

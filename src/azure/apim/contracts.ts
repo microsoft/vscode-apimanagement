@@ -58,9 +58,9 @@ export interface ITokenProviderPropertyContract {
         identityProvider: string;
         clientId: string;
         clientSecret: string;
-        scopes: string;
-        parameters: {}
-        redirectUrl: string;
+        scopes?: string;
+        parameters?: {}
+        redirectUrl?: string;
     };
 }
 

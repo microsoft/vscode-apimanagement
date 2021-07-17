@@ -6,7 +6,7 @@
 import { HttpOperationResponse, ServiceClient } from "@azure/ms-rest-js";
 import { TokenCredentialsBase } from "@azure/ms-rest-nodeauth";
 import { createGenericClient } from "vscode-azureextensionui";
-import { IConnectionContract, IGatewayApiContract, IGatewayContract, IMasterSubscription, ITokenProviderContract } from "./contracts";
+import { IConnectionContract, IGatewayApiContract, IGatewayContract, IMasterSubscription, ITokenProviderContract, ITokenProviderPropertyContract } from "./contracts";
 
 export class ApimService {
     public baseUrl: string;
@@ -113,6 +113,26 @@ export class ApimService {
         });
         // tslint:disable-next-line: no-unsafe-any
         return <IConnectionContract[]>(result.parsedBody.value);
+    }
+
+    public async createTokenProvider(tokenProviderName:string, identityProvider: string, clientId: string, clientSecret: string): Promise<ITokenProviderContract> {
+        const client: ServiceClient = await createGenericClient(this.credentials);
+
+        const result: HttpOperationResponse = await client.sendRequest({
+            method: "PUT",
+            url: `${this.baseUrl}/tokenproviders/${tokenProviderName}?api-version=${this.apiVersion}`,
+            body: {
+                properties: {
+                    oAuthSettings : {
+                        identityProvider: identityProvider,
+                        clientId: clientId,
+                        clientSecret: clientSecret
+                    }
+                },
+            }
+        });
+        // tslint:disable-next-line: no-unsafe-any
+        return <ITokenProviderContract>(result.parsedBody);
     }
 
     public async createConnection(tokenProviderName: string, connectionName: string): Promise<IConnectionContract> {
