@@ -42,3 +42,79 @@ export interface ISubscriptionProperty {
     primaryKey: string;
     secondaryKey: string;
 }
+
+
+export interface ITokenProviderContract {
+    id: string;
+    name: string;
+    // tslint:disable-next-line: no-reserved-keywords
+    type: string;
+    location?: string;
+    properties: ITokenProviderPropertyContract;
+}
+
+export interface ITokenProviderPropertyContract {
+    oAuthSettings: {
+        identityProvider: string;
+        clientId: string;
+        clientSecret: string;
+        scopes: string;
+        parameters: {}
+        redirectUrl: string;
+    };
+}
+
+export interface IConnectionContract {
+    id: string;
+    name: string;
+    // tslint:disable-next-line: no-reserved-keywords
+    type: string;
+    location?: string;
+    properties: IConnectionPropertyContract;
+}
+
+export interface IConnectionPropertyContract {
+    status: string;
+    error: {
+        code: string;
+        message: string;
+    };
+}
+
+export interface ILoginLinkRequestContract {
+    id: string;
+    name: string;
+    // tslint:disable-next-line: no-reserved-keywords
+    type: string;
+    location?: string;
+    properties: ILoginLinkRequestPropertyContract;
+}
+
+export interface ILoginLinkRequestPropertyContract {
+    parameters: ILoginLinkInputParameter[];
+}
+
+export interface ILoginLinkInputParameter {
+    parameterName: string;
+    redirectUrl: string;
+}
+
+export interface ILoginLinkResponseContract {
+    id: string;
+    name: string;
+    // tslint:disable-next-line: no-reserved-keywords
+    type: string;
+    location?: string;
+    properties: ILoginLinkResponsePropertyContract;
+}
+
+export interface ILoginLinkResponsePropertyContract {
+    value: ILoginLink[];
+}
+
+export interface ILoginLink {
+    link: string;
+    firstPartyLoginUri: string;
+    displayName: string;
+    status: string;
+}

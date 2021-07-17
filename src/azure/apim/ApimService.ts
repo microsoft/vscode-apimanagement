@@ -6,7 +6,7 @@
 import { HttpOperationResponse, ServiceClient } from "@azure/ms-rest-js";
 import { TokenCredentialsBase } from "@azure/ms-rest-nodeauth";
 import { createGenericClient } from "vscode-azureextensionui";
-import { IGatewayApiContract, IGatewayContract, IMasterSubscription } from "./contracts";
+import { IConnectionContract, IGatewayApiContract, IGatewayContract, IMasterSubscription, ITokenProviderContract } from "./contracts";
 
 export class ApimService {
     public baseUrl: string;
@@ -93,5 +93,51 @@ export class ApimService {
 
     private genSiteUrl(endPointUrl: string, subscriptionId: string, resourceGroup: string, serviceName: string): string {
         return `${endPointUrl}/subscriptions/${subscriptionId}/resourceGroups/${resourceGroup}/providers/Microsoft.ApiManagement/service/${serviceName}`;
+    }
+
+    public async listTokenProviders(): Promise<ITokenProviderContract[]> {
+        const client: ServiceClient = await createGenericClient(this.credentials);
+        const result: HttpOperationResponse = await client.sendRequest({
+            method: "GET",
+            url: `${this.baseUrl}/tokenproviders?api-version=${this.apiVersion}`
+        });
+        // tslint:disable-next-line: no-unsafe-any
+        return <ITokenProviderContract[]>(result.parsedBody.value);
+    }
+
+    public async listConnections(tokenProviderName: string): Promise<IConnectionContract[]> {
+        const client: ServiceClient = await createGenericClient(this.credentials);
+        const result: HttpOperationResponse = await client.sendRequest({
+            method: "GET",
+            url: `${this.baseUrl}/tokenproviders/${tokenProviderName}/connections?api-version=${this.apiVersion}`
+        });
+        // tslint:disable-next-line: no-unsafe-any
+        return <IConnectionContract[]>(result.parsedBody.value);
+    }
+
+    public async createConnection(tokenProviderName: string, connectionName: string): Promise<IConnectionContract> {
+        const client: ServiceClient = await createGenericClient(this.credentials);
+
+        var tokenResponse = await this.credentials.getToken();
+
+        const result: HttpOperationResponse = await client.sendRequest({
+            method: "PUT",
+            url: `${this.baseUrl}/tokenproviders/${tokenProviderName}/connections/${connectionName}?api-version=${this.apiVersion}`,
+            body: {
+                properties: {
+                    tenantId: tokenResponse.tenantId
+                },
+            }
+        });
+        // tslint:disable-next-line: no-unsafe-any
+        return <IConnectionContract>(result.parsedBody);
+    }
+
+    public async deleteConnection(tokenProviderName: string, connectionName: string): Promise<void> {
+        const client: ServiceClient = await createGenericClient(this.credentials);
+        await client.sendRequest({
+            method: "DELETE",
+            url: `${this.baseUrl}/tokenproviders/${tokenProviderName}/connections/${connectionName}?api-version=${this.apiVersion}`
+        });
     }
 }

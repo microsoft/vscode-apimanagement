@@ -24,6 +24,7 @@ import { ProductsTreeItem } from "./ProductsTreeItem";
 import { ProductTreeItem } from "./ProductTreeItem";
 import { ServicePolicyTreeItem } from "./ServicePolicyTreeItem";
 import { SubscriptionsTreeItem } from "./SubscriptionsTreeItem";
+import { TokenProvidersTreeItem } from "./TokenProvidersTreeItem";
 
 export class ServiceTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
 
@@ -46,6 +47,7 @@ export class ServiceTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
     public readonly namedValuesTreeItem: NamedValuesTreeItem;
     public readonly productsTreeItem: ProductsTreeItem;
     public readonly gatewaysTreeItem: GatewaysTreeItem;
+    public readonly tokenProvidersTreeItem: TokenProvidersTreeItem;
     public readonly subscriptionsTreeItem: SubscriptionsTreeItem;
 
     private _root: IServiceTreeRoot;
@@ -64,6 +66,8 @@ export class ServiceTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
         this.subscriptionsTreeItem = new SubscriptionsTreeItem(this);
         //parent.iconPath =
 
+        this.tokenProvidersTreeItem = new TokenProvidersTreeItem(this);
+
         const sku = nonNullValue(this.apiManagementService.sku.name);
         if (sku === 'Developer' || sku === 'Premium') {
             this.gatewaysTreeItem = new GatewaysTreeItem(this);
@@ -78,7 +82,7 @@ export class ServiceTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
         if (this.gatewaysTreeItem === undefined) {
             return [this.apisTreeItem, this.namedValuesTreeItem, this.productsTreeItem, this.servicePolicyTreeItem, this.subscriptionsTreeItem];
         }
-        return [this.apisTreeItem, this.namedValuesTreeItem, this.productsTreeItem, this.servicePolicyTreeItem, this.gatewaysTreeItem, this.subscriptionsTreeItem];
+        return [this.apisTreeItem, this.namedValuesTreeItem, this.productsTreeItem, this.servicePolicyTreeItem, this.gatewaysTreeItem, this.subscriptionsTreeItem, this.tokenProvidersTreeItem];
     }
 
     public hasMoreChildrenImpl(): boolean {
