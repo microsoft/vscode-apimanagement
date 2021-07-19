@@ -31,5 +31,5 @@ export async function authorizeConnection(context: IActionContext, node?: Connec
     };
 
     const loginLinks = await apimService.listLoginLinks(node.root.tokenProviderName, node.connectionContract.name, requestBody);
-    vscode.env.openExternal(vscode.Uri.parse(loginLinks.value[0].link));
+    vscode.env.openExternal(vscode.Uri.parse(loginLinks.Value[0].Link));
 }

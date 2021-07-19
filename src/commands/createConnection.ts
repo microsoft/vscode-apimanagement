@@ -26,7 +26,9 @@ export async function createConnection(context: IActionContext & Partial<IConnec
             cancellable: false
         },
         // tslint:disable-next-line:no-non-null-assertion
-        async () => { return node!.createChild(context); }
+        async () => { 
+            return node!.createChild(context); 
+        }
     ).then(async () => {
         // tslint:disable-next-line:no-non-null-assertion
         await node!.refresh(context);
@@ -37,10 +39,6 @@ export async function createConnection(context: IActionContext & Partial<IConnec
 async function askInput(message: string) : Promise<string> {
     const idPrompt: string = localize('value', message);
     return (await ext.ui.showInputBox({
-        prompt: idPrompt,
-        validateInput: async (value: string): Promise<string | undefined> => {
-            value = value ? value.trim() : '';
-            return value;
-        }
+        prompt: idPrompt
     })).trim();
 }

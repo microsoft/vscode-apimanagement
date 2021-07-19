@@ -79,6 +79,7 @@
         "onCommand:azureApiManagement.createConnection",
         "onCommand:azureApiManagement.authorizeConnection",
         "onCommand:azureApiManagement.deleteConnection",
+        "onCommand:azureApiManagement.copyConnectionPolicy",
         "onCommand:azureApiManagement.deleteTokenProvider"
     ],
     "main": "main",
@@ -415,6 +416,11 @@
                 "command": "azureApiManagement.authorizeConnection",
                 "title": "%azureApiManagement.authorizeConnection%",
                 "category": "Azure API Management"
+            },
+            {
+                "command": "azureApiManagement.copyConnectionPolicy",
+                "title": "%azureApiManagement.copyConnectionPolicy%",
+                "category": "Azure API Management"
             }
         ],
         "viewsContainers": {
@@ -687,9 +693,14 @@
                     "group": "1@1"
                 },
                 {
-                    "command": "azureApiManagement.deleteConnection",
+                    "command": "azureApiManagement.copyConnectionPolicy",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementConnection",
                     "group": "1@2"
+                },
+                {
+                    "command": "azureApiManagement.deleteConnection",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementConnection",
+                    "group": "1@3"
                 }
             ]
         },

@@ -28,6 +28,10 @@ export class ConnectionTreeItem extends AzureTreeItem<ITokenProviderTreeRoot> {
         return this._label;
     }
 
+    public get description(): string | undefined {
+        return this.connectionContract.properties.Status;
+    }
+
     public get iconPath(): { light: string, dark: string } {
         return treeUtils.getThemedIconPath('api');
     }

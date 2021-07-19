@@ -48,10 +48,6 @@ export async function createTokenProvider(context: IActionContext & Partial<ITok
 async function askInput(message: string) : Promise<string> {
     const idPrompt: string = localize('value', message);
     return (await ext.ui.showInputBox({
-        prompt: idPrompt,
-        validateInput: async (value: string): Promise<string | undefined> => {
-            value = value ? value.trim() : '';
-            return value;
-        }
+        prompt: idPrompt
     })).trim();
 }

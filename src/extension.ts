@@ -12,6 +12,7 @@ import { addApiFilter } from './commands/addApiFilter';
 import { addApiToGateway } from './commands/addApiToGateway';
 import { addApiToProduct } from './commands/addApiToProduct';
 import { authorizeConnection } from './commands/authorizeConnection';
+import { copyConnectionPolicy } from './commands/copyConnectionPolicy';
 import { copySubscriptionKey } from './commands/copySubscriptionKey';
 import { createConnection } from './commands/createConnection';
 import { createService } from './commands/createService';
@@ -153,6 +154,7 @@ function registerCommands(tree: AzExtTreeDataProvider): void {
     registerCommand('azureApiManagement.createTokenProvider', async (context: IActionContext, node?: TokenProvidersTreeItem) => { await createTokenProvider(context, node); });
     registerCommand('azureApiManagement.createConnection', async (context: IActionContext, node?: ConnectionsTreeItem) => { await createConnection(context, node); });
     registerCommand('azureApiManagement.authorizeConnection', async (context: IActionContext, node?: ConnectionTreeItem) => { await authorizeConnection(context, node); });
+    registerCommand('azureApiManagement.copyConnectionPolicy', async (context: IActionContext, node?: ConnectionTreeItem) => { await copyConnectionPolicy(context, node); });
 }
 
 // tslint:disable-next-line: max-func-body-length

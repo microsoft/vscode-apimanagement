@@ -54,13 +54,13 @@ export interface ITokenProviderContract {
 }
 
 export interface ITokenProviderPropertyContract {
-    oAuthSettings: {
-        identityProvider: string;
-        clientId: string;
-        clientSecret: string;
-        scopes?: string;
-        parameters?: {}
-        redirectUrl?: string;
+    OAuthSettings: {
+        IdentityProvider: string;
+        ClientId: string;
+        ClientSecret: string;
+        Scopes?: string;
+        Parameters?: {}
+        RedirectUrl?: string;
     };
 }
 
@@ -74,10 +74,10 @@ export interface IConnectionContract {
 }
 
 export interface IConnectionPropertyContract {
-    status: string;
-    error: {
-        code: string;
-        message: string;
+    Status: string;
+    Error: {
+        Code: string;
+        Message: string;
     };
 }
 
@@ -91,12 +91,12 @@ export interface ILoginLinkInputParameter {
 }
 
 export interface ILoginLinkResponseContract {
-    value: ILoginLink[];
+    Value: ILoginLink[];
 }
 
 export interface ILoginLink {
-    link: string;
-    firstPartyLoginUri: string;
-    displayName: string;
-    status: string;
+    Link: string;
+    FirstPartyLoginUri: string;
+    DisplayName: string;
+    Status: string;
 }

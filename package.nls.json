@@ -51,5 +51,6 @@
     "azureApiManagement.deleteTokenProvider": "Delete Token Service",
     "azureApiManagement.createConnection": "Create Connection",
     "azureApiManagement.deleteConnection": "Delete Connection",
-    "azureApiManagement.authorizeConnection": "Authorize Connection"
+    "azureApiManagement.authorizeConnection": "Authorize Connection",
+    "azureApiManagement.copyConnectionPolicy": "Copy Policy Snippet"
 }

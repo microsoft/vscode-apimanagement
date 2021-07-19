@@ -16,6 +16,7 @@ export class ApimService {
     public resourceGroup: string;
     public serviceName: string;
     private readonly apiVersion: string = "2018-06-01-preview";
+    private readonly tokenServiceApiVersion: string = "2021-04-01-preview";
 
     constructor(credentials: TokenCredentialsBase, endPointUrl: string, subscriptionId: string, resourceGroup: string, serviceName: string) {
         this.baseUrl = this.genSiteUrl(endPointUrl, subscriptionId, resourceGroup, serviceName);
@@ -99,7 +100,7 @@ export class ApimService {
         const client: ServiceClient = await createGenericClient(this.credentials);
         const result: HttpOperationResponse = await client.sendRequest({
             method: "GET",
-            url: `${this.baseUrl}/tokenproviders?api-version=${this.apiVersion}`
+            url: `${this.baseUrl}/tokenproviders?api-version=${this.tokenServiceApiVersion}`
         });
         // tslint:disable-next-line: no-unsafe-any
         return <ITokenProviderContract[]>(result.parsedBody.value);
@@ -109,7 +110,7 @@ export class ApimService {
         const client: ServiceClient = await createGenericClient(this.credentials);
         const result: HttpOperationResponse = await client.sendRequest({
             method: "GET",
-            url: `${this.baseUrl}/tokenproviders/${tokenProviderName}/connections?api-version=${this.apiVersion}`
+            url: `${this.baseUrl}/tokenproviders/${tokenProviderName}/connections?api-version=${this.tokenServiceApiVersion}`
         });
         // tslint:disable-next-line: no-unsafe-any
         return <IConnectionContract[]>(result.parsedBody.value);
@@ -120,13 +121,14 @@ export class ApimService {
 
         const result: HttpOperationResponse = await client.sendRequest({
             method: "PUT",
-            url: `${this.baseUrl}/tokenproviders/${tokenProviderName}?api-version=${this.apiVersion}`,
+            url: `${this.baseUrl}/tokenproviders/${tokenProviderName}?api-version=${this.tokenServiceApiVersion}`,
             body: {
                 properties: {
                     oAuthSettings : {
                         identityProvider: identityProvider,
                         clientId: clientId,
-                        clientSecret: clientSecret
+                        clientSecret: clientSecret,
+                        scopes: ''
                     }
                 },
             }
@@ -142,7 +144,7 @@ export class ApimService {
 
         const result: HttpOperationResponse = await client.sendRequest({
             method: "PUT",
-            url: `${this.baseUrl}/tokenproviders/${tokenProviderName}/connections/${connectionName}?api-version=${this.apiVersion}`,
+            url: `${this.baseUrl}/tokenproviders/${tokenProviderName}/connections/${connectionName}?api-version=${this.tokenServiceApiVersion}`,
             body: {
                 properties: {
                     tenantId: tokenResponse.tenantId
@@ -157,7 +159,7 @@ export class ApimService {
         const client: ServiceClient = await createGenericClient(this.credentials);
         await client.sendRequest({
             method: "DELETE",
-            url: `${this.baseUrl}/tokenproviders/${tokenProviderName}/connections/${connectionName}?api-version=${this.apiVersion}`
+            url: `${this.baseUrl}/tokenproviders/${tokenProviderName}/connections/${connectionName}?api-version=${this.tokenServiceApiVersion}`
         });
     }
 
@@ -165,7 +167,7 @@ export class ApimService {
         const client: ServiceClient = await createGenericClient(this.credentials);
         await client.sendRequest({
             method: "DELETE",
-            url: `${this.baseUrl}/tokenproviders/${tokenProviderName}?api-version=${this.apiVersion}`
+            url: `${this.baseUrl}/tokenproviders/${tokenProviderName}?api-version=${this.tokenServiceApiVersion}`
         });
     }
 
@@ -173,10 +175,10 @@ export class ApimService {
         const client: ServiceClient = await createGenericClient(this.credentials);
         const result: HttpOperationResponse = await client.sendRequest({
             method: "POST",
-            url: `${this.baseUrl}/tokenproviders/${tokenProviderName}/connections/${connectionName}/getLoginLinks?api-version=${this.apiVersion}`,
+            url: `${this.baseUrl}/tokenproviders/${tokenProviderName}/connections/${connectionName}/getLoginLinks?api-version=${this.tokenServiceApiVersion}`,
             body: body
         });
         // tslint:disable-next-line: no-unsafe-any
-        return <ILoginLinkResponseContract>(result.parsedBody.value);
+        return <ILoginLinkResponseContract>(result.parsedBody);
     }
 }

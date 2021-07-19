@@ -3,9 +3,11 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+import { window } from "vscode";
 import { AzExtTreeItem, AzureParentTreeItem, ICreateChildImplContext } from "vscode-azureextensionui";
 import { ApimService } from "../azure/apim/ApimService";
 import { ITokenProviderContract } from "../azure/apim/contracts";
+import { ext } from "../extensionVariables";
 import { localize } from "../localize";
 import { processError } from "../utils/errorUtil";
 import { treeUtils } from "../utils/treeUtils";
@@ -65,6 +67,14 @@ export class TokenProvidersTreeItem extends AzureParentTreeItem<IServiceTreeRoot
             try {
                 const apimService = new ApimService(this.root.credentials, this.root.environment.resourceManagerEndpointUrl, this.root.subscriptionId, this.root.resourceGroupName, this.root.serviceName);
                 const tokenProvider = await apimService.createTokenProvider(context.tokenProviderName, context.identityProvider, context.clientId, context.clientSecret);
+                const message = `Successfully created Token service "${tokenProvider.name}". 
+                Please add redirect uri '${tokenProvider.properties.OAuthSettings.RedirectUrl}' to the OAuth application before authorizing connection's.`;
+
+                ext.outputChannel.show();
+                ext.outputChannel.appendLine(message);
+                
+                window.showInformationMessage(localize("createdTokenService", message));
+
                 return new TokenProviderTreeItem(this, tokenProvider);
 
             } catch (error) {
