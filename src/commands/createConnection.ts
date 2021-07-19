@@ -5,15 +5,15 @@
 
 import { ProgressLocation, window } from "vscode";
 import { IActionContext } from "vscode-azureextensionui";
-import { IConnectionTreeItemContext } from "../explorer/ConnectionsTreeItem";
+import { ConnectionsTreeItem, IConnectionTreeItemContext } from "../explorer/ConnectionsTreeItem";
 import { TokenProviderTreeItem } from "../explorer/TokenProviderTreeItem";
 import { ext } from "../extensionVariables";
 import { localize } from "../localize";
 
-export async function createConnection(context: IActionContext & Partial<IConnectionTreeItemContext>, node?: TokenProviderTreeItem): Promise<void> {
+export async function createConnection(context: IActionContext & Partial<IConnectionTreeItemContext>, node?: ConnectionsTreeItem): Promise<void> {
     if (!node) {
         const tokenProviderNode = <TokenProviderTreeItem>await ext.tree.showTreeItemPicker(TokenProviderTreeItem.contextValue, context);
-        node = tokenProviderNode;
+        node = tokenProviderNode.connectionsTreeItem;
     }
     
     const connectionName = await askInput('Enter Connection name ...');

@@ -46,5 +46,10 @@
     "azureApiManagement.revisions": "API Revisions",
     "azureApiManagement.setCustomHostName": "Select Gateway Host Name",
     "azureApiManagement.createSubscription": "Create a new Subscription",
-    "azureApiManagement.deleteSubscription": "Delete Subscription"
+    "azureApiManagement.deleteSubscription": "Delete Subscription",
+    "azureApiManagement.createTokenProvider": "Create Token Service",
+    "azureApiManagement.deleteTokenProvider": "Delete Token Service",
+    "azureApiManagement.createConnection": "Create Connection",
+    "azureApiManagement.deleteConnection": "Delete Connection",
+    "azureApiManagement.authorizeConnection": "Authorize Connection"
 }

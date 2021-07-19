@@ -11,8 +11,11 @@ import { AzExtTreeDataProvider, AzureParentTreeItem, AzureTreeItem, AzureUserInp
 import { addApiFilter } from './commands/addApiFilter';
 import { addApiToGateway } from './commands/addApiToGateway';
 import { addApiToProduct } from './commands/addApiToProduct';
+import { authorizeConnection } from './commands/authorizeConnection';
 import { copySubscriptionKey } from './commands/copySubscriptionKey';
+import { createConnection } from './commands/createConnection';
 import { createService } from './commands/createService';
+import { createTokenProvider } from './commands/createTokenProvider';
 import { debugPolicy } from './commands/debugPolicies/debugPolicy';
 import { deleteNode } from './commands/deleteNode';
 import { copyDockerRunCommand, generateKubernetesDeployment } from './commands/deployGateway';
@@ -39,6 +42,8 @@ import { ApiPolicyTreeItem } from './explorer/ApiPolicyTreeItem';
 import { ApisTreeItem } from './explorer/ApisTreeItem';
 import { ApiTreeItem } from './explorer/ApiTreeItem';
 import { AzureAccountTreeItem } from './explorer/AzureAccountTreeItem';
+import { ConnectionsTreeItem } from './explorer/ConnectionsTreeItem';
+import { ConnectionTreeItem } from './explorer/ConnectionTreeItem';
 import { ApiResourceEditor } from './explorer/editors/arm/ApiResourceEditor';
 import { OperationResourceEditor } from './explorer/editors/arm/OperationResourceEditor';
 import { ProductResourceEditor } from './explorer/editors/arm/ProductResourceEditor';
@@ -60,6 +65,8 @@ import { ProductTreeItem } from './explorer/ProductTreeItem';
 import { ServicePolicyTreeItem } from './explorer/ServicePolicyTreeItem';
 import { ServiceTreeItem } from './explorer/ServiceTreeItem';
 import { SubscriptionTreeItem } from './explorer/SubscriptionTreeItem';
+import { TokenProvidersTreeItem } from './explorer/TokenProvidersTreeItem';
+import { TokenProviderTreeItem } from './explorer/TokenProviderTreeItem';
 import { ext } from './extensionVariables';
 import { localize } from './localize';
 
@@ -140,6 +147,12 @@ function registerCommands(tree: AzExtTreeDataProvider): void {
     registerCommand('azureApiManagement.setCustomHostName', setCustomHostName);
     registerCommand('azureApiManagement.createSubscription', createSubscription);
     registerCommand('azureApiManagement.deleteSubscription', async (context: IActionContext, node?: AzureTreeItem) => await deleteNode(context, SubscriptionTreeItem.contextValue, node));
+
+    registerCommand('azureApiManagement.deleteTokenProvider', async (context: IActionContext, node?: AzureTreeItem) => await deleteNode(context, TokenProviderTreeItem.contextValue, node));
+    registerCommand('azureApiManagement.deleteConnection', async (context: IActionContext, node?: AzureTreeItem) => await deleteNode(context, ConnectionTreeItem.contextValue, node));
+    registerCommand('azureApiManagement.createTokenProvider', async (context: IActionContext, node?: TokenProvidersTreeItem) => { await createTokenProvider(context, node); });
+    registerCommand('azureApiManagement.createConnection', async (context: IActionContext, node?: ConnectionsTreeItem) => { await createConnection(context, node); });
+    registerCommand('azureApiManagement.authorizeConnection', async (context: IActionContext, node?: ConnectionTreeItem) => { await authorizeConnection(context, node); });
 }
 
 // tslint:disable-next-line: max-func-body-length

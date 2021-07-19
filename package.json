@@ -74,7 +74,12 @@
         "onCommand:azureApiManagement.revisions",
         "onCommand:azureApiManagement.setCustomHostName",
         "onCommand:azureApiManagement.createSubscription",
-        "onCommand:azureApiManagement.deleteSubscription"
+        "onCommand:azureApiManagement.deleteSubscription",
+        "onCommand:azureApiManagement.createTokenProvider",
+        "onCommand:azureApiManagement.createConnection",
+        "onCommand:azureApiManagement.authorizeConnection",
+        "onCommand:azureApiManagement.deleteConnection",
+        "onCommand:azureApiManagement.deleteTokenProvider"
     ],
     "main": "main",
     "contributes": {
@@ -385,6 +390,31 @@
                     "light": "resources/light/diff.svg",
                     "dark": "resources/dark/diff.svg"
                 }
+            },
+            {
+                "command": "azureApiManagement.createTokenProvider",
+                "title": "%azureApiManagement.createTokenProvider%",
+                "category": "Azure API Management"
+            },
+            {
+                "command": "azureApiManagement.deleteTokenProvider",
+                "title": "%azureApiManagement.deleteTokenProvider%",
+                "category": "Azure API Management"
+            },
+            {
+                "command": "azureApiManagement.createConnection",
+                "title": "%azureApiManagement.createConnection%",
+                "category": "Azure API Management"
+            },
+            {
+                "command": "azureApiManagement.deleteConnection",
+                "title": "%azureApiManagement.deleteConnection%",
+                "category": "Azure API Management"
+            },
+            {
+                "command": "azureApiManagement.authorizeConnection",
+                "title": "%azureApiManagement.authorizeConnection%",
+                "category": "Azure API Management"
             }
         ],
         "viewsContainers": {
@@ -635,6 +665,31 @@
                     "command": "azureApiManagement.deleteSubscription",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementSubscriptionTreeItem",
                     "group": "1@1"
+                },
+                {
+                    "command": "azureApiManagement.createTokenProvider",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementTokenProviders",
+                    "group": "1@1"
+                },
+                {
+                    "command": "azureApiManagement.deleteTokenProvider",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementTokenProvider",
+                    "group": "1@1"
+                },
+                {
+                    "command": "azureApiManagement.createConnection",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementConnections",
+                    "group": "1@1"
+                },
+                {
+                    "command": "azureApiManagement.authorizeConnection",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementConnection",
+                    "group": "1@1"
+                },
+                {
+                    "command": "azureApiManagement.deleteConnection",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementConnection",
+                    "group": "1@2"
                 }
             ]
         },

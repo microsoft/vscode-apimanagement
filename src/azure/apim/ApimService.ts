@@ -161,6 +161,14 @@ export class ApimService {
         });
     }
 
+    public async deleteTokenProvider(tokenProviderName: string): Promise<void> {
+        const client: ServiceClient = await createGenericClient(this.credentials);
+        await client.sendRequest({
+            method: "DELETE",
+            url: `${this.baseUrl}/tokenproviders/${tokenProviderName}?api-version=${this.apiVersion}`
+        });
+    }
+
     public async listLoginLinks(tokenProviderName: string, connectionName: string, body: ILoginLinkRequestContract) : Promise<ILoginLinkResponseContract> {
         const client: ServiceClient = await createGenericClient(this.credentials);
         const result: HttpOperationResponse = await client.sendRequest({

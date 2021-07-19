@@ -3,8 +3,11 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { AzureParentTreeItem, AzureTreeItem, ISubscriptionContext } from "vscode-azureextensionui";
+import { ProgressLocation, window } from "vscode";
+import { AzureParentTreeItem, AzureTreeItem, DialogResponses, ISubscriptionContext, UserCancelledError } from "vscode-azureextensionui";
+import { ApimService } from "../azure/apim/ApimService";
 import { ITokenProviderContract } from "../azure/apim/contracts";
+import { localize } from "../localize";
 import { nonNullProp } from "../utils/nonNull";
 import { treeUtils } from "../utils/treeUtils";
 import { ConnectionsTreeItem } from "./ConnectionsTreeItem";
@@ -48,6 +51,23 @@ export class TokenProviderTreeItem extends AzureParentTreeItem<ITokenProviderTre
 
     public async loadMoreChildrenImpl(): Promise<AzureTreeItem<ITokenProviderTreeRoot>[]> {
         return [this.connectionsTreeItem];
+    }
+
+    public async deleteTreeItemImpl(): Promise<void> {
+        const message: string = localize("confirmDeleteTokenProvider", `Are you sure you want to remove Token Service '${this.tokenProviderContract.name}'?`);
+        const result = await window.showWarningMessage(message, { modal: true }, DialogResponses.deleteResponse, DialogResponses.cancel);
+        if (result === DialogResponses.deleteResponse) {
+            const deletingMessage: string = localize("removingTokenProvider", `Removing Token Service "${this.tokenProviderContract.name}".'`);
+            await window.withProgress({ location: ProgressLocation.Notification, title: deletingMessage }, async () => {
+                const apimService = new ApimService(this.root.credentials, this.root.environment.resourceManagerEndpointUrl, this.root.subscriptionId, this.root.resourceGroupName, this.root.serviceName);
+                await apimService.deleteTokenProvider(this.root.tokenProviderName);
+            });
+            // don't wait
+            window.showInformationMessage(localize("removedTokenProvider", `Successfully removed Token Service "${this.tokenProviderContract.name}".`));
+
+        } else {
+            throw new UserCancelledError();
+        }
     }
 
     private createRoot(subRoot: ISubscriptionContext): ITokenProviderTreeRoot {
