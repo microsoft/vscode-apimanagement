@@ -16,7 +16,7 @@ export async function createTokenProvider(context: IActionContext & Partial<ITok
         node = serviceNode.tokenProvidersTreeItem;
     }
 
-    const tokenProviderName = await askInput('Enter TokenProvider name ...');
+    const tokenProviderName = await askInput('Enter TokenService name ...');
     context.tokenProviderName = tokenProviderName;
 
     const options = ['dropbox', 'twitter', 'spotify', 'github', 'google', 'facebook', 'instagram', 'stripe', 'microsoftbot', 'visualstudioonline'];
@@ -24,7 +24,7 @@ export async function createTokenProvider(context: IActionContext & Partial<ITok
 
     context.identityProvider = identityProvider.label;
 
-    const clientId = await askInput('Enter Client  Id ...');
+    const clientId = await askInput('Enter Client Id ...');
     context.clientId = clientId;
 
     const clientSecret = await askInput('Enter Client Secret ...');

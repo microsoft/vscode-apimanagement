@@ -82,15 +82,6 @@ export interface IConnectionPropertyContract {
 }
 
 export interface ILoginLinkRequestContract {
-    id: string;
-    name: string;
-    // tslint:disable-next-line: no-reserved-keywords
-    type: string;
-    location?: string;
-    properties: ILoginLinkRequestPropertyContract;
-}
-
-export interface ILoginLinkRequestPropertyContract {
     parameters: ILoginLinkInputParameter[];
 }
 
@@ -100,15 +91,6 @@ export interface ILoginLinkInputParameter {
 }
 
 export interface ILoginLinkResponseContract {
-    id: string;
-    name: string;
-    // tslint:disable-next-line: no-reserved-keywords
-    type: string;
-    location?: string;
-    properties: ILoginLinkResponsePropertyContract;
-}
-
-export interface ILoginLinkResponsePropertyContract {
     value: ILoginLink[];
 }
 

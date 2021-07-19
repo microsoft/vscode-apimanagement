@@ -61,6 +61,7 @@ import { ServicePolicyTreeItem } from './explorer/ServicePolicyTreeItem';
 import { ServiceTreeItem } from './explorer/ServiceTreeItem';
 import { SubscriptionTreeItem } from './explorer/SubscriptionTreeItem';
 import { ext } from './extensionVariables';
+import { localize } from './localize';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -86,6 +87,12 @@ export async function activateInternal(context: vscode.ExtensionContext) {
 
         registerCommands(ext.tree);
         registerEditors(context);
+
+        const handler = new UriEventHandler();
+        context.subscriptions.push(
+            vscode.window.registerUriHandler(handler)
+        );
+
         activate(context); // activeta debug context
 
     });
@@ -254,3 +261,10 @@ function registerEditors(context: vscode.ExtensionContext) : void {
 // tslint:disable:typedef
 // tslint:disable-next-line:no-empty
 export function deactivateInternal() {}
+
+class UriEventHandler extends vscode.EventEmitter<vscode.Uri> implements vscode.UriHandler {
+    public handleUri() {
+        ext.outputChannel.appendLine(localize('oauthFlowComplete', "OAuth flow completed."));
+        vscode.window.showInformationMessage(localize('authSuccess', 'Authorization complete. You can now close the browser window that was launched during the connection login process.'));
+    }
+}

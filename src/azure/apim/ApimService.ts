@@ -6,7 +6,7 @@
 import { HttpOperationResponse, ServiceClient } from "@azure/ms-rest-js";
 import { TokenCredentialsBase } from "@azure/ms-rest-nodeauth";
 import { createGenericClient } from "vscode-azureextensionui";
-import { IConnectionContract, IGatewayApiContract, IGatewayContract, IMasterSubscription, ITokenProviderContract, ITokenProviderPropertyContract } from "./contracts";
+import { IConnectionContract, IGatewayApiContract, IGatewayContract, ILoginLinkRequestContract, ILoginLinkResponseContract, IMasterSubscription, ITokenProviderContract } from "./contracts";
 
 export class ApimService {
     public baseUrl: string;
@@ -159,5 +159,16 @@ export class ApimService {
             method: "DELETE",
             url: `${this.baseUrl}/tokenproviders/${tokenProviderName}/connections/${connectionName}?api-version=${this.apiVersion}`
         });
+    }
+
+    public async listLoginLinks(tokenProviderName: string, connectionName: string, body: ILoginLinkRequestContract) : Promise<ILoginLinkResponseContract> {
+        const client: ServiceClient = await createGenericClient(this.credentials);
+        const result: HttpOperationResponse = await client.sendRequest({
+            method: "POST",
+            url: `${this.baseUrl}/tokenproviders/${tokenProviderName}/connections/${connectionName}/getLoginLinks?api-version=${this.apiVersion}`,
+            body: body
+        });
+        // tslint:disable-next-line: no-unsafe-any
+        return <ILoginLinkResponseContract>(result.parsedBody.value);
     }
 }
