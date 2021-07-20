@@ -509,5 +509,15 @@
             "\t</xsl:stylesheet>",
             "</xsl-transform>"
         ]
+    },
+    "fetch-token": {
+        "prefix": "fetch-token",
+        "description": "Acquires access token for a token provider connection. Use in the inbound sections at API or Operation scopes.",
+        "body": [
+            "<fetch-token token-provider-id=\"$1\" connection-id=\"$2\" variable-name=\"access-token\" />",
+            "<set-header name=\"Authorization\" exists-action=\"override\">",
+            "\t<value>@(\"Bearer \" + ((Token)context.Variables[\"access-token\"]).Claims[\"AccessToken\"])</value>",
+            "</set-header>"
+        ]
     }
 }

@@ -18,6 +18,6 @@ export async function copyConnectionPolicy(context: IActionContext, node?: Conne
     const tid = node.root.tokenProviderName;
     const cid = node.connectionContract.name;
 
-    vscode.env.clipboard.writeText(`<fetch-token token-provider-id = '${tid}' connection-id = '${cid}' ignore-error = false />`);
+    vscode.env.clipboard.writeText(`<fetch-token token-provider-id="${tid}" connection-id= "${cid}" variable-name="${tid}-${cid}-token" />`);
     vscode.window.showInformationMessage(localize("CopySnippet", `Policy copied to clipboard.`));
 }

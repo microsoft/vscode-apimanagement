@@ -2,7 +2,7 @@
     "name": "vscode-apimanagement",
     "displayName": "Azure API Management",
     "description": "An Azure API Management extension for Visual Studio Code.",
-    "version": "1.0.3",
+    "version": "1.0.3-alpha",
     "publisher": "ms-azuretools",
     "icon": "resources/apim-icon-newone.png",
     "aiKey": "AIF-d9b70cd4-b9f9-4d70-929b-a071c400b217",
@@ -678,14 +678,24 @@
                     "group": "1@1"
                 },
                 {
+                    "command": "azureApiManagement.Refresh",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementTokenProviders",
+                    "group": "1@2"
+                },
+                {
                     "command": "azureApiManagement.deleteTokenProvider",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementTokenProvider",
-                    "group": "1@1"
+                    "group": "2@1"
                 },
                 {
                     "command": "azureApiManagement.createConnection",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementConnections",
                     "group": "1@1"
+                },
+                {
+                    "command": "azureApiManagement.Refresh",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementConnections",
+                    "group": "1@2"
                 },
                 {
                     "command": "azureApiManagement.authorizeConnection",
@@ -700,7 +710,7 @@
                 {
                     "command": "azureApiManagement.deleteConnection",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementConnection",
-                    "group": "1@3"
+                    "group": "2@1"
                 }
             ]
         },

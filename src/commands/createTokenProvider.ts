@@ -30,6 +30,9 @@ export async function createTokenProvider(context: IActionContext & Partial<ITok
     const clientSecret = await askInput('Enter Client Secret ...');
     context.clientSecret = clientSecret;
 
+    const scopes = await askInput('Enter Scopes ...');
+    context.scopes = scopes;
+
     window.withProgress(
         {
             location: ProgressLocation.Notification,

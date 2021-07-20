@@ -19,6 +19,7 @@ export interface ITokenProviderTreeItemContext extends ICreateChildImplContext {
     identityProvider: string;
     clientId: string;
     clientSecret: string;
+    scopes: string;
 }
 
 export class TokenProvidersTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
@@ -66,7 +67,7 @@ export class TokenProvidersTreeItem extends AzureParentTreeItem<IServiceTreeRoot
             context.showCreatingTreeItem(tokenProviderName);
             try {
                 const apimService = new ApimService(this.root.credentials, this.root.environment.resourceManagerEndpointUrl, this.root.subscriptionId, this.root.resourceGroupName, this.root.serviceName);
-                const tokenProvider = await apimService.createTokenProvider(context.tokenProviderName, context.identityProvider, context.clientId, context.clientSecret);
+                const tokenProvider = await apimService.createTokenProvider(context.tokenProviderName, context.identityProvider, context.clientId, context.clientSecret, context.scopes);
                 const message = `Successfully created Token service "${tokenProvider.name}". 
                 Please add redirect uri '${tokenProvider.properties.OAuthSettings.RedirectUrl}' to the OAuth application before authorizing connection's.`;
 
