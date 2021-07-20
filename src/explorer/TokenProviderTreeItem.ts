@@ -16,7 +16,7 @@ import { ITokenProviderTreeRoot } from "./ITokenProviderTreeRoot";
 import { TokenProvidersTreeItem } from "./TokenProvidersTreeItem";
 
 export class TokenProviderTreeItem extends AzureParentTreeItem<ITokenProviderTreeRoot> {
-    public static contextValue: string = 'azureApiManagementTokenProviderTreeItem';
+    public static contextValue: string = 'azureApiManagementTokenProvider';
     public contextValue: string = TokenProviderTreeItem.contextValue;
     public readonly connectionsTreeItem: ConnectionsTreeItem;
 
