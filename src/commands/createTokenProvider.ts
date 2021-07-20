@@ -19,7 +19,11 @@ export async function createTokenProvider(context: IActionContext & Partial<ITok
     const tokenProviderName = await askInput('Enter TokenService name ...');
     context.tokenProviderName = tokenProviderName;
 
-    const options = ['dropbox', 'twitter', 'spotify', 'github', 'google', 'facebook', 'instagram', 'stripe', 'microsoftbot', 'visualstudioonline'];
+    const options = ['salesforce', 'bitly', 'box', 'facebook,', 'fitbit', 'dropbox', 'twitter', 
+    'spotify', 'github', 'google', 'facebook', 'instagram', 'stripe', 'flickr', 'github', 'google', 'instagram',
+    'intuit', 'linkedin', 'mailchimp', 'yammer', 'pinterest',
+    'microsoftbot', 'visualstudioonline'];
+
     const identityProvider = await ext.ui.showQuickPick(options.map((s) => { return { label: s, description: '', detail: '' }; }), { placeHolder: 'Select Identity Provider ...', canPickMany: false });
 
     context.identityProvider = identityProvider.label;
