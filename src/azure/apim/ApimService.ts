@@ -116,7 +116,7 @@ export class ApimService {
         return <IConnectionContract[]>(result.parsedBody.value);
     }
 
-    public async createTokenProvider(tokenProviderName:string, identityProvider: string, clientId: string, clientSecret: string, scopes: string = ''): Promise<ITokenProviderContract> {
+    public async createTokenProvider(tokenProviderName:string, identityProvider: string, clientId: string, clientSecret: string, scopes: string = '', parameters : {[name: string]: string;} = {}): Promise<ITokenProviderContract> {
         const client: ServiceClient = await createGenericClient(this.credentials);
 
         const result: HttpOperationResponse = await client.sendRequest({
@@ -128,7 +128,8 @@ export class ApimService {
                         identityProvider: identityProvider,
                         clientId: clientId,
                         clientSecret: clientSecret,
-                        scopes: scopes
+                        scopes: scopes,
+                        parameters : parameters
                     }
                 },
             }

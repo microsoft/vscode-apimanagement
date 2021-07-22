@@ -19,8 +19,10 @@ export async function createTokenProvider(context: IActionContext & Partial<ITok
     const tokenProviderName = await askInput('Enter TokenService name ...');
     context.tokenProviderName = tokenProviderName;
 
-    const options = ['salesforce', 'bitly', 'box', 'facebook,', 'fitbit', 'dropbox', 'twitter', 
-    'spotify', 'github', 'google', 'facebook', 'instagram', 'stripe', 'flickr', 'github', 'google', 'instagram',
+    const aad = 'aad';
+
+    const options = [ aad, 'salesforce', 'bitly', 'box', 'facebook,', 'fitbit', 'dropbox', 
+    'spotify', 'github', 'google', 'facebook', 'instagram', 'stripe', 'flickr',
     'intuit', 'linkedin', 'mailchimp', 'yammer', 'pinterest',
     'microsoftbot', 'visualstudioonline'];
 
@@ -36,6 +38,20 @@ export async function createTokenProvider(context: IActionContext & Partial<ITok
 
     const scopes = await askInput('Enter Scopes ...');
     context.scopes = scopes;
+
+
+    const parameters: IParameterValues = {};
+
+    if (context.identityProvider === aad) {
+
+        const tenantId = await askInput('Enter Tenant Id ...');
+        parameters['tenantId'] = tenantId;
+
+        const resourceUri = await askInput('Enter Resource Uri ...');
+        parameters['resourceUri'] = resourceUri;
+    }
+
+    context.parameters = parameters;
 
     window.withProgress(
         {
@@ -57,4 +73,8 @@ async function askInput(message: string) : Promise<string> {
     return (await ext.ui.showInputBox({
         prompt: idPrompt
     })).trim();
+}
+
+interface IParameterValues {
+    [name: string]: string;
 }
