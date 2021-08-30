@@ -4,10 +4,9 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { ApiManagementModels } from "@azure/arm-apimanagement";
-import requestPromise from "request-promise";
-import { AzureTreeItem } from "vscode-azureextensionui";
+import { ServiceClient } from "@azure/ms-rest-js";
+import { AzureTreeItem, createGenericClient } from "vscode-azureextensionui";
 import { IApiContract } from "../../../azure/apim/TempApiContract";
-import { SharedAccessToken } from "../../../constants";
 import { IApiTreeRoot } from "../../IApiTreeRoot";
 import { BaseArmResourceEditor } from "./BaseArmResourceEditor";
 
@@ -20,16 +19,15 @@ export class ApiResourceEditor extends BaseArmResourceEditor<IApiTreeRoot>  {
 
     public async getDataInternal(context: AzureTreeItem<IApiTreeRoot>): Promise<ApiManagementModels.ApiContract | IApiContract> {
         if (context.root.apiType !== undefined && context.root.apiType === 'graphql') {
-            const requestOptions : requestPromise.RequestPromiseOptions = {
+            const client: ServiceClient = await createGenericClient(context.root.credentials);
+            const apiString = await client.sendRequest({
                 method: "GET",
-                headers: {
-                    Authorization: SharedAccessToken
-                }
-            };
-            const apiString = await <Thenable<string>>requestPromise(`https://${context.root.serviceName}.management.preview.int-azure-api.net/subscriptions/${context.root.subscriptionId}/resourceGroups/${context.root.resourceGroupName}/providers/Microsoft.ApiManagement/service/${context.root.serviceName}/apis/${context.root.apiName}?api-version=2021-04-01-preview`, requestOptions).promise();
+                // tslint:disable-next-line: no-non-null-assertion
+                url: `https://management.azure.com/subscriptions/${context.root.subscriptionId}/resourceGroups/${context.root.resourceGroupName}/providers/Microsoft.ApiManagement/service/${context.root.serviceName}/apis/${context.root.apiName}?api-version=2021-04-01-preview`
+            });
             // tslint:disable: no-unsafe-any
             // tslint:disable-next-line: no-unnecessary-local-variable
-            const apiTemp : IApiContract = JSON.parse(apiString);
+            const apiTemp : IApiContract = apiString.parsedBody;
             return apiTemp;
         }
         return await context.root.client.api.get(context.root.resourceGroupName, context.root.serviceName, context.root.apiName);
@@ -37,17 +35,16 @@ export class ApiResourceEditor extends BaseArmResourceEditor<IApiTreeRoot>  {
 
     public async updateDataInternal(context: AzureTreeItem<IApiTreeRoot>, payload: ApiManagementModels.ApiCreateOrUpdateParameter): Promise<ApiManagementModels.ApiContract | IApiContract> {
         if (context.root.apiType !== undefined && context.root.apiType === 'graphql') {
-            const requestOptions : requestPromise.RequestPromiseOptions = {
+            const client: ServiceClient = await createGenericClient(context.root.credentials);
+            const apiString = await client.sendRequest({
                 method: "PUT",
-                headers: {
-                    Authorization: SharedAccessToken
-                },
-                body: JSON.stringify(payload)
-            };
-            const apiString = await <Thenable<string>>requestPromise(`https://${context.root.serviceName}.management.preview.int-azure-api.net/subscriptions/${context.root.subscriptionId}/resourceGroups/${context.root.resourceGroupName}/providers/Microsoft.ApiManagement/service/${context.root.serviceName}/apis/${context.root.apiName}?api-version=2021-04-01-preview`, requestOptions).promise();
+                body: payload,
+                // tslint:disable-next-line: no-non-null-assertion
+                url: `https://management.azure.com/subscriptions/${context.root.subscriptionId}/resourceGroups/${context.root.resourceGroupName}/providers/Microsoft.ApiManagement/service/${context.root.serviceName}/apis/${context.root.apiName}?api-version=2021-04-01-preview`
+            });
             // tslint:disable: no-unsafe-any
             // tslint:disable-next-line: no-unnecessary-local-variable
-            const apiTemp : IApiContract = JSON.parse(apiString);
+            const apiTemp : IApiContract = apiString.parsedBody;
             return apiTemp;
         }
         return await context.root.client.api.createOrUpdate(context.root.resourceGroupName, context.root.serviceName, context.root.apiName, payload);

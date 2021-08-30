@@ -14,7 +14,7 @@ import { IApiTreeRoot } from "./IApiTreeRoot";
 export class GraphqlQueriesTreeItem extends AzureParentTreeItem<IApiTreeRoot> {
 
     public get iconPath(): { light: string, dark: string } {
-        return treeUtils.getThemedIconPath('list');
+        return treeUtils.getThemedIconPath('querylist');
     }
     public static contextValue: string = 'azureApiManagementGraphqlList';
     public label: string = "Query";

@@ -3,11 +3,10 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+import { ServiceClient } from '@azure/ms-rest-js';
 import * as fse from 'fs-extra';
-import requestPromise from 'request-promise';
 import { OpenDialogOptions, ProgressLocation, Uri, window, workspace } from "vscode";
-import { IActionContext } from "vscode-azureextensionui";
-import { SharedAccessToken } from '../constants';
+import { createGenericClient, IActionContext } from "vscode-azureextensionui";
 import { GraphqlApiTreeItem } from "../explorer/GraphqlApiTreeItem";
 import { ServiceTreeItem } from "../explorer/ServiceTreeItem";
 import { ext } from "../extensionVariables";
@@ -33,13 +32,6 @@ export async function importGraphqlSchemaByFile(actionContext: IActionContext, n
             }
         }
     };
-    const requestOptions : requestPromise.RequestPromiseOptions = {
-        method: "PUT",
-        headers: {
-            Authorization: SharedAccessToken
-        },
-        body: JSON.stringify(body)
-    };
     window.withProgress(
         {
             location: ProgressLocation.Notification,
@@ -48,9 +40,14 @@ export async function importGraphqlSchemaByFile(actionContext: IActionContext, n
         },
         // tslint:disable-next-line:no-non-null-assertion
         async () => {
-        await <Thenable<string>>requestPromise(
-            `https://${node?.root.serviceName}.management.preview.int-azure-api.net/subscriptions/${node?.root.subscriptionId}/resourceGroups/${node?.root.resourceGroupName}/providers/Microsoft.ApiManagement/service/${node?.root.serviceName}/apis/${node?.root.apiName}/schemas/default?api-version=2021-04-01-preview`, requestOptions).promise();
-     }
+            const client: ServiceClient = await createGenericClient(node?.root.credentials);
+            await client.sendRequest({
+                method: "PUT",
+                body: body,
+                // tslint:disable-next-line: no-non-null-assertion
+                url: `https://management.azure.com/subscriptions/${node!.root.subscriptionId}/resourceGroups/${node!.root.resourceGroupName}/providers/Microsoft.ApiManagement/service/${node!.root.serviceName}/apis/${node?.root.apiName}/schemas/default?api-version=2021-04-01-preview`
+            });
+        }
     ).then(async () => {
         // tslint:disable-next-line:no-non-null-assertion
         await node!.refresh(actionContext);

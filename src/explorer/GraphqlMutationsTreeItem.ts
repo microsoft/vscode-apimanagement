@@ -14,7 +14,7 @@ import { IApiTreeRoot } from "./IApiTreeRoot";
 export class GraphqlMutationsTreeItem extends AzureParentTreeItem<IApiTreeRoot> {
 
     public get iconPath(): { light: string, dark: string } {
-        return treeUtils.getThemedIconPath('list');
+        return treeUtils.getThemedIconPath('mutation');
     }
     public static contextValue: string = 'azureApiManagementGraphqlMutationsList';
     public label: string = "Mutation";

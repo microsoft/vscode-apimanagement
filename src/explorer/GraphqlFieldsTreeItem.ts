@@ -14,7 +14,7 @@ import { IApiTreeRoot } from "./IApiTreeRoot";
 export class GraphqlFieldsTreeItem extends AzureParentTreeItem<IApiTreeRoot> {
 
     public get iconPath(): { light: string, dark: string } {
-        return treeUtils.getThemedIconPath('list');
+        return treeUtils.getThemedIconPath('treelist');
     }
 
     public get label() : string {

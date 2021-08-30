@@ -13,7 +13,7 @@ import { IApiTreeRoot } from "./IApiTreeRoot";
 export class GraphqlFieldsLeafTreeItem extends AzureTreeItem<IApiTreeRoot> {
 
     public get iconPath(): { light: string, dark: string } {
-        return treeUtils.getThemedIconPath('list');
+        return treeUtils.getThemedIconPath('leafnode');
     }
 
     public get label() : string {

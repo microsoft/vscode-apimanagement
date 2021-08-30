@@ -3,9 +3,10 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import requestPromise from "request-promise";
+import { ServiceClient } from "@azure/ms-rest-js";
 import { ProgressLocation, window } from "vscode";
-import { SharedAccessToken, showSavePromptConfigKey } from "../../../constants";
+import { createGenericClient } from "vscode-azureextensionui";
+import { showSavePromptConfigKey } from "../../../constants";
 import { localize } from "../../../localize";
 import { GraphqlApiTreeItem } from "../../GraphqlApiTreeItem";
 import { Editor } from "../Editor";
@@ -17,17 +18,13 @@ export class GraphqlApiSchemaEditor extends Editor<GraphqlApiTreeItem> {
     }
 
     public async getData(context: GraphqlApiTreeItem): Promise<string> {
-        const requestOptions : requestPromise.RequestPromiseOptions = {
+        const client: ServiceClient = await createGenericClient(context.root.credentials);
+        const schemasString = await client.sendRequest({
             method: "GET",
-            headers: {
-                Authorization: SharedAccessToken
-            }
-        };
-
-        const schemasString = await <Thenable<string>>requestPromise(
-            `https://${context.root.serviceName}.management.preview.int-azure-api.net/subscriptions/${context.root.subscriptionId}/resourceGroups/${context.root.resourceGroupName}/providers/Microsoft.ApiManagement/service/${context.root.serviceName}/apis/${context.root.apiName}/schemas/default?api-version=2021-04-01-preview`, requestOptions).promise();
-
-        return JSON.parse(schemasString).properties.document.value;
+            // tslint:disable-next-line: no-non-null-assertion
+            url: `https://management.azure.com/subscriptions/${context.root.subscriptionId}/resourceGroups/${context.root.resourceGroupName}/providers/Microsoft.ApiManagement/service/${context.root.serviceName}/apis/${context.root.apiName}/schemas/default?api-version=2021-04-01-preview`
+        });
+        return schemasString.parsedBody.properties.document.value;
     }
 
     public async updateData(context: GraphqlApiTreeItem, data: string): Promise<string> {
@@ -47,15 +44,13 @@ export class GraphqlApiSchemaEditor extends Editor<GraphqlApiTreeItem> {
                     }
                 };
 
-                const requestOptions : requestPromise.RequestPromiseOptions = {
+                const client: ServiceClient = await createGenericClient(context.root.credentials);
+                await client.sendRequest({
                     method: "PUT",
-                    headers: {
-                        Authorization: SharedAccessToken
-                    },
-                    body: JSON.stringify(body)
-                };
-                await <Thenable<string>>requestPromise(
-                    `https://${context.root.serviceName}.management.preview.int-azure-api.net/subscriptions/${context.root.subscriptionId}/resourceGroups/${context.root.resourceGroupName}/providers/Microsoft.ApiManagement/service/${context.root.serviceName}/apis/${context.root.apiName}/schemas/default?api-version=2021-04-01-preview`, requestOptions).promise();
+                    body: body,
+                    // tslint:disable-next-line: no-non-null-assertion
+                    url: `https://management.azure.com/subscriptions/${context.root.subscriptionId}/resourceGroups/${context.root.resourceGroupName}/providers/Microsoft.ApiManagement/service/${context.root.serviceName}/apis/${context.root.apiName}/schemas/default?api-version=2021-04-01-preview`
+                });
             }
         ).then(async () => {
             window.showInformationMessage(localize("updateAPISchema", `Changes to API '${context.apiContract.name}' were succefully uploaded to cloud.`));

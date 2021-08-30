@@ -3,18 +3,17 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+import { ServiceClient } from "@azure/ms-rest-js";
 import { buildSchema, GraphQLField, GraphQLFieldMap, GraphQLNamedType, GraphQLObjectType, GraphQLSchema } from "graphql";
-import requestPromise from "request-promise";
-import { AzureParentTreeItem, AzureTreeItem, ISubscriptionContext } from "vscode-azureextensionui";
+import { AzureParentTreeItem, AzureTreeItem, createGenericClient, ISubscriptionContext } from "vscode-azureextensionui";
 import { IApiContract } from "../azure/apim/TempApiContract";
 import { TempSchema } from "../azure/apim/TempSchema";
-import { SharedAccessToken } from "../constants";
 import { nonNullProp } from "../utils/nonNull";
 import { treeUtils } from "../utils/treeUtils";
 import { ApiPolicyTreeItem } from "./ApiPolicyTreeItem";
 import { GraphqlMutationsTreeItem } from "./GraphqlMutationsTreeItem";
 import { GraphqlQueriesTreeItem } from "./GraphqlQueriesTreeItem";
-import { GraphqlSubscriptionsTreeItem } from "./GraphqlSubscriptionsTreeItem";
+//import { GraphqlSubscriptionsTreeItem } from "./GraphqlSubscriptionsTreeItem";
 import { IApiTreeRoot } from "./IApiTreeRoot";
 import { IServiceTreeRoot } from "./IServiceTreeRoot";
 
@@ -30,7 +29,7 @@ export class GraphqlApiTreeItem extends AzureParentTreeItem<IApiTreeRoot> {
     private _root: IApiTreeRoot;
     private _queriesTreeItem: GraphqlQueriesTreeItem;
     private _mutationsTreeItem: GraphqlMutationsTreeItem;
-    private _subscriptionsTreeItem: GraphqlSubscriptionsTreeItem;
+    //private _subscriptionsTreeItem: GraphqlSubscriptionsTreeItem;
 
     constructor(
         parent: AzureParentTreeItem,
@@ -67,17 +66,15 @@ export class GraphqlApiTreeItem extends AzureParentTreeItem<IApiTreeRoot> {
     }
 
     public async loadMoreChildrenImpl(): Promise<AzureTreeItem<IApiTreeRoot>[]> {
-        const requestOptions : requestPromise.RequestPromiseOptions = {
+        const client: ServiceClient = await createGenericClient(this.root.credentials);
+        const schemasString = await client.sendRequest({
             method: "GET",
-            headers: {
-                Authorization: SharedAccessToken
-            }
-        };
-        const schemasString = await <Thenable<string>>requestPromise(
-            `https://${this.root.serviceName}.management.preview.int-azure-api.net/subscriptions/${this.root.subscriptionId}/resourceGroups/${this.root.resourceGroupName}/providers/Microsoft.ApiManagement/service/${this.root.serviceName}/apis/${this.root.apiName}/schemas?api-version=2021-04-01-preview`, requestOptions).promise();
+            // tslint:disable-next-line: no-non-null-assertion
+            url: `https://management.azure.com/subscriptions/${this.root.subscriptionId}/resourceGroups/${this.root.resourceGroupName}/providers/Microsoft.ApiManagement/service/${this.root.serviceName}/apis/${this.root.apiName}/schemas?api-version=2021-04-01-preview`
+        });
         // tslint:disable: no-unsafe-any
         // tslint:disable-next-line: no-unnecessary-local-variable
-        const schemas : TempSchema[] = JSON.parse(schemasString).value;
+        const schemas : TempSchema[] = schemasString.parsedBody.value;
 
         const valueList: GraphQLSchema[] = [];
         // tslint:disable-next-line: no-any
@@ -122,9 +119,11 @@ export class GraphqlApiTreeItem extends AzureParentTreeItem<IApiTreeRoot> {
         }
         this._queriesTreeItem = new GraphqlQueriesTreeItem(this, queryTypes);
         this._mutationsTreeItem = new GraphqlMutationsTreeItem(this, mutationTypes);
-        this._subscriptionsTreeItem = new GraphqlSubscriptionsTreeItem(this, subscriptionTypes);
+        /*this._subscriptionsTreeItem = new GraphqlSubscriptionsTreeItem(this, subscriptionTypes);
 
         return [this._queriesTreeItem, this._mutationsTreeItem, this._subscriptionsTreeItem, this.policyTreeItem];
+        */
+        return [this._queriesTreeItem, this._mutationsTreeItem, this.policyTreeItem];
     }
 
     public hasMoreChildrenImpl(): boolean {

@@ -4,10 +4,10 @@
  *--------------------------------------------------------------------------------------------*/
 
 //import { ServiceClient } from "@azure/ms-rest-js";
-import requestPromise from "request-promise";
+import { ServiceClient } from "@azure/ms-rest-js";
 import { ProgressLocation, window } from "vscode";
+import { createGenericClient } from 'vscode-azureextensionui';
 import { IActionContext } from "../../extension.bundle";
-import { SharedAccessToken } from "../constants";
 import { ApisTreeItem, IApiTreeItemContext } from "../explorer/ApisTreeItem";
 import { ServiceTreeItem } from "../explorer/ServiceTreeItem";
 import { ext } from "../extensionVariables";
@@ -45,21 +45,25 @@ export async function createGraphqlApi(context: IActionContext & Partial<IApiTre
             cancellable: false
         },
         async () => {
-            const requestOptions : requestPromise.RequestPromiseOptions = {
+            const client: ServiceClient = await createGenericClient(node?.root.credentials);
+            const response = await client.sendRequest({
                 method: "PUT",
-                headers: {
-                    Authorization: SharedAccessToken
-                },
-                body: JSON.stringify(body)
-            };
-            // tslint:disable-next-line: no-non-null-assertion
-            await <Thenable<string>>requestPromise(`https://${node!.root.serviceName}.management.preview.int-azure-api.net/subscriptions/${node!.root.subscriptionId}/resourceGroups/${node!.root.resourceGroupName}/providers/Microsoft.ApiManagement/service/${node!.root.serviceName}/apis/${apiName}?api-version=2021-04-01-preview`, requestOptions).promise();
+                body: body,
+                // tslint:disable-next-line: no-non-null-assertion
+                url: `https://management.azure.com/subscriptions/${node!.root.subscriptionId}/resourceGroups/${node!.root.resourceGroupName}/providers/Microsoft.ApiManagement/service/${node!.root.serviceName}/apis/${apiName}?api-version=2021-04-01-preview`
+            });
+
+            if (response.status !== 200 && response.status !== 201 && response.status !== 202) {
+                // tslint:disable-next-line: no-non-null-assertion
+                throw new Error(localize("", response.bodyAsText!));
+            }
+            // tslint:disable-next-line: no-console
+            console.log(response);
         }
     ).then(async () => {
         window.showInformationMessage(localize("", `New Graphql API has been created!`));
         node?.refresh(context);
     });
-
 }
 
 async function askLink() : Promise<string> {

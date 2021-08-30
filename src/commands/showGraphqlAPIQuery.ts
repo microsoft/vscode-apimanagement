@@ -3,12 +3,11 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+import { ServiceClient } from '@azure/ms-rest-js';
 import { GraphQLFieldMap, GraphQLInputObjectType, GraphQLList, GraphQLNonNull, GraphQLObjectType, GraphQLScalarType } from 'graphql';
-import requestPromise from 'request-promise';
 import * as vscode from 'vscode';
-import { IActionContext } from "vscode-azureextensionui";
+import { createGenericClient, IActionContext } from "vscode-azureextensionui";
 import { IApiContract } from '../azure/apim/TempApiContract';
-import { SharedAccessToken } from '../constants';
 import { GraphqlObjectTypeTreeItem } from "../explorer/GraphqlObjectTypeTreeItem";
 import { ext } from "../extensionVariables";
 import { createTemporaryFile } from "../utils/fsUtil";
@@ -23,15 +22,15 @@ export async function showGraphqlAPIQuery(actionContext: IActionContext, node?: 
     const fileName: string = node.root.apiName.concat("-").concat(query.name).concat(".http");
     const localFilePath: string = await createTemporaryFile(fileName);
     let data = "";
-    const requestOptions : requestPromise.RequestPromiseOptions = {
+
+    const client: ServiceClient = await createGenericClient(node?.root.credentials);
+    const apiContractString = await client.sendRequest({
         method: "GET",
-        headers: {
-            Authorization: SharedAccessToken
-        }
-    };
-    const apiContractString = await <Thenable<string>>requestPromise(`https://${node.root.serviceName}.management.preview.int-azure-api.net/subscriptions/${node.root.subscriptionId}/resourceGroups/${node.root.resourceGroupName}/providers/Microsoft.ApiManagement/service/${node.root.serviceName}/apis/${node.root.apiName}?api-version=2021-04-01-preview`, requestOptions).promise();
+        // tslint:disable-next-line: no-non-null-assertion
+        url: `https://management.azure.com/subscriptions/${node.root.subscriptionId}/resourceGroups/${node.root.resourceGroupName}/providers/Microsoft.ApiManagement/service/${node.root.serviceName}/apis/${node.root.apiName}?api-version=2021-04-01-preview`
+    });
     // tslint:disable-next-line: no-unsafe-any
-    const apiTemp : IApiContract = JSON.parse(apiContractString);
+    const apiTemp : IApiContract = apiContractString.parsedBody;
     let queryBuilder = "";
     const serviceUrl = `https://${node.root.serviceName}.azure-api.net/${apiTemp.properties.path}`;
     const args = query.args;

@@ -5,10 +5,10 @@
 
 import { ApiManagementModels } from "@azure/arm-apimanagement";
 import { ApiContract, ApiCreateOrUpdateParameter } from "@azure/arm-apimanagement/src/models";
-import requestPromise from 'request-promise';
-import { AzExtTreeItem, AzureParentTreeItem, ICreateChildImplContext } from "vscode-azureextensionui";
+import { ServiceClient } from "@azure/ms-rest-js";
+import { AzExtTreeItem, AzureParentTreeItem, createGenericClient, ICreateChildImplContext } from "vscode-azureextensionui";
 import { IApiContract } from "../azure/apim/TempApiContract";
-import { SharedAccessToken, topItemCount } from "../constants";
+import { topItemCount } from "../constants";
 import { localize } from "../localize";
 import { IOpenApiImportObject } from "../openApi/OpenApiImportObject";
 import { apiUtil } from "../utils/apiUtil";
@@ -57,15 +57,15 @@ export class ApisTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
             this._nextLink = apiCollection1.nextLink;
 
             apisToLoad = apiCollection1.map((s) => s).filter(s => apiUtil.isNotApiRevision(s));
-            const requestOptions : requestPromise.RequestPromiseOptions = {
+
+            const client: ServiceClient = await createGenericClient(this.root.credentials);
+            const apiCollectionString = await client.sendRequest({
                 method: "GET",
-                headers: {
-                    Authorization: SharedAccessToken
-                }
-            };
-            const apiCollectionString = await <Thenable<string>>requestPromise(`https://${this.root.serviceName}.management.preview.int-azure-api.net/subscriptions/${this.root.subscriptionId}/resourceGroups/${this.root.resourceGroupName}/providers/Microsoft.ApiManagement/service/${this.root.serviceName}/apis?api-version=2021-04-01-preview`, requestOptions).promise();
+                // tslint:disable-next-line: no-non-null-assertion
+                url: `${this.root.environment.resourceManagerEndpointUrl}/subscriptions/${this.root.subscriptionId}/resourceGroups/${this.root.resourceGroupName}/providers/Microsoft.ApiManagement/service/${this.root.serviceName}/apis?api-version=2021-04-01-preview`
+            });
             // tslint:disable-next-line: no-unsafe-any
-            const apiCollectionTemp : IApiContract[] = JSON.parse(apiCollectionString).value;
+            const apiCollectionTemp : IApiContract[] = apiCollectionString.parsedBody.value;
             apisToLoad2 = this.findGraphqlApis(apiCollectionTemp);
         }
 

@@ -22,7 +22,7 @@ export class GraphqlObjectTypeTreeItem extends AzureParentTreeItem<IApiTreeRoot>
     private _label: string;
 
     public get iconPath(): { light: string, dark: string } {
-        return treeUtils.getThemedIconPath('op');
+        return treeUtils.getThemedIconPath('treelist');
     }
 
     public get label() : string {
