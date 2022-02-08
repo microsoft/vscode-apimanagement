@@ -138,13 +138,14 @@ async function askFolder(): Promise<Uri[]> {
 function generateExtractConfig(sourceApimName: string, resourceGroup: string, fileFolder: string, apiName?: string): string {
     const extractorConfig = {
         sourceApimName: sourceApimName,
-        destinationApimName: "",
+        destinationApimName: " ",
         resourceGroup: resourceGroup,
         fileFolder: fileFolder,
         apiName: apiName,
-        linkedTemplatesBaseUrl: "",
-        linkedTemplatesUrlQueryString: "",
-        policyXMLBaseUrl: ""
+        linkedTemplatesBaseUrl: " ",
+        linkedTemplatesUrlQueryString: " ",
+        policyXMLBaseUrl: " ",
+        policyXMLSasToken: " "
     };
 
     return JSON.stringify(extractorConfig);
