@@ -8,7 +8,14 @@ steps:
   condition: eq(variables['Agent.OS'], 'Linux')
 
 - task: UsePythonVersion@0
-  displayName: 'Use Python 3.9.10' # specific version macOS: https://github.com/actions/virtual-environments/blob/main/images/macos/macos-11-Readme.md
+  condition: in(variables['agent.os'], 'Windows_NT')
+  displayName: 'Use Python on Windows' # specific version for Windows: https://github.com/actions/virtual-environments/blob/main/images/win/Windows2019-Readme.md
+  inputs:
+    versionSpec: 3.9.9
+
+- task: UsePythonVersion@0
+  condition: in(variables['agent.os'], 'Darwin', 'Linux')
+  displayName: 'Use Python 3.9.10' # specific version for macOS: https://github.com/actions/virtual-environments/blob/main/images/macos/macos-11-Readme.md
   inputs:
     versionSpec: 3.9.10
 
