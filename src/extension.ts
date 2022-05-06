@@ -12,6 +12,7 @@ import { addApiFilter } from './commands/addApiFilter';
 import { addApiToGateway } from './commands/addApiToGateway';
 import { addApiToProduct } from './commands/addApiToProduct';
 import { copySubscriptionKey } from './commands/copySubscriptionKey';
+import { createAuthorizationProvider } from './commands/createAuthorizationProvider';
 import { createService } from './commands/createService';
 import { debugPolicy } from './commands/debugPolicies/debugPolicy';
 import { deleteNode } from './commands/deleteNode';
@@ -38,6 +39,7 @@ import { ApiOperationTreeItem } from './explorer/ApiOperationTreeItem';
 import { ApiPolicyTreeItem } from './explorer/ApiPolicyTreeItem';
 import { ApisTreeItem } from './explorer/ApisTreeItem';
 import { ApiTreeItem } from './explorer/ApiTreeItem';
+import { AuthorizationProvidersTreeItem } from './explorer/AuthorizationProvidersTreeItem';
 import { AzureAccountTreeItem } from './explorer/AzureAccountTreeItem';
 import { ApiResourceEditor } from './explorer/editors/arm/ApiResourceEditor';
 import { OperationResourceEditor } from './explorer/editors/arm/OperationResourceEditor';
@@ -133,6 +135,8 @@ function registerCommands(tree: AzExtTreeDataProvider): void {
     registerCommand('azureApiManagement.setCustomHostName', setCustomHostName);
     registerCommand('azureApiManagement.createSubscription', createSubscription);
     registerCommand('azureApiManagement.deleteSubscription', async (context: IActionContext, node?: AzureTreeItem) => await deleteNode(context, SubscriptionTreeItem.contextValue, node));
+
+    registerCommand('azureApiManagement.createAuthorizationProvider', async (context: IActionContext, node?: AuthorizationProvidersTreeItem) => { await createAuthorizationProvider(context, node); });
 }
 
 // tslint:disable-next-line: max-func-body-length

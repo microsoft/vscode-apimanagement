@@ -2,7 +2,7 @@
     "name": "vscode-apimanagement",
     "displayName": "Azure API Management",
     "description": "An Azure API Management extension for Visual Studio Code.",
-    "version": "1.0.3",
+    "version": "1.0.4-alpha",
     "publisher": "ms-azuretools",
     "icon": "resources/apim-icon-newone.png",
     "aiKey": "AIF-d9b70cd4-b9f9-4d70-929b-a071c400b217",
@@ -74,7 +74,8 @@
         "onCommand:azureApiManagement.revisions",
         "onCommand:azureApiManagement.setCustomHostName",
         "onCommand:azureApiManagement.createSubscription",
-        "onCommand:azureApiManagement.deleteSubscription"
+        "onCommand:azureApiManagement.deleteSubscription",
+        "onCommand:azureApiManagement.createAuthorizationProvider"
     ],
     "main": "main",
     "contributes": {
@@ -385,6 +386,11 @@
                     "light": "resources/light/diff.svg",
                     "dark": "resources/dark/diff.svg"
                 }
+            },
+            {
+                "command": "azureApiManagement.createAuthorizationProvider",
+                "title": "%azureApiManagement.createAuthorizationProvider%",
+                "category": "Azure API Management"
             }
         ],
         "viewsContainers": {
@@ -634,6 +640,11 @@
                 {
                     "command": "azureApiManagement.deleteSubscription",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementSubscriptionTreeItem",
+                    "group": "1@1"
+                },
+                {
+                    "command": "azureApiManagement.createAuthorizationProvider",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementAuthorizationProviders",
                     "group": "1@1"
                 }
             ]

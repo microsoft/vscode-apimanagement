@@ -42,3 +42,118 @@ export interface ISubscriptionProperty {
     primaryKey: string;
     secondaryKey: string;
 }
+
+
+// Authorization Provider Contracts
+export enum IGrantTypesContract {
+    authorizationCode = "authorizationCode",
+    clientCredentials = "clientCredentials"
+};
+
+export interface IAuthorizationProviderContract {
+    id: string;
+    name: string;
+    // tslint:disable-next-line: no-reserved-keywords
+    type: string;
+    location?: string;
+    properties: IAuthorizationProviderPropertiesContract;
+}
+
+export interface IAuthorizationProviderPropertiesContract {
+    displayName?: string;
+    identityProvider: string;
+    oauth2?: IAuthorizationProviderOAuth2SettingsContract
+}
+
+export interface IAuthorizationProviderOAuth2SettingsContract {
+    redirectUrl?: string;
+    grantTypes: IAuthorizationProviderOAuth2GrantTypesContract
+}
+
+export type IAuthorizationProviderOAuth2GrantTypesContract = {
+    [key in IGrantTypesContract]?: {
+        [key: string]: string | boolean
+    };
+}
+
+export interface IAuthorizationContract {
+    id: string;
+    name: string;
+    // tslint:disable-next-line: no-reserved-keywords
+    type: string;
+    location?: string;
+    properties: IAuthorizationPropertiesContract;
+}
+
+export interface IAuthorizationPropertiesContract {
+    authorizationType: string;
+    oauth2grantType: string;
+    parameters?: {
+        [key: string]: string | boolean;
+    };
+    status?: ITokenStoreAuthorizationState;
+    error?: IAuthorizationErrorContract;
+}
+
+export enum ITokenStoreAuthorizationState {
+    connected = "Connected",
+    error = "Error"
+}
+
+export interface IAuthorizationErrorContract {
+    code: string;
+    message: string;
+    refreshResponseBodyFromIdentityProvider?: any;
+}
+
+export interface ITokenStoreIdentityProviderContract {
+    id: string;
+    name: string;
+    // tslint:disable-next-line: no-reserved-keywords
+    type: string;
+    location?: string;
+    properties: ITokenStoreIdentityProviderPropertiesContract;
+}
+
+export interface ITokenStoreIdentityProviderPropertiesContract {
+    displayName: string;
+    oauth2: {
+        grantTypes: ITokenStoreIdentityProviderGrantTypeContract;
+    }
+}
+
+export type ITokenStoreIdentityProviderGrantTypeContract = {
+    [key in IGrantTypesContract]?: ITokenStoreGrantTypeParameterContract;
+}
+
+export interface ITokenStoreGrantTypeParameterContract {
+    [key: string]: ITokenStoreGrantTypeParameterDefinitionContract
+}
+
+export interface ITokenStoreGrantTypeParameterDefinitionContract {
+    type: "string" | "securestring" | "bool";
+    displayName: string;
+    description?: string;
+    default?: string;
+    uidefinition: {
+        atAuthorizationProviderLevel: "REQUIRED" | "OPTIONAL" | "HIDDEN"
+    }
+}
+
+export interface IAuthorizationLoginLinkRequest {
+    postLoginRedirectUrl: string;
+}
+
+export interface IAuthorizationLoginLinkResponse {
+    loginLink: string;
+}
+
+export interface IAccessPolicyPropertiesContract {
+    objectId: string;
+    tenantId: string;
+}
+
+export enum IAuthorizationTypeEnum {
+    OAuth2,
+    OAuth1
+}

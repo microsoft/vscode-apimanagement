@@ -14,6 +14,7 @@ import { ApiOperationTreeItem } from "./ApiOperationTreeItem";
 import { ApiPolicyTreeItem } from "./ApiPolicyTreeItem";
 import { ApisTreeItem } from "./ApisTreeItem";
 import { ApiTreeItem } from "./ApiTreeItem";
+import { AuthorizationProvidersTreeItem } from "./AuthorizationProvidersTreeItem";
 import { GatewaysTreeItem } from "./GatewaysTreeItem";
 import { IServiceTreeRoot } from "./IServiceTreeRoot";
 import { NamedValuesTreeItem } from "./NamedValuesTreeItem";
@@ -47,6 +48,7 @@ export class ServiceTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
     public readonly productsTreeItem: ProductsTreeItem;
     public readonly gatewaysTreeItem: GatewaysTreeItem;
     public readonly subscriptionsTreeItem: SubscriptionsTreeItem;
+    public readonly authorizationProvidersTreeItem: AuthorizationProvidersTreeItem;
 
     private _root: IServiceTreeRoot;
 
@@ -62,6 +64,7 @@ export class ServiceTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
         this.productsTreeItem = new ProductsTreeItem(this);
         this.namedValuesTreeItem = new NamedValuesTreeItem(this);
         this.subscriptionsTreeItem = new SubscriptionsTreeItem(this);
+        this.authorizationProvidersTreeItem = new AuthorizationProvidersTreeItem(this);
         //parent.iconPath =
 
         const sku = nonNullValue(this.apiManagementService.sku.name);
@@ -76,9 +79,9 @@ export class ServiceTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
 
     public async loadMoreChildrenImpl(): Promise<AzureTreeItem<IServiceTreeRoot>[]> {
         if (this.gatewaysTreeItem === undefined) {
-            return [this.apisTreeItem, this.namedValuesTreeItem, this.productsTreeItem, this.servicePolicyTreeItem, this.subscriptionsTreeItem];
+            return [this.apisTreeItem, this.namedValuesTreeItem, this.productsTreeItem, this.servicePolicyTreeItem, this.subscriptionsTreeItem, this.authorizationProvidersTreeItem];
         }
-        return [this.apisTreeItem, this.namedValuesTreeItem, this.productsTreeItem, this.servicePolicyTreeItem, this.gatewaysTreeItem, this.subscriptionsTreeItem];
+        return [this.apisTreeItem, this.namedValuesTreeItem, this.productsTreeItem, this.servicePolicyTreeItem, this.gatewaysTreeItem, this.subscriptionsTreeItem, this.authorizationProvidersTreeItem];
     }
 
     public hasMoreChildrenImpl(): boolean {
