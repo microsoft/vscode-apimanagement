@@ -6,7 +6,7 @@
 import { HttpOperationResponse, ServiceClient } from "@azure/ms-rest-js";
 import { TokenCredentialsBase } from "@azure/ms-rest-nodeauth";
 import { createGenericClient } from "vscode-azureextensionui";
-import { IAuthorizationContract, IAuthorizationProviderContract, IAuthorizationProviderPropertiesContract, IGatewayApiContract, IGatewayContract, IMasterSubscription, ITokenStoreIdentityProviderContract } from "./contracts";
+import { IAuthorizationContract, IAuthorizationPropertiesContract, IAuthorizationProviderContract, IAuthorizationProviderPropertiesContract, IGatewayApiContract, IGatewayContract, IMasterSubscription, ITokenStoreIdentityProviderContract } from "./contracts";
 
 export class ApimService {
     public baseUrl: string;
@@ -94,6 +94,7 @@ export class ApimService {
 
     // Authorization Providers
 
+    // TODO: cache this call; The list is not expected to change often
     public async listTokenStoreIdentityProviders(): Promise<ITokenStoreIdentityProviderContract[]> {
         const client: ServiceClient = await createGenericClient(this.credentials);
         const result: HttpOperationResponse = await client.sendRequest({
@@ -104,14 +105,14 @@ export class ApimService {
         return <ITokenStoreIdentityProviderContract[]>(result.parsedBody.value);
     }
 
-    public async getTokenStoreIdentityProvider(providerName: string): Promise<ITokenStoreIdentityProviderContract[]> {
+    public async getTokenStoreIdentityProvider(providerName: string): Promise<ITokenStoreIdentityProviderContract> {
         const client: ServiceClient = await createGenericClient(this.credentials);
         const result: HttpOperationResponse = await client.sendRequest({
             method: "GET",
             url: `${this.baseUrl}/authorizationIdentityProviders/${providerName}?api-version=${this.authorizationProviderApiVersion}`
         });
         // tslint:disable-next-line: no-unsafe-any
-        return <ITokenStoreIdentityProviderContract[]>(result.parsedBody.value);
+        return <ITokenStoreIdentityProviderContract>(result.parsedBody.value);
     }
 
     public async listAuthorizationProviders(): Promise<IAuthorizationProviderContract[]> {
@@ -145,11 +146,12 @@ export class ApimService {
         return <IAuthorizationProviderContract>(result.parsedBody);
     }
 
-    public async createAuthorization(authorizationProviderName: string, authorizationName: string): Promise<IAuthorizationContract> {
+    public async createAuthorization(authorizationProviderName: string, authorizationName: string, authorizationPayload: IAuthorizationPropertiesContract): Promise<IAuthorizationContract> {
         const client: ServiceClient = await createGenericClient(this.credentials);
         const result: HttpOperationResponse = await client.sendRequest({
             method: "PUT",
-            url: `${this.baseUrl}/authorizationProviders/${authorizationProviderName}/authorizations/${authorizationName}?api-version=${this.authorizationProviderApiVersion}`
+            url: `${this.baseUrl}/authorizationProviders/${authorizationProviderName}/authorizations/${authorizationName}?api-version=${this.authorizationProviderApiVersion}`,
+            body: { properties: authorizationPayload },
         });
         // tslint:disable-next-line: no-unsafe-any
         return <IAuthorizationContract>(result.parsedBody);

@@ -5,7 +5,7 @@
 
 import { AzExtTreeItem, AzureParentTreeItem, ICreateChildImplContext } from "vscode-azureextensionui";
 import { ApimService } from "../azure/apim/ApimService";
-import { IAuthorizationContract } from "../azure/apim/contracts";
+import { IAuthorizationContract, IAuthorizationPropertiesContract } from "../azure/apim/contracts";
 import { localize } from "../localize";
 import { processError } from "../utils/errorUtil";
 import { treeUtils } from "../utils/treeUtils";
@@ -14,6 +14,7 @@ import { IAuthorizationProviderTreeRoot } from "./IAuthorizationProviderTreeRoot
 
 export interface IAuthorizationTreeItemContext extends ICreateChildImplContext {
     authorizationName: string;
+    authorization: IAuthorizationPropertiesContract;
 }
 
 export class AuthorizationsTreeItem extends AzureParentTreeItem<IAuthorizationProviderTreeRoot> {
@@ -53,17 +54,18 @@ export class AuthorizationsTreeItem extends AzureParentTreeItem<IAuthorizationPr
     }
 
     public async createChildImpl(context: IAuthorizationTreeItemContext): Promise<AuthorizationTreeItem> {
-        if (context.authorizationName) {
-            const connectionName = context.authorizationName;
-            context.showCreatingTreeItem(connectionName);
+        if (context.authorizationName
+            && context.authorization) {
+            const authorizationName = context.authorizationName;
+            context.showCreatingTreeItem(authorizationName);
 
             try {
                 const apimService = new ApimService(this.root.credentials, this.root.environment.resourceManagerEndpointUrl, this.root.subscriptionId, this.root.resourceGroupName, this.root.serviceName);
-                const authorization = await apimService.createAuthorization(this.root.authorizationProviderName, connectionName);
+                const authorization = await apimService.createAuthorization(this.root.authorizationProviderName, authorizationName, context.authorization);
                 return new AuthorizationTreeItem(this, authorization);
 
             } catch (error) {
-                throw new Error(processError(error, localize("createAuthorization", `Failed to add authorization '${connectionName}' to TokenProvider '${this.root.authorizationProviderName}'.`)));
+                throw new Error(processError(error, localize("createAuthorization", `Failed to add authorization '${authorizationName}' to Authorization Provider '${this.root.authorizationProviderName}'.`)));
             }
         } else {
             throw Error("Expected Authorization name.");

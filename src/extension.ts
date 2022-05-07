@@ -12,6 +12,7 @@ import { addApiFilter } from './commands/addApiFilter';
 import { addApiToGateway } from './commands/addApiToGateway';
 import { addApiToProduct } from './commands/addApiToProduct';
 import { copySubscriptionKey } from './commands/copySubscriptionKey';
+import { createAuthorization } from './commands/createAuthorization';
 import { createAuthorizationProvider } from './commands/createAuthorizationProvider';
 import { createService } from './commands/createService';
 import { debugPolicy } from './commands/debugPolicies/debugPolicy';
@@ -41,6 +42,7 @@ import { ApisTreeItem } from './explorer/ApisTreeItem';
 import { ApiTreeItem } from './explorer/ApiTreeItem';
 import { AuthorizationProvidersTreeItem } from './explorer/AuthorizationProvidersTreeItem';
 import { AuthorizationProviderTreeItem } from './explorer/AuthorizationProviderTreeItem';
+import { AuthorizationsTreeItem } from './explorer/AuthorizationsTreeItem';
 import { AuthorizationTreeItem } from './explorer/AuthorizationTreeItem';
 import { AzureAccountTreeItem } from './explorer/AzureAccountTreeItem';
 import { ApiResourceEditor } from './explorer/editors/arm/ApiResourceEditor';
@@ -139,6 +141,7 @@ function registerCommands(tree: AzExtTreeDataProvider): void {
     registerCommand('azureApiManagement.deleteSubscription', async (context: IActionContext, node?: AzureTreeItem) => await deleteNode(context, SubscriptionTreeItem.contextValue, node));
 
     registerCommand('azureApiManagement.createAuthorizationProvider', async (context: IActionContext, node?: AuthorizationProvidersTreeItem) => { await createAuthorizationProvider(context, node); });
+    registerCommand('azureApiManagement.createAuthorization', async (context: IActionContext, node?: AuthorizationsTreeItem) => { await createAuthorization(context, node); });
     registerCommand('azureApiManagement.deleteAuthorizationProvider', async (context: IActionContext, node?: AzureTreeItem) => await deleteNode(context, AuthorizationProviderTreeItem.contextValue, node));
     registerCommand('azureApiManagement.deleteAuthorization', async (context: IActionContext, node?: AzureTreeItem) => await deleteNode(context, AuthorizationTreeItem.contextValue, node));
 }

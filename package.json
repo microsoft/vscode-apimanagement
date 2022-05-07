@@ -77,6 +77,7 @@
         "onCommand:azureApiManagement.deleteSubscription",
         "onCommand:azureApiManagement.createAuthorizationProvider",
         "onCommand:azureApiManagement.deleteAuthorizationProvider",
+        "onCommand:azureApiManagement.createAuthorization",
         "onCommand:azureApiManagement.deleteAuthorization"
     ],
     "main": "main",
@@ -400,6 +401,11 @@
                 "category": "Azure API Management"
             },
             {
+                "command": "azureApiManagement.createAuthorization",
+                "title": "%azureApiManagement.createAuthorization%",
+                "category": "Azure API Management"
+            },
+            {
                 "command": "azureApiManagement.deleteAuthorization",
                 "title": "%azureApiManagement.deleteAuthorization%",
                 "category": "Azure API Management"
@@ -665,9 +671,14 @@
                     "group": "1@1"
                 },
                 {
+                    "command": "azureApiManagement.createAuthorization",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementAuthorizations",
+                    "group": "1@1"
+                },
+                {
                     "command": "azureApiManagement.deleteAuthorization",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementAuthorization",
-                    "group": "1@1"
+                    "group": "1@2"
                 }
             ]
         },
