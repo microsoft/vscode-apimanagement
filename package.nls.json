@@ -47,5 +47,7 @@
     "azureApiManagement.setCustomHostName": "Select Gateway Host Name",
     "azureApiManagement.createSubscription": "Create a new Subscription",
     "azureApiManagement.deleteSubscription": "Delete Subscription",
-    "azureApiManagement.createAuthorizationProvider": "Create Authorization Provider"
+    "azureApiManagement.createAuthorizationProvider": "Create Authorization Provider",
+    "azureApiManagement.deleteAuthorizationProvider": "Delete Authorization Provider",
+    "azureApiManagement.deleteAuthorization": "Delete Authorization"
 }

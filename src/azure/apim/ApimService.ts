@@ -104,6 +104,16 @@ export class ApimService {
         return <ITokenStoreIdentityProviderContract[]>(result.parsedBody.value);
     }
 
+    public async getTokenStoreIdentityProvider(providerName: string): Promise<ITokenStoreIdentityProviderContract[]> {
+        const client: ServiceClient = await createGenericClient(this.credentials);
+        const result: HttpOperationResponse = await client.sendRequest({
+            method: "GET",
+            url: `${this.baseUrl}/authorizationIdentityProviders/${providerName}?api-version=${this.authorizationProviderApiVersion}`
+        });
+        // tslint:disable-next-line: no-unsafe-any
+        return <ITokenStoreIdentityProviderContract[]>(result.parsedBody.value);
+    }
+
     public async listAuthorizationProviders(): Promise<IAuthorizationProviderContract[]> {
         const client: ServiceClient = await createGenericClient(this.credentials);
         const result: HttpOperationResponse = await client.sendRequest({

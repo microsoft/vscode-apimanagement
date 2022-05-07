@@ -40,6 +40,8 @@ import { ApiPolicyTreeItem } from './explorer/ApiPolicyTreeItem';
 import { ApisTreeItem } from './explorer/ApisTreeItem';
 import { ApiTreeItem } from './explorer/ApiTreeItem';
 import { AuthorizationProvidersTreeItem } from './explorer/AuthorizationProvidersTreeItem';
+import { AuthorizationProviderTreeItem } from './explorer/AuthorizationProviderTreeItem';
+import { AuthorizationTreeItem } from './explorer/AuthorizationTreeItem';
 import { AzureAccountTreeItem } from './explorer/AzureAccountTreeItem';
 import { ApiResourceEditor } from './explorer/editors/arm/ApiResourceEditor';
 import { OperationResourceEditor } from './explorer/editors/arm/OperationResourceEditor';
@@ -137,6 +139,8 @@ function registerCommands(tree: AzExtTreeDataProvider): void {
     registerCommand('azureApiManagement.deleteSubscription', async (context: IActionContext, node?: AzureTreeItem) => await deleteNode(context, SubscriptionTreeItem.contextValue, node));
 
     registerCommand('azureApiManagement.createAuthorizationProvider', async (context: IActionContext, node?: AuthorizationProvidersTreeItem) => { await createAuthorizationProvider(context, node); });
+    registerCommand('azureApiManagement.deleteAuthorizationProvider', async (context: IActionContext, node?: AzureTreeItem) => await deleteNode(context, AuthorizationProviderTreeItem.contextValue, node));
+    registerCommand('azureApiManagement.deleteAuthorization', async (context: IActionContext, node?: AzureTreeItem) => await deleteNode(context, AuthorizationTreeItem.contextValue, node));
 }
 
 // tslint:disable-next-line: max-func-body-length

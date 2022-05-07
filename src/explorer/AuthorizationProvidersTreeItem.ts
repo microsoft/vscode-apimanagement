@@ -63,13 +63,12 @@ export class AuthorizationProvidersTreeItem extends AzureParentTreeItem<IService
                 const apimService = new ApimService(this.root.credentials, this.root.environment.resourceManagerEndpointUrl, this.root.subscriptionId, this.root.resourceGroupName, this.root.serviceName);
                 const authorizationProvider : IAuthorizationProviderContract = await apimService.createAuthorizationProvider(context.name, context.authorizationProvider);
                 
-                const message = `Successfully created Authorization Provider "${authorizationProvider.name}". 
-                Please add redirect uri '${authorizationProvider.properties.oauth2?.redirectUrl}' to the OAuth application before creating Authorization(s).`;
+                const message = `Make sure to add redirect url '${authorizationProvider.properties.oauth2?.redirectUrl}' to the OAuth application before creating Authorization(s).`;
 
                 ext.outputChannel.show();
                 ext.outputChannel.appendLine(message);
-                
-                window.showInformationMessage(localize("createdAuthorizationProvide", message));
+
+                window.showWarningMessage(localize("redirectUrlMessage", message));
 
                 return new AuthorizationProviderTreeItem(this, authorizationProvider);
 

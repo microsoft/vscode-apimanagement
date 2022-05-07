@@ -75,7 +75,9 @@
         "onCommand:azureApiManagement.setCustomHostName",
         "onCommand:azureApiManagement.createSubscription",
         "onCommand:azureApiManagement.deleteSubscription",
-        "onCommand:azureApiManagement.createAuthorizationProvider"
+        "onCommand:azureApiManagement.createAuthorizationProvider",
+        "onCommand:azureApiManagement.deleteAuthorizationProvider",
+        "onCommand:azureApiManagement.deleteAuthorization"
     ],
     "main": "main",
     "contributes": {
@@ -391,6 +393,16 @@
                 "command": "azureApiManagement.createAuthorizationProvider",
                 "title": "%azureApiManagement.createAuthorizationProvider%",
                 "category": "Azure API Management"
+            },
+            {
+                "command": "azureApiManagement.deleteAuthorizationProvider",
+                "title": "%azureApiManagement.deleteAuthorizationProvider%",
+                "category": "Azure API Management"
+            },
+            {
+                "command": "azureApiManagement.deleteAuthorization",
+                "title": "%azureApiManagement.deleteAuthorization%",
+                "category": "Azure API Management"
             }
         ],
         "viewsContainers": {
@@ -645,6 +657,16 @@
                 {
                     "command": "azureApiManagement.createAuthorizationProvider",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementAuthorizationProviders",
+                    "group": "1@1"
+                },
+                {
+                    "command": "azureApiManagement.deleteAuthorizationProvider",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementAuthorizationProvider",
+                    "group": "1@1"
+                },
+                {
+                    "command": "azureApiManagement.deleteAuthorization",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementAuthorization",
                     "group": "1@1"
                 }
             ]
