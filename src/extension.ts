@@ -11,6 +11,7 @@ import { AzExtTreeDataProvider, AzureParentTreeItem, AzureTreeItem, AzureUserInp
 import { addApiFilter } from './commands/addApiFilter';
 import { addApiToGateway } from './commands/addApiToGateway';
 import { addApiToProduct } from './commands/addApiToProduct';
+import { authorizeAuthorization } from './commands/authorizeAuthorization';
 import { copySubscriptionKey } from './commands/copySubscriptionKey';
 import { createAuthorization } from './commands/createAuthorization';
 import { createAuthorizationProvider } from './commands/createAuthorizationProvider';
@@ -67,6 +68,7 @@ import { ServicePolicyTreeItem } from './explorer/ServicePolicyTreeItem';
 import { ServiceTreeItem } from './explorer/ServiceTreeItem';
 import { SubscriptionTreeItem } from './explorer/SubscriptionTreeItem';
 import { ext } from './extensionVariables';
+import { localize } from './localize';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -92,8 +94,13 @@ export async function activateInternal(context: vscode.ExtensionContext) {
 
         registerCommands(ext.tree);
         registerEditors(context);
-        activate(context); // activeta debug context
 
+        const handler = new UriEventHandler();
+        context.subscriptions.push(
+            vscode.window.registerUriHandler(handler)
+        );
+
+        activate(context); // activeta debug context
     });
 }
 
@@ -143,6 +150,7 @@ function registerCommands(tree: AzExtTreeDataProvider): void {
     registerCommand('azureApiManagement.createAuthorizationProvider', async (context: IActionContext, node?: AuthorizationProvidersTreeItem) => { await createAuthorizationProvider(context, node); });
     registerCommand('azureApiManagement.createAuthorization', async (context: IActionContext, node?: AuthorizationsTreeItem) => { await createAuthorization(context, node); });
     registerCommand('azureApiManagement.deleteAuthorizationProvider', async (context: IActionContext, node?: AzureTreeItem) => await deleteNode(context, AuthorizationProviderTreeItem.contextValue, node));
+    registerCommand('azureApiManagement.authorizeAuthorization', async (context: IActionContext, node?: AuthorizationTreeItem) => { await authorizeAuthorization(context, node); });
     registerCommand('azureApiManagement.deleteAuthorization', async (context: IActionContext, node?: AzureTreeItem) => await deleteNode(context, AuthorizationTreeItem.contextValue, node));
 }
 
@@ -265,3 +273,10 @@ function registerEditors(context: vscode.ExtensionContext) : void {
 // tslint:disable:typedef
 // tslint:disable-next-line:no-empty
 export function deactivateInternal() {}
+
+class UriEventHandler extends vscode.EventEmitter<vscode.Uri> implements vscode.UriHandler {
+    public handleUri() {
+        ext.outputChannel.appendLine(localize('oauthFlowComplete', "OAuth flow completed."));
+        vscode.window.showInformationMessage(localize('authSuccess', 'Authorization complete. You can now close the browser window that was launched during the authorization process.'));
+    }
+}

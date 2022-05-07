@@ -6,7 +6,7 @@
 import { HttpOperationResponse, ServiceClient } from "@azure/ms-rest-js";
 import { TokenCredentialsBase } from "@azure/ms-rest-nodeauth";
 import { createGenericClient } from "vscode-azureextensionui";
-import { IAuthorizationContract, IAuthorizationPropertiesContract, IAuthorizationProviderContract, IAuthorizationProviderPropertiesContract, IGatewayApiContract, IGatewayContract, IMasterSubscription, ITokenStoreIdentityProviderContract } from "./contracts";
+import { IAuthorizationContract, IAuthorizationLoginLinkRequest, IAuthorizationLoginLinkResponse, IAuthorizationPropertiesContract, IAuthorizationProviderContract, IAuthorizationProviderPropertiesContract, IGatewayApiContract, IGatewayContract, IMasterSubscription, ITokenStoreIdentityProviderContract } from "./contracts";
 
 export class ApimService {
     public baseUrl: string;
@@ -112,7 +112,7 @@ export class ApimService {
             url: `${this.baseUrl}/authorizationIdentityProviders/${providerName}?api-version=${this.authorizationProviderApiVersion}`
         });
         // tslint:disable-next-line: no-unsafe-any
-        return <ITokenStoreIdentityProviderContract>(result.parsedBody.value);
+        return <ITokenStoreIdentityProviderContract>(result.parsedBody);
     }
 
     public async listAuthorizationProviders(): Promise<IAuthorizationProviderContract[]> {
@@ -171,6 +171,17 @@ export class ApimService {
             method: "DELETE",
             url: `${this.baseUrl}/authorizationProviders/${authorizationProviderName}?api-version=${this.authorizationProviderApiVersion}`
         });
+    }
+
+    public async listAuthorizationLoginLinks(authorizationProviderName: string, authorizationName: string, loginLinkRequestPayload: IAuthorizationLoginLinkRequest): Promise<IAuthorizationLoginLinkResponse> {
+        const client: ServiceClient = await createGenericClient(this.credentials);
+        const result: HttpOperationResponse = await client.sendRequest({
+            method: "POST",
+            url: `${this.baseUrl}/authorizationProviders/${authorizationProviderName}/authorizations/${authorizationName}/getLoginLinks?api-version=${this.authorizationProviderApiVersion}`,
+            body: loginLinkRequestPayload,
+        });
+        // tslint:disable-next-line: no-unsafe-any
+        return <IAuthorizationLoginLinkResponse>(result.parsedBody);
     }
 
     private genSiteUrl(endPointUrl: string, subscriptionId: string, resourceGroup: string, serviceName: string): string {
