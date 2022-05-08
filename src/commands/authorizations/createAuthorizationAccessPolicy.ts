@@ -6,19 +6,22 @@
 import { ProgressLocation, QuickPickItem, window } from "vscode";
 import { IActionContext } from "vscode-azureextensionui";
 import { ApimService } from "../../azure/apim/ApimService";
+import { GraphService } from "../../azure/graph/GraphService";
 import { ResourceGraphService } from "../../azure/resourceGraph/ResourceGraphService";
 import { AuthorizationAccessPoliciesTreeItem, IAuthorizationAccessPolicyTreeItemContext } from "../../explorer/AuthorizationAccessPoliciesTreeItem";
 import { AuthorizationTreeItem } from "../../explorer/AuthorizationTreeItem";
 import { ext } from "../../extensionVariables";
 import { localize } from "../../localize";
+import { nonNullValue } from "../../utils/nonNull";
 
-const systemAssignedManagedIdentitiesOptionLabel = "System Assigned managed identities..."
-const userAssignedManagedIdentitiesOptionLabel = "User Assigned managed identities..."
-const navigateToAzurePortal = "Navigate to Azure Portal...";
+const systemAssignedManagedIdentitiesOptionLabel = "System assigned managed identities..."
+const userAssignedManagedIdentitiesOptionLabel = "User assigned managed identities..."
+const userObjectIdLabel = "Specify user emailId...";
 
 //TODO: Add Groups and ServicePrincipals
 
 let resourceGraphService: ResourceGraphService;
+let graphService: GraphService;
 
 export async function createAuthorizationAccessPolicy(context: IActionContext & Partial<IAuthorizationAccessPolicyTreeItemContext>, node?: AuthorizationAccessPoliciesTreeItem): Promise<void> {
     if (!node) {
@@ -38,6 +41,14 @@ export async function createAuthorizationAccessPolicy(context: IActionContext & 
         node.root.environment.resourceManagerEndpointUrl, 
         node.root.subscriptionId, 
     );
+
+    graphService = new GraphService(
+        node.root.credentials, 
+        nonNullValue(node.root.environment.activeDirectoryGraphResourceId),
+        node.root.tenantId
+    );
+
+    await graphService.acquireGraphToken();
 
     const identityOptions = await populateIdentityOptionsAsync(
         apimService, node.root.credentials, node.root.environment.resourceManagerEndpointUrl);
@@ -67,9 +78,17 @@ export async function createAuthorizationAccessPolicy(context: IActionContext & 
         permissionName = managedIdentitySelected.label;
         oid = managedIdentitySelected.description!;
     }
-    else if (identitySelected.label == navigateToAzurePortal) {
-       //TODO: Navigate to Azure Portal for better experience. 
-       return;
+    else if (identitySelected.label == userObjectIdLabel) {
+        const userId = await askInput('Enter user emailId ...', 'mary@contoso.net');
+
+        const user = await graphService.getUser(userId);
+        
+        if(user) {
+            permissionName = user.userPrincipalName;
+            oid = user.objectId;
+        } else {
+            window.showErrorMessage(localize('invalidUserEmailId', 'Please specify a valid user emailId. Example, mary@contoso.net'))
+        }
     } 
 
     context.authorizationAccessPolicyName = permissionName;
@@ -137,7 +156,7 @@ async function populateIdentityOptionsAsync(apimService: ApimService, credential
     
     // 4. Custom
     const customOption : QuickPickItem = {
-        label: navigateToAzurePortal,
+        label: userObjectIdLabel,
         description: "",
         detail: "",
     }
@@ -157,4 +176,12 @@ async function populateManageIdentityOptions(data: any) : Promise<QuickPickItem[
     options.push(...managedIdentityOptions);
 
     return options;
+}
+
+async function askInput(message: string, placeholder: string = '') : Promise<string> {
+    const idPrompt: string = localize('value', message);
+    return (await ext.ui.showInputBox({
+        prompt: idPrompt,
+        placeHolder: placeholder
+    })).trim();
 }

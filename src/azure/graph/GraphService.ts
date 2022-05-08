@@ -12,7 +12,8 @@ import { nonNullValue } from "../../utils/nonNull";
 export class GraphService {
     private accessToken: string;
     constructor(private credentials: TokenCredentialsBase, 
-        private graphEndpoint: string = 'https://graph.microsoft.com') {}
+        private graphEndpoint: string,
+        private tenantId: string) {}
     
     public async acquireGraphToken() {
         let token = await  this.credentials.getToken();
@@ -25,17 +26,16 @@ export class GraphService {
                 }
             }
         )   
-
     }
 
-    // TODO: Investigate how to get appropriate token to get other users details in tenant. 
     public async getUser(emailId: string): Promise<any> {
         const client: ServiceClient = await createGenericClient();
         const result: HttpOperationResponse = await client.sendRequest({
             method: "GET",
-            url: `${this.graphEndpoint}/v1.0/users/${emailId}`,
+            url: `${this.graphEndpoint}/${this.tenantId}/users/${emailId}`,
             headers: {
-                Authorization: `Bearer ${this.accessToken}`
+                Authorization: `Bearer ${this.accessToken}`,
+                'api-version': '1.61-internal'
             }
         });
         // tslint:disable-next-line: no-unsafe-any
