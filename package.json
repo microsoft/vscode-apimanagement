@@ -79,7 +79,9 @@
         "onCommand:azureApiManagement.deleteAuthorizationProvider",
         "onCommand:azureApiManagement.createAuthorization",
         "onCommand:azureApiManagement.authorizeAuthorization",
-        "onCommand:azureApiManagement.deleteAuthorization"
+        "onCommand:azureApiManagement.deleteAuthorization",
+        "onCommand:azureApiManagement.createAuthorizationAccessPolicy",
+        "onCommand:azureApiManagement.deleteAuthorizationAccessPolicy"
     ],
     "main": "main",
     "contributes": {
@@ -415,6 +417,16 @@
                 "command": "azureApiManagement.deleteAuthorization",
                 "title": "%azureApiManagement.deleteAuthorization%",
                 "category": "Azure API Management"
+            },
+            {
+                "command": "azureApiManagement.createAuthorizationAccessPolicy",
+                "title": "%azureApiManagement.createAuthorizationAccessPolicy%",
+                "category": "Azure API Management"
+            },
+            {
+                "command": "azureApiManagement.deleteAuthorizationAccessPolicy",
+                "title": "%azureApiManagement.deleteAuthorizationAccessPolicy%",
+                "category": "Azure API Management"
             }
         ],
         "viewsContainers": {
@@ -690,6 +702,16 @@
                     "command": "azureApiManagement.deleteAuthorization",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementAuthorization",
                     "group": "1@2"
+                },
+                {
+                    "command": "azureApiManagement.createAuthorizationAccessPolicy",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementAuthorizationAccessPolicies",
+                    "group": "1@1"
+                },
+                {
+                    "command": "azureApiManagement.deleteAuthorizationAccessPolicy",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementAuthorizationAccessPolicy",
+                    "group": "1@1"
                 }
             ]
         },

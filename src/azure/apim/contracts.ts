@@ -3,6 +3,22 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+export interface IApimServiceContract {
+    id: string;
+    name: string;
+    // tslint:disable-next-line: no-reserved-keywords
+    type: string;
+    location?: string;
+    properties: object;
+    identity: IApimServiceIdentityContract
+}
+
+export interface IApimServiceIdentityContract {
+    type: string;
+    principalId: string;
+    tenantId: string;
+}
+
 export interface IGatewayContract {
     id: string;
     name: string;
@@ -148,7 +164,16 @@ export interface IAuthorizationLoginLinkResponse {
     loginLink: string;
 }
 
-export interface IAccessPolicyPropertiesContract {
+export interface IAuthorizationAccessPolicyContract {
+    id: string;
+    name: string;
+    // tslint:disable-next-line: no-reserved-keywords
+    type: string;
+    location?: string;
+    properties: IAuthorizationAccessPolicyPropertiesContract;
+}
+
+export interface IAuthorizationAccessPolicyPropertiesContract {
     objectId: string;
     tenantId: string;
 }

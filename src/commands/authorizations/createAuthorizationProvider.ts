@@ -5,12 +5,14 @@
 
 import { ProgressLocation, window } from "vscode";
 import { IActionContext } from "vscode-azureextensionui";
-import { ApimService } from "../azure/apim/ApimService";
-import { IAuthorizationProviderOAuth2GrantTypesContract, IAuthorizationProviderPropertiesContract, IGrantTypesContract, ITokenStoreGrantTypeParameterDefinitionContract, ITokenStoreIdentityProviderContract } from "../azure/apim/contracts";
-import { AuthorizationProvidersTreeItem, IAuthorizationProviderTreeItemContext } from "../explorer/AuthorizationProvidersTreeItem";
-import { ServiceTreeItem } from "../explorer/ServiceTreeItem";
-import { ext } from "../extensionVariables";
-import { localize } from "../localize";
+import { ApimService } from "../../azure/apim/ApimService";
+import { IAuthorizationProviderOAuth2GrantTypesContract, IAuthorizationProviderPropertiesContract, IGrantTypesContract, ITokenStoreIdentityProviderContract } from "../../azure/apim/contracts";
+import { AuthorizationProvidersTreeItem, IAuthorizationProviderTreeItemContext } from "../../explorer/AuthorizationProvidersTreeItem";
+import { ServiceTreeItem } from "../../explorer/ServiceTreeItem";
+import { ext } from "../../extensionVariables";
+import { localize } from "../../localize";
+import { askAuthorizationProviderParameterValues, askId } from "./common";
+import { ITokenStoreGrantTypeParameterContract } from "../../azure/apim/contracts";
 
 export async function createAuthorizationProvider(context: IActionContext & Partial<IAuthorizationProviderTreeItemContext>, node?: AuthorizationProvidersTreeItem): Promise<void> {
     if (!node) {
@@ -24,6 +26,28 @@ export async function createAuthorizationProvider(context: IActionContext & Part
         node.root.resourceGroupName,
         node.root.serviceName);
 
+    const service = await apimService.getService();
+    if (!service.identity) {
+        const options = ['Yes', 'No'];
+        const option = await ext.ui.showQuickPick(options.map((s) => { return { label: s, description: '', detail: '' }; }), { placeHolder: 'Enable System Assigned Managed Identity', canPickMany: false });
+        if (option.label === options[0]) {
+            // TODO: Move to its own command
+            window.withProgress(
+                {
+                    location: ProgressLocation.Notification,
+                    title: localize("enableManagedIdentity", `Enabling System Assigned Managed Identity.`),
+                    cancellable: false
+                },
+                // tslint:disable-next-line:no-non-null-assertion
+                async () => { return apimService.turnOnManagedIdentity();; }
+            ).then(async () => {
+                // tslint:disable-next-line:no-non-null-assertion
+                await node!.refresh(context);
+                window.showInformationMessage(localize("enabledManagedIdentity", `Enabled System Assigned Managed Identity.`));
+            });
+        } 
+    }
+
     let supportedIdentityProviders: ITokenStoreIdentityProviderContract[] = await apimService.listTokenStoreIdentityProviders();
     supportedIdentityProviders = supportedIdentityProviders.sort(function (a, b) {
         return a.properties.displayName.localeCompare(b.properties.displayName);
@@ -36,7 +60,9 @@ export async function createAuthorizationProvider(context: IActionContext & Part
     let grantType: string = "";
     if (selectedIdentityProvider
         && selectedIdentityProvider.properties.oauth2.grantTypes) {
-        const authorizationProviderName = await askId(selectedIdentityProvider.name);
+        const authorizationProviderName = await askId(
+            'Enter Authorization Provider name ...',
+            'Invalid Authorization Provider name.');
 
         const grantTypes = Object.keys(selectedIdentityProvider.properties.oauth2.grantTypes)
         if (grantTypes.length > 1) {
@@ -48,31 +74,9 @@ export async function createAuthorizationProvider(context: IActionContext & Part
 
         const grantTypeValue: IGrantTypesContract = <IGrantTypesContract>grantType;
 
-        const grant: ITokenStoreGrantTypeParameterDefinitionContract = selectedIdentityProvider?.properties.oauth2.grantTypes[grantType];
+        const grant: ITokenStoreGrantTypeParameterContract = selectedIdentityProvider?.properties.oauth2.grantTypes[grantType];
 
-        const parameterValues: IParameterValues = {};
-        for (const parameter in grant) {
-            const parameterUIMetadata = <ITokenStoreGrantTypeParameterDefinitionContract>grant[parameter];
-            if (parameterUIMetadata.uidefinition.atAuthorizationProviderLevel != "HIDDEN") {
-                const paramValue = await ext.ui.showInputBox({
-                    placeHolder: localize('parameterDisplayName', `Enter ${parameterUIMetadata.displayName} ...`),
-                    prompt: localize('parameterDescription', `${parameterUIMetadata.description}`),
-                    value: parameterUIMetadata.default,
-                    password: parameterUIMetadata.type == "securestring",
-                    validateInput: async (value: string | undefined): Promise<string | undefined> => {
-                        value = value ? value.trim() : '';
-
-                        if (parameterUIMetadata.uidefinition.atAuthorizationProviderLevel == "REQUIRED" && value.length < 1) {
-                            return localize("parameterRequired", `${parameterUIMetadata.displayName} is required.`);
-                        }
-
-                        return undefined;
-                    }
-                })
-
-                parameterValues[parameter] = paramValue;
-            }
-        }
+        const parameterValues = await askAuthorizationProviderParameterValues(grant);
 
         const authorizationProviderGrant: IAuthorizationProviderOAuth2GrantTypesContract = {}
 
@@ -106,29 +110,4 @@ export async function createAuthorizationProvider(context: IActionContext & Part
             window.showInformationMessage(localize("creatingAuthorizationProvider", `Created Authorization Provider '${authorizationProviderName}' in API Management succesfully.`));
         });
     }
-}
-
-async function askId(defaultValue: string): Promise<string> {
-    const idPrompt: string = localize('idPrompt', 'Enter Authorization Provider name ...');
-    return (await ext.ui.showInputBox({
-        prompt: idPrompt,
-        value: defaultValue,
-        validateInput: async (value: string): Promise<string | undefined> => {
-            value = value ? value.trim() : '';
-            return validateId(value);
-        }
-    })).trim();
-}
-
-function validateId(id: string): string | undefined {
-    const test = "^[\w]+$)|(^[\w][\w\-]+[\w]$";
-    if (id.match(test) === null) {
-        return localize("idInvalid", 'Invalid Authorization Provider name.');
-    }
-
-    return undefined;
-}
-
-interface IParameterValues {
-    [key: string]: string;
 }

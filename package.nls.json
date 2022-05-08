@@ -51,5 +51,6 @@
     "azureApiManagement.deleteAuthorizationProvider": "Delete Authorization Provider",
     "azureApiManagement.createAuthorization": "Create Authorization",
     "azureApiManagement.authorizeAuthorization": "Authorize",
-    "azureApiManagement.deleteAuthorization": "Delete Authorization"
+    "azureApiManagement.deleteAuthorization": "Delete Authorization",
+    "azureApiManagement.createAuthorizationAccessPolicy": "Create Access Policy"
 }

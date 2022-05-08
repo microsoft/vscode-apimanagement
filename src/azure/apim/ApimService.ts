@@ -6,7 +6,7 @@
 import { HttpOperationResponse, ServiceClient } from "@azure/ms-rest-js";
 import { TokenCredentialsBase } from "@azure/ms-rest-nodeauth";
 import { createGenericClient } from "vscode-azureextensionui";
-import { IAuthorizationContract, IAuthorizationLoginLinkRequest, IAuthorizationLoginLinkResponse, IAuthorizationPropertiesContract, IAuthorizationProviderContract, IAuthorizationProviderPropertiesContract, IGatewayApiContract, IGatewayContract, IMasterSubscription, ITokenStoreIdentityProviderContract } from "./contracts";
+import { IApimServiceContract, IAuthorizationAccessPolicyContract, IAuthorizationAccessPolicyPropertiesContract, IAuthorizationContract, IAuthorizationLoginLinkRequest, IAuthorizationLoginLinkResponse, IAuthorizationPropertiesContract, IAuthorizationProviderContract, IAuthorizationProviderPropertiesContract, IGatewayApiContract, IGatewayContract, IMasterSubscription, ITokenStoreIdentityProviderContract } from "./contracts";
 
 export class ApimService {
     public baseUrl: string;
@@ -135,6 +135,45 @@ export class ApimService {
         return <IAuthorizationContract[]>(result.parsedBody.value);
     }
 
+    public async listAuthorizationAccessPolicies(authorizationProviderId: string, authorizationName: string): Promise<IAuthorizationAccessPolicyContract[]> {
+        const client: ServiceClient = await createGenericClient(this.credentials);
+        const result: HttpOperationResponse = await client.sendRequest({
+            method: "GET",
+            url: `${this.baseUrl}/authorizationProviders/${authorizationProviderId}/authorizations/${authorizationName}/accesspolicies?api-version=${this.authorizationProviderApiVersion}`
+        });
+        // tslint:disable-next-line: no-unsafe-any
+        return <IAuthorizationAccessPolicyContract[]>(result.parsedBody.value);
+    }
+
+    public async getAuthorizationAccessPolicy(authorizationProviderId: string, authorizationName: string, accessPolicyName: string): Promise<IAuthorizationAccessPolicyContract> {
+        const client: ServiceClient = await createGenericClient(this.credentials);
+        const result: HttpOperationResponse = await client.sendRequest({
+            method: "GET",
+            url: `${this.baseUrl}/authorizationProviders/${authorizationProviderId}/authorizations/${authorizationName}/accesspolicies/${accessPolicyName}?api-version=${this.authorizationProviderApiVersion}`
+        });
+        // tslint:disable-next-line: no-unsafe-any
+        return <IAuthorizationAccessPolicyContract>(result.parsedBody);
+    }
+
+    public async createAuthorizationAccessPolicy(authorizationProviderId: string, authorizationName: string, accessPolicyName: string, accessPolicyPaylod: IAuthorizationAccessPolicyPropertiesContract): Promise<IAuthorizationAccessPolicyContract> {
+        const client: ServiceClient = await createGenericClient(this.credentials);
+        const result: HttpOperationResponse = await client.sendRequest({
+            method: "PUT",
+            url: `${this.baseUrl}/authorizationProviders/${authorizationProviderId}/authorizations/${authorizationName}/accesspolicies/${accessPolicyName}?api-version=${this.authorizationProviderApiVersion}`,
+            body: { properties:accessPolicyPaylod },
+        });
+        // tslint:disable-next-line: no-unsafe-any
+        return <IAuthorizationAccessPolicyContract>(result.parsedBody);
+    }
+
+    public async deleteAuthorizationAccessPolicy(authorizationProviderId: string, authorizationName: string, accessPolicyName: string): Promise<void> {
+        const client: ServiceClient = await createGenericClient(this.credentials);
+        await client.sendRequest({
+            method: "DELETE",
+            url: `${this.baseUrl}/authorizationProviders/${authorizationProviderId}/authorizations/${authorizationName}/accesspolicies/${accessPolicyName}?api-version=${this.authorizationProviderApiVersion}`
+        });
+    }
+
     public async createAuthorizationProvider(authorizationProviderName: string, authorizationProviderPayload: IAuthorizationProviderPropertiesContract): Promise<IAuthorizationProviderContract> {
         const client: ServiceClient = await createGenericClient(this.credentials);
         const result: HttpOperationResponse = await client.sendRequest({
@@ -182,6 +221,33 @@ export class ApimService {
         });
         // tslint:disable-next-line: no-unsafe-any
         return <IAuthorizationLoginLinkResponse>(result.parsedBody);
+    }
+
+    public async getService(): Promise<IApimServiceContract> {
+        const client: ServiceClient = await createGenericClient(this.credentials);
+        const result: HttpOperationResponse = await client.sendRequest({
+            method: "GET",
+            url: `${this.baseUrl}?api-version=${this.apiVersion}`
+        });
+        if (result.status >= 400) {
+            throw Error(result.parsedBody.error?.message);
+        }
+        // tslint:disable-next-line: no-unsafe-any
+        return <IApimServiceContract>(result.parsedBody);
+    }
+
+    public async turnOnManagedIdentity(): Promise<IApimServiceContract> {
+        const client: ServiceClient = await createGenericClient(this.credentials);
+        const result: HttpOperationResponse = await client.sendRequest({
+            method: "PATCH",
+            url: `${this.baseUrl}?api-version=${this.apiVersion}`,
+            body: { identity : { type: "systemassigned" } }
+        });
+        if (result.status >= 400) {
+            throw Error(result.parsedBody.error?.message);
+        }
+        // tslint:disable-next-line: no-unsafe-any
+        return <IApimServiceContract>(result.parsedBody);
     }
 
     private genSiteUrl(endPointUrl: string, subscriptionId: string, resourceGroup: string, serviceName: string): string {

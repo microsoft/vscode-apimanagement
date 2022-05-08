@@ -13,7 +13,6 @@ import { treeUtils } from "../utils/treeUtils";
 import { AuthorizationsTreeItem } from "./AuthorizationsTreeItem";
 import { IServiceTreeRoot } from "./IServiceTreeRoot";
 import { IAuthorizationProviderTreeRoot } from "./IAuthorizationProviderTreeRoot";
-import { AuthorizationProvidersTreeItem } from "./AuthorizationProvidersTreeItem";
 
 export class AuthorizationProviderTreeItem extends AzureParentTreeItem<IAuthorizationProviderTreeRoot> {
     public static contextValue: string = 'azureApiManagementAuthorizationProvider';
@@ -24,7 +23,7 @@ export class AuthorizationProviderTreeItem extends AzureParentTreeItem<IAuthoriz
     private _root: IAuthorizationProviderTreeRoot;
 
     constructor(
-        parent: AuthorizationProvidersTreeItem,
+        parent: AzureParentTreeItem,
         public readonly authorizationProviderContract: IAuthorizationProviderContract) {
         super(parent);
         this._label = nonNullProp(this.authorizationProviderContract, 'name');

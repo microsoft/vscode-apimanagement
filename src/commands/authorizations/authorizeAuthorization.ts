@@ -6,12 +6,14 @@
 import * as vscode from 'vscode';
 import { window } from 'vscode';
 import { IActionContext } from "vscode-azureextensionui";
-import { ApimService } from "../azure/apim/ApimService";
-import { IAuthorizationProviderContract, ITokenStoreGrantTypeParameterDefinitionContract, ITokenStoreIdentityProviderContract } from "../azure/apim/contracts";
-import { AuthorizationProviderTreeItem } from "../explorer/AuthorizationProviderTreeItem";
-import { AuthorizationTreeItem } from "../explorer/AuthorizationTreeItem";
-import { ext } from "../extensionVariables";
-import { localize } from "../localize";
+import { nonNullValue } from '../../utils/nonNull';
+import { ApimService } from "../../azure/apim/ApimService";
+import { IAuthorizationProviderContract, ITokenStoreIdentityProviderContract } from "../../azure/apim/contracts";
+import { AuthorizationProviderTreeItem } from "../../explorer/AuthorizationProviderTreeItem";
+import { AuthorizationTreeItem } from "../../explorer/AuthorizationTreeItem";
+import { ext } from "../../extensionVariables";
+import { localize } from "../../localize";
+import { askAuthorizationParameterValues } from './common';
 
 export async function authorizeAuthorization(context: IActionContext, node?: AuthorizationTreeItem): Promise<void> {
     if (!node) {
@@ -36,33 +38,11 @@ export async function authorizeAuthorization(context: IActionContext, node?: Aut
     
         vscode.env.openExternal(vscode.Uri.parse(loginLinks.loginLink));
     } else if (node.authorizationContract.properties.oauth2grantType == "ClientCredentials") {
-        const parameterValues: IParameterValues = {};
         const authorizationProvider : IAuthorizationProviderContract = (<AuthorizationProviderTreeItem>node.parent?.parent).authorizationProviderContract;
-
         const identityProvider: ITokenStoreIdentityProviderContract = await apimService.getTokenStoreIdentityProvider(authorizationProvider.properties.identityProvider);
         const grant = identityProvider.properties.oauth2.grantTypes["clientCredentials"];
-        for (const parameter in grant) {
-            const parameterUIMetadata = <ITokenStoreGrantTypeParameterDefinitionContract>grant[parameter];
-            if (parameterUIMetadata.uidefinition.atAuthorizationProviderLevel == "HIDDEN") {
-                const paramValue = await ext.ui.showInputBox({
-                    placeHolder: localize('parameterDisplayName', `Enter ${parameterUIMetadata.displayName} ...`),
-                    prompt: localize('parameterDescription', `${parameterUIMetadata.description}`),
-                    value: parameterUIMetadata.default,
-                    password: parameterUIMetadata.type == "securestring",
-                    validateInput: async (value: string | undefined): Promise<string | undefined> => {
-                        value = value ? value.trim() : '';
-
-                        if (value.length < 1) {
-                            return localize("parameterRequired", `${parameterUIMetadata.displayName} is required.`);
-                        }
-
-                        return undefined;
-                    }
-                })
-
-                parameterValues[parameter] = paramValue;
-            }
-        }
+        
+        const parameterValues = await askAuthorizationParameterValues(nonNullValue(grant));
 
         const authorization = node.authorizationContract;
         authorization.properties.parameters = parameterValues;
@@ -81,8 +61,4 @@ export async function authorizeAuthorization(context: IActionContext, node?: Aut
             window.showInformationMessage(localize("updatedAuthorization", `Updated Authorization '${authorization.name}' succesfully.`));
         });
     } 
-}
-
-interface IParameterValues {
-    [key: string]: string;
 }

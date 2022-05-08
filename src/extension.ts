@@ -11,10 +11,10 @@ import { AzExtTreeDataProvider, AzureParentTreeItem, AzureTreeItem, AzureUserInp
 import { addApiFilter } from './commands/addApiFilter';
 import { addApiToGateway } from './commands/addApiToGateway';
 import { addApiToProduct } from './commands/addApiToProduct';
-import { authorizeAuthorization } from './commands/authorizeAuthorization';
+import { authorizeAuthorization } from './commands/authorizations/authorizeAuthorization';
 import { copySubscriptionKey } from './commands/copySubscriptionKey';
-import { createAuthorization } from './commands/createAuthorization';
-import { createAuthorizationProvider } from './commands/createAuthorizationProvider';
+import { createAuthorization } from './commands/authorizations/createAuthorization';
+import { createAuthorizationProvider } from './commands/authorizations/createAuthorizationProvider';
 import { createService } from './commands/createService';
 import { debugPolicy } from './commands/debugPolicies/debugPolicy';
 import { deleteNode } from './commands/deleteNode';
@@ -69,6 +69,9 @@ import { ServiceTreeItem } from './explorer/ServiceTreeItem';
 import { SubscriptionTreeItem } from './explorer/SubscriptionTreeItem';
 import { ext } from './extensionVariables';
 import { localize } from './localize';
+import { createAuthorizationAccessPolicy } from './commands/authorizations/createAuthorizationAccessPolicy';
+import { AuthorizationAccessPoliciesTreeItem } from './explorer/AuthorizationAccessPoliciesTreeItem';
+import { AuthorizationAccessPolicyTreeItem } from './explorer/AuthorizationAccessPolicyTreeItem';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -149,9 +152,11 @@ function registerCommands(tree: AzExtTreeDataProvider): void {
 
     registerCommand('azureApiManagement.createAuthorizationProvider', async (context: IActionContext, node?: AuthorizationProvidersTreeItem) => { await createAuthorizationProvider(context, node); });
     registerCommand('azureApiManagement.createAuthorization', async (context: IActionContext, node?: AuthorizationsTreeItem) => { await createAuthorization(context, node); });
+    registerCommand('azureApiManagement.createAuthorizationAccessPolicy', async (context: IActionContext, node?: AuthorizationAccessPoliciesTreeItem) => { await createAuthorizationAccessPolicy(context, node); });
     registerCommand('azureApiManagement.deleteAuthorizationProvider', async (context: IActionContext, node?: AzureTreeItem) => await deleteNode(context, AuthorizationProviderTreeItem.contextValue, node));
     registerCommand('azureApiManagement.authorizeAuthorization', async (context: IActionContext, node?: AuthorizationTreeItem) => { await authorizeAuthorization(context, node); });
     registerCommand('azureApiManagement.deleteAuthorization', async (context: IActionContext, node?: AzureTreeItem) => await deleteNode(context, AuthorizationTreeItem.contextValue, node));
+    registerCommand('azureApiManagement.deleteAuthorizationAccessPolicy', async (context: IActionContext, node?: AzureTreeItem) => await deleteNode(context, AuthorizationAccessPolicyTreeItem.contextValue, node));
 }
 
 // tslint:disable-next-line: max-func-body-length
