@@ -3,17 +3,22 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { HttpOperationResponse, ServiceClient } from "@azure/ms-rest-js";
 import { ProgressLocation, QuickPickItem, window } from "vscode";
-import { createGenericClient, IActionContext } from "vscode-azureextensionui";
+import { IActionContext } from "vscode-azureextensionui";
 import { ApimService } from "../../azure/apim/ApimService";
+import { ResourceGraphService } from "../../azure/resourceGraph/ResourceGraphService";
 import { AuthorizationAccessPoliciesTreeItem, IAuthorizationAccessPolicyTreeItemContext } from "../../explorer/AuthorizationAccessPoliciesTreeItem";
 import { AuthorizationTreeItem } from "../../explorer/AuthorizationTreeItem";
 import { ext } from "../../extensionVariables";
 import { localize } from "../../localize";
 
-const otherManagedIdentitiesOptionLabel = "Other managed identities..."
-const customOptionLabel = "Custom...";
+const systemAssignedManagedIdentitiesOptionLabel = "System Assigned managed identities..."
+const userAssignedManagedIdentitiesOptionLabel = "User Assigned managed identities..."
+const navigateToAzurePortal = "Navigate to Azure Portal...";
+
+//TODO: Add Groups and ServicePrincipals
+
+let resourceGraphService: ResourceGraphService;
 
 export async function createAuthorizationAccessPolicy(context: IActionContext & Partial<IAuthorizationAccessPolicyTreeItemContext>, node?: AuthorizationAccessPoliciesTreeItem): Promise<void> {
     if (!node) {
@@ -27,27 +32,45 @@ export async function createAuthorizationAccessPolicy(context: IActionContext & 
         node.root.subscriptionId, 
         node.root.resourceGroupName, 
         node.root.serviceName);
+    
+    resourceGraphService = new ResourceGraphService(
+        node.root.credentials, 
+        node.root.environment.resourceManagerEndpointUrl, 
+        node.root.subscriptionId, 
+    );
 
     const identityOptions = await populateIdentityOptionsAsync(
         apimService, node.root.credentials, node.root.environment.resourceManagerEndpointUrl);
     const identitySelected = await ext.ui.showQuickPick(
         identityOptions, { placeHolder: 'Select Identity...', canPickMany: false, suppressPersistence: true });
 
-    if (identitySelected.label == otherManagedIdentitiesOptionLabel) {
-        var otherManagedIdentityOptions = await populateOtherManageIdentityOptions(node.root.credentials, node.root.environment.resourceManagerEndpointUrl, node.root.subscriptionId);
+    let permissionName = '';
+    let oid = '';
+
+    if (identitySelected.label == systemAssignedManagedIdentitiesOptionLabel) {
+        const response =  await resourceGraphService.listSystemAssignedIdentities()
+        var otherManagedIdentityOptions = await populateManageIdentityOptions(response.data);
+        
         var managedIdentitySelected = await ext.ui.showQuickPick(
-            otherManagedIdentityOptions, { placeHolder: 'Select Managed Identity ...', canPickMany: false, suppressPersistence: true });
-        var permissionName = managedIdentitySelected.label;
-        var oid = managedIdentitySelected.description!;
+            otherManagedIdentityOptions, { placeHolder: 'Select System Assigned Managed Identity ...', canPickMany: false, suppressPersistence: true });
+        
+        permissionName = managedIdentitySelected.label;
+        oid = managedIdentitySelected.description!;
     }
-    else if (identitySelected.label == customOptionLabel) {
-        // No object id specified; ask explicitly
-        var permissionName = await askInput('Enter Access policy name ...');
-        var oid = await askInput('Enter AAD Object Id ...');
-    } else {
-        var permissionName = identitySelected.label;
-        var oid = identitySelected.description!;
+    else if (identitySelected.label == userAssignedManagedIdentitiesOptionLabel) {
+        const response =  await resourceGraphService.listUserAssignedIdentities()
+        var otherManagedIdentityOptions = await populateManageIdentityOptions(response.data);
+        
+        var managedIdentitySelected = await ext.ui.showQuickPick(
+            otherManagedIdentityOptions, { placeHolder: 'Select User Assigned Managed Identity ...', canPickMany: false, suppressPersistence: true });
+        
+        permissionName = managedIdentitySelected.label;
+        oid = managedIdentitySelected.description!;
     }
+    else if (identitySelected.label == navigateToAzurePortal) {
+       //TODO: Navigate to Azure Portal for better experience. 
+       return;
+    } 
 
     context.authorizationAccessPolicyName = permissionName;
     context.authorizationAccessPolicy = {
@@ -90,24 +113,31 @@ async function populateIdentityOptionsAsync(apimService: ApimService, credential
         const apimOption : QuickPickItem = {
             label: service.name,
             description: service.identity.principalId,
-            detail: "Current APIM Service's managed identity"
+            detail: "Current Service managed identity"
         }
         options.push(apimOption);
     }
 
     // 3. Other Managed identities. Dogfood doesn't support this endpoint, so only show this in prod
     if (resourceManagerEndpointUrl == "https://management.azure.com/") {
-        const otherManagedIdentities : QuickPickItem = {
-            label: otherManagedIdentitiesOptionLabel,
+        const systemAssignedManagedIdentities : QuickPickItem = {
+            label: systemAssignedManagedIdentitiesOptionLabel,
             description: "",
             detail: "",
         }
-        options.push(otherManagedIdentities);    
+        options.push(systemAssignedManagedIdentities); 
+        
+        const userAssignedManagedIdentities : QuickPickItem = {
+            label: userAssignedManagedIdentitiesOptionLabel,
+            description: "",
+            detail: "",
+        }
+        options.push(userAssignedManagedIdentities); 
     }
     
     // 4. Custom
     const customOption : QuickPickItem = {
-        label: customOptionLabel,
+        label: navigateToAzurePortal,
         description: "",
         detail: "",
     }
@@ -115,40 +145,16 @@ async function populateIdentityOptionsAsync(apimService: ApimService, credential
     return options;
 }
 
-async function populateOtherManageIdentityOptions(credential, resourceManagerEndpointUrl : string, subscriptionId : string) : Promise<QuickPickItem[]> {
+async function populateManageIdentityOptions(data: any) : Promise<QuickPickItem[]> {
     const options : QuickPickItem[] = [];
+    const managedIdentityOptions : QuickPickItem[] = data.filter(d => !!d.principalId).map(d => {
+        return {
+            label: d.name, 
+            description: d.principalId, 
+            detail: d.id
+        };
+    }); 
+    options.push(...managedIdentityOptions);
 
-    const client: ServiceClient = await createGenericClient(credential);
-    try {
-        var response : HttpOperationResponse | undefined = await client.sendRequest({
-            method: "POST",
-            url: `${resourceManagerEndpointUrl}/providers/Microsoft.ResourceGraph/resources?api-version=2019-04-01`,
-            body: {
-                "subscriptions": [ subscriptionId ],
-                "options": { "resultFormat": "objectArray" },
-                "query": "Resources | where type =~ 'Microsoft.Web/sites' | where notempty(identity) | project name, type, identity"
-            },
-            timeout: 5000 // TODO(seaki): decide on timeout value
-        });
-    } catch (ex) {
-        var response : HttpOperationResponse | undefined = undefined;
-    }
-    if (response?.status == 200) {
-        const managedIdentityOptions : QuickPickItem[] = response.parsedBody.data.filter(d => !!d.identity?.principalId).map(d => {
-            return {
-                label: d.name, 
-                description: d.identity?.principalId, 
-                detail: d.type
-            };
-        }); 
-        options.push(...managedIdentityOptions);
-    }
     return options;
-}
-
-async function askInput(message: string) : Promise<string> {
-    const idPrompt: string = localize('value', message);
-    return (await ext.ui.showInputBox({
-        prompt: idPrompt
-    })).trim();
 }
