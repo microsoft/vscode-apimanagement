@@ -41,4 +41,32 @@ export class GraphService {
         // tslint:disable-next-line: no-unsafe-any
         return <any>(result.parsedBody);
     } 
+
+    public async getGroup(displayNameOrEmail: string): Promise<any> {
+        const client: ServiceClient = await createGenericClient();
+        const result: HttpOperationResponse = await client.sendRequest({
+            method: "GET",
+            url: `${this.graphEndpoint}/${this.tenantId}/groups?$filter=securityEnabled eq true and (startswith(displayName,'${displayNameOrEmail}') or startswith(mail,'${displayNameOrEmail}'))&$top=1`,
+            headers: {
+                Authorization: `Bearer ${this.accessToken}`,
+                'api-version': '1.61-internal'
+            }
+        });
+        // tslint:disable-next-line: no-unsafe-any
+        return <any>(result.parsedBody.value[0]);
+    } 
+
+    public async getServicePrincipal(displayName: string): Promise<any> {
+        const client: ServiceClient = await createGenericClient();
+        const result: HttpOperationResponse = await client.sendRequest({
+            method: "GET",
+            url: `${this.graphEndpoint}/${this.tenantId}/servicePrincipals?$filter=startswith(displayName,'${displayName}')&$top=1`,
+            headers: {
+                Authorization: `Bearer ${this.accessToken}`,
+                'api-version': '1.61-internal'
+            }
+        });
+        // tslint:disable-next-line: no-unsafe-any
+        return <any>(result.parsedBody.value[0]);
+    } 
 }

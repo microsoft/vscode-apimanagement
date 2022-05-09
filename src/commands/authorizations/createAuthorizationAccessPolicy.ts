@@ -16,9 +16,9 @@ import { nonNullValue } from "../../utils/nonNull";
 
 const systemAssignedManagedIdentitiesOptionLabel = "System assigned managed identities..."
 const userAssignedManagedIdentitiesOptionLabel = "User assigned managed identities..."
-const userObjectIdLabel = "Specify user emailId...";
-
-//TODO: Add Groups and ServicePrincipals
+const userEmailIdLabel = "Specify user emailId...";
+const groupDisplayNameorEmailIdLabel = "Specify group display name or emailId...";
+const servicePrincipalDisplayNameLabel = "Specify service principal display name...";
 
 let resourceGraphService: ResourceGraphService;
 let graphService: GraphService;
@@ -52,6 +52,7 @@ export async function createAuthorizationAccessPolicy(context: IActionContext & 
 
     const identityOptions = await populateIdentityOptionsAsync(
         apimService, node.root.credentials, node.root.environment.resourceManagerEndpointUrl);
+    
     const identitySelected = await ext.ui.showQuickPick(
         identityOptions, { placeHolder: 'Select Identity...', canPickMany: false, suppressPersistence: true });
 
@@ -78,18 +79,46 @@ export async function createAuthorizationAccessPolicy(context: IActionContext & 
         permissionName = managedIdentitySelected.label;
         oid = managedIdentitySelected.description!;
     }
-    else if (identitySelected.label == userObjectIdLabel) {
+    else if (identitySelected.label == userEmailIdLabel) {
         const userId = await askInput('Enter user emailId ...', 'mary@contoso.net');
 
         const user = await graphService.getUser(userId);
         
-        if(user) {
+        if(user && user.objectId) {
             permissionName = user.userPrincipalName;
             oid = user.objectId;
         } else {
             window.showErrorMessage(localize('invalidUserEmailId', 'Please specify a valid user emailId. Example, mary@contoso.net'))
         }
     } 
+    else if (identitySelected.label == groupDisplayNameorEmailIdLabel) {
+        const groupDisplayNameOrEmailId = await askInput('Enter group displayname or emailId ...', 'myfullgroupname (or) mygroup@contoso.net');
+
+        const group = await graphService.getGroup(groupDisplayNameOrEmailId);
+        
+        if(group && group.objectId) {
+            permissionName = group.displayName.replaceAll(' ', '');
+            oid = group.objectId;
+        } else {
+            window.showErrorMessage(localize('invalidGroupDisplayNameorEmailId', 'Please specify a valid group display name or emailId. Example, myfullgroupname (or) mygroup@contoso.net'))
+        }
+    } 
+    else if (identitySelected.label == servicePrincipalDisplayNameLabel) {
+        const servicePrincipalDisplayName = await askInput('Enter service principal displayname ...', 'my service principal name');
+
+        const spn = await graphService.getServicePrincipal(servicePrincipalDisplayName);
+        
+        if(spn && spn.objectId) {
+            permissionName = spn.displayName.replaceAll(' ', '');
+            oid = spn.objectId;
+        } else {
+            window.showErrorMessage(localize('invalidSpnDisplayName', 'Please specify a valid service principal display name.'))
+        }
+    } 
+    else {
+        permissionName = identitySelected.label;
+        oid = nonNullValue(identitySelected.description);
+    }
 
     context.authorizationAccessPolicyName = permissionName;
     context.authorizationAccessPolicy = {
@@ -122,7 +151,7 @@ async function populateIdentityOptionsAsync(apimService: ApimService, credential
     const meOption : QuickPickItem = {
         label: token.userId,
         description: token.oid,
-        detail: "Current User"
+        detail: "Current user"
     }
     options.push(meOption);
 
@@ -132,7 +161,7 @@ async function populateIdentityOptionsAsync(apimService: ApimService, credential
         const apimOption : QuickPickItem = {
             label: service.name,
             description: service.identity.principalId,
-            detail: "Current Service managed identity"
+            detail: "Current service system managed identity"
         }
         options.push(apimOption);
     }
@@ -155,12 +184,9 @@ async function populateIdentityOptionsAsync(apimService: ApimService, credential
     }
     
     // 4. Custom
-    const customOption : QuickPickItem = {
-        label: userObjectIdLabel,
-        description: "",
-        detail: "",
-    }
-    options.push(customOption);
+    options.push({ label: userEmailIdLabel });
+    options.push({ label: groupDisplayNameorEmailIdLabel });
+    options.push({ label: servicePrincipalDisplayNameLabel });
     return options;
 }
 
