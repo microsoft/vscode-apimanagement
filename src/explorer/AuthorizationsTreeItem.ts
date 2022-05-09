@@ -36,10 +36,11 @@ export class AuthorizationsTreeItem extends AzureParentTreeItem<IAuthorizationPr
             this._nextLink = undefined;
         }
 
-        const apimService = new ApimService(this.root.credentials, 
-            this.root.environment.resourceManagerEndpointUrl, 
-            this.root.subscriptionId, 
-            this.root.resourceGroupName, 
+        const apimService = new ApimService(
+            this.root.credentials,
+            this.root.environment.resourceManagerEndpointUrl,
+            this.root.subscriptionId,
+            this.root.resourceGroupName,
             this.root.serviceName);
 
         const authorizations: IAuthorizationContract[] = await apimService.listAuthorizations(this.root.authorizationProviderName);
@@ -55,7 +56,7 @@ export class AuthorizationsTreeItem extends AzureParentTreeItem<IAuthorizationPr
 
     public async createChildImpl(context: IAuthorizationTreeItemContext): Promise<AuthorizationTreeItem> {
         if (context.authorizationName
-            && context.authorization) {
+            && context.authorization !==  undefined) {
             const authorizationName = context.authorizationName;
             context.showCreatingTreeItem(authorizationName);
 

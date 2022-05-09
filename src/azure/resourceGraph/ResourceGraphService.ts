@@ -9,9 +9,9 @@ import { createGenericClient } from "vscode-azureextensionui";
 
 export class ResourceGraphService {
     public resourceGraphUrl: string;
-    constructor(public credentials: TokenCredentialsBase, 
-        public endPointUrl: string, 
-        public subscriptionId: string) {
+    constructor(public credentials: TokenCredentialsBase,
+                public endPointUrl: string,
+                public subscriptionId: string) {
         this.credentials = credentials;
         this.endPointUrl = endPointUrl;
         this.subscriptionId = subscriptionId;
@@ -19,35 +19,37 @@ export class ResourceGraphService {
         this.resourceGraphUrl = `${this.endPointUrl}/providers/Microsoft.ResourceGraph/resources?api-version=2019-04-01`;
     }
 
+    // tslint:disable-next-line:no-any
     public async listSystemAssignedIdentities(): Promise<any> {
         const client: ServiceClient = await createGenericClient(this.credentials);
         const result: HttpOperationResponse = await client.sendRequest({
             method: "POST",
             url: this.resourceGraphUrl,
             body: {
-                "subscriptions": [ this.subscriptionId ],
-                "options": { "resultFormat": "objectArray" },
-                "query": "Resources | where notempty(identity) | project name, id, type, principalId = identity.principalId"
+                subscriptions: [ this.subscriptionId ],
+                options: { resultFormat: "objectArray" },
+                query: "Resources | where notempty(identity) | project name, id, type, principalId = identity.principalId"
             },
-            timeout: 5000 // TODO(seaki): decide on timeout value,
+            timeout: 5000
         });
-        // tslint:disable-next-line: no-unsafe-any
+         // tslint:disable-next-line:no-any
         return <any>(result.parsedBody);
     }
 
+     // tslint:disable-next-line:no-any
     public async listUserAssignedIdentities(): Promise<any> {
         const client: ServiceClient = await createGenericClient(this.credentials);
         const result: HttpOperationResponse = await client.sendRequest({
             method: "POST",
             url: this.resourceGraphUrl,
             body: {
-                "subscriptions": [ this.subscriptionId ],
-                "options": { "resultFormat": "objectArray" },
-                "query": "resources | where type == 'microsoft.managedidentity/userassignedidentities' | project name, id, principalId = properties.principalId"
+                subscriptions: [ this.subscriptionId ],
+                options: { resultFormat: "objectArray" },
+                query: "resources | where type == 'microsoft.managedidentity/userassignedidentities' | project name, id, principalId = properties.principalId"
             },
-            timeout: 5000 // TODO(seaki): decide on timeout value,
+            timeout: 5000
         });
-        // tslint:disable-next-line: no-unsafe-any
+         // tslint:disable-next-line:no-any
         return <any>(result.parsedBody);
     }
 

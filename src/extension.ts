@@ -12,9 +12,10 @@ import { addApiFilter } from './commands/addApiFilter';
 import { addApiToGateway } from './commands/addApiToGateway';
 import { addApiToProduct } from './commands/addApiToProduct';
 import { authorizeAuthorization } from './commands/authorizations/authorizeAuthorization';
-import { copySubscriptionKey } from './commands/copySubscriptionKey';
 import { createAuthorization } from './commands/authorizations/createAuthorization';
+import { createAuthorizationAccessPolicy } from './commands/authorizations/createAuthorizationAccessPolicy';
 import { createAuthorizationProvider } from './commands/authorizations/createAuthorizationProvider';
+import { copySubscriptionKey } from './commands/copySubscriptionKey';
 import { createService } from './commands/createService';
 import { debugPolicy } from './commands/debugPolicies/debugPolicy';
 import { deleteNode } from './commands/deleteNode';
@@ -41,6 +42,8 @@ import { ApiOperationTreeItem } from './explorer/ApiOperationTreeItem';
 import { ApiPolicyTreeItem } from './explorer/ApiPolicyTreeItem';
 import { ApisTreeItem } from './explorer/ApisTreeItem';
 import { ApiTreeItem } from './explorer/ApiTreeItem';
+import { AuthorizationAccessPoliciesTreeItem } from './explorer/AuthorizationAccessPoliciesTreeItem';
+import { AuthorizationAccessPolicyTreeItem } from './explorer/AuthorizationAccessPolicyTreeItem';
 import { AuthorizationProvidersTreeItem } from './explorer/AuthorizationProvidersTreeItem';
 import { AuthorizationProviderTreeItem } from './explorer/AuthorizationProviderTreeItem';
 import { AuthorizationsTreeItem } from './explorer/AuthorizationsTreeItem';
@@ -69,9 +72,6 @@ import { ServiceTreeItem } from './explorer/ServiceTreeItem';
 import { SubscriptionTreeItem } from './explorer/SubscriptionTreeItem';
 import { ext } from './extensionVariables';
 import { localize } from './localize';
-import { createAuthorizationAccessPolicy } from './commands/authorizations/createAuthorizationAccessPolicy';
-import { AuthorizationAccessPoliciesTreeItem } from './explorer/AuthorizationAccessPoliciesTreeItem';
-import { AuthorizationAccessPolicyTreeItem } from './explorer/AuthorizationAccessPolicyTreeItem';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed

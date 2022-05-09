@@ -93,8 +93,6 @@ export class ApimService {
     }
 
     // Authorization Providers
-
-    // TODO: cache this call; The list is not expected to change often
     public async listTokenStoreIdentityProviders(): Promise<ITokenStoreIdentityProviderContract[]> {
         const client: ServiceClient = await createGenericClient(this.credentials);
         const result: HttpOperationResponse = await client.sendRequest({
@@ -160,7 +158,7 @@ export class ApimService {
         const result: HttpOperationResponse = await client.sendRequest({
             method: "PUT",
             url: `${this.baseUrl}/authorizationProviders/${authorizationProviderId}/authorizations/${authorizationName}/accesspolicies/${accessPolicyName}?api-version=${this.authorizationProviderApiVersion}`,
-            body: { properties:accessPolicyPaylod },
+            body: { properties: accessPolicyPaylod }
         });
         // tslint:disable-next-line: no-unsafe-any
         return <IAuthorizationAccessPolicyContract>(result.parsedBody);
@@ -179,7 +177,7 @@ export class ApimService {
         const result: HttpOperationResponse = await client.sendRequest({
             method: "PUT",
             url: `${this.baseUrl}/authorizationProviders/${authorizationProviderName}?api-version=${this.authorizationProviderApiVersion}`,
-            body: { properties:authorizationProviderPayload },
+            body: { properties: authorizationProviderPayload }
         });
         // tslint:disable-next-line: no-unsafe-any
         return <IAuthorizationProviderContract>(result.parsedBody);
@@ -190,7 +188,7 @@ export class ApimService {
         const result: HttpOperationResponse = await client.sendRequest({
             method: "PUT",
             url: `${this.baseUrl}/authorizationProviders/${authorizationProviderName}/authorizations/${authorizationName}?api-version=${this.authorizationProviderApiVersion}`,
-            body: { properties: authorizationPayload },
+            body: { properties: authorizationPayload }
         });
         // tslint:disable-next-line: no-unsafe-any
         return <IAuthorizationContract>(result.parsedBody);
@@ -217,7 +215,7 @@ export class ApimService {
         const result: HttpOperationResponse = await client.sendRequest({
             method: "POST",
             url: `${this.baseUrl}/authorizationProviders/${authorizationProviderName}/authorizations/${authorizationName}/getLoginLinks?api-version=${this.authorizationProviderApiVersion}`,
-            body: loginLinkRequestPayload,
+            body: loginLinkRequestPayload
         });
         // tslint:disable-next-line: no-unsafe-any
         return <IAuthorizationLoginLinkResponse>(result.parsedBody);
@@ -229,10 +227,7 @@ export class ApimService {
             method: "GET",
             url: `${this.baseUrl}?api-version=${this.apiVersion}`
         });
-        if (result.status >= 400) {
-            throw Error(result.parsedBody.error?.message);
-        }
-        // tslint:disable-next-line: no-unsafe-any
+        // tslint:disable-next-line:no-any
         return <IApimServiceContract>(result.parsedBody);
     }
 
@@ -243,10 +238,7 @@ export class ApimService {
             url: `${this.baseUrl}?api-version=${this.apiVersion}`,
             body: { identity : { type: "systemassigned" } }
         });
-        if (result.status >= 400) {
-            throw Error(result.parsedBody.error?.message);
-        }
-        // tslint:disable-next-line: no-unsafe-any
+         // tslint:disable-next-line:no-any
         return <IApimServiceContract>(result.parsedBody);
     }
 

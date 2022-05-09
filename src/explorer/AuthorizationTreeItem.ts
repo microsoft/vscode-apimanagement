@@ -18,9 +18,9 @@ export class AuthorizationTreeItem extends AzureParentTreeItem<IAuthorizationTre
     public static contextValue: string = 'azureApiManagementAuthorization';
     public contextValue: string = AuthorizationTreeItem.contextValue;
     private _label: string;
-    public readonly authorizationAccessPoliciesTreeItem: AuthorizationAccessPoliciesTreeItem;
-
     private _root: IAuthorizationTreeRoot;
+    // tslint:disable-next-line:member-ordering
+    public readonly authorizationAccessPoliciesTreeItem: AuthorizationAccessPoliciesTreeItem;
 
     constructor(
         parent: AzureParentTreeItem,

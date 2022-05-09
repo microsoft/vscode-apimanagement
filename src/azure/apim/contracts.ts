@@ -10,10 +10,11 @@ export interface IApimServiceContract {
     type: string;
     location?: string;
     properties: object;
-    identity: IApimServiceIdentityContract
+    identity: IApimServiceIdentityContract;
 }
 
 export interface IApimServiceIdentityContract {
+    // tslint:disable-next-line:no-reserved-keywords
     type: string;
     principalId: string;
     tenantId: string;
@@ -59,12 +60,11 @@ export interface ISubscriptionProperty {
     secondaryKey: string;
 }
 
-
 // Authorization Provider Contracts
 export enum IGrantTypesContract {
     authorizationCode = "authorizationCode",
     clientCredentials = "clientCredentials"
-};
+}
 
 export interface IAuthorizationProviderContract {
     id: string;
@@ -78,19 +78,19 @@ export interface IAuthorizationProviderContract {
 export interface IAuthorizationProviderPropertiesContract {
     displayName?: string;
     identityProvider: string;
-    oauth2?: IAuthorizationProviderOAuth2SettingsContract
+    oauth2?: IAuthorizationProviderOAuth2SettingsContract;
 }
 
 export interface IAuthorizationProviderOAuth2SettingsContract {
     redirectUrl?: string;
-    grantTypes: IAuthorizationProviderOAuth2GrantTypesContract
+    grantTypes: IAuthorizationProviderOAuth2GrantTypesContract;
 }
 
 export type IAuthorizationProviderOAuth2GrantTypesContract = {
     [key in IGrantTypesContract]?: {
         [key: string]: string | boolean
     };
-}
+};
 
 export interface IAuthorizationContract {
     id: string;
@@ -119,6 +119,7 @@ export enum ITokenStoreAuthorizationState {
 export interface IAuthorizationErrorContract {
     code: string;
     message: string;
+    // tslint:disable-next-line:no-any
     refreshResponseBodyFromIdentityProvider?: any;
 }
 
@@ -135,25 +136,27 @@ export interface ITokenStoreIdentityProviderPropertiesContract {
     displayName: string;
     oauth2: {
         grantTypes: ITokenStoreIdentityProviderGrantTypeContract;
-    }
+    };
 }
 
 export type ITokenStoreIdentityProviderGrantTypeContract = {
     [key in IGrantTypesContract]?: ITokenStoreGrantTypeParameterContract;
-}
+};
 
 export interface ITokenStoreGrantTypeParameterContract {
-    [key: string]: ITokenStoreGrantTypeParameterDefinitionContract
+    [key: string]: ITokenStoreGrantTypeParameterDefinitionContract;
 }
 
 export interface ITokenStoreGrantTypeParameterDefinitionContract {
+    // tslint:disable-next-line:no-reserved-keywords
     type: "string" | "securestring" | "bool";
     displayName: string;
     description?: string;
+    // tslint:disable-next-line:no-reserved-keywords
     default?: string;
     uidefinition: {
         atAuthorizationProviderLevel: "REQUIRED" | "OPTIONAL" | "HIDDEN"
-    }
+    };
 }
 
 export interface IAuthorizationLoginLinkRequest {

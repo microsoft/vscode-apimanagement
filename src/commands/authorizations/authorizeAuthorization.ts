@@ -6,13 +6,13 @@
 import * as vscode from 'vscode';
 import { window } from 'vscode';
 import { IActionContext } from "vscode-azureextensionui";
-import { nonNullValue } from '../../utils/nonNull';
 import { ApimService } from "../../azure/apim/ApimService";
 import { IAuthorizationProviderContract, ITokenStoreIdentityProviderContract } from "../../azure/apim/contracts";
 import { AuthorizationProviderTreeItem } from "../../explorer/AuthorizationProviderTreeItem";
 import { AuthorizationTreeItem } from "../../explorer/AuthorizationTreeItem";
 import { ext } from "../../extensionVariables";
 import { localize } from "../../localize";
+import { nonNullValue } from '../../utils/nonNull';
 import { askAuthorizationParameterValues } from './common';
 
 export async function authorizeAuthorization(context: IActionContext, node?: AuthorizationTreeItem): Promise<void> {
@@ -25,23 +25,23 @@ export async function authorizeAuthorization(context: IActionContext, node?: Aut
     const redirectUrl = `vscode://${extensionId}`;
 
     const apimService = new ApimService(node.root.credentials,
-        node.root.environment.resourceManagerEndpointUrl,
-        node.root.subscriptionId,
-        node.root.resourceGroupName,
-        node.root.serviceName);
+                                        node.root.environment.resourceManagerEndpointUrl,
+                                        node.root.subscriptionId,
+                                        node.root.resourceGroupName,
+                                        node.root.serviceName);
 
-    if (node.authorizationContract.properties.oauth2grantType == "AuthorizationCode") {
+    if (node.authorizationContract.properties.oauth2grantType === "AuthorizationCode") {
         const loginLinks = await apimService.listAuthorizationLoginLinks(
-            node.root.authorizationProviderName, 
+            node.root.authorizationProviderName,
             node.authorizationContract.name,
             { postLoginRedirectUrl : redirectUrl });
-    
+
         vscode.env.openExternal(vscode.Uri.parse(loginLinks.loginLink));
-    } else if (node.authorizationContract.properties.oauth2grantType == "ClientCredentials") {
+    } else if (node.authorizationContract.properties.oauth2grantType === "ClientCredentials") {
         const authorizationProvider : IAuthorizationProviderContract = (<AuthorizationProviderTreeItem>node.parent?.parent).authorizationProviderContract;
         const identityProvider: ITokenStoreIdentityProviderContract = await apimService.getTokenStoreIdentityProvider(authorizationProvider.properties.identityProvider);
-        const grant = identityProvider.properties.oauth2.grantTypes["clientCredentials"];
-        
+        const grant = identityProvider.properties.oauth2.grantTypes.clientCredentials;
+
         const parameterValues = await askAuthorizationParameterValues(nonNullValue(grant));
 
         const authorization = node.authorizationContract;
@@ -60,5 +60,5 @@ export async function authorizeAuthorization(context: IActionContext, node?: Aut
             await node!.refresh(context);
             window.showInformationMessage(localize("updatedAuthorization", `Updated Authorization '${authorization.name}' succesfully.`));
         });
-    } 
+    }
 }

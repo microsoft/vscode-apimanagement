@@ -21,18 +21,18 @@ export async function createAuthorization(context: IActionContext & Partial<IAut
     }
 
     const apimService = new ApimService(node.root.credentials,
-        node.root.environment.resourceManagerEndpointUrl,
-        node.root.subscriptionId,
-        node.root.resourceGroupName,
-        node.root.serviceName);
+                                        node.root.environment.resourceManagerEndpointUrl,
+                                        node.root.subscriptionId,
+                                        node.root.resourceGroupName,
+                                        node.root.serviceName);
 
     const authorizationProvider : IAuthorizationProviderContract = (<AuthorizationProviderTreeItem>node.parent).authorizationProviderContract;
-    
+
     const authorizationName = await askId(
         'Enter Authorization name ...',
         'Invalid Authorization name ...'
     );
-    
+
     context.authorizationName = authorizationName;
 
     let parameterValues: IParameterValues = {};
@@ -41,7 +41,7 @@ export async function createAuthorization(context: IActionContext & Partial<IAut
     if (authorizationProvider.properties.oauth2?.grantTypes.clientCredentials) {
         grantType =  IGrantTypesContract.clientCredentials;
         const identityProvider: ITokenStoreIdentityProviderContract = await apimService.getTokenStoreIdentityProvider(authorizationProvider.properties.identityProvider);
-        const grant = identityProvider.properties.oauth2.grantTypes["clientCredentials"];
+        const grant = identityProvider.properties.oauth2.grantTypes.clientCredentials;
         parameterValues = await askAuthorizationParameterValues(nonNullValue(grant));
     }
 
@@ -49,7 +49,7 @@ export async function createAuthorization(context: IActionContext & Partial<IAut
         authorizationType: "oauth2",
         oauth2grantType: grantType,
         parameters: parameterValues
-    }
+    };
 
     window.withProgress(
         {

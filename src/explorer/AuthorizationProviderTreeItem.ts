@@ -11,8 +11,8 @@ import { localize } from "../localize";
 import { nonNullProp } from "../utils/nonNull";
 import { treeUtils } from "../utils/treeUtils";
 import { AuthorizationsTreeItem } from "./AuthorizationsTreeItem";
-import { IServiceTreeRoot } from "./IServiceTreeRoot";
 import { IAuthorizationProviderTreeRoot } from "./IAuthorizationProviderTreeRoot";
+import { IServiceTreeRoot } from "./IServiceTreeRoot";
 
 export class AuthorizationProviderTreeItem extends AzureParentTreeItem<IAuthorizationProviderTreeRoot> {
     public static contextValue: string = 'azureApiManagementAuthorizationProvider';

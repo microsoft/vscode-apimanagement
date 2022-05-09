@@ -12,8 +12,8 @@ import { ext } from "../extensionVariables";
 import { localize } from "../localize";
 import { processError } from "../utils/errorUtil";
 import { treeUtils } from "../utils/treeUtils";
-import { IServiceTreeRoot } from "./IServiceTreeRoot";
 import { AuthorizationProviderTreeItem } from "./AuthorizationProviderTreeItem";
+import { IServiceTreeRoot } from "./IServiceTreeRoot";
 
 export interface IAuthorizationProviderTreeItemContext extends ICreateChildImplContext {
     name : string;
@@ -38,11 +38,11 @@ export class AuthorizationProvidersTreeItem extends AzureParentTreeItem<IService
             this._nextLink = undefined;
         }
 
-        const apimService = new ApimService(this.root.credentials, 
-            this.root.environment.resourceManagerEndpointUrl, 
-            this.root.subscriptionId, 
-            this.root.resourceGroupName, 
-            this.root.serviceName);
+        const apimService = new ApimService(this.root.credentials,
+                                            this.root.environment.resourceManagerEndpointUrl,
+                                            this.root.subscriptionId,
+                                            this.root.resourceGroupName,
+                                            this.root.serviceName);
 
         const tokenProviders: IAuthorizationProviderContract[] = await apimService.listAuthorizationProviders();
 
@@ -62,7 +62,6 @@ export class AuthorizationProvidersTreeItem extends AzureParentTreeItem<IService
             try {
                 const apimService = new ApimService(this.root.credentials, this.root.environment.resourceManagerEndpointUrl, this.root.subscriptionId, this.root.resourceGroupName, this.root.serviceName);
                 const authorizationProvider : IAuthorizationProviderContract = await apimService.createAuthorizationProvider(context.name, context.authorizationProvider);
-                
                 const message = `Make sure to add redirect url '${authorizationProvider.properties.oauth2?.redirectUrl}' to the OAuth application before creating Authorization(s).`;
 
                 ext.outputChannel.show();

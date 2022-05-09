@@ -36,11 +36,11 @@ export class AuthorizationAccessPoliciesTreeItem extends AzureParentTreeItem<IAu
             this._nextLink = undefined;
         }
 
-        const apimService = new ApimService(this.root.credentials, 
-            this.root.environment.resourceManagerEndpointUrl, 
-            this.root.subscriptionId, 
-            this.root.resourceGroupName, 
-            this.root.serviceName);
+        const apimService = new ApimService(this.root.credentials,
+                                            this.root.environment.resourceManagerEndpointUrl,
+                                            this.root.subscriptionId,
+                                            this.root.resourceGroupName,
+                                            this.root.serviceName);
 
         const authorizationAccessPolicies: IAuthorizationAccessPolicyContract[] = await apimService.listAuthorizationAccessPolicies(
             this.root.authorizationProviderName,
@@ -57,16 +57,16 @@ export class AuthorizationAccessPoliciesTreeItem extends AzureParentTreeItem<IAu
 
     public async createChildImpl(context: IAuthorizationAccessPolicyTreeItemContext): Promise<AuthorizationAccessPolicyTreeItem> {
         if (context.authorizationAccessPolicyName
-            && context.authorizationAccessPolicy) {
+            && context.authorizationAccessPolicy !== undefined) {
             const authorizationAccessPolicyName = context.authorizationAccessPolicyName;
             context.showCreatingTreeItem(authorizationAccessPolicyName);
 
             try {
                 const apimService = new ApimService(this.root.credentials, this.root.environment.resourceManagerEndpointUrl, this.root.subscriptionId, this.root.resourceGroupName, this.root.serviceName);
                 const authorizationAccessPolicy = await apimService.createAuthorizationAccessPolicy(
-                    this.root.authorizationProviderName, 
-                    this.root.authorizationName, 
-                    authorizationAccessPolicyName, 
+                    this.root.authorizationProviderName,
+                    this.root.authorizationName,
+                    authorizationAccessPolicyName,
                     context.authorizationAccessPolicy);
 
                 return new AuthorizationAccessPolicyTreeItem(this, authorizationAccessPolicy);

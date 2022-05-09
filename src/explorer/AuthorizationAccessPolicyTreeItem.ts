@@ -44,7 +44,7 @@ export class AuthorizationAccessPolicyTreeItem extends AzureTreeItem<IAuthorizat
             await window.withProgress({ location: ProgressLocation.Notification, title: deletingMessage }, async () => {
                 const apimService = new ApimService(this.root.credentials, this.root.environment.resourceManagerEndpointUrl, this.root.subscriptionId, this.root.resourceGroupName, this.root.serviceName);
                 await apimService.deleteAuthorizationAccessPolicy(
-                    this.root.authorizationProviderName, 
+                    this.root.authorizationProviderName,
                     this.root.authorizationName,
                     nonNullProp(this.authorizationAccessPolicyContract, "name"));
             });

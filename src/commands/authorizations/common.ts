@@ -9,12 +9,13 @@ import { localize } from "../../localize";
 
 export async function askAuthorizationProviderParameterValues(grant: ITokenStoreGrantTypeParameterContract) : Promise<IParameterValues> {
     const parameterValues: IParameterValues = {};
-        for (const parameter in grant) {
+    // tslint:disable-next-line:forin no-for-in
+    for (const parameter in grant) {
             const parameterUIMetadata = <ITokenStoreGrantTypeParameterDefinitionContract>grant[parameter];
-            if (parameterUIMetadata.uidefinition.atAuthorizationProviderLevel != "HIDDEN") {
+            if (parameterUIMetadata.uidefinition.atAuthorizationProviderLevel !== "HIDDEN") {
                 parameterValues[parameter] = await askParam(
                     parameterUIMetadata,
-                    parameterUIMetadata.uidefinition.atAuthorizationProviderLevel == "REQUIRED" );
+                    parameterUIMetadata.uidefinition.atAuthorizationProviderLevel === "REQUIRED" );
             }
         }
 
@@ -23,9 +24,10 @@ export async function askAuthorizationProviderParameterValues(grant: ITokenStore
 
 export async function askAuthorizationParameterValues(grant: ITokenStoreGrantTypeParameterContract) : Promise<IParameterValues> {
     const parameterValues: IParameterValues = {};
-        for (const parameter in grant) {
+    // tslint:disable-next-line:forin no-for-in
+    for (const parameter in grant) {
             const parameterUIMetadata = <ITokenStoreGrantTypeParameterDefinitionContract>grant[parameter];
-            if (parameterUIMetadata.uidefinition.atAuthorizationProviderLevel == "HIDDEN") {
+            if (parameterUIMetadata.uidefinition.atAuthorizationProviderLevel === "HIDDEN") {
                 parameterValues[parameter] = await askParam(
                     parameterUIMetadata,
                     true);
@@ -40,7 +42,7 @@ async function askParam(parameterUIMetadata: ITokenStoreGrantTypeParameterDefini
         placeHolder: localize('parameterDisplayName', `Enter ${parameterUIMetadata.displayName} ...`),
         prompt: localize('parameterDescription', `${parameterUIMetadata.description}`),
         value: parameterUIMetadata.default,
-        password: parameterUIMetadata.type == "securestring",
+        password: parameterUIMetadata.type === "securestring",
         validateInput: async (value: string | undefined): Promise<string | undefined> => {
             value = value ? value.trim() : '';
 
@@ -50,7 +52,7 @@ async function askParam(parameterUIMetadata: ITokenStoreGrantTypeParameterDefini
 
             return undefined;
         }
-    })
+    });
 }
 
 export async function askId(prompt: string, errorMessage: string, defaultValue: string = ''): Promise<string> {

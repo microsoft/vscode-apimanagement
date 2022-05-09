@@ -3,6 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+import { TokenCredentialsBase } from "@azure/ms-rest-nodeauth";
 import { ProgressLocation, QuickPickItem, window } from "vscode";
 import { IActionContext } from "vscode-azureextensionui";
 import { ApimService } from "../../azure/apim/ApimService";
@@ -14,8 +15,8 @@ import { ext } from "../../extensionVariables";
 import { localize } from "../../localize";
 import { nonNullValue } from "../../utils/nonNull";
 
-const systemAssignedManagedIdentitiesOptionLabel = "System assigned managed identities..."
-const userAssignedManagedIdentitiesOptionLabel = "User assigned managed identities..."
+const systemAssignedManagedIdentitiesOptionLabel = "System assigned managed identities...";
+const userAssignedManagedIdentitiesOptionLabel = "User assigned managed identities...";
 const userEmailIdLabel = "Specify user emailId...";
 const groupDisplayNameorEmailIdLabel = "Specify group display name or emailId...";
 const servicePrincipalDisplayNameLabel = "Specify service principal display name...";
@@ -23,6 +24,7 @@ const servicePrincipalDisplayNameLabel = "Specify service principal display name
 let resourceGraphService: ResourceGraphService;
 let graphService: GraphService;
 
+ // tslint:disable: no-any no-unsafe-any
 export async function createAuthorizationAccessPolicy(context: IActionContext & Partial<IAuthorizationAccessPolicyTreeItemContext>, node?: AuthorizationAccessPoliciesTreeItem): Promise<void> {
     if (!node) {
         const AuthorizationNode = <AuthorizationTreeItem>await ext.tree.showTreeItemPicker(AuthorizationTreeItem.contextValue, context);
@@ -30,20 +32,20 @@ export async function createAuthorizationAccessPolicy(context: IActionContext & 
     }
 
     const apimService = new ApimService(
-        node.root.credentials, 
-        node.root.environment.resourceManagerEndpointUrl, 
-        node.root.subscriptionId, 
-        node.root.resourceGroupName, 
+        node.root.credentials,
+        node.root.environment.resourceManagerEndpointUrl,
+        node.root.subscriptionId,
+        node.root.resourceGroupName,
         node.root.serviceName);
-    
+
     resourceGraphService = new ResourceGraphService(
-        node.root.credentials, 
-        node.root.environment.resourceManagerEndpointUrl, 
-        node.root.subscriptionId, 
+        node.root.credentials,
+        node.root.environment.resourceManagerEndpointUrl,
+        node.root.subscriptionId
     );
 
     graphService = new GraphService(
-        node.root.credentials, 
+        node.root.credentials,
         nonNullValue(node.root.environment.activeDirectoryGraphResourceId),
         node.root.tenantId
     );
@@ -52,70 +54,66 @@ export async function createAuthorizationAccessPolicy(context: IActionContext & 
 
     const identityOptions = await populateIdentityOptionsAsync(
         apimService, node.root.credentials, node.root.environment.resourceManagerEndpointUrl);
-    
+
     const identitySelected = await ext.ui.showQuickPick(
         identityOptions, { placeHolder: 'Select Identity...', canPickMany: false, suppressPersistence: true });
 
     let permissionName = '';
     let oid = '';
 
-    if (identitySelected.label == systemAssignedManagedIdentitiesOptionLabel) {
-        const response =  await resourceGraphService.listSystemAssignedIdentities()
-        var otherManagedIdentityOptions = await populateManageIdentityOptions(response.data);
-        
-        var managedIdentitySelected = await ext.ui.showQuickPick(
+    if (identitySelected.label === systemAssignedManagedIdentitiesOptionLabel) {
+        const response =  await resourceGraphService.listSystemAssignedIdentities();
+         // tslint:disable-next-line: no-any no-unsafe-any
+        const otherManagedIdentityOptions = await populateManageIdentityOptions(response.data);
+
+        const managedIdentitySelected = await ext.ui.showQuickPick(
             otherManagedIdentityOptions, { placeHolder: 'Select System Assigned Managed Identity ...', canPickMany: false, suppressPersistence: true });
-        
+
         permissionName = managedIdentitySelected.label;
-        oid = managedIdentitySelected.description!;
-    }
-    else if (identitySelected.label == userAssignedManagedIdentitiesOptionLabel) {
-        const response =  await resourceGraphService.listUserAssignedIdentities()
-        var otherManagedIdentityOptions = await populateManageIdentityOptions(response.data);
-        
-        var managedIdentitySelected = await ext.ui.showQuickPick(
+        oid = nonNullValue(managedIdentitySelected.description);
+    } else if (identitySelected.label === userAssignedManagedIdentitiesOptionLabel) {
+        const response =  await resourceGraphService.listUserAssignedIdentities();
+        const otherManagedIdentityOptions = await populateManageIdentityOptions(response.data);
+
+        const managedIdentitySelected = await ext.ui.showQuickPick(
             otherManagedIdentityOptions, { placeHolder: 'Select User Assigned Managed Identity ...', canPickMany: false, suppressPersistence: true });
-        
+
         permissionName = managedIdentitySelected.label;
-        oid = managedIdentitySelected.description!;
-    }
-    else if (identitySelected.label == userEmailIdLabel) {
+        oid = nonNullValue(managedIdentitySelected.description);
+    } else if (identitySelected.label === userEmailIdLabel) {
         const userId = await askInput('Enter user emailId ...', 'mary@contoso.net');
 
         const user = await graphService.getUser(userId);
-        
-        if(user && user.objectId) {
+
+        if (user && user.objectId) {
             permissionName = user.userPrincipalName;
             oid = user.objectId;
         } else {
-            window.showErrorMessage(localize('invalidUserEmailId', 'Please specify a valid user emailId. Example, mary@contoso.net'))
+            window.showErrorMessage(localize('invalidUserEmailId', 'Please specify a valid user emailId. Example, mary@contoso.net'));
         }
-    } 
-    else if (identitySelected.label == groupDisplayNameorEmailIdLabel) {
+    } else if (identitySelected.label === groupDisplayNameorEmailIdLabel) {
         const groupDisplayNameOrEmailId = await askInput('Enter group displayname or emailId ...', 'myfullgroupname (or) mygroup@contoso.net');
 
         const group = await graphService.getGroup(groupDisplayNameOrEmailId);
-        
-        if(group && group.objectId) {
+
+        if (group && group.objectId) {
             permissionName = group.displayName.replaceAll(' ', '');
             oid = group.objectId;
         } else {
-            window.showErrorMessage(localize('invalidGroupDisplayNameorEmailId', 'Please specify a valid group display name or emailId. Example, myfullgroupname (or) mygroup@contoso.net'))
+            window.showErrorMessage(localize('invalidGroupDisplayNameorEmailId', 'Please specify a valid group display name or emailId. Example, myfullgroupname (or) mygroup@contoso.net'));
         }
-    } 
-    else if (identitySelected.label == servicePrincipalDisplayNameLabel) {
+    } else if (identitySelected.label === servicePrincipalDisplayNameLabel) {
         const servicePrincipalDisplayName = await askInput('Enter service principal displayname ...', 'my service principal name');
 
         const spn = await graphService.getServicePrincipal(servicePrincipalDisplayName);
-        
-        if(spn && spn.objectId) {
+
+        if (spn && spn.objectId) {
             permissionName = spn.displayName.replaceAll(' ', '');
             oid = spn.objectId;
         } else {
-            window.showErrorMessage(localize('invalidSpnDisplayName', 'Please specify a valid service principal display name.'))
+            window.showErrorMessage(localize('invalidSpnDisplayName', 'Please specify a valid service principal display name.'));
         }
-    } 
-    else {
+    } else {
         permissionName = identitySelected.label;
         oid = nonNullValue(identitySelected.description);
     }
@@ -124,17 +122,24 @@ export async function createAuthorizationAccessPolicy(context: IActionContext & 
     context.authorizationAccessPolicy = {
         objectId: oid,
         tenantId: node.root.tenantId
-    }
+    };
 
+    createAccessPolicy(permissionName, node, context);
+}
+
+function createAccessPolicy(
+    permissionName: string,
+    node: AuthorizationAccessPoliciesTreeItem,
+    context: IActionContext & Partial<IAuthorizationAccessPolicyTreeItemContext>) : void {
     window.withProgress(
         {
             location: ProgressLocation.Notification,
             title: localize("creatingAuthorizationPermission", `Creating Access Policy '${permissionName}' for Authorization ${node.root.authorizationName} ...`),
             cancellable: false
         },
-        // tslint:disable-next-line:no-non-null-assertion
-        async () => { 
-            return node!.createChild(context); 
+        async () => {
+            // tslint:disable-next-line:no-non-null-assertion
+            return node!.createChild(context);
         }
     ).then(async () => {
         // tslint:disable-next-line:no-non-null-assertion
@@ -143,16 +148,19 @@ export async function createAuthorizationAccessPolicy(context: IActionContext & 
     });
 }
 
-async function populateIdentityOptionsAsync(apimService: ApimService, credential, resourceManagerEndpointUrl: string) : Promise<QuickPickItem[]> {
+async function populateIdentityOptionsAsync(
+    apimService: ApimService,
+    credential : TokenCredentialsBase,
+    resourceManagerEndpointUrl: string) : Promise<QuickPickItem[]> {
     const options : QuickPickItem[] = [];
 
     // 1. Self
     const token = await credential.getToken();
     const meOption : QuickPickItem = {
-        label: token.userId,
+        label: nonNullValue(token.userId),
         description: token.oid,
         detail: "Current user"
-    }
+    };
     options.push(meOption);
 
     // 2. APIM Service
@@ -162,27 +170,27 @@ async function populateIdentityOptionsAsync(apimService: ApimService, credential
             label: service.name,
             description: service.identity.principalId,
             detail: "Current service system managed identity"
-        }
+        };
         options.push(apimOption);
     }
 
     // 3. Other Managed identities. Dogfood doesn't support this endpoint, so only show this in prod
-    if (resourceManagerEndpointUrl == "https://management.azure.com/") {
+    if (resourceManagerEndpointUrl === "https://management.azure.com/") {
         const systemAssignedManagedIdentities : QuickPickItem = {
             label: systemAssignedManagedIdentitiesOptionLabel,
             description: "",
-            detail: "",
-        }
-        options.push(systemAssignedManagedIdentities); 
-        
+            detail: ""
+        };
+        options.push(systemAssignedManagedIdentities);
+
         const userAssignedManagedIdentities : QuickPickItem = {
             label: userAssignedManagedIdentitiesOptionLabel,
             description: "",
-            detail: "",
-        }
-        options.push(userAssignedManagedIdentities); 
+            detail: ""
+        };
+        options.push(userAssignedManagedIdentities);
     }
-    
+
     // 4. Custom
     options.push({ label: userEmailIdLabel });
     options.push({ label: groupDisplayNameorEmailIdLabel });
@@ -190,15 +198,16 @@ async function populateIdentityOptionsAsync(apimService: ApimService, credential
     return options;
 }
 
+// tslint:disable-next-line:no-any
 async function populateManageIdentityOptions(data: any) : Promise<QuickPickItem[]> {
     const options : QuickPickItem[] = [];
     const managedIdentityOptions : QuickPickItem[] = data.filter(d => !!d.principalId).map(d => {
         return {
-            label: d.name, 
-            description: d.principalId, 
+            label: d.name,
+            description: d.principalId,
             detail: d.id
         };
-    }); 
+    });
     options.push(...managedIdentityOptions);
 
     return options;

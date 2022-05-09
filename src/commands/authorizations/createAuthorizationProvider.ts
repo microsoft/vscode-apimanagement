@@ -7,12 +7,12 @@ import { ProgressLocation, window } from "vscode";
 import { IActionContext } from "vscode-azureextensionui";
 import { ApimService } from "../../azure/apim/ApimService";
 import { IAuthorizationProviderOAuth2GrantTypesContract, IAuthorizationProviderPropertiesContract, IGrantTypesContract, ITokenStoreIdentityProviderContract } from "../../azure/apim/contracts";
+import { ITokenStoreGrantTypeParameterContract } from "../../azure/apim/contracts";
 import { AuthorizationProvidersTreeItem, IAuthorizationProviderTreeItemContext } from "../../explorer/AuthorizationProvidersTreeItem";
 import { ServiceTreeItem } from "../../explorer/ServiceTreeItem";
 import { ext } from "../../extensionVariables";
 import { localize } from "../../localize";
 import { askAuthorizationProviderParameterValues, askId } from "./common";
-import { ITokenStoreGrantTypeParameterContract } from "../../azure/apim/contracts";
 
 export async function createAuthorizationProvider(context: IActionContext & Partial<IAuthorizationProviderTreeItemContext>, node?: AuthorizationProvidersTreeItem): Promise<void> {
     if (!node) {
@@ -21,17 +21,16 @@ export async function createAuthorizationProvider(context: IActionContext & Part
     }
 
     const apimService = new ApimService(node.root.credentials,
-        node.root.environment.resourceManagerEndpointUrl,
-        node.root.subscriptionId,
-        node.root.resourceGroupName,
-        node.root.serviceName);
+                                        node.root.environment.resourceManagerEndpointUrl,
+                                        node.root.subscriptionId,
+                                        node.root.resourceGroupName,
+                                        node.root.serviceName);
 
     const service = await apimService.getService();
-    if (!service.identity) {
+    if (service.identity !== undefined) {
         const options = ['Yes', 'No'];
         const option = await ext.ui.showQuickPick(options.map((s) => { return { label: s, description: '', detail: '' }; }), { placeHolder: 'Enable System Assigned Managed Identity', canPickMany: false });
         if (option.label === options[0]) {
-            // TODO: Move to its own command
             window.withProgress(
                 {
                     location: ProgressLocation.Notification,
@@ -39,17 +38,18 @@ export async function createAuthorizationProvider(context: IActionContext & Part
                     cancellable: false
                 },
                 // tslint:disable-next-line:no-non-null-assertion
-                async () => { return apimService.turnOnManagedIdentity();; }
+                async () => { return apimService.turnOnManagedIdentity(); }
             ).then(async () => {
                 // tslint:disable-next-line:no-non-null-assertion
                 await node!.refresh(context);
                 window.showInformationMessage(localize("enabledManagedIdentity", `Enabled System Assigned Managed Identity.`));
             });
-        } 
+        }
     }
 
     let supportedIdentityProviders: ITokenStoreIdentityProviderContract[] = await apimService.listTokenStoreIdentityProviders();
-    supportedIdentityProviders = supportedIdentityProviders.sort(function (a, b) {
+    // tslint:disable-next-line:no-function-expression
+    supportedIdentityProviders = supportedIdentityProviders.sort(function compare(a: ITokenStoreIdentityProviderContract, b: ITokenStoreIdentityProviderContract): number {
         return a.properties.displayName.localeCompare(b.properties.displayName);
     });
 
@@ -59,12 +59,12 @@ export async function createAuthorizationProvider(context: IActionContext & Part
 
     let grantType: string = "";
     if (selectedIdentityProvider
-        && selectedIdentityProvider.properties.oauth2.grantTypes) {
+        && selectedIdentityProvider.properties.oauth2.grantTypes !== null) {
         const authorizationProviderName = await askId(
             'Enter Authorization Provider name ...',
             'Invalid Authorization Provider name.');
 
-        const grantTypes = Object.keys(selectedIdentityProvider.properties.oauth2.grantTypes)
+        const grantTypes = Object.keys(selectedIdentityProvider.properties.oauth2.grantTypes);
         if (grantTypes.length > 1) {
             const grantTypePicked = await ext.ui.showQuickPick(grantTypes.map((s) => { return { label: s[0].toUpperCase() + s.slice(1), description: '', detail: '' }; }), { placeHolder: 'Select Grant Type ...', canPickMany: false });
             grantType = grantTypePicked.label[0].toLocaleLowerCase() + grantTypePicked.label.slice(1);
@@ -74,11 +74,13 @@ export async function createAuthorizationProvider(context: IActionContext & Part
 
         const grantTypeValue: IGrantTypesContract = <IGrantTypesContract>grantType;
 
+        // tslint:disable-next-line:no-any
+        // tslint:disable-next-line:no-unsafe-any
         const grant: ITokenStoreGrantTypeParameterContract = selectedIdentityProvider?.properties.oauth2.grantTypes[grantType];
 
         const parameterValues = await askAuthorizationProviderParameterValues(grant);
 
-        const authorizationProviderGrant: IAuthorizationProviderOAuth2GrantTypesContract = {}
+        const authorizationProviderGrant: IAuthorizationProviderOAuth2GrantTypesContract = {};
 
         if (grantTypeValue === IGrantTypesContract.authorizationCode) {
             authorizationProviderGrant.authorizationCode = parameterValues;
@@ -91,7 +93,7 @@ export async function createAuthorizationProvider(context: IActionContext & Part
             oauth2: {
                 grantTypes: authorizationProviderGrant
             }
-        }
+        };
 
         context.name = authorizationProviderName;
         context.authorizationProvider = authorizationProviderPayload;
