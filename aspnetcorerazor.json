@@ -509,5 +509,12 @@
             "\t</xsl:stylesheet>",
             "</xsl-transform>"
         ]
+    },
+    "get-authorization-context": {
+        "prefix": "get-authorization-context",
+        "description": "Gets the authorization context of the specified authorization, including the access token",
+        "body": [
+            "<get-authorization-context provider-id=\"$1\" authorization-id=\"$2\" context-variable-name=\"$3\" identity-type =\"${4|managed,JWT|}\" identity =\"$5\" ignore-error=\"${6|true,false|}\" />"
+        ]
     }
 }

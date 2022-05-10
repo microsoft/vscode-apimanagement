@@ -11,6 +11,7 @@ import { localize } from "../localize";
 import { nonNullProp } from "../utils/nonNull";
 import { treeUtils } from "../utils/treeUtils";
 import { AuthorizationAccessPoliciesTreeItem } from "./AuthorizationAccessPoliciesTreeItem";
+import { AuthorizationAccessPolicyTreeItem } from "./AuthorizationAccessPolicyTreeItem";
 import { IAuthorizationProviderTreeRoot } from "./IAuthorizationProviderTreeRoot";
 import { IAuthorizationTreeRoot } from "./IAuthorizationTreeRoot";
 
@@ -55,6 +56,17 @@ export class AuthorizationTreeItem extends AzureParentTreeItem<IAuthorizationTre
 
     public hasMoreChildrenImpl(): boolean {
         return false;
+    }
+
+    public pickTreeItemImpl(expectedContextValues: (string | RegExp)[]): AzureTreeItem<IAuthorizationTreeRoot> | undefined {
+        for (const expectedContextValue of expectedContextValues) {
+            switch (expectedContextValue) {
+                case AuthorizationAccessPolicyTreeItem.contextValue:
+                    return this.authorizationAccessPoliciesTreeItem;
+            default:
+            }
+        }
+        return undefined;
     }
 
     public async deleteTreeItemImpl(): Promise<void> {

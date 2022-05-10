@@ -24,7 +24,7 @@ export class AuthorizationAccessPoliciesTreeItem extends AzureParentTreeItem<IAu
     public static contextValue: string = 'azureApiManagementAuthorizationAccessPolicies';
     public label: string = "Access policies";
     public contextValue: string = AuthorizationAccessPoliciesTreeItem.contextValue;
-    public readonly childTypeLabel: string = localize('azureApiManagement.AuthorizationAccessPolicy', 'Access Policy');
+    public readonly childTypeLabel: string = localize('azureApiManagement.AuthorizationAccessPolicy', 'AuthorizationAccessPolicy');
     private _nextLink: string | undefined;
 
     public hasMoreChildrenImpl(): boolean {

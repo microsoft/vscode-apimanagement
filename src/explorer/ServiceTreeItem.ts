@@ -14,7 +14,10 @@ import { ApiOperationTreeItem } from "./ApiOperationTreeItem";
 import { ApiPolicyTreeItem } from "./ApiPolicyTreeItem";
 import { ApisTreeItem } from "./ApisTreeItem";
 import { ApiTreeItem } from "./ApiTreeItem";
+import { AuthorizationAccessPolicyTreeItem } from "./AuthorizationAccessPolicyTreeItem";
 import { AuthorizationProvidersTreeItem } from "./AuthorizationProvidersTreeItem";
+import { AuthorizationProviderTreeItem } from "./AuthorizationProviderTreeItem";
+import { AuthorizationTreeItem } from "./AuthorizationTreeItem";
 import { GatewaysTreeItem } from "./GatewaysTreeItem";
 import { IServiceTreeRoot } from "./IServiceTreeRoot";
 import { NamedValuesTreeItem } from "./NamedValuesTreeItem";
@@ -127,6 +130,10 @@ export class ServiceTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
                 case ProductTreeItem.contextValue:
                 case ProductPolicyTreeItem.contextValue:
                     return this.productsTreeItem;
+                case AuthorizationProviderTreeItem.contextValue:
+                case AuthorizationTreeItem.contextValue:
+                case AuthorizationAccessPolicyTreeItem.contextValue:
+                    return this.authorizationProvidersTreeItem;
                 default:
             }
         }

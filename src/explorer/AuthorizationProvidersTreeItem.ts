@@ -4,10 +4,11 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { window } from "vscode";
+import { ProgressLocation, window } from "vscode";
 import { AzExtTreeItem, AzureParentTreeItem, ICreateChildImplContext } from "vscode-azureextensionui";
 import { ApimService } from "../azure/apim/ApimService";
-import { IAuthorizationProviderContract, IAuthorizationProviderPropertiesContract } from "../azure/apim/contracts";
+import { IAuthorizationProviderContract, IAuthorizationProviderOAuth2GrantTypesContract, IAuthorizationProviderPropertiesContract, IGrantTypesContract, ITokenStoreGrantTypeParameterContract, ITokenStoreIdentityProviderContract } from "../azure/apim/contracts";
+import { askAuthorizationProviderParameterValues, askId } from "../commands/authorizations/common";
 import { ext } from "../extensionVariables";
 import { localize } from "../localize";
 import { processError } from "../utils/errorUtil";
@@ -16,7 +17,7 @@ import { AuthorizationProviderTreeItem } from "./AuthorizationProviderTreeItem";
 import { IServiceTreeRoot } from "./IServiceTreeRoot";
 
 export interface IAuthorizationProviderTreeItemContext extends ICreateChildImplContext {
-    name : string;
+    name: string;
     authorizationProvider: IAuthorizationProviderPropertiesContract;
 }
 
@@ -25,9 +26,11 @@ export class AuthorizationProvidersTreeItem extends AzureParentTreeItem<IService
         return treeUtils.getThemedIconPath('list');
     }
     public static contextValue: string = 'azureApiManagementAuthorizationProviders';
+    public readonly childTypeLabel: string = localize('azureApiManagement.AuthorizationProvider', 'AuthorizationProvider');
     public label: string = "AuthorizationProviders";
     public contextValue: string = AuthorizationProvidersTreeItem.contextValue;
     private _nextLink: string | undefined;
+    private apimService: ApimService;
 
     public hasMoreChildrenImpl(): boolean {
         return this._nextLink !== undefined;
@@ -38,13 +41,14 @@ export class AuthorizationProvidersTreeItem extends AzureParentTreeItem<IService
             this._nextLink = undefined;
         }
 
-        const apimService = new ApimService(this.root.credentials,
-                                            this.root.environment.resourceManagerEndpointUrl,
-                                            this.root.subscriptionId,
-                                            this.root.resourceGroupName,
-                                            this.root.serviceName);
+        this.apimService = new ApimService(
+            this.root.credentials,
+            this.root.environment.resourceManagerEndpointUrl,
+            this.root.subscriptionId,
+            this.root.resourceGroupName,
+            this.root.serviceName);
 
-        const tokenProviders: IAuthorizationProviderContract[] = await apimService.listAuthorizationProviders();
+        const tokenProviders: IAuthorizationProviderContract[] = await this.apimService.listAuthorizationProviders();
 
         return this.createTreeItemsWithErrorHandling(
             tokenProviders,
@@ -56,26 +60,107 @@ export class AuthorizationProvidersTreeItem extends AzureParentTreeItem<IService
     }
 
     public async createChildImpl(context: IAuthorizationProviderTreeItemContext): Promise<AuthorizationProviderTreeItem> {
-        if (context.name) {
-            const authorizationProviderName = context.name;
-            context.showCreatingTreeItem(authorizationProviderName);
-            try {
-                const apimService = new ApimService(this.root.credentials, this.root.environment.resourceManagerEndpointUrl, this.root.subscriptionId, this.root.resourceGroupName, this.root.serviceName);
-                const authorizationProvider : IAuthorizationProviderContract = await apimService.createAuthorizationProvider(context.name, context.authorizationProvider);
-                const message = `Make sure to add redirect url '${authorizationProvider.properties.oauth2?.redirectUrl}' to the OAuth application before creating Authorization(s).`;
-
-                ext.outputChannel.show();
-                ext.outputChannel.appendLine(message);
-
-                window.showWarningMessage(localize("redirectUrlMessage", message));
-
-                return new AuthorizationProviderTreeItem(this, authorizationProvider);
-
-            } catch (error) {
-                throw new Error(processError(error, localize("createAuthorizationProvider", `Failed to create Authorization Provider '${authorizationProviderName}'.`)));
-            }
+        await this.checkManagedIdentityEnabled();
+        await this.buildContext(context);
+        if (context.name !== null && context.authorizationProvider !== null) {
+            return window.withProgress(
+                {
+                    location: ProgressLocation.Notification,
+                    title: localize("creatingAuthorizationProvider", `Creating Authorization Provider '${context.name}' in API Management service ${this.root.serviceName} ...`),
+                    cancellable: false
+                },
+                // tslint:disable-next-line:no-non-null-assertion
+                async (): Promise<AuthorizationProviderTreeItem> => {
+                    const authorizationProviderName = context.name;
+                    context.showCreatingTreeItem(authorizationProviderName);
+                    try {
+                        const authorizationProvider: IAuthorizationProviderContract = await this.apimService.createAuthorizationProvider(context.name, context.authorizationProvider);
+                        const message = `Make sure to add redirect url '${authorizationProvider.properties.oauth2?.redirectUrl}' to the OAuth application before creating Authorization(s).`;
+                        ext.outputChannel.show();
+                        ext.outputChannel.appendLine(message);
+                        window.showWarningMessage(localize("redirectUrlMessage", message));
+                        window.showInformationMessage(localize("createdAuthorizationProvider", `Created Authorization Provider '${context.name}' in API Management succesfully.`));
+                        return new AuthorizationProviderTreeItem(this, authorizationProvider);
+                    } catch (error) {
+                        throw new Error(processError(error, localize("createAuthorizationProvider", `Failed to create Authorization Provider '${authorizationProviderName}'.`)));
+                    }
+                }
+            );
         } else {
-            throw Error("Expected Authorization Provder information.");
+            throw Error("Expected Authorization Provider information.");
         }
     }
- }
+
+    private async checkManagedIdentityEnabled() : Promise<void> {
+        const service = await this.apimService.getService();
+        if (service.identity === undefined) {
+            const options = ['Yes', 'No'];
+            const option = await ext.ui.showQuickPick(options.map((s) => { return { label: s, description: '', detail: '' }; }), { placeHolder: 'Enable System Assigned Managed Identity', canPickMany: false });
+            if (option.label === options[0]) {
+                await window.withProgress(
+                    {
+                        location: ProgressLocation.Notification,
+                        title: localize("enableManagedIdentity", `Enabling system assigned managed identity.`),
+                        cancellable: false
+                    },
+                    async () => {
+                        await this.apimService.turnOnManagedIdentity();
+                        window.showInformationMessage(localize("enabledManagedIdentity", `Enabled system assigned managed identity.`));
+                    }
+                );
+            }
+        }
+    }
+
+    private async buildContext(context: IAuthorizationProviderTreeItemContext): Promise<void> {
+        let supportedIdentityProviders: ITokenStoreIdentityProviderContract[] = await this.apimService.listTokenStoreIdentityProviders();
+        // tslint:disable-next-line:no-function-expression
+        supportedIdentityProviders = supportedIdentityProviders.sort(function compare(a: ITokenStoreIdentityProviderContract, b: ITokenStoreIdentityProviderContract): number {
+            return a.properties.displayName.localeCompare(b.properties.displayName);
+        });
+
+        const identityProviderPicked = await ext.ui.showQuickPick(supportedIdentityProviders.map((s) => { return { label: s.properties.displayName, description: '', detail: '' }; }), { placeHolder: 'Select Identity Provider ...', canPickMany: false });
+        const selectedIdentityProvider = supportedIdentityProviders.find(s => s.properties.displayName === identityProviderPicked.label);
+
+        let grantType: string = "";
+        if (selectedIdentityProvider
+            && selectedIdentityProvider.properties.oauth2.grantTypes !== null) {
+            const authorizationProviderName = await askId(
+                'Enter Authorization Provider name ...',
+                'Invalid Authorization Provider name.');
+
+            const grantTypes = Object.keys(selectedIdentityProvider.properties.oauth2.grantTypes);
+            if (grantTypes.length > 1) {
+                const grantTypePicked = await ext.ui.showQuickPick(grantTypes.map((s) => { return { label: s[0].toUpperCase() + s.slice(1), description: '', detail: '' }; }), { placeHolder: 'Select Grant Type ...', canPickMany: false });
+                grantType = grantTypePicked.label[0].toLocaleLowerCase() + grantTypePicked.label.slice(1);
+            } else {
+                grantType = grantTypes[0];
+            }
+
+            const grantTypeValue: IGrantTypesContract = <IGrantTypesContract>grantType;
+
+            // tslint:disable-next-line:no-any
+            // tslint:disable-next-line:no-unsafe-any
+            const grant: ITokenStoreGrantTypeParameterContract = selectedIdentityProvider?.properties.oauth2.grantTypes[grantType];
+
+            const parameterValues = await askAuthorizationProviderParameterValues(grant);
+
+            const authorizationProviderGrant: IAuthorizationProviderOAuth2GrantTypesContract = {};
+            if (grantTypeValue === IGrantTypesContract.authorizationCode) {
+                authorizationProviderGrant.authorizationCode = parameterValues;
+            } else if (grantTypeValue === IGrantTypesContract.clientCredentials) {
+                authorizationProviderGrant.clientCredentials = parameterValues;
+            }
+
+            const authorizationProviderPayload: IAuthorizationProviderPropertiesContract = {
+                identityProvider: selectedIdentityProvider.name,
+                oauth2: {
+                    grantTypes: authorizationProviderGrant
+                }
+            };
+
+            context.name = authorizationProviderName;
+            context.authorizationProvider = authorizationProviderPayload;
+        }
+    }
+}
