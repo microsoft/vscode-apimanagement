@@ -19,8 +19,8 @@ export class ResourceGraphService {
         this.resourceGraphUrl = `${this.endPointUrl}/providers/Microsoft.ResourceGraph/resources?api-version=2019-04-01`;
     }
 
-    // tslint:disable-next-line:no-any
-    public async listSystemAssignedIdentities(): Promise<any> {
+    // tslint:disable-next-line:no-any no-reserved-keywords
+    public async listSystemAssignedIdentities(): Promise<{ name: string, id: string, type: string, principalId: string }[]> {
         const client: ServiceClient = await createGenericClient(this.credentials);
         const result: HttpOperationResponse = await client.sendRequest({
             method: "POST",
@@ -32,12 +32,12 @@ export class ResourceGraphService {
             },
             timeout: 5000
         });
-         // tslint:disable-next-line:no-any
-        return <any>(result.parsedBody);
+         // tslint:disable-next-line:no-any no-unsafe-any no-reserved-keywords
+        return <{ name: string, id: string, type: string, principalId: string }[]>(result.parsedBody?.data);
     }
 
      // tslint:disable-next-line:no-any
-    public async listUserAssignedIdentities(): Promise<any> {
+    public async listUserAssignedIdentities(): Promise<{ name: string, id: string, principalId: string }[]> {
         const client: ServiceClient = await createGenericClient(this.credentials);
         const result: HttpOperationResponse = await client.sendRequest({
             method: "POST",
@@ -49,8 +49,8 @@ export class ResourceGraphService {
             },
             timeout: 5000
         });
-         // tslint:disable-next-line:no-any
-        return <any>(result.parsedBody);
+         // tslint:disable-next-line:no-any no-unsafe-any
+        return <{ name: string, id: string, principalId: string }[]>(result.parsedBody?.data);
     }
 
 }

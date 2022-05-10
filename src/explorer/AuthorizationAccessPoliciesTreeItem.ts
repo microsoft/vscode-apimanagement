@@ -22,7 +22,7 @@ export class AuthorizationAccessPoliciesTreeItem extends AzureParentTreeItem<IAu
         return treeUtils.getThemedIconPath('list');
     }
     public static contextValue: string = 'azureApiManagementAuthorizationAccessPolicies';
-    public label: string = "Access Policies";
+    public label: string = "Access policies";
     public contextValue: string = AuthorizationAccessPoliciesTreeItem.contextValue;
     public readonly childTypeLabel: string = localize('azureApiManagement.AuthorizationAccessPolicy', 'Access Policy');
     private _nextLink: string | undefined;
@@ -36,11 +36,12 @@ export class AuthorizationAccessPoliciesTreeItem extends AzureParentTreeItem<IAu
             this._nextLink = undefined;
         }
 
-        const apimService = new ApimService(this.root.credentials,
-                                            this.root.environment.resourceManagerEndpointUrl,
-                                            this.root.subscriptionId,
-                                            this.root.resourceGroupName,
-                                            this.root.serviceName);
+        const apimService = new ApimService(
+            this.root.credentials,
+            this.root.environment.resourceManagerEndpointUrl,
+            this.root.subscriptionId,
+            this.root.resourceGroupName,
+            this.root.serviceName);
 
         const authorizationAccessPolicies: IAuthorizationAccessPolicyContract[] = await apimService.listAuthorizationAccessPolicies(
             this.root.authorizationProviderName,

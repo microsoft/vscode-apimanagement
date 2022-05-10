@@ -30,7 +30,7 @@ export class GraphService {
     }
 
     // tslint:disable-next-line:no-any
-    public async getUser(emailId: string): Promise<any> {
+    public async getUser(emailId: string): Promise<{ userPrincipalName: string, objectId: string }> {
         const client: ServiceClient = await createGenericClient();
         const result: HttpOperationResponse = await client.sendRequest({
             method: "GET",
@@ -41,11 +41,11 @@ export class GraphService {
             }
         });
         // tslint:disable-next-line:no-any
-        return <any>(result.parsedBody);
+        return <{ userPrincipalName: string, objectId: string }>(result.parsedBody);
     }
 
      // tslint:disable-next-line:no-any
-    public async getGroup(displayNameOrEmail: string): Promise<any> {
+    public async getGroup(displayNameOrEmail: string): Promise<{ displayName: string, objectId: string }> {
         const client: ServiceClient = await createGenericClient();
         const result: HttpOperationResponse = await client.sendRequest({
             method: "GET",
@@ -56,11 +56,11 @@ export class GraphService {
             }
         });
          // tslint:disable-next-line: no-any no-unsafe-any
-        return <any>(result.parsedBody.value[0]);
+        return <{ displayName: string, objectId: string }>(result.parsedBody.value[0]);
     }
 
      // tslint:disable-next-line:no-any
-    public async getServicePrincipal(displayName: string): Promise<any> {
+    public async getServicePrincipal(displayName: string): Promise<{ displayName: string, objectId: string }> {
         const client: ServiceClient = await createGenericClient();
         const result: HttpOperationResponse = await client.sendRequest({
             method: "GET",
@@ -71,6 +71,6 @@ export class GraphService {
             }
         });
         // tslint:disable-next-line: no-any no-unsafe-any
-        return <any>(result.parsedBody.value[0]);
+        return <{ displayName: string, objectId: string }>(result.parsedBody.value[0]);
     }
 }

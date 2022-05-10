@@ -22,13 +22,14 @@ export async function authorizeAuthorization(context: IActionContext, node?: Aut
     }
 
     const extensionId = "ms-azuretools.vscode-apimanagement";
-    const redirectUrl = `vscode://${extensionId}`;
+    const redirectUrl = `vscode://${extensionId}/vscodeauthcomplete/${node.root.authorizationProviderName}/${node.root.authorizationName}`;
 
-    const apimService = new ApimService(node.root.credentials,
-                                        node.root.environment.resourceManagerEndpointUrl,
-                                        node.root.subscriptionId,
-                                        node.root.resourceGroupName,
-                                        node.root.serviceName);
+    const apimService = new ApimService(
+        node.root.credentials,
+        node.root.environment.resourceManagerEndpointUrl,
+        node.root.subscriptionId,
+        node.root.resourceGroupName,
+        node.root.serviceName);
 
     if (node.authorizationContract.properties.oauth2grantType === "AuthorizationCode") {
         const loginLinks = await apimService.listAuthorizationLoginLinks(

@@ -33,7 +33,7 @@ export class AuthorizationAccessPolicyTreeItem extends AzureTreeItem<IAuthorizat
     }
 
     public get iconPath(): { light: string, dark: string } {
-        return treeUtils.getThemedIconPath('api');
+        return treeUtils.getThemedIconPath('accesspolicy');
     }
 
     public async deleteTreeItemImpl(): Promise<void> {

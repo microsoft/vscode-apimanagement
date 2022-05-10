@@ -280,8 +280,18 @@ function registerEditors(context: vscode.ExtensionContext) : void {
 export function deactivateInternal() {}
 
 class UriEventHandler extends vscode.EventEmitter<vscode.Uri> implements vscode.UriHandler {
-    public handleUri() {
-        ext.outputChannel.appendLine(localize('oauthFlowComplete', "OAuth flow completed."));
-        vscode.window.showInformationMessage(localize('authSuccess', 'Authorization complete. You can now close the browser window that was launched during the authorization process.'));
+    public handleUri(uri: vscode.Uri) {
+        if (uri.path.startsWith('/vscodeauthcomplete')) {
+            if (uri.query !== null && uri.query.includes('error')) {
+                ext.outputChannel.appendLine(localize('authFailed', `Authorization failed. ${uri.query}`));
+                vscode.window.showInformationMessage(localize('authFailed', 'Authorization failed.'));
+            } else {
+                ext.outputChannel.appendLine(localize('authComplete', `Authorization success. ${uri.path}`));
+                const authProvider = uri.path.split('/')[2];
+                const authorization = uri.path.split('/')[3];
+                vscode.window.showInformationMessage(localize('authSuccess', `Authorized '${authorization}' under Authorization Provider '${authProvider}'.`));
+                vscode.window.showInformationMessage(localize('closeBrowserWindow', `You can now close the browser window that was launched during the authorization process.`));
+            }
+        }
     }
 }

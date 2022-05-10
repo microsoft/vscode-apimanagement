@@ -46,7 +46,7 @@ export class AuthorizationTreeItem extends AzureParentTreeItem<IAuthorizationTre
     }
 
     public get iconPath(): { light: string, dark: string } {
-        return treeUtils.getThemedIconPath('api');
+        return treeUtils.getThemedIconPath('authorization');
     }
 
     public async loadMoreChildrenImpl(): Promise<AzureTreeItem<IAuthorizationTreeRoot>[]> {

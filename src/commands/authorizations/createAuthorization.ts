@@ -20,11 +20,12 @@ export async function createAuthorization(context: IActionContext & Partial<IAut
         node = authorizationProviderNode.authorizationsTreeItem;
     }
 
-    const apimService = new ApimService(node.root.credentials,
-                                        node.root.environment.resourceManagerEndpointUrl,
-                                        node.root.subscriptionId,
-                                        node.root.resourceGroupName,
-                                        node.root.serviceName);
+    const apimService = new ApimService(
+        node.root.credentials,
+        node.root.environment.resourceManagerEndpointUrl,
+        node.root.subscriptionId,
+        node.root.resourceGroupName,
+        node.root.serviceName);
 
     const authorizationProvider : IAuthorizationProviderContract = (<AuthorizationProviderTreeItem>node.parent).authorizationProviderContract;
 

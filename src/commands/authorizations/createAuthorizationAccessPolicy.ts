@@ -24,7 +24,7 @@ const servicePrincipalDisplayNameLabel = "Specify service principal display name
 let resourceGraphService: ResourceGraphService;
 let graphService: GraphService;
 
- // tslint:disable: no-any no-unsafe-any
+ // tslint:disable-next-line: no-any no-unsafe-any
 export async function createAuthorizationAccessPolicy(context: IActionContext & Partial<IAuthorizationAccessPolicyTreeItemContext>, node?: AuthorizationAccessPoliciesTreeItem): Promise<void> {
     if (!node) {
         const AuthorizationNode = <AuthorizationTreeItem>await ext.tree.showTreeItemPicker(AuthorizationTreeItem.contextValue, context);
@@ -64,7 +64,7 @@ export async function createAuthorizationAccessPolicy(context: IActionContext & 
     if (identitySelected.label === systemAssignedManagedIdentitiesOptionLabel) {
         const response =  await resourceGraphService.listSystemAssignedIdentities();
          // tslint:disable-next-line: no-any no-unsafe-any
-        const otherManagedIdentityOptions = await populateManageIdentityOptions(response.data);
+        const otherManagedIdentityOptions = await populateManageIdentityOptions(response);
 
         const managedIdentitySelected = await ext.ui.showQuickPick(
             otherManagedIdentityOptions, { placeHolder: 'Select System Assigned Managed Identity ...', canPickMany: false, suppressPersistence: true });
@@ -73,7 +73,7 @@ export async function createAuthorizationAccessPolicy(context: IActionContext & 
         oid = nonNullValue(managedIdentitySelected.description);
     } else if (identitySelected.label === userAssignedManagedIdentitiesOptionLabel) {
         const response =  await resourceGraphService.listUserAssignedIdentities();
-        const otherManagedIdentityOptions = await populateManageIdentityOptions(response.data);
+        const otherManagedIdentityOptions = await populateManageIdentityOptions(response);
 
         const managedIdentitySelected = await ext.ui.showQuickPick(
             otherManagedIdentityOptions, { placeHolder: 'Select User Assigned Managed Identity ...', canPickMany: false, suppressPersistence: true });
@@ -85,7 +85,7 @@ export async function createAuthorizationAccessPolicy(context: IActionContext & 
 
         const user = await graphService.getUser(userId);
 
-        if (user && user.objectId) {
+        if (user !== null && user.objectId !== null) {
             permissionName = user.userPrincipalName;
             oid = user.objectId;
         } else {
@@ -93,22 +93,21 @@ export async function createAuthorizationAccessPolicy(context: IActionContext & 
         }
     } else if (identitySelected.label === groupDisplayNameorEmailIdLabel) {
         const groupDisplayNameOrEmailId = await askInput('Enter group displayname or emailId ...', 'myfullgroupname (or) mygroup@contoso.net');
-
         const group = await graphService.getGroup(groupDisplayNameOrEmailId);
 
-        if (group && group.objectId) {
-            permissionName = group.displayName.replaceAll(' ', '');
+        if (group !== null && group.objectId !== null) {
+            permissionName = group.displayName.replace(' ', '');
             oid = group.objectId;
         } else {
-            window.showErrorMessage(localize('invalidGroupDisplayNameorEmailId', 'Please specify a valid group display name or emailId. Example, myfullgroupname (or) mygroup@contoso.net'));
+            window.showErrorMessage(localize('invalidGroupDisplayNameorEmailId', 'Please specify a valid group display name (or) emailId. Example, myfullgroupname (or) mygroup@contoso.net'));
         }
     } else if (identitySelected.label === servicePrincipalDisplayNameLabel) {
         const servicePrincipalDisplayName = await askInput('Enter service principal displayname ...', 'my service principal name');
 
         const spn = await graphService.getServicePrincipal(servicePrincipalDisplayName);
 
-        if (spn && spn.objectId) {
-            permissionName = spn.displayName.replaceAll(' ', '');
+        if (spn !== null && spn.objectId !== null) {
+            permissionName = spn.displayName.replace(' ', '');
             oid = spn.objectId;
         } else {
             window.showErrorMessage(localize('invalidSpnDisplayName', 'Please specify a valid service principal display name.'));
@@ -159,7 +158,7 @@ async function populateIdentityOptionsAsync(
     const meOption : QuickPickItem = {
         label: nonNullValue(token.userId),
         description: token.oid,
-        detail: "Current user"
+        detail: "Current signedIn user"
     };
     options.push(meOption);
 
@@ -169,7 +168,7 @@ async function populateIdentityOptionsAsync(
         const apimOption : QuickPickItem = {
             label: service.name,
             description: service.identity.principalId,
-            detail: "Current service system managed identity"
+            detail: "Current APIManagement service system managed identity"
         };
         options.push(apimOption);
     }
@@ -199,9 +198,9 @@ async function populateIdentityOptionsAsync(
 }
 
 // tslint:disable-next-line:no-any
-async function populateManageIdentityOptions(data: any) : Promise<QuickPickItem[]> {
+async function populateManageIdentityOptions(data: { name: string, id: string, principalId: string }[]) : Promise<QuickPickItem[]> {
     const options : QuickPickItem[] = [];
-    const managedIdentityOptions : QuickPickItem[] = data.filter(d => !!d.principalId).map(d => {
+    const managedIdentityOptions : QuickPickItem[] = data.map(d => {
         return {
             label: d.name,
             description: d.principalId,

@@ -41,7 +41,7 @@ export class AuthorizationProviderTreeItem extends AzureParentTreeItem<IAuthoriz
     }
 
     public get iconPath(): { light: string, dark: string } {
-        return treeUtils.getThemedIconPath('gateway');
+        return treeUtils.getThemedIconPath('authorizationprovider');
     }
 
     public hasMoreChildrenImpl(): boolean {
