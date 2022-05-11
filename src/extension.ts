@@ -12,6 +12,7 @@ import { addApiFilter } from './commands/addApiFilter';
 import { addApiToGateway } from './commands/addApiToGateway';
 import { addApiToProduct } from './commands/addApiToProduct';
 import { authorizeAuthorization } from './commands/authorizations/authorizeAuthorization';
+import { copyAuthorizationPolicy } from './commands/authorizations/copyAuthorizationPolicy';
 import { createAuthorization } from './commands/authorizations/createAuthorization';
 import { createAuthorizationAccessPolicy } from './commands/authorizations/createAuthorizationAccessPolicy';
 import { createAuthorizationProvider } from './commands/authorizations/createAuthorizationProvider';
@@ -155,6 +156,7 @@ function registerCommands(tree: AzExtTreeDataProvider): void {
     registerCommand('azureApiManagement.createAuthorizationAccessPolicy', async (context: IActionContext, node?: AuthorizationAccessPoliciesTreeItem) => { await createAuthorizationAccessPolicy(context, node); });
     registerCommand('azureApiManagement.deleteAuthorizationProvider', async (context: IActionContext, node?: AzureTreeItem) => await deleteNode(context, AuthorizationProviderTreeItem.contextValue, node));
     registerCommand('azureApiManagement.authorizeAuthorization', async (context: IActionContext, node?: AuthorizationTreeItem) => { await authorizeAuthorization(context, node); });
+    registerCommand('azureApiManagement.copyAuthorizationPolicy', async (context: IActionContext, node?: AuthorizationTreeItem) => { await copyAuthorizationPolicy(context, node); });
     registerCommand('azureApiManagement.deleteAuthorization', async (context: IActionContext, node?: AzureTreeItem) => await deleteNode(context, AuthorizationTreeItem.contextValue, node));
     registerCommand('azureApiManagement.deleteAuthorizationAccessPolicy', async (context: IActionContext, node?: AzureTreeItem) => await deleteNode(context, AuthorizationAccessPolicyTreeItem.contextValue, node));
 }

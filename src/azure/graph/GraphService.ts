@@ -7,6 +7,7 @@ import { HttpOperationResponse, ServiceClient } from "@azure/ms-rest-js";
 import { TokenCredentialsBase } from "@azure/ms-rest-nodeauth";
 import { TokenResponse } from "adal-node";
 import { createGenericClient } from "vscode-azureextensionui";
+import { ext } from "../../extensionVariables";
 import { nonNullValue } from "../../utils/nonNull";
 
 export class GraphService {
@@ -24,13 +25,15 @@ export class GraphService {
             (error, response) => {
                 if (error == null) {
                     this.accessToken = (<TokenResponse>response).accessToken;
+                } else {
+                    ext.outputChannel.append(error.message);
                 }
             }
         );
     }
 
     // tslint:disable-next-line:no-any
-    public async getUser(emailId: string): Promise<{ userPrincipalName: string, objectId: string }> {
+    public async getUser(emailId: string): Promise<{ userPrincipalName: string, objectId: string } | undefined> {
         const client: ServiceClient = await createGenericClient();
         const result: HttpOperationResponse = await client.sendRequest({
             method: "GET",
@@ -40,12 +43,18 @@ export class GraphService {
                 'api-version': '1.61-internal'
             }
         });
+
+        if (result.status >= 400) {
+            // tslint:disable-next-line: no-any no-unsafe-any
+            ext.outputChannel.append(result.parsedBody);
+            return undefined;
+        }
         // tslint:disable-next-line:no-any
         return <{ userPrincipalName: string, objectId: string }>(result.parsedBody);
     }
 
      // tslint:disable-next-line:no-any
-    public async getGroup(displayNameOrEmail: string): Promise<{ displayName: string, objectId: string }> {
+    public async getGroup(displayNameOrEmail: string): Promise<{ displayName: string, objectId: string } | undefined> {
         const client: ServiceClient = await createGenericClient();
         const result: HttpOperationResponse = await client.sendRequest({
             method: "GET",
@@ -55,12 +64,19 @@ export class GraphService {
                 'api-version': '1.61-internal'
             }
         });
+
+        if (result.status >= 400) {
+            // tslint:disable-next-line: no-any no-unsafe-any
+            ext.outputChannel.append(result.parsedBody);
+            return undefined;
+        }
+
          // tslint:disable-next-line: no-any no-unsafe-any
         return <{ displayName: string, objectId: string }>(result.parsedBody.value[0]);
     }
 
      // tslint:disable-next-line:no-any
-    public async getServicePrincipal(displayName: string): Promise<{ displayName: string, objectId: string }> {
+    public async getServicePrincipal(displayName: string): Promise<{ displayName: string, objectId: string } | undefined> {
         const client: ServiceClient = await createGenericClient();
         const result: HttpOperationResponse = await client.sendRequest({
             method: "GET",
@@ -70,6 +86,13 @@ export class GraphService {
                 'api-version': '1.61-internal'
             }
         });
+
+        if (result.status >= 400) {
+            // tslint:disable-next-line: no-any no-unsafe-any
+            ext.outputChannel.append(result.parsedBody);
+            return undefined;
+        }
+
         // tslint:disable-next-line: no-any no-unsafe-any
         return <{ displayName: string, objectId: string }>(result.parsedBody.value[0]);
     }

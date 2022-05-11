@@ -85,7 +85,7 @@ export async function createAuthorizationAccessPolicy(context: IActionContext & 
 
         const user = await graphService.getUser(userId);
 
-        if (user !== null && user.objectId !== null) {
+        if (user !== undefined && user.objectId !== null) {
             permissionName = user.userPrincipalName;
             oid = user.objectId;
         } else {
@@ -95,7 +95,7 @@ export async function createAuthorizationAccessPolicy(context: IActionContext & 
         const groupDisplayNameOrEmailId = await askInput('Enter group displayname or emailId ...', 'myfullgroupname (or) mygroup@contoso.net');
         const group = await graphService.getGroup(groupDisplayNameOrEmailId);
 
-        if (group !== null && group.objectId !== null) {
+        if (group !== undefined && group.objectId !== null) {
             permissionName = group.displayName.replace(' ', '');
             oid = group.objectId;
         } else {
@@ -106,7 +106,7 @@ export async function createAuthorizationAccessPolicy(context: IActionContext & 
 
         const spn = await graphService.getServicePrincipal(servicePrincipalDisplayName);
 
-        if (spn !== null && spn.objectId !== null) {
+        if (spn !== undefined && spn.objectId !== null) {
             permissionName = spn.displayName.replace(' ', '');
             oid = spn.objectId;
         } else {
