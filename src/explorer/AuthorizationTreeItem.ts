@@ -70,16 +70,16 @@ export class AuthorizationTreeItem extends AzureParentTreeItem<IAuthorizationTre
     }
 
     public async deleteTreeItemImpl(): Promise<void> {
-        const message: string = localize("confirmAuthorizationRemove", `Are you sure you want to remove Authorization '${this.authorizationContract.name}' from AuthorizationProvider '${this.root.authorizationProviderName}'?`);
+        const message: string = localize("confirmAuthorizationRemove", `Are you sure you want to remove Authorization '${this.authorizationContract.name}' from Authorization provider '${this.root.authorizationProviderName}'?`);
         const result = await window.showWarningMessage(message, { modal: true }, DialogResponses.deleteResponse, DialogResponses.cancel);
         if (result === DialogResponses.deleteResponse) {
-            const deletingMessage: string = localize("removingAuthorization", `Removing Authorization "${this.authorizationContract.name}" from AuthorizationProvider '${this.root.authorizationProviderName}.'`);
+            const deletingMessage: string = localize("removingAuthorization", `Removing Authorization "${this.authorizationContract.name}" from Authorization provider '${this.root.authorizationProviderName}.'`);
             await window.withProgress({ location: ProgressLocation.Notification, title: deletingMessage }, async () => {
                 const apimService = new ApimService(this.root.credentials, this.root.environment.resourceManagerEndpointUrl, this.root.subscriptionId, this.root.resourceGroupName, this.root.serviceName);
                 await apimService.deleteAuthorization(this.root.authorizationProviderName, nonNullProp(this.authorizationContract, "name"));
             });
             // don't wait
-            window.showInformationMessage(localize("removedAuthorization", `Successfully removed authorization "${this.authorizationContract.name}" from AuthorizationProvider '${this.root.authorizationProviderName}'.`));
+            window.showInformationMessage(localize("removedAuthorization", `Successfully removed authorization "${this.authorizationContract.name}" from Authorization provider '${this.root.authorizationProviderName}'.`));
 
         } else {
             throw new UserCancelledError();

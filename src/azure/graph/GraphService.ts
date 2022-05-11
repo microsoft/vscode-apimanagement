@@ -46,7 +46,7 @@ export class GraphService {
 
         if (result.status >= 400) {
             // tslint:disable-next-line: no-any no-unsafe-any
-            ext.outputChannel.append(result.parsedBody);
+            ext.outputChannel.append(JSON.stringify(result.parsedBody));
             return undefined;
         }
         // tslint:disable-next-line:no-any
@@ -67,7 +67,7 @@ export class GraphService {
 
         if (result.status >= 400) {
             // tslint:disable-next-line: no-any no-unsafe-any
-            ext.outputChannel.append(result.parsedBody);
+            ext.outputChannel.append(JSON.stringify(result.parsedBody));
             return undefined;
         }
 
@@ -89,7 +89,7 @@ export class GraphService {
 
         if (result.status >= 400) {
             // tslint:disable-next-line: no-any no-unsafe-any
-            ext.outputChannel.append(result.parsedBody);
+            ext.outputChannel.append(JSON.stringify(result.parsedBody));
             return undefined;
         }
 

@@ -15,11 +15,11 @@ import { ext } from "../../extensionVariables";
 import { localize } from "../../localize";
 import { nonNullValue } from "../../utils/nonNull";
 
-const systemAssignedManagedIdentitiesOptionLabel = "System assigned managed identities...";
-const userAssignedManagedIdentitiesOptionLabel = "User assigned managed identities...";
-const userEmailIdLabel = "Specify user emailId...";
-const groupDisplayNameorEmailIdLabel = "Specify group display name or emailId...";
-const servicePrincipalDisplayNameLabel = "Specify service principal display name...";
+const systemAssignedManagedIdentitiesOptionLabel = "System assigned managed identity";
+const userAssignedManagedIdentitiesOptionLabel = "User assigned managed identity";
+const userEmailIdLabel = "User";
+const groupDisplayNameorEmailIdLabel = "Group";
+const servicePrincipalDisplayNameLabel = "Service principal";
 
 let resourceGraphService: ResourceGraphService;
 let graphService: GraphService;
@@ -56,7 +56,7 @@ export async function createAuthorizationAccessPolicy(context: IActionContext & 
         apimService, node.root.credentials, node.root.environment.resourceManagerEndpointUrl);
 
     const identitySelected = await ext.ui.showQuickPick(
-        identityOptions, { placeHolder: 'Select Identity...', canPickMany: false, suppressPersistence: true });
+        identityOptions, { placeHolder: 'Select identity...', canPickMany: false, suppressPersistence: true });
 
     let permissionName = '';
     let oid = '';
@@ -67,7 +67,7 @@ export async function createAuthorizationAccessPolicy(context: IActionContext & 
         const otherManagedIdentityOptions = await populateManageIdentityOptions(response);
 
         const managedIdentitySelected = await ext.ui.showQuickPick(
-            otherManagedIdentityOptions, { placeHolder: 'Select System Assigned Managed Identity ...', canPickMany: false, suppressPersistence: true });
+            otherManagedIdentityOptions, { placeHolder: 'Select system assigned managed identity ...', canPickMany: false, suppressPersistence: true });
 
         permissionName = managedIdentitySelected.label;
         oid = nonNullValue(managedIdentitySelected.description);
@@ -76,23 +76,22 @@ export async function createAuthorizationAccessPolicy(context: IActionContext & 
         const otherManagedIdentityOptions = await populateManageIdentityOptions(response);
 
         const managedIdentitySelected = await ext.ui.showQuickPick(
-            otherManagedIdentityOptions, { placeHolder: 'Select User Assigned Managed Identity ...', canPickMany: false, suppressPersistence: true });
+            otherManagedIdentityOptions, { placeHolder: 'Select user assigned managed identity ...', canPickMany: false, suppressPersistence: true });
 
         permissionName = managedIdentitySelected.label;
         oid = nonNullValue(managedIdentitySelected.description);
     } else if (identitySelected.label === userEmailIdLabel) {
         const userId = await askInput('Enter user emailId ...', 'mary@contoso.net');
-
         const user = await graphService.getUser(userId);
 
         if (user !== undefined && user.objectId !== null) {
             permissionName = user.userPrincipalName;
             oid = user.objectId;
         } else {
-            window.showErrorMessage(localize('invalidUserEmailId', 'Please specify a valid user emailId. Example, mary@contoso.net'));
+            window.showErrorMessage(localize('invalidUserEmailId', 'Please specify a valid user emailId.'));
         }
     } else if (identitySelected.label === groupDisplayNameorEmailIdLabel) {
-        const groupDisplayNameOrEmailId = await askInput('Enter group displayname or emailId ...', 'myfullgroupname (or) mygroup@contoso.net');
+        const groupDisplayNameOrEmailId = await askInput('Enter group displayname (or) emailId ...', 'myfullgroupname (or) mygroup@contoso.net');
         const group = await graphService.getGroup(groupDisplayNameOrEmailId);
 
         if (group !== undefined && group.objectId !== null) {
@@ -102,7 +101,7 @@ export async function createAuthorizationAccessPolicy(context: IActionContext & 
             window.showErrorMessage(localize('invalidGroupDisplayNameorEmailId', 'Please specify a valid group display name (or) emailId. Example, myfullgroupname (or) mygroup@contoso.net'));
         }
     } else if (identitySelected.label === servicePrincipalDisplayNameLabel) {
-        const servicePrincipalDisplayName = await askInput('Enter service principal displayname ...', 'my service principal name');
+        const servicePrincipalDisplayName = await askInput('Enter service principal display name ...', 'myserviceprincipalname');
 
         const spn = await graphService.getServicePrincipal(servicePrincipalDisplayName);
 
@@ -133,7 +132,7 @@ function createAccessPolicy(
     window.withProgress(
         {
             location: ProgressLocation.Notification,
-            title: localize("creatingAuthorizationPermission", `Creating Access Policy '${permissionName}' for Authorization ${node.root.authorizationName} ...`),
+            title: localize("creatingAuthorizationPermission", `Creating Access policy '${permissionName}' for Authorization ${node.root.authorizationName} ...`),
             cancellable: false
         },
         async () => {
@@ -143,7 +142,7 @@ function createAccessPolicy(
     ).then(async () => {
         // tslint:disable-next-line:no-non-null-assertion
         await node!.refresh(context);
-        window.showInformationMessage(localize("createdAuthorizationPermission", `Created Access Policy '${permissionName}' successfully.`));
+        window.showInformationMessage(localize("createdAuthorizationPermission", `Created Access policy '${permissionName}' successfully.`));
     });
 }
 
@@ -168,7 +167,7 @@ async function populateIdentityOptionsAsync(
         const apimOption : QuickPickItem = {
             label: service.name,
             description: service.identity.principalId,
-            detail: "Current APIManagement service system managed identity"
+            detail: "Current service system managed identity"
         };
         options.push(apimOption);
     }
@@ -216,6 +215,13 @@ async function askInput(message: string, placeholder: string = '') : Promise<str
     const idPrompt: string = localize('value', message);
     return (await ext.ui.showInputBox({
         prompt: idPrompt,
-        placeHolder: placeholder
+        placeHolder: placeholder,
+        validateInput: async (value: string): Promise<string | undefined> => {
+            value = value ? value.trim() : '';
+            if (value === '') {
+                return localize("valueInvalid", 'Value cannot be empty.');
+            }
+            return undefined;
+        }
     })).trim();
 }

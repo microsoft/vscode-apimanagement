@@ -79,7 +79,7 @@ export class AuthorizationsTreeItem extends AzureParentTreeItem<IAuthorizationPr
                         window.showInformationMessage(localize("createdAuthorization", `Created Authorization '${authorizationName}' succesfully.`));
                         return new AuthorizationTreeItem(this, authorization);
                     } catch (error) {
-                        throw new Error(processError(error, localize("createAuthorization", `Failed to add authorization '${authorizationName}' to Authorization Provider '${this.root.authorizationProviderName}'.`)));
+                        throw new Error(processError(error, localize("createAuthorization", `Failed to add authorization '${authorizationName}' to Authorization provider '${this.root.authorizationProviderName}'.`)));
                     }
                 }
             );
