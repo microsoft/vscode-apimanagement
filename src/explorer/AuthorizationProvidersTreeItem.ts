@@ -27,7 +27,7 @@ export class AuthorizationProvidersTreeItem extends AzureParentTreeItem<IService
     }
     public static contextValue: string = 'azureApiManagementAuthorizationProviders';
     public readonly childTypeLabel: string = localize('azureApiManagement.AuthorizationProvider', 'AuthorizationProvider');
-    public label: string = "AuthorizationProviders";
+    public label: string = "Authorization providers (preview)";
     public contextValue: string = AuthorizationProvidersTreeItem.contextValue;
     private _nextLink: string | undefined;
     private apimService: ApimService;
@@ -66,7 +66,7 @@ export class AuthorizationProvidersTreeItem extends AzureParentTreeItem<IService
             return window.withProgress(
                 {
                     location: ProgressLocation.Notification,
-                    title: localize("creatingAuthorizationProvider", `Creating Authorization Provider '${context.name}' in API Management service ${this.root.serviceName} ...`),
+                    title: localize("creatingAuthorizationProvider", `Creating Authorization provider '${context.name}' in service ${this.root.serviceName} ...`),
                     cancellable: false
                 },
                 // tslint:disable-next-line:no-non-null-assertion
@@ -75,19 +75,19 @@ export class AuthorizationProvidersTreeItem extends AzureParentTreeItem<IService
                     context.showCreatingTreeItem(authorizationProviderName);
                     try {
                         const authorizationProvider: IAuthorizationProviderContract = await this.apimService.createAuthorizationProvider(context.name, context.authorizationProvider);
-                        const message = `Make sure to add redirect url '${authorizationProvider.properties.oauth2?.redirectUrl}' to the OAuth application before creating Authorization(s).`;
+                        const message = `Please add redirect url '${authorizationProvider.properties.oauth2?.redirectUrl}' to the OAuth application.`;
                         ext.outputChannel.show();
                         ext.outputChannel.appendLine(message);
                         window.showWarningMessage(localize("redirectUrlMessage", message));
-                        window.showInformationMessage(localize("createdAuthorizationProvider", `Created Authorization Provider '${context.name}' in API Management succesfully.`));
+                        window.showInformationMessage(localize("createdAuthorizationProvider", `Created Authorization provider '${context.name}'.`));
                         return new AuthorizationProviderTreeItem(this, authorizationProvider);
                     } catch (error) {
-                        throw new Error(processError(error, localize("createAuthorizationProvider", `Failed to create Authorization Provider '${authorizationProviderName}'.`)));
+                        throw new Error(processError(error, localize("createAuthorizationProvider", `Failed to create Authorization provider '${authorizationProviderName}'.`)));
                     }
                 }
             );
         } else {
-            throw Error("Expected Authorization Provider information.");
+            throw Error("Expected Authorization provider information.");
         }
     }
 
@@ -95,7 +95,7 @@ export class AuthorizationProvidersTreeItem extends AzureParentTreeItem<IService
         const service = await this.apimService.getService();
         if (service.identity === undefined) {
             const options = ['Yes', 'No'];
-            const option = await ext.ui.showQuickPick(options.map((s) => { return { label: s, description: '', detail: '' }; }), { placeHolder: 'Enable System Assigned Managed Identity', canPickMany: false });
+            const option = await ext.ui.showQuickPick(options.map((s) => { return { label: s, description: '', detail: '' }; }), { placeHolder: 'Enable system assigned managed identity', canPickMany: false });
             if (option.label === options[0]) {
                 await window.withProgress(
                     {
@@ -119,19 +119,19 @@ export class AuthorizationProvidersTreeItem extends AzureParentTreeItem<IService
             return a.properties.displayName.localeCompare(b.properties.displayName);
         });
 
-        const identityProviderPicked = await ext.ui.showQuickPick(supportedIdentityProviders.map((s) => { return { label: s.properties.displayName, description: '', detail: '' }; }), { placeHolder: 'Select Identity Provider ...', canPickMany: false });
+        const identityProviderPicked = await ext.ui.showQuickPick(supportedIdentityProviders.map((s) => { return { label: s.properties.displayName, description: '', detail: '' }; }), { placeHolder: 'Select identity provider ...', canPickMany: false });
         const selectedIdentityProvider = supportedIdentityProviders.find(s => s.properties.displayName === identityProviderPicked.label);
 
         let grantType: string = "";
         if (selectedIdentityProvider
             && selectedIdentityProvider.properties.oauth2.grantTypes !== null) {
             const authorizationProviderName = await askId(
-                'Enter Authorization Provider name ...',
-                'Invalid Authorization Provider name.');
+                'Enter Authorization provider name ...',
+                'Invalid Authorization provider name.');
 
             const grantTypes = Object.keys(selectedIdentityProvider.properties.oauth2.grantTypes);
             if (grantTypes.length > 1) {
-                const grantTypePicked = await ext.ui.showQuickPick(grantTypes.map((s) => { return { label: s[0].toUpperCase() + s.slice(1), description: '', detail: '' }; }), { placeHolder: 'Select Grant Type ...', canPickMany: false });
+                const grantTypePicked = await ext.ui.showQuickPick(grantTypes.map((s) => { return { label: s[0].toUpperCase() + s.slice(1), description: '', detail: '' }; }), { placeHolder: 'Select grant type ...', canPickMany: false });
                 grantType = grantTypePicked.label[0].toLocaleLowerCase() + grantTypePicked.label.slice(1);
             } else {
                 grantType = grantTypes[0];

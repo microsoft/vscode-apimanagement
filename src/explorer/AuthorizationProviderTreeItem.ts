@@ -65,16 +65,16 @@ export class AuthorizationProviderTreeItem extends AzureParentTreeItem<IAuthoriz
     }
 
     public async deleteTreeItemImpl(): Promise<void> {
-        const message: string = localize("confirmDeleteAuthorizationProvider", `Are you sure you want to remove Authorization Provider '${this.authorizationProviderContract.name}'?`);
+        const message: string = localize("confirmDeleteAuthorizationProvider", `Are you sure you want to remove Authorization provider '${this.authorizationProviderContract.name}'?`);
         const result = await window.showWarningMessage(message, { modal: true }, DialogResponses.deleteResponse, DialogResponses.cancel);
         if (result === DialogResponses.deleteResponse) {
-            const deletingMessage: string = localize("removingAuthorizationProvider", `Removing Authorization Provider "${this.authorizationProviderContract.name}".'`);
+            const deletingMessage: string = localize("removingAuthorizationProvider", `Removing Authorization provider "${this.authorizationProviderContract.name}".'`);
             await window.withProgress({ location: ProgressLocation.Notification, title: deletingMessage }, async () => {
                 const apimService = new ApimService(this.root.credentials, this.root.environment.resourceManagerEndpointUrl, this.root.subscriptionId, this.root.resourceGroupName, this.root.serviceName);
                 await apimService.deleteAuthorizationProvider(this.root.authorizationProviderName);
             });
             // don't wait
-            window.showInformationMessage(localize("removedAuthorizationProvider", `Successfully removed Authorization Provider "${this.authorizationProviderContract.name}".`));
+            window.showInformationMessage(localize("removedAuthorizationProvider", `Successfully removed Authorization provider "${this.authorizationProviderContract.name}".`));
 
         } else {
             throw new UserCancelledError();
