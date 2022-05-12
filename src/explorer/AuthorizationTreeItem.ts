@@ -8,7 +8,7 @@ import { AzureParentTreeItem, AzureTreeItem, DialogResponses, ISubscriptionConte
 import { ApimService } from "../azure/apim/ApimService";
 import { IAuthorizationContract } from "../azure/apim/contracts";
 import { localize } from "../localize";
-import { nonNullProp, nonNullValue } from "../utils/nonNull";
+import { nonNullProp } from "../utils/nonNull";
 import { treeUtils } from "../utils/treeUtils";
 import { AuthorizationAccessPoliciesTreeItem } from "./AuthorizationAccessPoliciesTreeItem";
 import { AuthorizationAccessPolicyTreeItem } from "./AuthorizationAccessPolicyTreeItem";
@@ -21,7 +21,6 @@ export class AuthorizationTreeItem extends AzureParentTreeItem<IAuthorizationTre
     public contextValue: string = AuthorizationTreeItem.contextValue;
     private _label: string;
     private _root: IAuthorizationTreeRoot;
-    private apimService: ApimService;
 
     constructor(
         parent: AzureParentTreeItem,
@@ -50,11 +49,6 @@ export class AuthorizationTreeItem extends AzureParentTreeItem<IAuthorizationTre
         return treeUtils.getThemedIconPath('authorization');
     }
 
-    public async refreshImpl(): Promise<void> {
-        const authorization = await this.getApimService().getAuthorization(this.root.authorizationProviderName, this.authorizationContract.name);
-        this.authorizationContract = nonNullValue(authorization);
-    }
-
     public async loadMoreChildrenImpl(): Promise<AzureTreeItem<IAuthorizationTreeRoot>[]> {
         return [this.authorizationAccessPoliciesTreeItem];
     }
@@ -80,7 +74,13 @@ export class AuthorizationTreeItem extends AzureParentTreeItem<IAuthorizationTre
         if (result === DialogResponses.deleteResponse) {
             const deletingMessage: string = localize("removingAuthorization", `Removing Authorization "${this.authorizationContract.name}" from Authorization provider '${this.root.authorizationProviderName}.'`);
             await window.withProgress({ location: ProgressLocation.Notification, title: deletingMessage }, async () => {
-                await this.getApimService().deleteAuthorization(this.root.authorizationProviderName, nonNullProp(this.authorizationContract, "name"));
+                const apimService = new ApimService(
+                    this.root.credentials,
+                    this.root.environment.resourceManagerEndpointUrl,
+                    this.root.subscriptionId,
+                    this.root.resourceGroupName,
+                    this.root.serviceName);
+                await apimService.deleteAuthorization(this.root.authorizationProviderName, nonNullProp(this.authorizationContract, "name"));
             });
             // don't wait
             window.showInformationMessage(localize("removedAuthorization", `Successfully removed authorization "${this.authorizationContract.name}" from Authorization provider '${this.root.authorizationProviderName}'.`));
@@ -94,17 +94,5 @@ export class AuthorizationTreeItem extends AzureParentTreeItem<IAuthorizationTre
         return Object.assign({}, <IAuthorizationProviderTreeRoot>subRoot, {
             authorizationName: nonNullProp(this.authorizationContract, 'name')
         });
-    }
-
-    private getApimService(): ApimService {
-        if (this.apimService === undefined) {
-            this.apimService = new ApimService(
-                this.root.credentials,
-                this.root.environment.resourceManagerEndpointUrl,
-                this.root.subscriptionId,
-                this.root.resourceGroupName,
-                this.root.serviceName);
-        }
-        return this.apimService;
     }
 }
