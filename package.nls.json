@@ -49,6 +49,7 @@
     "azureApiManagement.deleteSubscription": "Delete Subscription",
     "azureApiManagement.createAuthorizationProvider": "Create Authorization Provider",
     "azureApiManagement.deleteAuthorizationProvider": "Delete Authorization Provider",
+    "azureApiManagement.copyAuthorizationProviderRedirectUrl": "Copy RedirectUrl",
     "azureApiManagement.createAuthorization": "Create Authorization",
     "azureApiManagement.authorizeAuthorization": "Login",
     "azureApiManagement.deleteAuthorization": "Delete Authorization",

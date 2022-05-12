@@ -202,12 +202,42 @@ export class ApimService {
         });
     }
 
+    public async getAuthorization(authorizationProviderName: string, authorizationName: string): Promise<IAuthorizationContract | undefined> {
+        const client: ServiceClient = await createGenericClient(this.credentials);
+        const result: HttpOperationResponse = await client.sendRequest({
+            method: "GET",
+            url: `${this.baseUrl}/authorizationProviders/${authorizationProviderName}/authorizations/${authorizationName}?api-version=${this.authorizationProviderApiVersion}`
+        });
+
+        if (result.status === 404) {
+            return undefined;
+        }
+
+        // tslint:disable-next-line: no-unsafe-any
+        return <IAuthorizationContract>(result.parsedBody);
+    }
+
     public async deleteAuthorizationProvider(authorizationProviderName: string): Promise<void> {
         const client: ServiceClient = await createGenericClient(this.credentials);
         await client.sendRequest({
             method: "DELETE",
             url: `${this.baseUrl}/authorizationProviders/${authorizationProviderName}?api-version=${this.authorizationProviderApiVersion}`
         });
+    }
+
+    public async getAuthorizationProvider(authorizationProviderName: string): Promise<IAuthorizationProviderContract | undefined> {
+        const client: ServiceClient = await createGenericClient(this.credentials);
+        const result: HttpOperationResponse = await client.sendRequest({
+            method: "GET",
+            url: `${this.baseUrl}/authorizationProviders/${authorizationProviderName}?api-version=${this.authorizationProviderApiVersion}`
+        });
+
+        if (result.status === 404) {
+            return undefined;
+        }
+
+         // tslint:disable-next-line: no-unsafe-any
+        return <IAuthorizationProviderContract>(result.parsedBody);
     }
 
     public async listAuthorizationLoginLinks(authorizationProviderName: string, authorizationName: string, loginLinkRequestPayload: IAuthorizationLoginLinkRequest): Promise<IAuthorizationLoginLinkResponse> {

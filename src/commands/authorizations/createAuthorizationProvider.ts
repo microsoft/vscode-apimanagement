@@ -14,5 +14,6 @@ export async function createAuthorizationProvider(context: IActionContext & Part
         node = serviceNode.authorizationProvidersTreeItem;
     }
 
+    // support update
     await node.createChild(context);
 }
