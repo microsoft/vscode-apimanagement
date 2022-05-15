@@ -696,6 +696,11 @@
                     "group": "1@1"
                 },
                 {
+                    "command": "azureApiManagement.Refresh",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementAuthorizationProviders",
+                    "group": "1@2"
+                },
+                {
                     "command": "azureApiManagement.copyAuthorizationProviderRedirectUrl",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementAuthorizationProvider",
                     "group": "1@1"
@@ -709,6 +714,11 @@
                     "command": "azureApiManagement.createAuthorization",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementAuthorizations",
                     "group": "1@1"
+                },
+                {
+                    "command": "azureApiManagement.Refresh",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementAuthorizations",
+                    "group": "1@2"
                 },
                 {
                     "command": "azureApiManagement.authorizeAuthorization",
@@ -729,6 +739,11 @@
                     "command": "azureApiManagement.createAuthorizationAccessPolicy",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementAuthorizationAccessPolicies",
                     "group": "1@1"
+                },
+                {
+                    "command": "azureApiManagement.Refresh",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementAuthorizationAccessPolicies",
+                    "group": "1@2"
                 },
                 {
                     "command": "azureApiManagement.deleteAuthorizationAccessPolicy",
