@@ -27,7 +27,7 @@ export class AuthorizationProvidersTreeItem extends AzureParentTreeItem<IService
     }
     public static contextValue: string = 'azureApiManagementAuthorizationProviders';
     public readonly childTypeLabel: string = localize('azureApiManagement.AuthorizationProvider', 'AuthorizationProvider');
-    public label: string = "Authorization providers (preview)";
+    public label: string = "Authorizations (preview)";
     public contextValue: string = AuthorizationProvidersTreeItem.contextValue;
     private _nextLink: string | undefined;
     private apimService: ApimService;
