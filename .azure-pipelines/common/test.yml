@@ -11,13 +11,13 @@ steps:
   condition: in(variables['agent.os'], 'Windows_NT')
   displayName: 'Use Python on Windows' # specific version for Windows: https://github.com/actions/virtual-environments/blob/main/images/win/Windows2019-Readme.md
   inputs:
-    versionSpec: 3.9.12
+    versionSpec: 3.9.13
 
 - task: UsePythonVersion@0
   condition: in(variables['agent.os'], 'Darwin', 'Linux')
   displayName: 'Use Python 3.9.10' # specific version for macOS: https://github.com/actions/virtual-environments/blob/main/images/macos/macos-11-Readme.md
   inputs:
-    versionSpec: 3.9.12
+    versionSpec: 3.9.13
 
 - task: Npm@1
   displayName: 'Test'
