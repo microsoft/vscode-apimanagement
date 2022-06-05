@@ -4,28 +4,38 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { ProgressLocation, window } from "vscode";
-import { AzureParentTreeItem, AzureTreeItem, DialogResponses, UserCancelledError } from "vscode-azureextensionui";
+import { AzureParentTreeItem, AzureTreeItem, DialogResponses, ISubscriptionContext, UserCancelledError } from "vscode-azureextensionui";
 import { ApimService } from "../azure/apim/ApimService";
 import { IAuthorizationAccessPolicyContract } from "../azure/apim/contracts";
 import { localize } from "../localize";
 import { nonNullProp } from "../utils/nonNull";
 import { treeUtils } from "../utils/treeUtils";
-import { IAuthorizationTreeRoot } from "./IAuthorizationTreeRoot";
+import { IAuthorizationAccessPolicyTreeRoot } from "./IAuthorizationAccessPolicyTreeRoot";
 
-export class AuthorizationAccessPolicyTreeItem extends AzureTreeItem<IAuthorizationTreeRoot> {
+export class AuthorizationAccessPolicyTreeItem extends AzureTreeItem<IAuthorizationAccessPolicyTreeRoot> {
     public static contextValue: string = 'azureApiManagementAuthorizationAccessPolicy';
     public contextValue: string = AuthorizationAccessPolicyTreeItem.contextValue;
+    public readonly commandId: string = 'azureApiManagement.showArmAuthorizationAccessPolicy';
+
     private _label: string;
+    private _root: IAuthorizationAccessPolicyTreeRoot;
 
     constructor(
         parent: AzureParentTreeItem,
         public readonly authorizationAccessPolicyContract: IAuthorizationAccessPolicyContract) {
         super(parent);
+
+        this._root = this.createRoot(parent.root);
+
         this._label = nonNullProp(authorizationAccessPolicyContract, 'name');
     }
 
     public get label() : string {
         return this._label;
+    }
+
+    public get root(): IAuthorizationAccessPolicyTreeRoot {
+        return this._root;
     }
 
     public get description(): string | undefined {
@@ -54,5 +64,11 @@ export class AuthorizationAccessPolicyTreeItem extends AzureTreeItem<IAuthorizat
         } else {
             throw new UserCancelledError();
         }
+    }
+
+    private createRoot(subRoot: ISubscriptionContext): IAuthorizationAccessPolicyTreeRoot {
+        return Object.assign({}, <IAuthorizationAccessPolicyTreeRoot>subRoot, {
+            accessPolicyName: nonNullProp(this.authorizationAccessPolicyContract, 'name')
+        });
     }
 }

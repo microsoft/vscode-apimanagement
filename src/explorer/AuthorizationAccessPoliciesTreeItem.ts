@@ -64,14 +64,17 @@ export class AuthorizationAccessPoliciesTreeItem extends AzureParentTreeItem<IAu
 
             try {
                 const apimService = new ApimService(this.root.credentials, this.root.environment.resourceManagerEndpointUrl, this.root.subscriptionId, this.root.resourceGroupName, this.root.serviceName);
-                const authorizationAccessPolicy = await apimService.createAuthorizationAccessPolicy(
-                    this.root.authorizationProviderName,
-                    this.root.authorizationName,
-                    authorizationAccessPolicyName,
-                    context.authorizationAccessPolicy);
-
-                return new AuthorizationAccessPolicyTreeItem(this, authorizationAccessPolicy);
-
+                let authorizationAccessPolicy = await apimService.getAuthorizationAccessPolicy(this.root.authorizationProviderName, this.root.authorizationName, authorizationAccessPolicyName);
+                if (authorizationAccessPolicy === undefined) {
+                    authorizationAccessPolicy = await apimService.createAuthorizationAccessPolicy(
+                        this.root.authorizationProviderName,
+                        this.root.authorizationName,
+                        authorizationAccessPolicyName,
+                        context.authorizationAccessPolicy);
+                    return new AuthorizationAccessPolicyTreeItem(this, authorizationAccessPolicy);
+                } else {
+                    throw new Error(localize("createAuthorizationAccessPolicy", `Access policy '${authorizationAccessPolicyName}' already exists.`));
+                }
             } catch (error) {
                 throw new Error(processError(error, localize("createAuthorizationAccessPolicy", `Failed to access policy '${authorizationAccessPolicyName}' to Authorization '${this.root.authorizationName}'.`)));
             }

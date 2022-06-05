@@ -75,9 +75,14 @@ export class AuthorizationsTreeItem extends AzureParentTreeItem<IAuthorizationPr
                     context.showCreatingTreeItem(authorizationName);
                     try {
                         const apimService = new ApimService(this.root.credentials, this.root.environment.resourceManagerEndpointUrl, this.root.subscriptionId, this.root.resourceGroupName, this.root.serviceName);
-                        const authorization = await apimService.createAuthorization(this.root.authorizationProviderName, authorizationName, context.authorization);
-                        window.showInformationMessage(localize("createdAuthorization", `Created Authorization '${authorizationName}' succesfully.`));
-                        return new AuthorizationTreeItem(this, authorization);
+                        let authorization = await apimService.getAuthorization(this.root.authorizationProviderName, authorizationName);
+                        if (authorization === undefined) {
+                            authorization = await apimService.createAuthorization(this.root.authorizationProviderName, authorizationName, context.authorization);
+                            window.showInformationMessage(localize("createdAuthorization", `Created Authorization '${authorizationName}' succesfully.`));
+                            return new AuthorizationTreeItem(this, authorization);
+                        } else {
+                            throw new Error(localize("createAuthorization", `Authorization '${authorizationName}' already exists.`));
+                        }
                     } catch (error) {
                         throw new Error(processError(error, localize("createAuthorization", `Failed to add authorization '${authorizationName}' to Authorization provider '${this.root.authorizationProviderName}'.`)));
                     }

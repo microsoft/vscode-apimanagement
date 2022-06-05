@@ -2,7 +2,7 @@
     "name": "vscode-apimanagement",
     "displayName": "Azure API Management",
     "description": "An Azure API Management extension for Visual Studio Code.",
-    "version": "1.0.4-alpha",
+    "version": "1.0.4",
     "publisher": "ms-azuretools",
     "icon": "resources/apim-icon-newone.png",
     "aiKey": "AIF-d9b70cd4-b9f9-4d70-929b-a071c400b217",
@@ -83,7 +83,10 @@
         "onCommand:azureApiManagement.deleteAuthorization",
         "onCommand:azureApiManagement.createAuthorizationAccessPolicy",
         "onCommand:azureApiManagement.deleteAuthorizationAccessPolicy",
-        "onCommand:azureApiManagement.copyAuthorizationPolicy"
+        "onCommand:azureApiManagement.copyAuthorizationPolicy",
+        "onCommand:azureApiManagement.showArmAuthorizationProvider",
+        "onCommand:azureApiManagement.showArmAuthorization",
+        "onCommand:azureApiManagement.showArmAuthorizationAccessPolicy"
     ],
     "main": "main",
     "contributes": {
@@ -438,6 +441,21 @@
             {
                 "command": "azureApiManagement.deleteAuthorizationAccessPolicy",
                 "title": "%azureApiManagement.deleteAuthorizationAccessPolicy%",
+                "category": "Azure API Management"
+            },
+            {
+                "command": "azureApiManagement.showArmAuthorizationProvider",
+                "title": "%azureApiManagement.showArmAuthorizationProvider%",
+                "category": "Azure API Management"
+            },
+            {
+                "command": "azureApiManagement.showArmAuthorization",
+                "title": "%azureApiManagement.showArmAuthorization%",
+                "category": "Azure API Management"
+            },
+            {
+                "command": "azureApiManagement.showArmAuthorizationAccessPolicy",
+                "title": "%azureApiManagement.showArmAuthorizationAccessPolicy%",
                 "category": "Azure API Management"
             }
         ],

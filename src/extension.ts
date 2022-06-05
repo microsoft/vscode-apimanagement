@@ -6,6 +6,7 @@
 'use strict';
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
+import * as query from 'querystring';
 import * as vscode from 'vscode';
 import { AzExtTreeDataProvider, AzureParentTreeItem, AzureTreeItem, AzureUserInput, callWithTelemetryAndErrorHandling, createAzExtOutputChannel, IActionContext, registerCommand, registerEvent, registerUIExtensionVariables } from 'vscode-azureextensionui';
 import { addApiFilter } from './commands/addApiFilter';
@@ -52,6 +53,9 @@ import { AuthorizationsTreeItem } from './explorer/AuthorizationsTreeItem';
 import { AuthorizationTreeItem } from './explorer/AuthorizationTreeItem';
 import { AzureAccountTreeItem } from './explorer/AzureAccountTreeItem';
 import { ApiResourceEditor } from './explorer/editors/arm/ApiResourceEditor';
+import { AuthorizationAccessPolicyResourceEditor } from './explorer/editors/arm/AuthorizationAccessPolicyResourceEditor';
+import { AuthorizationProviderResourceEditor } from './explorer/editors/arm/AuthorizationProviderResourceEditor';
+import { AuthorizationResourceEditor } from './explorer/editors/arm/AuthorizationResourceEditor';
 import { OperationResourceEditor } from './explorer/editors/arm/OperationResourceEditor';
 import { ProductResourceEditor } from './explorer/editors/arm/ProductResourceEditor';
 import { OpenApiEditor } from './explorer/editors/openApi/OpenApiEditor';
@@ -276,6 +280,48 @@ function registerEditors(context: vscode.ExtensionContext) : void {
         await productPolicyEditor.showEditor(node);
         vscode.commands.executeCommand('setContext', 'isEditorEnabled', true);
     },              doubleClickDebounceDelay);
+
+    const authorizationProviderResourceEditor: AuthorizationProviderResourceEditor = new AuthorizationProviderResourceEditor();
+    context.subscriptions.push(authorizationProviderResourceEditor);
+    registerEvent('azureApiManagement.AuthorizationProviderResourceEditor.onDidSaveTextDocument',
+                  vscode.workspace.onDidSaveTextDocument, async (actionContext: IActionContext, doc: vscode.TextDocument) => {
+                       await authorizationProviderResourceEditor.onDidSaveTextDocument(actionContext, context.globalState, doc); });
+
+    registerCommand('azureApiManagement.showArmAuthorizationProvider', async (actionContext: IActionContext, node?: AuthorizationProviderTreeItem) => {
+        if (!node) {
+            node = <AuthorizationProviderTreeItem>await ext.tree.showTreeItemPicker(AuthorizationProviderTreeItem.contextValue, actionContext);
+        }
+        await authorizationProviderResourceEditor.showEditor(node);
+        vscode.commands.executeCommand('setContext', 'isEditorEnabled', true);
+    },              doubleClickDebounceDelay);
+
+    const authorizationResourceEditor: AuthorizationResourceEditor = new AuthorizationResourceEditor();
+    context.subscriptions.push(authorizationResourceEditor);
+    registerEvent('azureApiManagement.AuthorizationResourceEditor.onDidSaveTextDocument',
+                  vscode.workspace.onDidSaveTextDocument, async (actionContext: IActionContext, doc: vscode.TextDocument) => {
+                       await authorizationResourceEditor.onDidSaveTextDocument(actionContext, context.globalState, doc); });
+
+    registerCommand('azureApiManagement.showArmAuthorization', async (actionContext: IActionContext, node?: AuthorizationTreeItem) => {
+        if (!node) {
+            node = <AuthorizationTreeItem>await ext.tree.showTreeItemPicker(AuthorizationTreeItem.contextValue, actionContext);
+        }
+        await authorizationResourceEditor.showEditor(node);
+        vscode.commands.executeCommand('setContext', 'isEditorEnabled', true);
+    },              doubleClickDebounceDelay);
+
+    const authorizationAccessPolicyResourceEditor: AuthorizationAccessPolicyResourceEditor = new AuthorizationAccessPolicyResourceEditor();
+    context.subscriptions.push(authorizationAccessPolicyResourceEditor);
+    registerEvent('azureApiManagement.AuthorizationAccessPolicyResourceEditor.onDidSaveTextDocument',
+                  vscode.workspace.onDidSaveTextDocument, async (actionContext: IActionContext, doc: vscode.TextDocument) => {
+                       await authorizationAccessPolicyResourceEditor.onDidSaveTextDocument(actionContext, context.globalState, doc); });
+
+    registerCommand('azureApiManagement.showArmAuthorizationAccessPolicy', async (actionContext: IActionContext, node?: AuthorizationAccessPolicyTreeItem) => {
+        if (!node) {
+            node = <AuthorizationAccessPolicyTreeItem>await ext.tree.showTreeItemPicker(AuthorizationAccessPolicyTreeItem.contextValue, actionContext);
+        }
+        await authorizationAccessPolicyResourceEditor.showEditor(node);
+        vscode.commands.executeCommand('setContext', 'isEditorEnabled', true);
+    },              doubleClickDebounceDelay);
 }
 
 // this method is called when your extension is deactivated
@@ -287,8 +333,12 @@ class UriEventHandler extends vscode.EventEmitter<vscode.Uri> implements vscode.
     public handleUri(uri: vscode.Uri) {
         if (uri.path.startsWith('/vscodeauthcomplete')) {
             if (uri.query !== null && uri.query.includes('error')) {
-                ext.outputChannel.appendLine(localize('authFailed', `Authorization failed. ${uri.query}`));
-                vscode.window.showInformationMessage(localize('authFailed', 'Authorization failed.'));
+                const queryParams = <Record<string, string>>query.parse(uri.query);
+                // tslint:disable-next-line:no-string-literal
+                const errorValue = queryParams['error'];
+                const errorDecoded = new Buffer(errorValue, 'base64');
+                ext.outputChannel.appendLine(localize('authFailed', `Authorization failed. ${errorDecoded.toString('utf8')}.`));
+                vscode.window.showInformationMessage(localize('authFailed', `Authorization failed. ${errorDecoded.toString('utf8')}.`));
             } else {
                 ext.outputChannel.appendLine(localize('authComplete', `Authorization success. ${uri.path}`));
                 const authProvider = uri.path.split('/')[2];

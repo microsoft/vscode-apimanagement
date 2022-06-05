@@ -55,5 +55,8 @@
     "azureApiManagement.deleteAuthorization": "Delete Authorization",
     "azureApiManagement.copyAuthorizationPolicy": "Copy Policy Snippet",
     "azureApiManagement.createAuthorizationAccessPolicy": "Create Access Policy",
-    "azureApiManagement.deleteAuthorizationAccessPolicy": "Delete Access Policy"
+    "azureApiManagement.deleteAuthorizationAccessPolicy": "Delete Access Policy",
+    "azureApiManagement.showArmAuthorizationProvider": "Edit Authorization Provider",
+    "azureApiManagement.showArmAuthorization": "Edit Authorization",
+    "azureApiManagement.showArmAuthorizationAccessPolicy": "Edit Authorization Access Policy"
 }

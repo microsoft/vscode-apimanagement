@@ -74,13 +74,18 @@ export class AuthorizationProvidersTreeItem extends AzureParentTreeItem<IService
                     const authorizationProviderName = context.name;
                     context.showCreatingTreeItem(authorizationProviderName);
                     try {
-                        const authorizationProvider: IAuthorizationProviderContract = await this.apimService.createAuthorizationProvider(context.name, context.authorizationProvider);
-                        const message = `Please add redirect url '${authorizationProvider.properties.oauth2?.redirectUrl}' to the OAuth application.`;
-                        ext.outputChannel.show();
-                        ext.outputChannel.appendLine(message);
-                        window.showWarningMessage(localize("redirectUrlMessage", message));
-                        window.showInformationMessage(localize("createdAuthorizationProvider", `Created Authorization provider '${context.name}'.`));
-                        return new AuthorizationProviderTreeItem(this, authorizationProvider);
+                        let authorizationProvider = await this.apimService.getAuthorizationProvider(context.name);
+                        if (authorizationProvider === undefined) {
+                            authorizationProvider = await this.apimService.createAuthorizationProvider(context.name, context.authorizationProvider);
+                            const message = `Please add redirect url '${authorizationProvider.properties.oauth2?.redirectUrl}' to the OAuth application.`;
+                            ext.outputChannel.show();
+                            ext.outputChannel.appendLine(message);
+                            window.showWarningMessage(localize("redirectUrlMessage", message));
+                            window.showInformationMessage(localize("createdAuthorizationProvider", `Created Authorization provider '${context.name}'.`));
+                            return new AuthorizationProviderTreeItem(this, authorizationProvider);
+                        } else {
+                            throw new Error(localize("createAuthorizationProvider", `Authorization provider '${authorizationProviderName}' already exists.`));
+                        }
                     } catch (error) {
                         throw new Error(processError(error, localize("createAuthorizationProvider", `Failed to create Authorization provider '${authorizationProviderName}'.`)));
                     }

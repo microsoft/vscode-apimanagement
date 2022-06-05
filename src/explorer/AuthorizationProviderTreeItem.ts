@@ -19,6 +19,7 @@ export class AuthorizationProviderTreeItem extends AzureParentTreeItem<IAuthoriz
     public static contextValue: string = 'azureApiManagementAuthorizationProvider';
     public contextValue: string = AuthorizationProviderTreeItem.contextValue;
     public readonly authorizationsTreeItem: AuthorizationsTreeItem;
+    public readonly commandId: string = 'azureApiManagement.showArmAuthorizationProvider';
 
     private _label: string;
     private _root: IAuthorizationProviderTreeRoot;

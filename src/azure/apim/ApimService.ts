@@ -143,12 +143,17 @@ export class ApimService {
         return <IAuthorizationAccessPolicyContract[]>(result.parsedBody.value);
     }
 
-    public async getAuthorizationAccessPolicy(authorizationProviderId: string, authorizationName: string, accessPolicyName: string): Promise<IAuthorizationAccessPolicyContract> {
+    public async getAuthorizationAccessPolicy(authorizationProviderId: string, authorizationName: string, accessPolicyName: string): Promise<IAuthorizationAccessPolicyContract | undefined> {
         const client: ServiceClient = await createGenericClient(this.credentials);
         const result: HttpOperationResponse = await client.sendRequest({
             method: "GET",
             url: `${this.baseUrl}/authorizationProviders/${authorizationProviderId}/authorizations/${authorizationName}/accesspolicies/${accessPolicyName}?api-version=${this.authorizationProviderApiVersion}`
         });
+
+        if (result.status === 404) {
+            return undefined;
+        }
+
         // tslint:disable-next-line: no-unsafe-any
         return <IAuthorizationAccessPolicyContract>(result.parsedBody);
     }
