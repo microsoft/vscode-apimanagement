@@ -32,6 +32,7 @@ All you need is an Azure Subscription to get started. If you don't have one, [cl
 -   API Filter
 -   Policy Debugging on Self-Hosted Gateways
 -   Manage User Subscriptions
+-   Manage Authorization Providers, Authorizations and Access Policies
 
 ## Create an API Management instance using defaults
 

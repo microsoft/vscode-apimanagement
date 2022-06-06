@@ -1,5 +1,29 @@
 # Change Log
-All notable changes to the "Azure Api Managment VS Code" extension will be documented in this file.
+
+All notable changes to the "Azure Api Management VS Code" extension will be documented in this file.
+
+## [1.0.4 - 2022-06-05]
+
+- Update to latest API Management devops resource kit
+- Authorization Manager feature preview.
+  - Authorization Providers, Authorizations, Access Policies Management
+
+## [1.0.3 - 2021-07-08]
+
+- Provide Subscription Management Support
+- Support importing Function App with Swagger file
+- Minor bug fixes.
+
+## [1.0.2 - 2021-04-13]
+
+- Add Self-hosted gateway debugging  
+- Added policy support for Dapr
+- Minor bug fixes.
+
+## [1.0.0 - 2021-03-01]
+
+- Migrate to new Azure VScode Tools  
+- Update to latest Azure API Management SDKs
 
 ## [0.1.8 - 2020-12-10]
 
