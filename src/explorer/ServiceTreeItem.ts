@@ -67,12 +67,15 @@ export class ServiceTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
         this.productsTreeItem = new ProductsTreeItem(this);
         this.namedValuesTreeItem = new NamedValuesTreeItem(this);
         this.subscriptionsTreeItem = new SubscriptionsTreeItem(this);
-        this.authorizationProvidersTreeItem = new AuthorizationProvidersTreeItem(this);
         //parent.iconPath =
 
         const sku = nonNullValue(this.apiManagementService.sku.name);
         if (sku === 'Developer' || sku === 'Premium') {
             this.gatewaysTreeItem = new GatewaysTreeItem(this);
+        }
+
+        if (sku !== 'Consumption') {
+            this.authorizationProvidersTreeItem = new AuthorizationProvidersTreeItem(this);
         }
     }
 
