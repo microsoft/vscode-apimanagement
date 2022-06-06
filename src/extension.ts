@@ -6,11 +6,18 @@
 'use strict';
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
+import * as query from 'querystring';
 import * as vscode from 'vscode';
 import { AzExtTreeDataProvider, AzureParentTreeItem, AzureTreeItem, AzureUserInput, callWithTelemetryAndErrorHandling, createAzExtOutputChannel, IActionContext, registerCommand, registerEvent, registerUIExtensionVariables } from 'vscode-azureextensionui';
 import { addApiFilter } from './commands/addApiFilter';
 import { addApiToGateway } from './commands/addApiToGateway';
 import { addApiToProduct } from './commands/addApiToProduct';
+import { authorizeAuthorization } from './commands/authorizations/authorizeAuthorization';
+import { copyAuthorizationPolicy } from './commands/authorizations/copyAuthorizationPolicy';
+import { copyAuthorizationProviderRedirectUrl } from './commands/authorizations/copyAuthorizationProviderRedirectUrl';
+import { createAuthorization } from './commands/authorizations/createAuthorization';
+import { createAuthorizationAccessPolicy } from './commands/authorizations/createAuthorizationAccessPolicy';
+import { createAuthorizationProvider } from './commands/authorizations/createAuthorizationProvider';
 import { copySubscriptionKey } from './commands/copySubscriptionKey';
 import { createService } from './commands/createService';
 import { debugPolicy } from './commands/debugPolicies/debugPolicy';
@@ -38,8 +45,17 @@ import { ApiOperationTreeItem } from './explorer/ApiOperationTreeItem';
 import { ApiPolicyTreeItem } from './explorer/ApiPolicyTreeItem';
 import { ApisTreeItem } from './explorer/ApisTreeItem';
 import { ApiTreeItem } from './explorer/ApiTreeItem';
+import { AuthorizationAccessPoliciesTreeItem } from './explorer/AuthorizationAccessPoliciesTreeItem';
+import { AuthorizationAccessPolicyTreeItem } from './explorer/AuthorizationAccessPolicyTreeItem';
+import { AuthorizationProvidersTreeItem } from './explorer/AuthorizationProvidersTreeItem';
+import { AuthorizationProviderTreeItem } from './explorer/AuthorizationProviderTreeItem';
+import { AuthorizationsTreeItem } from './explorer/AuthorizationsTreeItem';
+import { AuthorizationTreeItem } from './explorer/AuthorizationTreeItem';
 import { AzureAccountTreeItem } from './explorer/AzureAccountTreeItem';
 import { ApiResourceEditor } from './explorer/editors/arm/ApiResourceEditor';
+import { AuthorizationAccessPolicyResourceEditor } from './explorer/editors/arm/AuthorizationAccessPolicyResourceEditor';
+import { AuthorizationProviderResourceEditor } from './explorer/editors/arm/AuthorizationProviderResourceEditor';
+import { AuthorizationResourceEditor } from './explorer/editors/arm/AuthorizationResourceEditor';
 import { OperationResourceEditor } from './explorer/editors/arm/OperationResourceEditor';
 import { ProductResourceEditor } from './explorer/editors/arm/ProductResourceEditor';
 import { OpenApiEditor } from './explorer/editors/openApi/OpenApiEditor';
@@ -61,6 +77,7 @@ import { ServicePolicyTreeItem } from './explorer/ServicePolicyTreeItem';
 import { ServiceTreeItem } from './explorer/ServiceTreeItem';
 import { SubscriptionTreeItem } from './explorer/SubscriptionTreeItem';
 import { ext } from './extensionVariables';
+import { localize } from './localize';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -86,8 +103,13 @@ export async function activateInternal(context: vscode.ExtensionContext) {
 
         registerCommands(ext.tree);
         registerEditors(context);
-        activate(context); // activeta debug context
 
+        const handler = new UriEventHandler();
+        context.subscriptions.push(
+            vscode.window.registerUriHandler(handler)
+        );
+
+        activate(context); // activeta debug context
     });
 }
 
@@ -133,6 +155,16 @@ function registerCommands(tree: AzExtTreeDataProvider): void {
     registerCommand('azureApiManagement.setCustomHostName', setCustomHostName);
     registerCommand('azureApiManagement.createSubscription', createSubscription);
     registerCommand('azureApiManagement.deleteSubscription', async (context: IActionContext, node?: AzureTreeItem) => await deleteNode(context, SubscriptionTreeItem.contextValue, node));
+
+    registerCommand('azureApiManagement.createAuthorizationProvider', async (context: IActionContext, node?: AuthorizationProvidersTreeItem) => { await createAuthorizationProvider(context, node); });
+    registerCommand('azureApiManagement.createAuthorization', async (context: IActionContext, node?: AuthorizationsTreeItem) => { await createAuthorization(context, node); });
+    registerCommand('azureApiManagement.createAuthorizationAccessPolicy', async (context: IActionContext, node?: AuthorizationAccessPoliciesTreeItem) => { await createAuthorizationAccessPolicy(context, node); });
+    registerCommand('azureApiManagement.deleteAuthorizationProvider', async (context: IActionContext, node?: AzureTreeItem) => await deleteNode(context, AuthorizationProviderTreeItem.contextValue, node));
+    registerCommand('azureApiManagement.copyAuthorizationProviderRedirectUrl', async (context: IActionContext, node?: AuthorizationProviderTreeItem) => await copyAuthorizationProviderRedirectUrl(context, node));
+    registerCommand('azureApiManagement.authorizeAuthorization', async (context: IActionContext, node?: AuthorizationTreeItem) => { await authorizeAuthorization(context, node); });
+    registerCommand('azureApiManagement.copyAuthorizationPolicy', async (context: IActionContext, node?: AuthorizationTreeItem) => { await copyAuthorizationPolicy(context, node); });
+    registerCommand('azureApiManagement.deleteAuthorization', async (context: IActionContext, node?: AzureTreeItem) => await deleteNode(context, AuthorizationTreeItem.contextValue, node));
+    registerCommand('azureApiManagement.deleteAuthorizationAccessPolicy', async (context: IActionContext, node?: AzureTreeItem) => await deleteNode(context, AuthorizationAccessPolicyTreeItem.contextValue, node));
 }
 
 // tslint:disable-next-line: max-func-body-length
@@ -248,9 +280,72 @@ function registerEditors(context: vscode.ExtensionContext) : void {
         await productPolicyEditor.showEditor(node);
         vscode.commands.executeCommand('setContext', 'isEditorEnabled', true);
     },              doubleClickDebounceDelay);
+
+    const authorizationProviderResourceEditor: AuthorizationProviderResourceEditor = new AuthorizationProviderResourceEditor();
+    context.subscriptions.push(authorizationProviderResourceEditor);
+    registerEvent('azureApiManagement.AuthorizationProviderResourceEditor.onDidSaveTextDocument',
+                  vscode.workspace.onDidSaveTextDocument, async (actionContext: IActionContext, doc: vscode.TextDocument) => {
+                       await authorizationProviderResourceEditor.onDidSaveTextDocument(actionContext, context.globalState, doc); });
+
+    registerCommand('azureApiManagement.showArmAuthorizationProvider', async (actionContext: IActionContext, node?: AuthorizationProviderTreeItem) => {
+        if (!node) {
+            node = <AuthorizationProviderTreeItem>await ext.tree.showTreeItemPicker(AuthorizationProviderTreeItem.contextValue, actionContext);
+        }
+        await authorizationProviderResourceEditor.showEditor(node);
+        vscode.commands.executeCommand('setContext', 'isEditorEnabled', true);
+    },              doubleClickDebounceDelay);
+
+    const authorizationResourceEditor: AuthorizationResourceEditor = new AuthorizationResourceEditor();
+    context.subscriptions.push(authorizationResourceEditor);
+    registerEvent('azureApiManagement.AuthorizationResourceEditor.onDidSaveTextDocument',
+                  vscode.workspace.onDidSaveTextDocument, async (actionContext: IActionContext, doc: vscode.TextDocument) => {
+                       await authorizationResourceEditor.onDidSaveTextDocument(actionContext, context.globalState, doc); });
+
+    registerCommand('azureApiManagement.showArmAuthorization', async (actionContext: IActionContext, node?: AuthorizationTreeItem) => {
+        if (!node) {
+            node = <AuthorizationTreeItem>await ext.tree.showTreeItemPicker(AuthorizationTreeItem.contextValue, actionContext);
+        }
+        await authorizationResourceEditor.showEditor(node);
+        vscode.commands.executeCommand('setContext', 'isEditorEnabled', true);
+    },              doubleClickDebounceDelay);
+
+    const authorizationAccessPolicyResourceEditor: AuthorizationAccessPolicyResourceEditor = new AuthorizationAccessPolicyResourceEditor();
+    context.subscriptions.push(authorizationAccessPolicyResourceEditor);
+    registerEvent('azureApiManagement.AuthorizationAccessPolicyResourceEditor.onDidSaveTextDocument',
+                  vscode.workspace.onDidSaveTextDocument, async (actionContext: IActionContext, doc: vscode.TextDocument) => {
+                       await authorizationAccessPolicyResourceEditor.onDidSaveTextDocument(actionContext, context.globalState, doc); });
+
+    registerCommand('azureApiManagement.showArmAuthorizationAccessPolicy', async (actionContext: IActionContext, node?: AuthorizationAccessPolicyTreeItem) => {
+        if (!node) {
+            node = <AuthorizationAccessPolicyTreeItem>await ext.tree.showTreeItemPicker(AuthorizationAccessPolicyTreeItem.contextValue, actionContext);
+        }
+        await authorizationAccessPolicyResourceEditor.showEditor(node);
+        vscode.commands.executeCommand('setContext', 'isEditorEnabled', true);
+    },              doubleClickDebounceDelay);
 }
 
 // this method is called when your extension is deactivated
 // tslint:disable:typedef
 // tslint:disable-next-line:no-empty
 export function deactivateInternal() {}
+
+class UriEventHandler extends vscode.EventEmitter<vscode.Uri> implements vscode.UriHandler {
+    public handleUri(uri: vscode.Uri) {
+        if (uri.path.startsWith('/vscodeauthcomplete')) {
+            if (uri.query !== null && uri.query.includes('error')) {
+                const queryParams = <Record<string, string>>query.parse(uri.query);
+                // tslint:disable-next-line:no-string-literal
+                const errorValue = queryParams['error'];
+                const errorDecoded = new Buffer(errorValue, 'base64');
+                ext.outputChannel.appendLine(localize('authFailed', `Authorization failed. ${errorDecoded.toString('utf8')}.`));
+                vscode.window.showInformationMessage(localize('authFailed', `Authorization failed. ${errorDecoded.toString('utf8')}.`));
+            } else {
+                ext.outputChannel.appendLine(localize('authComplete', `Authorization success. ${uri.path}`));
+                const authProvider = uri.path.split('/')[2];
+                const authorization = uri.path.split('/')[3];
+                vscode.window.showInformationMessage(localize('authSuccess', `Authorized '${authorization}' under Authorization Provider '${authProvider}'.`));
+                vscode.window.showInformationMessage(localize('closeBrowserWindow', `You can now close the browser window that was launched during the authorization process.`));
+            }
+        }
+    }
+}

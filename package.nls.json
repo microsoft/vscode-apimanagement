@@ -46,5 +46,17 @@
     "azureApiManagement.revisions": "API Revisions",
     "azureApiManagement.setCustomHostName": "Select Gateway Host Name",
     "azureApiManagement.createSubscription": "Create a new Subscription",
-    "azureApiManagement.deleteSubscription": "Delete Subscription"
+    "azureApiManagement.deleteSubscription": "Delete Subscription",
+    "azureApiManagement.createAuthorizationProvider": "Create Authorization Provider",
+    "azureApiManagement.deleteAuthorizationProvider": "Delete Authorization Provider",
+    "azureApiManagement.copyAuthorizationProviderRedirectUrl": "Copy RedirectUrl",
+    "azureApiManagement.createAuthorization": "Create Authorization",
+    "azureApiManagement.authorizeAuthorization": "Login",
+    "azureApiManagement.deleteAuthorization": "Delete Authorization",
+    "azureApiManagement.copyAuthorizationPolicy": "Copy Policy Snippet",
+    "azureApiManagement.createAuthorizationAccessPolicy": "Create Access Policy",
+    "azureApiManagement.deleteAuthorizationAccessPolicy": "Delete Access Policy",
+    "azureApiManagement.showArmAuthorizationProvider": "Edit Authorization Provider",
+    "azureApiManagement.showArmAuthorization": "Edit Authorization",
+    "azureApiManagement.showArmAuthorizationAccessPolicy": "Edit Authorization Access Policy"
 }

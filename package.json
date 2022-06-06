@@ -2,7 +2,7 @@
     "name": "vscode-apimanagement",
     "displayName": "Azure API Management",
     "description": "An Azure API Management extension for Visual Studio Code.",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "publisher": "ms-azuretools",
     "icon": "resources/apim-icon-newone.png",
     "aiKey": "AIF-d9b70cd4-b9f9-4d70-929b-a071c400b217",
@@ -74,7 +74,19 @@
         "onCommand:azureApiManagement.revisions",
         "onCommand:azureApiManagement.setCustomHostName",
         "onCommand:azureApiManagement.createSubscription",
-        "onCommand:azureApiManagement.deleteSubscription"
+        "onCommand:azureApiManagement.deleteSubscription",
+        "onCommand:azureApiManagement.createAuthorizationProvider",
+        "onCommand:azureApiManagement.deleteAuthorizationProvider",
+        "onCommand:azureApiManagement.copyAuthorizationProviderRedirectUrl",
+        "onCommand:azureApiManagement.createAuthorization",
+        "onCommand:azureApiManagement.authorizeAuthorization",
+        "onCommand:azureApiManagement.deleteAuthorization",
+        "onCommand:azureApiManagement.createAuthorizationAccessPolicy",
+        "onCommand:azureApiManagement.deleteAuthorizationAccessPolicy",
+        "onCommand:azureApiManagement.copyAuthorizationPolicy",
+        "onCommand:azureApiManagement.showArmAuthorizationProvider",
+        "onCommand:azureApiManagement.showArmAuthorization",
+        "onCommand:azureApiManagement.showArmAuthorizationAccessPolicy"
     ],
     "main": "main",
     "contributes": {
@@ -385,6 +397,66 @@
                     "light": "resources/light/diff.svg",
                     "dark": "resources/dark/diff.svg"
                 }
+            },
+            {
+                "command": "azureApiManagement.createAuthorizationProvider",
+                "title": "%azureApiManagement.createAuthorizationProvider%",
+                "category": "Azure API Management"
+            },
+            {
+                "command": "azureApiManagement.deleteAuthorizationProvider",
+                "title": "%azureApiManagement.deleteAuthorizationProvider%",
+                "category": "Azure API Management"
+            },
+            {
+                "command": "azureApiManagement.copyAuthorizationProviderRedirectUrl",
+                "title": "%azureApiManagement.copyAuthorizationProviderRedirectUrl%",
+                "category": "Azure API Management"
+            },
+            {
+                "command": "azureApiManagement.createAuthorization",
+                "title": "%azureApiManagement.createAuthorization%",
+                "category": "Azure API Management"
+            },
+            {
+                "command": "azureApiManagement.authorizeAuthorization",
+                "title": "%azureApiManagement.authorizeAuthorization%",
+                "category": "Azure API Management"
+            },
+            {
+                "command": "azureApiManagement.deleteAuthorization",
+                "title": "%azureApiManagement.deleteAuthorization%",
+                "category": "Azure API Management"
+            },
+            {
+                "command": "azureApiManagement.copyAuthorizationPolicy",
+                "title": "%azureApiManagement.copyAuthorizationPolicy%",
+                "category": "Azure API Management"
+            },
+            {
+                "command": "azureApiManagement.createAuthorizationAccessPolicy",
+                "title": "%azureApiManagement.createAuthorizationAccessPolicy%",
+                "category": "Azure API Management"
+            },
+            {
+                "command": "azureApiManagement.deleteAuthorizationAccessPolicy",
+                "title": "%azureApiManagement.deleteAuthorizationAccessPolicy%",
+                "category": "Azure API Management"
+            },
+            {
+                "command": "azureApiManagement.showArmAuthorizationProvider",
+                "title": "%azureApiManagement.showArmAuthorizationProvider%",
+                "category": "Azure API Management"
+            },
+            {
+                "command": "azureApiManagement.showArmAuthorization",
+                "title": "%azureApiManagement.showArmAuthorization%",
+                "category": "Azure API Management"
+            },
+            {
+                "command": "azureApiManagement.showArmAuthorizationAccessPolicy",
+                "title": "%azureApiManagement.showArmAuthorizationAccessPolicy%",
+                "category": "Azure API Management"
             }
         ],
         "viewsContainers": {
@@ -634,6 +706,66 @@
                 {
                     "command": "azureApiManagement.deleteSubscription",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementSubscriptionTreeItem",
+                    "group": "1@1"
+                },
+                {
+                    "command": "azureApiManagement.createAuthorizationProvider",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementAuthorizationProviders",
+                    "group": "1@1"
+                },
+                {
+                    "command": "azureApiManagement.Refresh",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementAuthorizationProviders",
+                    "group": "1@2"
+                },
+                {
+                    "command": "azureApiManagement.copyAuthorizationProviderRedirectUrl",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementAuthorizationProvider",
+                    "group": "1@1"
+                },
+                {
+                    "command": "azureApiManagement.deleteAuthorizationProvider",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementAuthorizationProvider",
+                    "group": "1@2"
+                },
+                {
+                    "command": "azureApiManagement.createAuthorization",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementAuthorizations",
+                    "group": "1@1"
+                },
+                {
+                    "command": "azureApiManagement.Refresh",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementAuthorizations",
+                    "group": "1@2"
+                },
+                {
+                    "command": "azureApiManagement.authorizeAuthorization",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementAuthorization",
+                    "group": "1@1"
+                },
+                {
+                    "command": "azureApiManagement.copyAuthorizationPolicy",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementAuthorization",
+                    "group": "1@2"
+                },
+                {
+                    "command": "azureApiManagement.deleteAuthorization",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementAuthorization",
+                    "group": "1@3"
+                },
+                {
+                    "command": "azureApiManagement.createAuthorizationAccessPolicy",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementAuthorizationAccessPolicies",
+                    "group": "1@1"
+                },
+                {
+                    "command": "azureApiManagement.Refresh",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementAuthorizationAccessPolicies",
+                    "group": "1@2"
+                },
+                {
+                    "command": "azureApiManagement.deleteAuthorizationAccessPolicy",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementAuthorizationAccessPolicy",
                     "group": "1@1"
                 }
             ]
