@@ -74,9 +74,7 @@ export class ServiceTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
             this.gatewaysTreeItem = new GatewaysTreeItem(this);
         }
 
-        if (sku !== 'Consumption') {
-            this.authorizationProvidersTreeItem = new AuthorizationProvidersTreeItem(this);
-        }
+        this.authorizationProvidersTreeItem = new AuthorizationProvidersTreeItem(this);
     }
 
     public static createEnvironmentTreeItem(parent: AzureParentTreeItem, apiManagementClient: ApiManagementClient, apiManagementService: ApiManagementModels.ApiManagementServiceResource): ServiceTreeItem {
