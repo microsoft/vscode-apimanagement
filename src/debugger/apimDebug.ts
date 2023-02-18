@@ -45,7 +45,7 @@ export class ApimDebugSession extends LoggingDebugSession {
 	private policySource: PolicySource;
 	private variablesHandles = new Handles<string>();
 
-	public constructor() {
+	public constructor(private sessionKey: string) {
 		super();
 
 		this.setDebuggerLinesStartAt1(false);
@@ -79,6 +79,16 @@ export class ApimDebugSession extends LoggingDebugSession {
 	protected configurationDoneRequest(response: DebugProtocol.ConfigurationDoneResponse, args: DebugProtocol.ConfigurationDoneArguments): void {
 		super.configurationDoneRequest(response, args);
 		this.configurationDone.notify();
+	}
+
+	public handleMessage(request: DebugProtocol.Request): void {
+		// If request came from VSCode there must be session key present, if not - ignore the message
+		if (this.sessionKey !== request.arguments?._sessionKey) {
+			return;
+		}
+
+		delete request.arguments._sessionKey;
+		super.handleMessage(request);
 	}
 
 	protected async launchRequest(response: DebugProtocol.LaunchResponse, args: ILaunchRequestArguments): Promise<void> {
