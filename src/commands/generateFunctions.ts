@@ -8,7 +8,7 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import { OpenDialogOptions, ProgressLocation, Uri, window, workspace } from "vscode";
 import { DialogResponses, IActionContext } from 'vscode-azureextensionui';
-import XRegExp = require('xregexp');
+import XRegExp from 'xregexp';
 import { ApiTreeItem } from "../explorer/ApiTreeItem";
 import { OpenApiEditor } from "../explorer/editors/openApi/OpenApiEditor";
 import { ext } from "../extensionVariables";
