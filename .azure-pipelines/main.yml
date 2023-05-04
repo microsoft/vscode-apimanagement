@@ -33,7 +33,7 @@ jobs:
 trigger:
   branches:
     include:
-    - '*'
+    - 'master'
 
 pr:
   branches:
