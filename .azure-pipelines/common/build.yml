@@ -4,6 +4,11 @@ steps:
   inputs:
     versionSpec: 16.x
 
+- script: npm install
+  displayName: 'npm install (script)'
+  condition: always()
+  continueOnError: true
+
 - task: Npm@1
   displayName: 'npm install'
 
