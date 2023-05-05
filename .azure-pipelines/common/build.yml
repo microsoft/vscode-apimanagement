@@ -7,6 +7,10 @@ steps:
 - task: Npm@1
   displayName: 'npm install'
 
+- script: npm install
+  displayName: 'npm install (script)'
+  condition: always()
+
 - task: Npm@1
   displayName: 'Build'
   inputs:
