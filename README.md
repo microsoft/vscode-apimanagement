@@ -1,5 +1,4 @@
-[![Version](https://vsmarketplacebadge.apphb.com/version/ms-azuretools.vscode-apimanagement.svg)](https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-apimanagement) [![Installs](https://vsmarketplacebadge.apphb.com/installs-short/ms-azuretools.vscode-apimanagement.svg)](https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-apimanagement)
-[![Build Status](https://dev.azure.com/ms-azuretools/AzCode/_apis/build/status/vscode-apimanagement?branchName=master)](https://dev.azure.com/ms-azuretools/AzCode/_build/latest?definitionId=20&branchName=master) [![GitHub](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/Microsoft/vscode-apimanagement/blob/master/LICENSE.md)
+[![Build Status](https://dev.azure.com/ms-azuretools/AzCode/_apis/build/status/vscode-apimanagement?branchName=master)](https://dev.azure.com/ms-azuretools/AzCode/_build/latest?definitionId=20&branchName=master)
 
 # Azure API Management Extension for Visual Studio Code
 
