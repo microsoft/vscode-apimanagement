@@ -79,8 +79,8 @@ export class ApiManagementProvider extends SubscriptionTreeItemBase {
             subscriptionPath: "", // keep it this way for now
             userId: this.root.userId,
             tenantId: "",
-            errorHandling: errorhandler, // keep it empty for now
-            ...context
+            ...context,
+            errorHandling: errorhandler // keep it empty for now
         };
 
         const promptSteps: AzureWizardPromptStep<IServiceWizardContext>[] = [];

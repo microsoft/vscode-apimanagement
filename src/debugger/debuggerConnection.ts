@@ -40,7 +40,7 @@ export class DebuggerConnection extends EventEmitter {
 
 	public async attach(address: string, key: string, stopOnEntry: boolean) {
 		let connection: WebSocket;
-		return new Promise((resolve, reject) => {
+		return new Promise<void>((resolve, reject) => {
 			connection = new WebSocket(`${address}?key=${key}`)
 				.on('error', e => {
 					if (this.connection == null || this.connection === connection) {
