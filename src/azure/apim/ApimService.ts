@@ -7,6 +7,7 @@ import { HttpOperationResponse, ServiceClient } from "@azure/ms-rest-js";
 import { TokenCredentialsBase } from "@azure/ms-rest-nodeauth";
 import { createGenericClient } from "vscode-azureextensionui";
 import { IApimServiceContract, IAuthorizationAccessPolicyContract, IAuthorizationAccessPolicyPropertiesContract, IAuthorizationContract, IAuthorizationLoginLinkRequest, IAuthorizationLoginLinkResponse, IAuthorizationPropertiesContract, IAuthorizationProviderContract, IAuthorizationProviderPropertiesContract, IGatewayApiContract, IGatewayContract, IMasterSubscription, ITokenStoreIdentityProviderContract } from "./contracts";
+import { localize } from "../../localize";
 
 export class ApimService {
     public baseUrl: string;
@@ -88,6 +89,8 @@ export class ApimService {
             method: "GET",
             url: `${this.baseUrl}/subscriptions/master?api-version=${this.apiVersion}`
         });
+        if (result.status !== 200 || !result.parsedBody)
+            throw new Error(localize("getSubscriptionMasterkeyError", `Failed to get master subscription at ${result.request.url}'. Status code: ${result.status}`));
         // tslint:disable-next-line: no-unsafe-any
         return result.parsedBody;
     }
@@ -278,6 +281,9 @@ export class ApimService {
     }
 
     private genSiteUrl(endPointUrl: string, subscriptionId: string, resourceGroup: string, serviceName: string): string {
+        if (endPointUrl.endsWith('/')) {
+            endPointUrl = endPointUrl.slice(0, -1);
+        }
         return `${endPointUrl}/subscriptions/${subscriptionId}/resourceGroups/${resourceGroup}/providers/Microsoft.ApiManagement/service/${serviceName}`;
     }
 }
