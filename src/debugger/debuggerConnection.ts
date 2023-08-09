@@ -45,7 +45,7 @@ export class DebuggerConnection extends EventEmitter {
 				.on('error', e => {
 					if (this.connection == null || this.connection === connection) {
 						this.connection = null;
-						this.sendEvent('end', localize("", `Can't connect to gateway: ${e.message}.`));
+						this.sendEvent('end', localize("", `Can't connect to gateway at ${address}: ${e.message}.`));
 					}
 					reject();
 				})
