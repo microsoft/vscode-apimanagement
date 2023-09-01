@@ -52,7 +52,7 @@ export async function debugPolicy(context: IActionContext, node?: ApiOperationTr
             editors.forEach(editor => {
                 editor.hide();
             });
-        }, vscode.debug.activeDebugSession);
+        },                                      vscode.debug.activeDebugSession);
     }
 }
 

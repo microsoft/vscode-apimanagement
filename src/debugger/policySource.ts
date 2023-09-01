@@ -6,10 +6,10 @@ import { TokenCredentialsBase } from "@azure/ms-rest-nodeauth";
 import * as path from 'path';
 import * as request from 'request-promise-native';
 import { Source } from 'vscode-debugadapter';
+import * as Constants from "../constants";
 import { getBearerToken } from '../utils/requestUtil';
 import { StackFrameScopeContract } from './debuggerConnection';
 import { PolicyLocation, PolicyMap, PolicyMapper } from './policyMapper';
-import * as Constants from "../constants"
 
 // tslint:disable: no-unsafe-any
 // tslint:disable: indent

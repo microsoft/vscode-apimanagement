@@ -8,6 +8,7 @@ import { HttpOperationResponse, RequestPrepareOptions, ServiceClient } from "@az
 import { ProgressLocation, window } from "vscode";
 import { appendExtensionUserAgent, createGenericClient } from "vscode-azureextensionui";
 import { openApiAcceptHeader, openApiExport, openApiSchema, showSavePromptConfigKey, swaggerAcceptHeader, swaggerExport, swaggerSchema } from "../../../constants";
+import * as Constants from "../../../constants";
 import { localize } from "../../../localize";
 import { IOpenApiImportObject } from "../../../openApi/OpenApiImportObject";
 import { OpenApiParser } from "../../../openApi/OpenApiParser";
@@ -15,7 +16,6 @@ import { processError } from "../../../utils/errorUtil";
 import { nonNullProp } from "../../../utils/nonNull";
 import { ApiTreeItem } from "../../ApiTreeItem";
 import { Editor } from "../Editor";
-import * as Constants from "../../../constants";
 
 export class OpenApiEditor extends Editor<ApiTreeItem> {
     constructor() {

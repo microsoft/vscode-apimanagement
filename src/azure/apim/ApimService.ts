@@ -6,6 +6,7 @@
 import { HttpOperationResponse, ServiceClient } from "@azure/ms-rest-js";
 import { TokenCredentialsBase } from "@azure/ms-rest-nodeauth";
 import { createGenericClient } from "vscode-azureextensionui";
+import * as Constants from "../../constants";
 import {
     IApimServiceContract,
     IAuthorizationAccessPolicyContract,
@@ -21,7 +22,6 @@ import {
     IMasterSubscriptionsSecrets,
     ITokenStoreIdentityProviderContract
 } from "./contracts";
-import * as Constants from "../../constants";
 
 export class ApimService {
     public baseUrl: string;

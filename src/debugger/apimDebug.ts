@@ -7,6 +7,8 @@ import * as request from 'request-promise-native';
 import * as vscode from 'vscode';
 import { Breakpoint, Handles, InitializedEvent, Logger, logger, LoggingDebugSession, OutputEvent, Scope, StackFrame, StoppedEvent, TerminatedEvent, Thread, ThreadEvent, Variable } from 'vscode-debugadapter';
 import { DebugProtocol } from 'vscode-debugprotocol';
+import { IArmResource, IMasterSubscriptionsSecrets, IPaged } from "../azure/apim/contracts";
+import * as Constants from "../constants";
 import { localize } from "../localize";
 import { createTemporaryFile } from "../utils/fsUtil";
 import { getBearerToken } from '../utils/requestUtil';
@@ -15,8 +17,6 @@ import { DebuggerConnection, RequestContract } from './debuggerConnection';
 import { PolicySource } from './policySource';
 import { UiRequest } from './uiRequest';
 import { UiThread } from './uiThread';
-import * as Constants from "../constants";
-import { ArmResource, IMasterSubscriptionsSecrets, Paged } from "../azure/apim/contracts";
 
 // tslint:disable: no-unsafe-any
 // tslint:disable: indent
@@ -368,7 +368,7 @@ export class ApimDebugSession extends LoggingDebugSession {
 				apiId: apiId,
 				productId: productId
 			}
-		], false);
+		],                  false);
 		const nRequest = this.requests.find(r => r.id === requestId);
 		const thread = nRequest && nRequest.findThreadById(threadId);
 
@@ -412,7 +412,7 @@ export class ApimDebugSession extends LoggingDebugSession {
 	private async getAvailablePolicies(managementAddress: string, credential?: TokenCredentialsBase, managementAuth?: string) {
 		const resourceUrl = `${managementAddress}/policyDescriptions?api-version=${Constants.apimApiVersion}`;
 		const authToken = managementAuth ? managementAuth : await getBearerToken(resourceUrl, "GET", credential!);
-		const policyDescriptions: Paged<ArmResource> = await request.get(resourceUrl, {
+		const policyDescriptions: IPaged<IArmResource> = await request.get(resourceUrl, {
 			headers: {
 				Authorization: authToken
 			},
