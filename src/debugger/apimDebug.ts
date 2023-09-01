@@ -15,6 +15,8 @@ import { DebuggerConnection, RequestContract } from './debuggerConnection';
 import { PolicySource } from './policySource';
 import { UiRequest } from './uiRequest';
 import { UiThread } from './uiThread';
+import * as Constants from "../constants";
+import { ArmResource, IMasterSubscriptionsSecrets, Paged } from "../azure/apim/contracts";
 
 // tslint:disable: no-unsafe-any
 // tslint:disable: indent
@@ -366,7 +368,7 @@ export class ApimDebugSession extends LoggingDebugSession {
 				apiId: apiId,
 				productId: productId
 			}
-		],                  false);
+		], false);
 		const nRequest = this.requests.find(r => r.id === requestId);
 		const thread = nRequest && nRequest.findThreadById(threadId);
 
@@ -387,9 +389,9 @@ export class ApimDebugSession extends LoggingDebugSession {
 	}
 
 	private async getMasterSubscriptionKey(managementAddress: string, credential?: TokenCredentialsBase, managementAuth?: string) {
-		const resourceUrl = `${managementAddress}/subscriptions/master?api-version=2019-01-01`;
+		const resourceUrl = `${managementAddress}/subscriptions/master/listSecrets?api-version=${Constants.apimApiVersion}`;
 		const authToken = managementAuth ? managementAuth : await getBearerToken(resourceUrl, "GET", credential!);
-		const subscription: IApimSubscription = await request.get(resourceUrl, {
+		const subscription: IMasterSubscriptionsSecrets = await request.post(resourceUrl, {
 			headers: {
 				Authorization: authToken
 			},
@@ -404,13 +406,13 @@ export class ApimDebugSession extends LoggingDebugSession {
 			}
 		});
 
-		return subscription.properties.primaryKey;
+		return subscription.primaryKey;
 	}
 
 	private async getAvailablePolicies(managementAddress: string, credential?: TokenCredentialsBase, managementAuth?: string) {
-		const resourceUrl = `${managementAddress}/policysnippets?api-version=2019-01-01`;
+		const resourceUrl = `${managementAddress}/policyDescriptions?api-version=${Constants.apimApiVersion}`;
 		const authToken = managementAuth ? managementAuth : await getBearerToken(resourceUrl, "GET", credential!);
-		const snippets: IPolicySnippet[] = await request.get(resourceUrl, {
+		const policyDescriptions: Paged<ArmResource> = await request.get(resourceUrl, {
 			headers: {
 				Authorization: authToken
 			},
@@ -425,19 +427,7 @@ export class ApimDebugSession extends LoggingDebugSession {
 			}
 		});
 
-		const allPolicies: string[] = [];
-		let index = 0;
-		for (const snippet of snippets) {
-			if (snippet.content !== undefined && snippet.content !== "") {
-				const idx = /[\s>/]/.exec(snippet.content)!.index;
-				allPolicies[index] = snippet.content.substring(1, idx);
-				index += 1;
-			}
-		}
-
-		// tslint:disable-next-line: no-unnecessary-local-variable
-		//const allPolicies = snippets.filter(s => s.content !== undefined).map(s => s.content.substring(1, /[\s>/]/.exec(s.content)!.index));
-		return allPolicies;
+		return policyDescriptions.value.map(p => p.name);
 	}
 
 	private findThreadByUiId(id: number): [UiRequest, UiThread] | null {
@@ -514,15 +504,4 @@ export class ApimDebugSession extends LoggingDebugSession {
 			}
 		}
 	}
-}
-
-interface IApimSubscription {
-	properties: {
-		primaryKey: string;
-		secondaryKey: string;
-	};
-}
-
-interface IPolicySnippet {
-	content: string;
 }

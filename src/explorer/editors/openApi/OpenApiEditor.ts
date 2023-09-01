@@ -15,6 +15,7 @@ import { processError } from "../../../utils/errorUtil";
 import { nonNullProp } from "../../../utils/nonNull";
 import { ApiTreeItem } from "../../ApiTreeItem";
 import { Editor } from "../Editor";
+import * as Constants from "../../../constants";
 
 export class OpenApiEditor extends Editor<ApiTreeItem> {
     constructor() {
@@ -117,7 +118,7 @@ export class OpenApiEditor extends Editor<ApiTreeItem> {
 
     private buildAPIExportUrl(context: ApiTreeItem, exportFormat: string) : string {
         let url = `${context.root.environment.resourceManagerEndpointUrl}/subscriptions/${context.root.subscriptionId}/resourceGroups/${context.root.resourceGroupName}/providers/Microsoft.ApiManagement/service/${context.root.serviceName}/apis/${context.root.apiName}`;
-        url = `${url}?export=true&format=${exportFormat}&api-version=2019-01-01`;
+        url = `${url}?export=true&format=${exportFormat}&api-version=${Constants.apimApiVersion}`;
         return url;
     }
 

@@ -84,7 +84,7 @@ export class OperationConsole {
         const apimService = new ApimService(root.credentials, root.environment.resourceManagerEndpointUrl, root.subscriptionId, root.resourceGroupName, root.serviceName);
         const masterSubscription = await apimService.getSubscriptionMasterkey();
         headers.forEach(header => {
-            requestSummary += `${header}: ${masterSubscription.properties.primaryKey}\n`;
+            requestSummary += `${header}: ${masterSubscription.primaryKey}\n`;
         });
         requestSummary += "Ocp-Apim-Trace: true\n";
         if (consoleOperation.request.body) {

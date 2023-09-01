@@ -9,6 +9,7 @@ import { Source } from 'vscode-debugadapter';
 import { getBearerToken } from '../utils/requestUtil';
 import { StackFrameScopeContract } from './debuggerConnection';
 import { PolicyLocation, PolicyMap, PolicyMapper } from './policyMapper';
+import * as Constants from "../constants"
 
 // tslint:disable: no-unsafe-any
 // tslint:disable: indent
@@ -143,9 +144,9 @@ export class PolicySource {
 
 	private getPolicyUrl(scopeId: string): string {
 		if (scopeId === StackFrameScopeContract.tenant) {
-			return `${this.managementAddress}/policies/policy?api-version=2019-01-01&format=xml-raw`;
+			return `${this.managementAddress}/policies/policy?api-version=${Constants.apimApiVersion}&format=xml-raw`;
 		} else {
-			return `${this.managementAddress}/${scopeId}/policies/policy?api-version=2019-01-01&format=xml-raw`;
+			return `${this.managementAddress}/${scopeId}/policies/policy?api-version=${Constants.apimApiVersion}&format=xml-raw`;
 		}
 	}
 }
