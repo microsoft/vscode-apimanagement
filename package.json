@@ -844,7 +844,7 @@
         "vscode-debugadapter-testsupport": "1.40.2",
         "vscode-extension-telemetry": "^0.0.18",
         "webpack": "4.29.6",
-        "webpack-cli": "^3.3.11"
+        "webpack-cli": "^3.3.12"
     },
     "dependencies": {
         "@azure/arm-apimanagement": "^6.0.0",
