@@ -95,7 +95,7 @@ function getDockerRunCommand(token: string, confEndpoint: string, gatewayName: s
 }
 
 function getConfigEndpointUrl(node: GatewayTreeItem): string {
-  return `"https://${node!.root.serviceName}.management.azure-api.net/subscriptions/${node!.root.subscriptionId}/resourceGroups/${node!.root.resourceGroupName}/providers/Microsoft.ApiManagement/service/${node!.root.serviceName}?api-version=2018-06-01-preview"`;
+  return `"https://${node!.root.serviceName}.management.azure-api.net/subscriptions/${node!.root.subscriptionId}/resourceGroups/${node!.root.resourceGroupName}/providers/Microsoft.ApiManagement/service/${node!.root.serviceName}?api-version=${Constants.apimApiVersion}"`;
 }
 
 function generateDeploymentYaml(gatewayName: string, gatewayToken: string, gatewayEndpoint: string): string {

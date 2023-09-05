@@ -6,6 +6,7 @@ import { TokenCredentialsBase } from "@azure/ms-rest-nodeauth";
 import * as path from 'path';
 import * as request from 'request-promise-native';
 import { Source } from 'vscode-debugadapter';
+import * as Constants from "../constants";
 import { getBearerToken } from '../utils/requestUtil';
 import { StackFrameScopeContract } from './debuggerConnection';
 import { PolicyLocation, PolicyMap, PolicyMapper } from './policyMapper';
@@ -143,9 +144,9 @@ export class PolicySource {
 
 	private getPolicyUrl(scopeId: string): string {
 		if (scopeId === StackFrameScopeContract.tenant) {
-			return `${this.managementAddress}/policies/policy?api-version=2019-01-01&format=xml-raw`;
+			return `${this.managementAddress}/policies/policy?api-version=${Constants.apimApiVersion}&format=xml-raw`;
 		} else {
-			return `${this.managementAddress}/${scopeId}/policies/policy?api-version=2019-01-01&format=xml-raw`;
+			return `${this.managementAddress}/${scopeId}/policies/policy?api-version=${Constants.apimApiVersion}&format=xml-raw`;
 		}
 	}
 }

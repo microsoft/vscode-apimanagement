@@ -62,7 +62,7 @@ function getManagementUrl(root: IOperationTreeRoot): string {
 
 async function getDebugGatewayAddressUrl(node: ApiOperationTreeItem): Promise<string> {
     // tslint:disable-next-line: prefer-template
-    const gatewayUrl : string | undefined = ext.context.globalState.get(node.root.serviceName + gatewayHostName);
+    const gatewayUrl: string | undefined = ext.context.globalState.get(node.root.serviceName + gatewayHostName);
     if (gatewayUrl !== undefined) {
         return `wss://${gatewayUrl}/debug-0123456789abcdef`;
     }
@@ -73,7 +73,7 @@ async function getDebugGatewayAddressUrl(node: ApiOperationTreeItem): Promise<st
         let gatewayHostNameUl = "";
         if (hostNameConfigs.length > 1) {
             const allHostNames = hostNameConfigs.filter((s) => (s.type === "Proxy"));
-            const pick = await ext.ui.showQuickPick(allHostNames.map((s) => { return {label: s.hostName, gateway: s}; }), { canPickMany: false});
+            const pick = await ext.ui.showQuickPick(allHostNames.map((s) => { return { label: s.hostName, gateway: s }; }), { canPickMany: false });
             gatewayHostNameUl = `wss://${pick.gateway.hostName}/debug-0123456789abcdef`;
         } else {
             gatewayHostNameUl = `wss://${hostNameConfigs[0].hostName}/debug-0123456789abcdef`;

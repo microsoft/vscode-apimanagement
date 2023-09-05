@@ -8,6 +8,7 @@ import { HttpOperationResponse, RequestPrepareOptions, ServiceClient } from "@az
 import { ProgressLocation, window } from "vscode";
 import { appendExtensionUserAgent, createGenericClient } from "vscode-azureextensionui";
 import { openApiAcceptHeader, openApiExport, openApiSchema, showSavePromptConfigKey, swaggerAcceptHeader, swaggerExport, swaggerSchema } from "../../../constants";
+import * as Constants from "../../../constants";
 import { localize } from "../../../localize";
 import { IOpenApiImportObject } from "../../../openApi/OpenApiImportObject";
 import { OpenApiParser } from "../../../openApi/OpenApiParser";
@@ -117,7 +118,7 @@ export class OpenApiEditor extends Editor<ApiTreeItem> {
 
     private buildAPIExportUrl(context: ApiTreeItem, exportFormat: string) : string {
         let url = `${context.root.environment.resourceManagerEndpointUrl}/subscriptions/${context.root.subscriptionId}/resourceGroups/${context.root.resourceGroupName}/providers/Microsoft.ApiManagement/service/${context.root.serviceName}/apis/${context.root.apiName}`;
-        url = `${url}?export=true&format=${exportFormat}&api-version=2019-01-01`;
+        url = `${url}?export=true&format=${exportFormat}&api-version=${Constants.apimApiVersion}`;
         return url;
     }
 
