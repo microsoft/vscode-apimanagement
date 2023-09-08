@@ -2,6 +2,19 @@
 
 All notable changes to the "Azure Api Management VS Code" extension will be documented in this file.
 
+## [1.0.7 - 2023-09-08]
+
+- Update api-version to 2019-12-01
+- Fix issue with policy debugging
+
+## [1.0.6 - 2023-05-06]
+
+- Overridding fevents version to move off a vulnerable package
+
+## [1.0.5 - 2022-06-24]
+
+- Enable Authorizations in Consumption Sku
+
 ## [1.0.4 - 2022-06-05]
 
 - Update to latest API Management devops resource kit
