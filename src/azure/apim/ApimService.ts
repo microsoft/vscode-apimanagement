@@ -6,7 +6,22 @@
 import { HttpOperationResponse, ServiceClient } from "@azure/ms-rest-js";
 import { TokenCredentialsBase } from "@azure/ms-rest-nodeauth";
 import { createGenericClient } from "vscode-azureextensionui";
-import { IApimServiceContract, IAuthorizationAccessPolicyContract, IAuthorizationAccessPolicyPropertiesContract, IAuthorizationContract, IAuthorizationLoginLinkRequest, IAuthorizationLoginLinkResponse, IAuthorizationPropertiesContract, IAuthorizationProviderContract, IAuthorizationProviderPropertiesContract, IGatewayApiContract, IGatewayContract, IMasterSubscription, ITokenStoreIdentityProviderContract } from "./contracts";
+import * as Constants from "../../constants";
+import {
+    IApimServiceContract,
+    IAuthorizationAccessPolicyContract,
+    IAuthorizationAccessPolicyPropertiesContract,
+    IAuthorizationContract,
+    IAuthorizationLoginLinkRequest,
+    IAuthorizationLoginLinkResponse,
+    IAuthorizationPropertiesContract,
+    IAuthorizationProviderContract,
+    IAuthorizationProviderPropertiesContract,
+    IGatewayApiContract,
+    IGatewayContract,
+    IMasterSubscriptionsSecrets,
+    ITokenStoreIdentityProviderContract
+} from "./contracts";
 
 export class ApimService {
     public baseUrl: string;
@@ -15,7 +30,6 @@ export class ApimService {
     public subscriptionId: string;
     public resourceGroup: string;
     public serviceName: string;
-    private readonly apiVersion: string = "2018-06-01-preview";
     private readonly authorizationProviderApiVersion: string = "2021-12-01-preview";
 
     constructor(credentials: TokenCredentialsBase, endPointUrl: string, subscriptionId: string, resourceGroup: string, serviceName: string) {
@@ -31,7 +45,7 @@ export class ApimService {
         const client: ServiceClient = await createGenericClient(this.credentials);
         const result: HttpOperationResponse = await client.sendRequest({
             method: "GET",
-            url: `${this.baseUrl}/gateways?api-version=${this.apiVersion}&$top=100`
+            url: `${this.baseUrl}/gateways?api-version=${Constants.apimApiVersion}&$top=100`
         });
         // tslint:disable-next-line: no-unsafe-any
         return <IGatewayContract[]>(result.parsedBody.value);
@@ -41,7 +55,7 @@ export class ApimService {
         const client: ServiceClient = await createGenericClient(this.credentials);
         const result: HttpOperationResponse = await client.sendRequest({
             method: "GET",
-            url: `${this.baseUrl}/gateways/${gatewayName}/apis?api-version=${this.apiVersion}&$top=100`
+            url: `${this.baseUrl}/gateways/${gatewayName}/apis?api-version=${Constants.apimApiVersion}&$top=100`
         });
         // tslint:disable-next-line: no-unsafe-any
         return <IGatewayApiContract[]>(result.parsedBody.value);
@@ -51,7 +65,7 @@ export class ApimService {
         const client: ServiceClient = await createGenericClient(this.credentials);
         const result: HttpOperationResponse = await client.sendRequest({
             method: "PUT",
-            url: `${this.baseUrl}/gateways/${gatewayName}/apis/${apiName}?api-version=${this.apiVersion}`
+            url: `${this.baseUrl}/gateways/${gatewayName}/apis/${apiName}?api-version=${Constants.apimApiVersion}`
         });
         // tslint:disable-next-line: no-unsafe-any
         return <IGatewayApiContract>(result.parsedBody);
@@ -61,7 +75,7 @@ export class ApimService {
         const client: ServiceClient = await createGenericClient(this.credentials);
         await client.sendRequest({
             method: "DELETE",
-            url: `${this.baseUrl}/gateways/${gatewayName}/apis/${apiName}?api-version=${this.apiVersion}`
+            url: `${this.baseUrl}/gateways/${gatewayName}/apis/${apiName}?api-version=${Constants.apimApiVersion}`
         });
     }
 
@@ -72,7 +86,7 @@ export class ApimService {
         const client: ServiceClient = await createGenericClient(this.credentials);
         const result: HttpOperationResponse = await client.sendRequest({
             method: "POST",
-            url: `https://management.azure.com/subscriptions/${this.subscriptionId}/resourceGroups/${this.resourceGroup}/providers/Microsoft.ApiManagement/service/${this.serviceName}/gateways/${gatewayName}/token?api-version=2018-06-01-preview`,
+            url: `https://management.azure.com/subscriptions/${this.subscriptionId}/resourceGroups/${this.resourceGroup}/providers/Microsoft.ApiManagement/service/${this.serviceName}/gateways/${gatewayName}/token?api-version=${Constants.apimApiVersion}`,
             body: {
                 keyType: keyType,
                 expiry: expiryDate
@@ -82,12 +96,13 @@ export class ApimService {
         return result.parsedBody.value;
     }
 
-    public async getSubscriptionMasterkey(): Promise<IMasterSubscription> {
+    public async getSubscriptionMasterkey(): Promise<IMasterSubscriptionsSecrets> {
         const client: ServiceClient = await createGenericClient(this.credentials);
         const result: HttpOperationResponse = await client.sendRequest({
-            method: "GET",
-            url: `${this.baseUrl}/subscriptions/master?api-version=${this.apiVersion}`
+            method: "POST",
+            url: `${this.baseUrl}/subscriptions/master/listSecrets?api-version=${Constants.apimApiVersion}`
         });
+
         // tslint:disable-next-line: no-unsafe-any
         return result.parsedBody;
     }
@@ -241,7 +256,7 @@ export class ApimService {
             return undefined;
         }
 
-         // tslint:disable-next-line: no-unsafe-any
+        // tslint:disable-next-line: no-unsafe-any
         return <IAuthorizationProviderContract>(result.parsedBody);
     }
 
@@ -260,7 +275,7 @@ export class ApimService {
         const client: ServiceClient = await createGenericClient(this.credentials);
         const result: HttpOperationResponse = await client.sendRequest({
             method: "GET",
-            url: `${this.baseUrl}?api-version=${this.apiVersion}`
+            url: `${this.baseUrl}?api-version=${Constants.apimApiVersion}`
         });
         // tslint:disable-next-line:no-any
         return <IApimServiceContract>(result.parsedBody);
@@ -270,10 +285,10 @@ export class ApimService {
         const client: ServiceClient = await createGenericClient(this.credentials);
         const result: HttpOperationResponse = await client.sendRequest({
             method: "PATCH",
-            url: `${this.baseUrl}?api-version=${this.apiVersion}`,
-            body: { identity : { type: "systemassigned" } }
+            url: `${this.baseUrl}?api-version=${Constants.apimApiVersion}`,
+            body: { identity: { type: "systemassigned" } }
         });
-         // tslint:disable-next-line:no-any
+        // tslint:disable-next-line:no-any
         return <IApimServiceContract>(result.parsedBody);
     }
 

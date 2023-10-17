@@ -3,6 +3,21 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+export interface IArmResource {
+    id: string;
+    // tslint:disable-next-line: no-reserved-keywords
+    type: string;
+    name: string;
+    // tslint:disable-next-line:no-any
+    properties: any;
+}
+
+export interface IPaged<T> {
+    value: T[];
+    count: number;
+    nextLink?: string;
+}
+
 export interface IApimServiceContract {
     id: string;
     name: string;
@@ -49,9 +64,14 @@ export interface IGatewayTokenList {
 }
 
 export interface IMasterSubscription {
-    id : string;
-    name : string;
+    id: string;
+    name: string;
     properties: ISubscriptionProperty;
+}
+
+export interface IMasterSubscriptionsSecrets {
+    primaryKey: string;
+    secondaryKey: string;
 }
 
 export interface ISubscriptionProperty {
