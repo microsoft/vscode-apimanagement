@@ -75,7 +75,7 @@ export interface IFileDownloader {
     /**
      * Gets the path to a downloaded or unzipped item.
      *
-     * @param filename the name of the file or folder to remove
+     * @param filename the name of the file or folder to retrieve
      * @param context The calling extension's context
      * @returns the path to the downloaded file (or folder if the download was unzipped)
      * @throws FileNotFoundError if there is no such file or folder
@@ -85,7 +85,7 @@ export interface IFileDownloader {
      * Gets the path to a downloaded or unzipped item, but returns undefined instead of throwing an error if the file
      * isn't found.
      *
-     * @param filename the name of the file or folder to remove
+     * @param filename the name of the file or folder to retrieve
      * @param context The calling extension's context
      * @returns the path to the downloaded file (or folder if the download was unzipped)
      */

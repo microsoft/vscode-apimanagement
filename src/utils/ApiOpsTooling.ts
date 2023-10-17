@@ -3,7 +3,6 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 import { ServiceClient } from '@azure/ms-rest-js';
-import * as path from 'path';
 import * as vscode from 'vscode';
 import { createGenericClient } from 'vscode-azureextensionui';
 import * as projectConstants from '../constants';
@@ -19,10 +18,6 @@ export class ApiOpsTooling {
     public async downloadApiOpsFromGithubRelease(): Promise<void> {
         await this.downloadGitHubReleaseIfMissing(projectConstants.extractorBinaryName);
         await this.downloadGitHubReleaseIfMissing(projectConstants.publisherBinaryName);
-    }
-
-    public async getDownloadStoragePath(): Promise<string> {
-        return path.join(this.context.globalStorageUri.fsPath, `file-downloader-downloads`);
     }
 
     // Gets the download link for the latest release of the API Ops tooling.
@@ -44,16 +39,16 @@ export class ApiOpsTooling {
         return "";
     }
 
-    public async downloadGitHubReleaseIfMissing(fileName: string): Promise<void> {
+    public async downloadGitHubReleaseIfMissing(fileName: string): Promise<vscode.Uri | undefined> {
 
         const fileDownloader: IFileDownloader = await this.extensionHelper.getFileDownloaderApi();
 
-        const exists = await fileDownloader.tryGetItem(fileName, this.context);
-        if (!exists) {
+        const existingUri = await fileDownloader.tryGetItem(fileName, this.context);
+        if (!existingUri) {
             const url: string = await this.getDownloadLink(fileName);
             // Maybe GitHub is is down, don't stop the extension from working.
             if (url === "") {
-                return;
+                return undefined;
             }
 
             try {
@@ -64,7 +59,7 @@ export class ApiOpsTooling {
                         Accept: "application/octet-stream"
                     }
                 };
-                const uri: vscode.Uri = await fileDownloader.downloadFile(
+                const newlyDownloadedUri: vscode.Uri = await fileDownloader.downloadFile(
                     vscode.Uri.parse(url),
                     fileName,
                     this.context,
@@ -72,13 +67,17 @@ export class ApiOpsTooling {
                     undefined, /* progressCallback */
                     settings);
 
-                if (uri.path) {
+                if (newlyDownloadedUri.path) {
                     vscode.window.showInformationMessage(localize("APIOps", "'{0}' downloaded", fileName));
+                    return newlyDownloadedUri;
                 }
             } catch (error) {
                 vscode.window.showErrorMessage(localize("APIOps", `Error downloading {0}: ${String(error)}}`, url));
+                return undefined;
             }
         }
+
+        return existingUri;
     }
 }
 

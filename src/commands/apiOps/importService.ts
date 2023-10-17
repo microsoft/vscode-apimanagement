@@ -3,6 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+import * as path from 'path';
 import { ProgressLocation, window } from "vscode";
 import { IActionContext } from 'vscode-azureextensionui';
 import * as Constants from '../../constants';
@@ -48,14 +49,19 @@ async function runPublisher(filePath: string, apimName: string, resourceGroupNam
 
     // Check our APIOps tooling has been downloaded
     const downloader = new ApiOpsTooling(ext.context, new ExtensionHelper());
-    await downloader.downloadGitHubReleaseIfMissing(Constants.publisherBinaryName);
+    const apiOpsToolUri = await downloader.downloadGitHubReleaseIfMissing(Constants.publisherBinaryName);
+
+    if (apiOpsToolUri === undefined) {
+        // The downloader will have already shown an error message
+        return;
+    }
 
     await azUtils.setSubscription(subscriptionId, ext.outputChannel);
 
     // It's not on the PATH so you need ./
     await cpUtils.executeCommand(
         ext.outputChannel,
-        await downloader.getDownloadStoragePath(),
+        path.dirname(apiOpsToolUri?.path),
         `./${Constants.publisherBinaryName}`,
         `AZURE_SUBSCRIPTION_ID=${subscriptionId}`,
         `API_MANAGEMENT_SERVICE_OUTPUT_FOLDER_PATH=${filePath}`,

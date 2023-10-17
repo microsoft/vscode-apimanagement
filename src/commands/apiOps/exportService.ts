@@ -77,7 +77,12 @@ async function runExtractor(filePath: string, apimName: string, resourceGroupNam
 
     // Check our APIOps tooling has been downloaded
     const downloader = new ApiOpsTooling(ext.context, new ExtensionHelper());
-    await downloader.downloadGitHubReleaseIfMissing(Constants.extractorBinaryName);
+    const apiOpsToolUri = await downloader.downloadGitHubReleaseIfMissing(Constants.extractorBinaryName);
+
+    if (apiOpsToolUri === undefined) {
+        // The downloader will have already shown an error message
+        return;
+    }
 
     await azUtils.setSubscription(subscriptionId, ext.outputChannel);
 
@@ -86,7 +91,7 @@ async function runExtractor(filePath: string, apimName: string, resourceGroupNam
     // It's not on the PATH so you need './'
     await cpUtils.executeCommand(
         ext.outputChannel,
-        await downloader.getDownloadStoragePath(),
+        path.dirname(apiOpsToolUri?.path),
         `./${Constants.extractorBinaryName}`,
         `AZURE_SUBSCRIPTION_ID=${subscriptionId}`,
         `API_MANAGEMENT_SERVICE_OUTPUT_FOLDER_PATH=${filePath}`,
