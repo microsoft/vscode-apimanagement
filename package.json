@@ -884,7 +884,6 @@
         "@azure/arm-apimanagement": "^6.0.0",
         "@azure/arm-appservice": "^7.0.0",
         "@azure/arm-resources": "^4.0.0",
-        "@microsoft/vscode-file-downloader-api": "^1.0.1",
         "@types/xml": "^1.0.4",
         "adal-node": "^0.2.2",
         "await-notify": "1.0.1",
