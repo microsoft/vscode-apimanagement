@@ -5,11 +5,11 @@
 import * as vscode from 'vscode';
 import { DialogResponses, IActionContext } from 'vscode-azureextensionui';
 import { localize } from '../localize';
-import { openUrl } from '../utils/openUrl';
-import FileDownloader from './IFileDownloader';
+import { IFileDownloader } from './IFileDownloader';
+import { openUrl } from './openUrl';
 
-export default class ExtensionHelper {
-    private _fileDownloaderExtension: vscode.Extension<FileDownloader> | undefined;
+export class ExtensionHelper {
+    private _fileDownloaderExtension: vscode.Extension<IFileDownloader> | undefined;
 
     public async checkCsharpExtensionInstalled(actionContext: IActionContext): Promise<void> {
         const csharpExtension = vscode.extensions.getExtension("ms-dotnettools.csharp") || vscode.extensions.getExtension("ms-vscode.csharp");
@@ -30,7 +30,7 @@ export default class ExtensionHelper {
         }
     }
 
-    public async getFileDownloaderApi(): Promise<FileDownloader> {
+    public async getFileDownloaderApi(): Promise<IFileDownloader> {
         if (this._fileDownloaderExtension == null) {
             const extension = vscode.extensions.getExtension(`mindaro-dev.file-downloader`);
             if (extension == null) {
@@ -44,4 +44,3 @@ export default class ExtensionHelper {
         return this._fileDownloaderExtension.exports;
     }
 }
-

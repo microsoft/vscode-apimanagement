@@ -12,6 +12,8 @@ import { AzExtTreeDataProvider, AzureParentTreeItem, AzureTreeItem, AzureUserInp
 import { addApiFilter } from './commands/addApiFilter';
 import { addApiToGateway } from './commands/addApiToGateway';
 import { addApiToProduct } from './commands/addApiToProduct';
+import { exportAPI, exportService } from './commands/apiOps/exportService';
+import { importService } from './commands/apiOps/importService';
 import { authorizeAuthorization } from './commands/authorizations/authorizeAuthorization';
 import { copyAuthorizationPolicy } from './commands/authorizations/copyAuthorizationPolicy';
 import { copyAuthorizationProviderRedirectUrl } from './commands/authorizations/copyAuthorizationProviderRedirectUrl';
@@ -23,7 +25,6 @@ import { createService } from './commands/createService';
 import { debugPolicy } from './commands/debugPolicies/debugPolicy';
 import { deleteNode } from './commands/deleteNode';
 import { copyDockerRunCommand, generateKubernetesDeployment } from './commands/deployGateway';
-import { exportAPI, exportService } from './commands/exportService';
 import { extractAPI, extractService } from './commands/extract';
 import { generateFunctions } from './commands/generateFunctions';
 import { generateNewGatewayToken } from './commands/generateNewGatewayToken';
@@ -79,8 +80,8 @@ import { ServiceTreeItem } from './explorer/ServiceTreeItem';
 import { SubscriptionTreeItem } from './explorer/SubscriptionTreeItem';
 import { ext } from './extensionVariables';
 import { localize } from './localize';
-import ApiOpsTooling from './utils/ApiOpsTooling';
-import ExtensionHelper from './utils/extensionUtil';
+import { ApiOpsTooling } from './utils/ApiOpsTooling';
+import { ExtensionHelper } from './utils/ExtensionHelper';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -115,8 +116,8 @@ export async function activateInternal(context: vscode.ExtensionContext) {
         activate(context); // activate debug context
 
         // Download Tooling in the background when the extension is activated.
-        // const apiOpsTooling = new ApiOpsTooling(ext.context, new ExtensionHelper());
-        // await apiOpsTooling.downloadExternalBinaries();
+        const apiOpsTooling = new ApiOpsTooling(ext.context, new ExtensionHelper());
+        await apiOpsTooling.downloadApiOpsFromGithubRelease();
     });
 }
 
@@ -142,6 +143,7 @@ function registerCommands(tree: AzExtTreeDataProvider): void {
     registerCommand('azureApiManagement.addApiToGateway', async (context: IActionContext, node?: GatewayApisTreeItem) => { await addApiToGateway(context, node); });
     registerCommand('azureApiManagement.apiops.exportService', async (context: IActionContext, node: ServiceTreeItem) => await exportService(context, node));
     registerCommand('azureApiManagement.apiops.exportApi', async (context: IActionContext, node: ApiTreeItem) => await exportAPI(context, node));
+    registerCommand('azureApiManagement.apiops.importService', async (context: IActionContext, node: ServiceTreeItem) => await importService(context, node));
     registerCommand('azureApiManagement.extractService', async (context: IActionContext, node: ServiceTreeItem) => await extractService(context, node));
     registerCommand('azureApiManagement.extractApi', async (context: IActionContext, node: ApiTreeItem) => await extractAPI(context, node));
     registerCommand('azureApiManagement.importFunctionApp', async (context: IActionContext, node: ApisTreeItem) => await importFunctionApp(context, node));
@@ -332,7 +334,6 @@ function registerEditors(context: vscode.ExtensionContext) : void {
         vscode.commands.executeCommand('setContext', 'isEditorEnabled', true);
     },              doubleClickDebounceDelay);
 }
-
 
 // this method is called when your extension is deactivated
 // tslint:disable:typedef

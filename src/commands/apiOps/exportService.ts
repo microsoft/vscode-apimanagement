@@ -8,16 +8,16 @@ import * as yaml from 'js-yaml';
 import * as path from 'path';
 import { ProgressLocation, Uri, window } from "vscode";
 import { IActionContext } from 'vscode-azureextensionui';
-import * as Constants from '../constants';
-import { ApiTreeItem } from '../explorer/ApiTreeItem';
-import { ServiceTreeItem } from '../explorer/ServiceTreeItem';
-import { ext } from '../extensionVariables';
-import { localize } from '../localize';
-import { azUtils } from '../utils/azUtils';
-import { cpUtils } from '../utils/cpUtils';
-import { askFolder } from '../utils/vscodeUtils';
-import ApiOpsTooling from '../utils/ApiOpsTooling';
-import ExtensionHelper from '../utils/extensionUtil';
+import * as Constants from '../../constants';
+import { ApiTreeItem } from '../../explorer/ApiTreeItem';
+import { ServiceTreeItem } from '../../explorer/ServiceTreeItem';
+import { ext } from '../../extensionVariables';
+import { localize } from '../../localize';
+import { ApiOpsTooling } from '../../utils/ApiOpsTooling';
+import { azUtils } from '../../utils/azUtils';
+import { cpUtils } from '../../utils/cpUtils';
+import { ExtensionHelper } from '../../utils/ExtensionHelper';
+import { askFolder } from '../../utils/vscodeUtils';
 
 export async function exportService(context: IActionContext, node?: ServiceTreeItem): Promise<void> {
     if (!node) {
@@ -77,7 +77,7 @@ async function runExtractor(filePath: string, apimName: string, resourceGroupNam
 
     // Check our APIOps tooling has been downloaded
     const downloader = new ApiOpsTooling(ext.context, new ExtensionHelper());
-    await downloader.downloadExternalBinary(Constants.extractorBinaryName);
+    await downloader.downloadGitHubReleaseIfMissing(Constants.extractorBinaryName);
 
     await azUtils.setSubscription(subscriptionId, ext.outputChannel);
 
@@ -101,7 +101,7 @@ async function runExtractor(filePath: string, apimName: string, resourceGroupNam
 // This file will be set using CONFIGURATION_YAML_PATH
 async function generateExtractConfig(templatesFolder: string, sourceApimName: string, apiName?: string): Promise<string> {
     const extractionConfigurationFilePath = path.join(templatesFolder, "configuration.extractor.yaml");
-    let extractionConfiguration = {};
+    let extractionConfiguration: object = {};
     let noticeContent = "";
 
     if (apiName) {

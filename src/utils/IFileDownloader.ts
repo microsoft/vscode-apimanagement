@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { ExtensionContext, CancellationToken, Uri } from "vscode";
+import { CancellationToken, ExtensionContext, Uri } from "vscode";
 
-export interface FileDownloadSettings {
+export interface IFileDownloadSettings {
     /**
      * Timeout in milliseconds for the request.
      * @default 5000
@@ -40,7 +40,7 @@ export interface FileDownloadSettings {
     headers?: Record<string, string | number | boolean> | undefined;
 }
 
-export default interface FileDownloader {
+export interface IFileDownloader {
     /**
      * Downloads a file from a URL and gives back the file path, file name, and a checksum. Allows you to specify the
      * timeout, the number of acceptable retries, whether or not to unzip the file, and whether or not to check the
@@ -62,7 +62,7 @@ export default interface FileDownloader {
         context: ExtensionContext,
         cancellationToken?: CancellationToken,
         onDownloadProgressChange?: (downloadedBytes: number, totalBytes: number | undefined) => void,
-        settings?: FileDownloadSettings
+        settings?: IFileDownloadSettings
     ): Promise<Uri>;
     /**
      * Returns the paths of all files that exist in the consumer extensions' download folder
