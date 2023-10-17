@@ -2,7 +2,7 @@
     "name": "vscode-apimanagement",
     "displayName": "Azure API Management",
     "description": "An Azure API Management extension for Visual Studio Code.",
-    "version": "1.0.8",
+    "version": "1.0.9",
     "publisher": "ms-azuretools",
     "icon": "resources/apim-icon-newone.png",
     "aiKey": "AIF-d9b70cd4-b9f9-4d70-929b-a071c400b217",
@@ -61,6 +61,9 @@
         "onCommand:azureApiManagement.setupWorkingFolder",
         "onCommand:azureApiManagement.extractService",
         "onCommand:azureApiManagement.extractApi",
+        "onCommand:azureApiManagement.apiops.exportService",
+        "onCommand:azureApiManagement.apiops.exportApi",
+        "onCommand:azureApiManagement.apiops.importService",
         "onCommand:azureApiManagement.importFunctionApp",
         "onCommand:azureApiManagement.importFunctionAppToApi",
         "onCommand:azureApiManagement.importWebApp",
@@ -323,6 +326,21 @@
                 "category": "Azure API Management"
             },
             {
+                "command": "azureApiManagement.apiops.exportService",
+                "title": "%azureApiManagement.apiops.exportService%",
+                "category": "Azure API Management"
+            },
+            {
+                "command": "azureApiManagement.apiops.exportApi",
+                "title": "%azureApiManagement.apiops.exportApi%",
+                "category": "Azure API Management"
+            },
+            {
+                "command": "azureApiManagement.apiops.importService",
+                "title": "%azureApiManagement.apiops.importService%",
+                "category": "Azure API Management"
+            },
+            {
                 "command": "azureApiManagement.importFunctionApp",
                 "title": "%azureApiManagement.importFunctionApp%",
                 "category": "Azure API Management"
@@ -544,14 +562,24 @@
                     "group": "2@1"
                 },
                 {
-                    "command": "azureApiManagement.Refresh",
+                    "command": "azureApiManagement.apiops.exportService",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementService",
                     "group": "3@1"
                 },
                 {
-                    "command": "azureApiManagement.deleteService",
+                    "command": "azureApiManagement.apiops.importService",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementService",
+                    "group": "3@1"
+                },
+                {
+                    "command": "azureApiManagement.Refresh",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementService",
                     "group": "4@1"
+                },
+                {
+                    "command": "azureApiManagement.deleteService",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementService",
+                    "group": "5@1"
                 },
                 {
                     "command": "azureApiManagement.importOpenApiByFile",
@@ -612,6 +640,11 @@
                     "command": "azureApiManagement.extractApi",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApi",
                     "group": "4@1"
+                },
+                {
+                    "command": "azureApiManagement.apiops.exportApi",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApi",
+                    "group": "4@2"
                 },
                 {
                     "command": "azureApiManagement.revisions",
@@ -823,6 +856,7 @@
         "@azure/ms-rest-js": "^2.7.0",
         "@types/fs-extra": "^4.0.3",
         "@types/gulp": "^4.0.6",
+        "@types/js-yaml": "^4.0.7",
         "@types/mocha": "^5.2.6",
         "@types/node": "^8.10.59",
         "@types/request": "^2.48.4",
@@ -872,7 +906,8 @@
     },
     "extensionDependencies": [
         "ms-vscode.azure-account",
-        "humao.rest-client"
+        "humao.rest-client",
+        "mindaro-dev.file-downloader"
     ],
     "overrides": {
         "fsevents": "~2.3.2"

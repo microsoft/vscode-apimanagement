@@ -1,5 +1,9 @@
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
 import * as vscode from 'vscode';
-import { DialogResponses } from "../../extension.bundle";
+import { DialogResponses, IAzExtOutputChannel } from "../../extension.bundle";
 import { localize } from "../localize";
 import { cpUtils } from "./cpUtils";
 import { openUrl } from "./openUrl";
@@ -25,6 +29,41 @@ export namespace azUtils {
             });
 
             throw new Error(message);
+        }
+    }
+
+    export async function setSubscription(subscriptionId: string, outputChannel: IAzExtOutputChannel): Promise<void> {
+
+        await checkAzInstalled();
+
+        // Assume that the user has already logged in - we can always log them in if this fails
+        const result = await cpUtils.tryExecuteCommand(
+            outputChannel,
+            undefined,
+            'az',
+            'account',
+            'set',
+            '--subscription',
+            subscriptionId
+        );
+
+        if (result.code !== 0) {
+            await cpUtils.executeCommand(
+                outputChannel,
+                undefined,
+                'az',
+                'login'
+            );
+
+            await cpUtils.executeCommand(
+                outputChannel,
+                undefined,
+                'az',
+                'account',
+                'set',
+                '--subscription',
+                subscriptionId
+            );
         }
     }
 }

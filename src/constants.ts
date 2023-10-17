@@ -102,3 +102,7 @@ export const emptyPolicyXml =
 </policies>`;
 
 export const sessionFolderKey = "currentSessionWorkingFolder";
+
+export const apiOpsToolingLocation = "https://api.github.com/repos/azure/apiops/releases/latest";
+export const extractorBinaryName = "extractor.linux-x64.exe";
+export const publisherBinaryName = "publisher.linux-x64.exe";
