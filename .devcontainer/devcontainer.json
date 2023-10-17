@@ -14,7 +14,8 @@
 				"dbaeumer.vscode-eslint",
 				"amodio.tsl-problem-matcher",
 				"ms-vscode.azure-account",
-				"humao.rest-client"
+				"humao.rest-client",
+				"mindaro-dev.file-downloader"
 			]
 		}
 	}

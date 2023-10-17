@@ -10,8 +10,8 @@ import { ext } from '../extensionVariables';
 import { localize } from '../localize';
 import { cpUtils } from '../utils/cpUtils';
 import { dotnetUtils } from '../utils/dotnetUtils';
-import { checkCsharpExtensionInstalled } from '../utils/extensionUtil';
 import { getDefaultWorkspacePath } from '../utils/fsUtil';
+import ExtensionHelper from '../utils/extensionUtil';
 
 export async function setupWorkingFolder(this: IActionContext): Promise<void> {
     ext.outputChannel.appendLine(localize("folderInitialized", "Initialization started..."));
@@ -20,7 +20,8 @@ export async function setupWorkingFolder(this: IActionContext): Promise<void> {
     await dotnetUtils.validateDotnetInstalled(this);
 
     // check vscode csharp extension is installed.
-    checkCsharpExtensionInstalled(this);
+    const extensionHelper = new ExtensionHelper();
+    extensionHelper.checkCsharpExtensionInstalled(this);
 
     const workingFolderPath = getDefaultWorkspacePath();
 

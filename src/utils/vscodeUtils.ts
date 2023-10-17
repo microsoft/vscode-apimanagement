@@ -89,3 +89,19 @@ async function workingFolderInitialized() : Promise<boolean> {
     const workingFolderPath = getDefaultWorkspacePath();
     return await fse.pathExists(path.join(workingFolderPath, `${extensionName}.csproj`));
 }
+
+export async function askFolder(folderLabel: string): Promise<vscode.Uri> {
+    const openDialogOptions: vscode.OpenDialogOptions = {
+        canSelectFiles: false,
+        canSelectFolders: true,
+        canSelectMany: false,
+        openLabel: folderLabel
+    };
+
+    const rootPath = vscode.workspace.rootPath;
+    if (rootPath) {
+        openDialogOptions.defaultUri = vscode.Uri.file(rootPath);
+    }
+    const uris = await ext.ui.showOpenDialog(openDialogOptions);
+    return uris[0];
+}
