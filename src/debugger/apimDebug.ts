@@ -2,6 +2,7 @@
  * Copyright (C) Microsoft Corporation. All rights reserved.
  *--------------------------------------------------------*/
 
+import { delay } from "@azure/ms-rest-js";
 import { TokenCredentialsBase } from "@azure/ms-rest-nodeauth";
 import * as request from 'request-promise-native';
 import * as vscode from 'vscode';
@@ -17,7 +18,6 @@ import { DebuggerConnection, RequestContract } from './debuggerConnection';
 import { PolicySource } from './policySource';
 import { UiRequest } from './uiRequest';
 import { UiThread } from './uiThread';
-import { delay } from "@azure/ms-rest-js";
 
 // tslint:disable: no-unsafe-any
 // tslint:disable: indent
@@ -430,8 +430,7 @@ export class ApimDebugSession extends LoggingDebugSession {
 			}
 		});
 
-		if (!subscription.properties.allowTracing)
-		{
+		if (!subscription.properties.allowTracing) {
 			await request.patch(resourceUrl, {
 				headers: {
 					Authorization: authToken
