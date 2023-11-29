@@ -7,7 +7,7 @@ import * as request from 'request-promise-native';
 import * as vscode from 'vscode';
 import { Breakpoint, Handles, InitializedEvent, Logger, logger, LoggingDebugSession, OutputEvent, Scope, StackFrame, StoppedEvent, TerminatedEvent, Thread, ThreadEvent, Variable } from 'vscode-debugadapter';
 import { DebugProtocol } from 'vscode-debugprotocol';
-import { IArmResource, IMasterSubscriptionsSecrets, IPaged } from "../azure/apim/contracts";
+import { IArmResource, IMasterSubscription, IMasterSubscriptionsSecrets, IPaged } from "../azure/apim/contracts";
 import * as Constants from "../constants";
 import { localize } from "../localize";
 import { createTemporaryFile } from "../utils/fsUtil";
@@ -17,6 +17,7 @@ import { DebuggerConnection, RequestContract } from './debuggerConnection';
 import { PolicySource } from './policySource';
 import { UiRequest } from './uiRequest';
 import { UiThread } from './uiThread';
+import { delay } from "@azure/ms-rest-js";
 
 // tslint:disable: no-unsafe-any
 // tslint:disable: indent
@@ -90,11 +91,13 @@ export class ApimDebugSession extends LoggingDebugSession {
 			this.policySource = new PolicySource(args.managementAddress, undefined, args.managementAuth);
 			masterKey = await this.getMasterSubscriptionKey(args.managementAddress, undefined, args.managementAuth);
 			this.availablePolicies = await this.getAvailablePolicies(args.managementAddress, undefined, args.managementAuth);
+			await this.ensureMasterSubscriptionTracing(args.managementAddress, undefined, args.managementAuth);
 		} else {
 			const credential = await this.getAccountCredentials(args.subscriptionId);
 			this.policySource = new PolicySource(args.managementAddress, credential);
 			masterKey = await this.getMasterSubscriptionKey(args.managementAddress, credential);
 			this.availablePolicies = await this.getAvailablePolicies(args.managementAddress, credential);
+			await this.ensureMasterSubscriptionTracing(args.managementAddress, credential);
 		}
 
 		await this.runtime.attach(args.gatewayAddress, masterKey, !!args.stopOnEntry);
@@ -384,13 +387,13 @@ export class ApimDebugSession extends LoggingDebugSession {
 		if (azureAccount.status !== 'LoggedIn') {
 			throw new Error("ERROR!");
 		}
-		const creds = azureAccount.filters.filter(filter => filter.subscription.subscriptionId === subscriptionId).map(filter => filter.session.credentials);
+		const creds = azureAccount.filters.filter(filter => filter.subscription.subscriptionId === subscriptionId).map(filter => filter.session.credentials2 || filter.session.credentials);
 		return creds[0];
 	}
 
 	private async getMasterSubscriptionKey(managementAddress: string, credential?: TokenCredentialsBase, managementAuth?: string) {
 		const resourceUrl = `${managementAddress}/subscriptions/master/listSecrets?api-version=${Constants.apimApiVersion}`;
-		const authToken = managementAuth ? managementAuth : await getBearerToken(resourceUrl, "GET", credential!);
+		const authToken = managementAuth ? managementAuth : await getBearerToken(credential!);
 		const subscription: IMasterSubscriptionsSecrets = await request.post(resourceUrl, {
 			headers: {
 				Authorization: authToken
@@ -409,9 +412,53 @@ export class ApimDebugSession extends LoggingDebugSession {
 		return subscription.primaryKey;
 	}
 
+	private async ensureMasterSubscriptionTracing(managementAddress: string, credential?: TokenCredentialsBase, managementAuth?: string) {
+		const resourceUrl = `${managementAddress}/subscriptions/master?api-version=${Constants.apimApiVersion}`;
+		const authToken = managementAuth ? managementAuth : await getBearerToken(credential!);
+		const subscription: IMasterSubscription = await request.get(resourceUrl, {
+			headers: {
+				Authorization: authToken
+			},
+			strictSSL: false,
+			json: true
+		}).on('error', _e => {
+			this.sendEvent(new TerminatedEvent());
+		}).on('response', e => {
+			if (e.statusCode !== 200) {
+				this.sendEvent(new OutputEvent(localize("", `Error fetching master subscription: ${e.statusCode} ${e.statusMessage}`, 'stderr')));
+				this.sendEvent(new TerminatedEvent());
+			}
+		});
+
+		if (!subscription.properties.allowTracing)
+		{
+			await request.patch(resourceUrl, {
+				headers: {
+					Authorization: authToken
+				},
+				strictSSL: false,
+				json: true,
+				body: {
+					properties: {
+						allowTracing: true
+					}
+				}
+			}).on('error', _e => {
+				this.sendEvent(new TerminatedEvent());
+			}).on('response', e => {
+				if (e.statusCode >= 400) {
+					this.sendEvent(new OutputEvent(localize("", `Error fetching master subscription: ${e.statusCode} ${e.statusMessage}`, 'stderr')));
+					this.sendEvent(new TerminatedEvent());
+				}
+			});
+
+			await delay(10 * 1000);
+		}
+	}
+
 	private async getAvailablePolicies(managementAddress: string, credential?: TokenCredentialsBase, managementAuth?: string) {
 		const resourceUrl = `${managementAddress}/policyDescriptions?api-version=${Constants.apimApiVersion}`;
-		const authToken = managementAuth ? managementAuth : await getBearerToken(resourceUrl, "GET", credential!);
+		const authToken = managementAuth ? managementAuth : await getBearerToken(credential!);
 		const policyDescriptions: IPaged<IArmResource> = await request.get(resourceUrl, {
 			headers: {
 				Authorization: authToken
