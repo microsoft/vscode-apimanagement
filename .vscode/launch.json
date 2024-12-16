@@ -58,7 +58,7 @@
             "outFiles": [
                 "${workspaceFolder}/out/**/*.js"
             ],
-            "preLaunchTask": "npm: compile",
+            "preLaunchTask": "npm: build",
             "env": {
                 "AZCODE_APIM_IGNORE_BUNDLE": "1",
                 "MOCHA_grep": "", // RegExp of tests to run (empty for all)
