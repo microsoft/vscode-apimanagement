@@ -6,7 +6,7 @@
 import { ApiManagementModels } from "@azure/arm-apimanagement";
 import { ApiManagementServiceResource } from "@azure/arm-apimanagement/src/models";
 import { MessageItem, Progress, window } from "vscode";
-import { AzureWizardExecuteStep } from "vscode-azureextensionui";
+import { AzureWizardExecuteStep } from "@microsoft/vscode-azext-utils";
 import { ext } from "../../extensionVariables";
 import { localize } from "../../localize";
 import { nonNullProp, nonNullValueAndProp } from "../../utils/nonNull";

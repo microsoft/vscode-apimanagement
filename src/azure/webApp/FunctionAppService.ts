@@ -5,7 +5,7 @@
 
 import { HttpMethods, HttpOperationResponse, ParameterValue, ServiceClient } from "@azure/ms-rest-js";
 import { TokenCredentialsBase } from "@azure/ms-rest-nodeauth";
-import { createGenericClient } from "vscode-azureextensionui";
+import { clientOptions } from "../clientOptions";
 import * as Constants from "../../constants";
 import { nonNullOrEmptyValue } from "../../utils/nonNull";
 import { IFunctionKeys, IWebAppContract } from "./contracts";
@@ -88,7 +88,7 @@ export class FunctionAppService {
 
     // tslint:disable-next-line: no-any
     private async request(url: string, method: HttpMethods, queryParameters?: { [key: string]: any | ParameterValue }, body?: any): Promise<HttpOperationResponse> {
-        const client: ServiceClient = await createGenericClient(this.credentials);
+        const client: ServiceClient = new ServiceClient(this.credentials, clientOptions);
         return await client.sendRequest({
             method: method,
             url: url,

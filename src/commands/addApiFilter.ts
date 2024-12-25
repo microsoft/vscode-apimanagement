@@ -4,7 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { ApiCollection } from "@azure/arm-apimanagement/src/models";
-import { IActionContext } from "vscode-azureextensionui";
+import { IActionContext } from "@microsoft/vscode-azext-utils";
 import { ApisTreeItem } from "../explorer/ApisTreeItem";
 import { ServiceTreeItem } from '../explorer/ServiceTreeItem';
 import { ext } from "../extensionVariables";

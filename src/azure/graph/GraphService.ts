@@ -6,7 +6,7 @@
 import { HttpOperationResponse, ServiceClient } from "@azure/ms-rest-js";
 import { TokenCredentialsBase } from "@azure/ms-rest-nodeauth";
 import { TokenResponse } from "adal-node";
-import { createGenericClient } from "vscode-azureextensionui";
+import { clientOptions } from "../clientOptions";
 import { ext } from "../../extensionVariables";
 import { nonNullValue } from "../../utils/nonNull";
 
@@ -34,7 +34,7 @@ export class GraphService {
 
     // tslint:disable-next-line:no-any
     public async getUser(emailId: string): Promise<{ userPrincipalName: string, objectId: string } | undefined> {
-        const client: ServiceClient = await createGenericClient();
+        const client: ServiceClient = new ServiceClient(this.credentials, clientOptions);
         const result: HttpOperationResponse = await client.sendRequest({
             method: "GET",
             url: `${this.graphEndpoint}/${this.tenantId}/users/${emailId}`,
@@ -55,7 +55,7 @@ export class GraphService {
 
      // tslint:disable-next-line:no-any
     public async getGroup(displayNameOrEmail: string): Promise<{ displayName: string, objectId: string } | undefined> {
-        const client: ServiceClient = await createGenericClient();
+        const client: ServiceClient = new ServiceClient(this.credentials, clientOptions);
         const result: HttpOperationResponse = await client.sendRequest({
             method: "GET",
             url: `${this.graphEndpoint}/${this.tenantId}/groups?$filter=securityEnabled eq true and (startswith(displayName,'${displayNameOrEmail}') or startswith(mail,'${displayNameOrEmail}'))&$top=1`,
@@ -77,7 +77,7 @@ export class GraphService {
 
      // tslint:disable-next-line:no-any
     public async getServicePrincipal(displayName: string): Promise<{ displayName: string, objectId: string } | undefined> {
-        const client: ServiceClient = await createGenericClient();
+        const client: ServiceClient = new ServiceClient(this.credentials, clientOptions);
         const result: HttpOperationResponse = await client.sendRequest({
             method: "GET",
             url: `${this.graphEndpoint}/${this.tenantId}/servicePrincipals?$filter=startswith(displayName,'${displayName}')&$top=1`,

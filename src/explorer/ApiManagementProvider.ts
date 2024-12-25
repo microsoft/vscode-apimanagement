@@ -3,10 +3,10 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ApiManagementClient, ApiManagementModels } from '@azure/arm-apimanagement';
-import { ApiManagementServiceListResponse } from '@azure/arm-apimanagement/src/models';
+import { ApiManagementClient, ApiManagementServiceResource } from '@azure/arm-apimanagement';
 import { MessageItem } from 'vscode';
-import { AzExtTreeItem, AzureParentTreeItem, AzureWizard, AzureWizardExecuteStep, AzureWizardPromptStep, createAzureClient, ICreateChildImplContext, IErrorHandlingContext, LocationListStep, parseError, ResourceGroupCreateStep, ResourceGroupListStep, SubscriptionTreeItemBase } from 'vscode-azureextensionui';
+import { AzExtTreeItem, AzExtParentTreeItem, AzureWizard, AzureWizardExecuteStep, AzureWizardPromptStep, ICreateChildImplContext, parseError, IActionContext } from '@microsoft/vscode-azext-utils';
+import { createAzureClient, LocationListStep, ResourceGroupCreateStep, ResourceGroupListStep, SubscriptionTreeItemBase, uiUtils } from '@microsoft/vscode-azext-azureutils';
 import { IServiceWizardContext } from '../commands/createService/IServiceWizardContext';
 import { ServiceCreateStep } from '../commands/createService/ServiceCreateStep';
 import { ServiceNameStep } from '../commands/createService/ServiceNameStep';
@@ -27,17 +27,17 @@ export class ApiManagementProvider extends SubscriptionTreeItemBase {
         return this._nextLink !== undefined;
     }
 
-    public async loadMoreChildrenImpl(clearCache: boolean): Promise<AzExtTreeItem[]> {
+    public async loadMoreChildrenImpl(clearCache: boolean, context: IActionContext): Promise<AzExtTreeItem[]> {
         if (clearCache) {
             this._nextLink = undefined;
         }
 
-        const client: ApiManagementClient = createAzureClient(this.root, ApiManagementClient);
-        let apiManagementServiceListResponse: ApiManagementServiceListResponse;
+        const client: ApiManagementClient = createAzureClient([context, this], ApiManagementClient);
+        // Load more currently broken https://github.com/Azure/azure-sdk-for-js/issues/20380
+        // TODO: Add pagination back when issue fixed
+        let serviceCollection: ApiManagementServiceResource[];
         try {
-            apiManagementServiceListResponse = this._nextLink === undefined ?
-                await client.apiManagementService.list() :
-                await client.apiManagementService.listNext(this._nextLink);
+            serviceCollection = await uiUtils.listAllIterator(client.apiManagementService.list());
         } catch (error) {
             if (parseError(error).errorType.toLowerCase() === 'notfound') {
                 // This error type means the 'Microsoft.ApiManagement' provider has not been registered in this subscription
@@ -49,37 +49,32 @@ export class ApiManagementProvider extends SubscriptionTreeItemBase {
             }
         }
 
-        this._nextLink = apiManagementServiceListResponse._response.parsedBody.nextLink;
-
         return await this.createTreeItemsWithErrorHandling(
-            apiManagementServiceListResponse._response.parsedBody,
+            serviceCollection,
             "invalidApiManagementService",
-            (service: ApiManagementModels.ApiManagementServiceResource) => new ServiceTreeItem(this, client, service),
-            (service: ApiManagementModels.ApiManagementServiceResource) => {
+            (service: ApiManagementServiceResource) => new ServiceTreeItem(this, client, service),
+            (service: ApiManagementServiceResource) => {
                 return service.name;
             });
     }
 
     // what are we doing here
-    public async createChildImpl(context: ICreateChildImplContext): Promise<AzureParentTreeItem> {
+    public async createChildImpl(context: ICreateChildImplContext): Promise<AzExtParentTreeItem> {
         //const actionContext: ICreateChildImplContext = context;
-        const client: ApiManagementClient = createAzureClient(this.root, ApiManagementClient);
-
-        const errorhandler: IErrorHandlingContext = {
-            issueProperties: {}
-        };
+        const client: ApiManagementClient = createAzureClient([context, this], ApiManagementClient);
 
         // question
         const wizardContext: IServiceWizardContext = {
             client: client,
-            subscriptionId: this.root.subscriptionId,
-            subscriptionDisplayName: this.root.subscriptionDisplayName,
-            credentials: this.root.credentials,
-            environment: this.root.environment,
+            subscriptionId: this.subscription.subscriptionId,
+            subscriptionDisplayName: this.subscription.subscriptionDisplayName,
+            credentials: this.subscription.credentials,
+            environment: this.subscription.environment,
             subscriptionPath: "", // keep it this way for now
-            userId: this.root.userId,
+            userId: this.subscription.userId,
             tenantId: "",
-            errorHandling: errorhandler, // keep it empty for now
+            createCredentialsForScopes: this.subscription.createCredentialsForScopes,
+            isCustomCloud: this.subscription.isCustomCloud,
             ...context
         };
 
@@ -87,7 +82,7 @@ export class ApiManagementProvider extends SubscriptionTreeItemBase {
         const executeSteps: AzureWizardExecuteStep<IServiceWizardContext>[] = [];
 
         promptSteps.push(new ServiceNameStep());
-        wizardContext.email = this.root.userId;
+        wizardContext.email = this.subscription.userId;
 
         const advancedCreationKey: string = 'advancedCreation';
         // tslint:disable-next-line: strict-boolean-expressions
@@ -137,7 +132,7 @@ export class ApiManagementProvider extends SubscriptionTreeItemBase {
             throw error;
         }
 
-        const service: ApiManagementModels.ApiManagementServiceResource = nonNullProp(wizardContext, 'service');
+        const service: ApiManagementServiceResource = nonNullProp(wizardContext, 'service');
         return new ServiceTreeItem(this, client, service);
     }
 }
