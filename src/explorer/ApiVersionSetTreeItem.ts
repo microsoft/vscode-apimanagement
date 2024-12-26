@@ -4,13 +4,13 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { ApiContract, ApiVersionSetContractDetails } from "@azure/arm-apimanagement/src/models";
-import { AzureParentTreeItem, AzureTreeItem } from "vscode-azureextensionui";
+import { AzExtParentTreeItem, AzExtTreeItem } from "@microsoft/vscode-azext-utils";
 import { nonNullProp, nonNullValue } from "../utils/nonNull";
 import { treeUtils } from "../utils/treeUtils";
 import { ApiTreeItem } from "./ApiTreeItem";
 import { IServiceTreeRoot } from "./IServiceTreeRoot";
 
-export class ApiVersionSetTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
+export class ApiVersionSetTreeItem extends AzExtParentTreeItem {
     public static contextValue: string = 'azureApiManagementApiVersionSet';
     public contextValue: string = ApiVersionSetTreeItem.contextValue;
 
@@ -18,7 +18,7 @@ export class ApiVersionSetTreeItem extends AzureParentTreeItem<IServiceTreeRoot>
     private _apiVersionSet: ApiVersionSetContractDetails;
 
     constructor(
-        parent: AzureParentTreeItem,
+        parent: AzExtParentTreeItem,
         public readonly initialApi: ApiContract) {
         super(parent);
         this._apis.push(initialApi);
@@ -43,7 +43,7 @@ export class ApiVersionSetTreeItem extends AzureParentTreeItem<IServiceTreeRoot>
         return treeUtils.getThemedIconPath('list');
     }
 
-    public async loadMoreChildrenImpl(): Promise<AzureTreeItem<IServiceTreeRoot>[]> {
+    public async loadMoreChildrenImpl(): Promise<AzExtTreeItem[]> {
         const apis = this._apis.map(async (api) => new ApiTreeItem(this, api, api.apiVersion ? api.apiVersion : "Original"));
         return Promise.all(apis);
     }

@@ -3,9 +3,9 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ApiManagementClient, ApiManagementModels } from "@azure/arm-apimanagement";
+import { ApiManagementClient, ApiManagementServiceResource } from "@azure/arm-apimanagement";
 import { ProgressLocation, window } from "vscode";
-import { AzureParentTreeItem, AzureTreeItem, DialogResponses, ISubscriptionContext, UserCancelledError } from "vscode-azureextensionui";
+import { AzExtParentTreeItem, AzExtTreeItem, DialogResponses, ISubscriptionContext, UserCancelledError } from "@microsoft/vscode-azext-utils";
 import { localize } from "../localize";
 import { getResourceGroupFromId } from "../utils/azure";
 import { nonNullProp, nonNullValue } from "../utils/nonNull";
@@ -29,7 +29,7 @@ import { ProductTreeItem } from "./ProductTreeItem";
 import { ServicePolicyTreeItem } from "./ServicePolicyTreeItem";
 import { SubscriptionsTreeItem } from "./SubscriptionsTreeItem";
 
-export class ServiceTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
+export class ServiceTreeItem extends AzExtParentTreeItem {
 
     public get root(): IServiceTreeRoot {
         return this._root;
@@ -56,15 +56,15 @@ export class ServiceTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
     private _root: IServiceTreeRoot;
 
     constructor(
-        parent: AzureParentTreeItem,
+        parent: AzExtParentTreeItem,
         public readonly apiManagementClient: ApiManagementClient,
-        public readonly apiManagementService: ApiManagementModels.ApiManagementServiceResource) {
+        public readonly apiManagementService: ApiManagementServiceResource) {
         super(parent);
 
-        this._root = this.createRoot(parent.root, apiManagementClient);
+        this._root = this.createRoot(parent.subscription, apiManagementClient);
         this.servicePolicyTreeItem = new ServicePolicyTreeItem(this);
-        this.apisTreeItem = new ApisTreeItem(this);
-        this.productsTreeItem = new ProductsTreeItem(this);
+        this.apisTreeItem = new ApisTreeItem(this, this.root);
+        this.productsTreeItem = new ProductsTreeItem(this, this.root);
         this.namedValuesTreeItem = new NamedValuesTreeItem(this);
         this.subscriptionsTreeItem = new SubscriptionsTreeItem(this);
         //parent.iconPath =
@@ -77,11 +77,11 @@ export class ServiceTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
         this.authorizationProvidersTreeItem = new AuthorizationProvidersTreeItem(this);
     }
 
-    public static createEnvironmentTreeItem(parent: AzureParentTreeItem, apiManagementClient: ApiManagementClient, apiManagementService: ApiManagementModels.ApiManagementServiceResource): ServiceTreeItem {
+    public static createEnvironmentTreeItem(parent: AzExtParentTreeItem, apiManagementClient: ApiManagementClient, apiManagementService: ApiManagementServiceResource): ServiceTreeItem {
         return new ServiceTreeItem(parent, apiManagementClient, apiManagementService);
     }
 
-    public async loadMoreChildrenImpl(): Promise<AzureTreeItem<IServiceTreeRoot>[]> {
+    public async loadMoreChildrenImpl(): Promise<AzExtTreeItem[]> {
         if (this.gatewaysTreeItem === undefined) {
             return [this.apisTreeItem, this.namedValuesTreeItem, this.productsTreeItem, this.servicePolicyTreeItem, this.subscriptionsTreeItem, this.authorizationProvidersTreeItem];
         }
@@ -98,7 +98,7 @@ export class ServiceTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
         if (result === DialogResponses.deleteResponse) {
             const deletingMessage: string = localize("deletingService", `Deleting API Management instance "${this.root.serviceName}"...`);
             await window.withProgress({ location: ProgressLocation.Notification, title: deletingMessage }, async () => {
-                await this.root.client.apiManagementService.deleteMethod(this.root.resourceGroupName, this.root.serviceName);
+                await this.root.client.apiManagementService.beginDelete(this.root.resourceGroupName, this.root.serviceName);
             });
             // don't wait
             window.showInformationMessage(localize("deletedService", `Successfully deleted API Management instance "${this.root.serviceName}".`));
@@ -118,7 +118,7 @@ export class ServiceTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
         return "";
     }
 
-    public pickTreeItemImpl(expectedContextValues: (string | RegExp)[]): AzureTreeItem<IServiceTreeRoot> | undefined {
+    public pickTreeItemImpl(expectedContextValues: (string | RegExp)[]): AzExtTreeItem | undefined {
         for (const expectedContextValue of expectedContextValues) {
             switch (expectedContextValue) {
                 case ApiTreeItem.contextValue:
