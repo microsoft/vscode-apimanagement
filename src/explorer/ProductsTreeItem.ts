@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { Product, ProductContract } from "@azure/arm-apimanagement";
+import { ProductContract } from "@azure/arm-apimanagement";
 import { AzExtParentTreeItem, AzExtTreeItem } from "@microsoft/vscode-azext-utils";
 import { uiUtils } from "@microsoft/vscode-azext-azureutils";
 import { topItemCount } from "../constants";
@@ -43,8 +43,8 @@ export class ProductsTreeItem extends AzExtParentTreeItem {
         return this.createTreeItemsWithErrorHandling(
             productCollection,
             "invalidApiManagementProduct",
-            async (product: Product) => new ProductTreeItem(this, product),
-            (product: Product) => {
+            async (product: ProductContract) => new ProductTreeItem(this, product, this.root),
+            (product: ProductContract) => {
                 return product.name;
             });
     }

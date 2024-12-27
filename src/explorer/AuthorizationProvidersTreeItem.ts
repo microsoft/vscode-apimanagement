@@ -1,11 +1,10 @@
-
 /*---------------------------------------------------------------------------------------------
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 import { ProgressLocation, window } from "vscode";
-import { AzExtTreeItem, AzureParentTreeItem, ICreateChildImplContext } from "vscode-azureextensionui";
+import { AzExtParentTreeItem, AzExtTreeItem, ICreateChildImplContext } from "@microsoft/vscode-azext-utils";
 import { ApimService } from "../azure/apim/ApimService";
 import { IAuthorizationProviderContract, IAuthorizationProviderOAuth2GrantTypesContract, IAuthorizationProviderPropertiesContract, IGrantTypesContract, ITokenStoreGrantTypeParameterContract, ITokenStoreIdentityProviderContract } from "../azure/apim/contracts";
 import { askAuthorizationProviderParameterValues, askId } from "../commands/authorizations/common";
@@ -21,7 +20,7 @@ export interface IAuthorizationProviderTreeItemContext extends ICreateChildImplC
     authorizationProvider: IAuthorizationProviderPropertiesContract;
 }
 
-export class AuthorizationProvidersTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
+export class AuthorizationProvidersTreeItem extends AzExtParentTreeItem {
     public get iconPath(): { light: string, dark: string } {
         return treeUtils.getThemedIconPath('list');
     }
@@ -31,6 +30,12 @@ export class AuthorizationProvidersTreeItem extends AzureParentTreeItem<IService
     public contextValue: string = AuthorizationProvidersTreeItem.contextValue;
     private _nextLink: string | undefined;
     private apimService: ApimService;
+    public readonly root: IServiceTreeRoot;
+
+    constructor(parent: AzExtParentTreeItem, root: IServiceTreeRoot) {
+        super(parent);
+        this.root = root;
+    }
 
     public hasMoreChildrenImpl(): boolean {
         return this._nextLink !== undefined;
@@ -53,7 +58,7 @@ export class AuthorizationProvidersTreeItem extends AzureParentTreeItem<IService
         return this.createTreeItemsWithErrorHandling(
             tokenProviders,
             "invalidApiManagementAuthorizationProvider",
-            async (authorizationProvider: IAuthorizationProviderContract) => new AuthorizationProviderTreeItem(this, authorizationProvider),
+            async (authorizationProvider: IAuthorizationProviderContract) => new AuthorizationProviderTreeItem(this, authorizationProvider, this.root),
             (authorizationProvider: IAuthorizationProviderContract) => {
                 return authorizationProvider.name;
             });
@@ -82,7 +87,7 @@ export class AuthorizationProvidersTreeItem extends AzureParentTreeItem<IService
                             ext.outputChannel.appendLine(message);
                             window.showWarningMessage(localize("redirectUrlMessage", message));
                             window.showInformationMessage(localize("createdAuthorizationProvider", `Created Authorization provider '${context.name}'.`));
-                            return new AuthorizationProviderTreeItem(this, authorizationProvider);
+                            return new AuthorizationProviderTreeItem(this, authorizationProvider, this.root);
                         } else {
                             throw new Error(localize("createAuthorizationProvider", `Authorization provider '${authorizationProviderName}' already exists.`));
                         }

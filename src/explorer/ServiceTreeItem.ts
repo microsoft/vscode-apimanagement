@@ -65,16 +65,16 @@ export class ServiceTreeItem extends AzExtParentTreeItem {
         this.servicePolicyTreeItem = new ServicePolicyTreeItem(this);
         this.apisTreeItem = new ApisTreeItem(this, this.root);
         this.productsTreeItem = new ProductsTreeItem(this, this.root);
-        this.namedValuesTreeItem = new NamedValuesTreeItem(this);
-        this.subscriptionsTreeItem = new SubscriptionsTreeItem(this);
+        this.namedValuesTreeItem = new NamedValuesTreeItem(this, this.root);
+        this.subscriptionsTreeItem = new SubscriptionsTreeItem(this, this.root);
         //parent.iconPath =
 
         const sku = nonNullValue(this.apiManagementService.sku.name);
         if (sku === 'Developer' || sku === 'Premium') {
-            this.gatewaysTreeItem = new GatewaysTreeItem(this);
+            this.gatewaysTreeItem = new GatewaysTreeItem(this, this.root);
         }
 
-        this.authorizationProvidersTreeItem = new AuthorizationProvidersTreeItem(this);
+        this.authorizationProvidersTreeItem = new AuthorizationProvidersTreeItem(this, this.root);
     }
 
     public static createEnvironmentTreeItem(parent: AzExtParentTreeItem, apiManagementClient: ApiManagementClient, apiManagementService: ApiManagementServiceResource): ServiceTreeItem {

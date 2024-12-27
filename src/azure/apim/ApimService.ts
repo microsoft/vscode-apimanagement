@@ -4,7 +4,6 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { HttpOperationResponse, ServiceClient } from "@azure/ms-rest-js";
-import { TokenCredentialsBase } from "@azure/ms-rest-nodeauth";
 import { clientOptions } from "../clientOptions";
 import * as Constants from "../../constants";
 import {
@@ -22,17 +21,18 @@ import {
     IMasterSubscriptionsSecrets,
     ITokenStoreIdentityProviderContract
 } from "./contracts";
+import { AzExtServiceClientCredentials } from "@microsoft/vscode-azext-utils";
 
 export class ApimService {
     public baseUrl: string;
-    public credentials: TokenCredentialsBase;
+    public credentials: AzExtServiceClientCredentials;
     public endPointUrl: string;
     public subscriptionId: string;
     public resourceGroup: string;
     public serviceName: string;
     private readonly authorizationProviderApiVersion: string = "2021-12-01-preview";
 
-    constructor(credentials: TokenCredentialsBase, endPointUrl: string, subscriptionId: string, resourceGroup: string, serviceName: string) {
+    constructor(credentials: AzExtServiceClientCredentials, endPointUrl: string, subscriptionId: string, resourceGroup: string, serviceName: string) {
         this.baseUrl = this.genSiteUrl(endPointUrl, subscriptionId, resourceGroup, serviceName);
         this.credentials = credentials;
         this.endPointUrl = endPointUrl;

@@ -8,7 +8,6 @@ import { AzExtParentTreeItem, AzExtTreeItem } from "@microsoft/vscode-azext-util
 import { nonNullProp, nonNullValue } from "../utils/nonNull";
 import { treeUtils } from "../utils/treeUtils";
 import { ApiTreeItem } from "./ApiTreeItem";
-import { IServiceTreeRoot } from "./IServiceTreeRoot";
 
 export class ApiVersionSetTreeItem extends AzExtParentTreeItem {
     public static contextValue: string = 'azureApiManagementApiVersionSet';

@@ -3,8 +3,8 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ApiManagementModels } from "@azure/arm-apimanagement";
-import { AzureParentTreeItem, AzureTreeItem, ISubscriptionContext } from "vscode-azureextensionui";
+import { ProductContract } from "@azure/arm-apimanagement";
+import { AzExtParentTreeItem, AzExtTreeItem, ISubscriptionContext } from "@microsoft/vscode-azext-utils";
 import { nonNullProp } from "../utils/nonNull";
 import { treeUtils } from "../utils/treeUtils";
 import { IProductTreeRoot } from "./IProductTreeRoot";
@@ -13,10 +13,9 @@ import { ProductApisTreeItem } from "./ProductApisTreeItem";
 import { ProductPolicyTreeItem } from "./ProductPolicyTreeItem";
 import { ProductsTreeItem } from "./ProductsTreeItem";
 
-export class ProductTreeItem extends AzureParentTreeItem<IProductTreeRoot> {
+export class ProductTreeItem extends AzExtParentTreeItem {
     public static contextValue: string = 'azureApiManagementProductTreeItem';
     public contextValue: string = ProductTreeItem.contextValue;
-    public readonly commandId: string = 'azureApiManagement.showArmProduct';
     public readonly policyTreeItem: ProductPolicyTreeItem;
     public readonly productApisTreeItem: ProductApisTreeItem;
 
@@ -25,12 +24,13 @@ export class ProductTreeItem extends AzureParentTreeItem<IProductTreeRoot> {
 
     constructor(
         parent: ProductsTreeItem,
-        public readonly productContract: ApiManagementModels.ProductContract) {
+        public readonly productContract: ProductContract,
+        root: IServiceTreeRoot) {
         super(parent);
         this._label = nonNullProp(this.productContract, 'displayName');
-        this._root = this.createRoot(parent.root);
+        this._root = this.createRoot(root);
 
-        this.productApisTreeItem = new ProductApisTreeItem(this);
+        this.productApisTreeItem = new ProductApisTreeItem(this, this.root);
         this.policyTreeItem = new ProductPolicyTreeItem(this);
     }
 
@@ -50,7 +50,7 @@ export class ProductTreeItem extends AzureParentTreeItem<IProductTreeRoot> {
         return false;
     }
 
-    public async loadMoreChildrenImpl(): Promise<AzureTreeItem<IProductTreeRoot>[]> {
+    public async loadMoreChildrenImpl(): Promise<AzExtTreeItem[]> {
         return [this.productApisTreeItem, this.policyTreeItem];
     }
 
@@ -58,5 +58,9 @@ export class ProductTreeItem extends AzureParentTreeItem<IProductTreeRoot> {
         return Object.assign({}, <IServiceTreeRoot>subRoot, {
             productName: nonNullProp(this.productContract, 'name')
         });
+    }
+
+    public get commandId(): string {
+        return 'azureApiManagement.showArmProduct';
     }
 }

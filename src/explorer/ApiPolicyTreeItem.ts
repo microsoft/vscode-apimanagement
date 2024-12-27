@@ -3,11 +3,10 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { AzureTreeItem } from "vscode-azureextensionui";
+import { AzExtTreeItem } from "@microsoft/vscode-azext-utils";
 import { treeUtils } from "../utils/treeUtils";
-import { IApiTreeRoot } from "./IApiTreeRoot";
 
-export class ApiPolicyTreeItem extends AzureTreeItem<IApiTreeRoot> {
+export class ApiPolicyTreeItem extends AzExtTreeItem {
 
     public get iconPath(): { light: string, dark: string } {
         return treeUtils.getThemedIconPath('policy');
@@ -15,5 +14,8 @@ export class ApiPolicyTreeItem extends AzureTreeItem<IApiTreeRoot> {
     public static contextValue: string = 'azureApiManagementApiPolicy';
     public label: string = "Policy";
     public contextValue: string = ApiPolicyTreeItem.contextValue;
-    public readonly commandId: string = 'azureApiManagement.showApiPolicy';
+
+    public get commandId(): string {
+        return 'azureApiManagement.showApiPolicy';
+    }
 }

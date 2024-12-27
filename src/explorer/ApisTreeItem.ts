@@ -5,7 +5,7 @@
 
 import { ApiContract, ApiCreateOrUpdateParameter } from "@azure/arm-apimanagement";
 import { AzExtTreeItem, AzExtParentTreeItem, ICreateChildImplContext } from "@microsoft/vscode-azext-utils";
-import { topItemCount } from "../constants";
+import { uiUtils } from "@microsoft/vscode-azext-azureutils";
 import { localize } from "../localize";
 import { IOpenApiImportObject } from "../openApi/OpenApiImportObject";
 import { apiUtil } from "../utils/apiUtil";
@@ -14,7 +14,6 @@ import { treeUtils } from "../utils/treeUtils";
 import { ApiTreeItem } from "./ApiTreeItem";
 import { ApiVersionSetTreeItem } from "./ApiVersionSetTreeItem";
 import { IServiceTreeRoot } from "./IServiceTreeRoot";
-import { uiUtils } from "@microsoft/vscode-azext-azureutils";
 
 export interface IApiTreeItemContext extends ICreateChildImplContext {
     apiName: string;
@@ -23,6 +22,13 @@ export interface IApiTreeItemContext extends ICreateChildImplContext {
 }
 
 export class ApisTreeItem extends AzExtParentTreeItem {
+
+    public readonly root: IServiceTreeRoot;
+
+    constructor(parent: AzExtParentTreeItem | undefined, root: IServiceTreeRoot) {
+        super(parent);
+        this.root = root;
+    }
 
     public get iconPath(): { light: string, dark: string } {
         return treeUtils.getThemedIconPath('list');
@@ -33,13 +39,7 @@ export class ApisTreeItem extends AzExtParentTreeItem {
     public selectedApis: ApiContract[] = [];
     //public filterValue: string | undefined;
     public readonly childTypeLabel: string = localize('azureApiManagement.Api', 'API');
-    public readonly root: IServiceTreeRoot;
     private _nextLink: string | undefined;
-    
-    constructor(parent: AzExtParentTreeItem, root: IServiceTreeRoot) {
-        super(parent);
-        this.root = root;
-    }
 
     public hasMoreChildrenImpl(): boolean {
         return this._nextLink !== undefined;
@@ -50,12 +50,10 @@ export class ApisTreeItem extends AzExtParentTreeItem {
             this._nextLink = undefined;
         }
 
-        let apisToLoad : ApiContract[] = this.selectedApis;
+        let apisToLoad: ApiContract[] = this.selectedApis;
         if (this.selectedApis.length === 0) {
-            let apiCollection: ApiContract[];
-            apiCollection = await uiUtils.listAllIterator(this.root.client.api.listByService(this.root.resourceGroupName, this.root.serviceName, { expandApiVersionSet: true }));
-
-            apisToLoad = apiCollection.map((s) => s).filter(s => apiUtil.isNotApiRevision(s));
+            const apiCollection: ApiContract[] = await uiUtils.listAllIterator(this.root.client.api.listByService(this.root.resourceGroupName, this.root.serviceName, { expandApiVersionSet: true }));
+            apisToLoad = apiCollection.filter(s => apiUtil.isNotApiRevision(s));
         }
 
         const versionSetMap: Map<string, ApiVersionSetTreeItem> = new Map<string, ApiVersionSetTreeItem>();
