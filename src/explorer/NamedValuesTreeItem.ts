@@ -3,10 +3,9 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { NamedValueContract, NamedValueCreateContract, NamedValueCollection } from "@azure/arm-apimanagement";
+import { NamedValueContract, NamedValueCreateContract } from "@azure/arm-apimanagement";
 import { AzExtTreeItem, AzExtParentTreeItem, ICreateChildImplContext } from "@microsoft/vscode-azext-utils";
 import { uiUtils } from "@microsoft/vscode-azext-azureutils";
-import { topItemCount } from "../constants";
 import { localize } from "../localize";
 import { processError } from "../utils/errorUtil";
 import { treeUtils } from "../utils/treeUtils";

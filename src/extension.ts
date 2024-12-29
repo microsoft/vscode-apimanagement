@@ -8,7 +8,7 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as query from 'querystring';
 import * as vscode from 'vscode';
-import { AzExtTreeDataProvider, AzureParentTreeItem, AzureTreeItem, AzureUserInput, callWithTelemetryAndErrorHandling, createAzExtOutputChannel, IActionContext, registerCommand, registerEvent, registerUIExtensionVariables } from 'vscode-azureextensionui';
+import { AzExtTreeDataProvider, AzExtParentTreeItem, AzExtTreeItem, callWithTelemetryAndErrorHandling, createAzExtOutputChannel, IActionContext, registerCommand, registerEvent, registerUIExtensionVariables,IAzureUserInput } from '@microsoft/vscode-azext-utils';
 import { addApiFilter } from './commands/addApiFilter';
 import { addApiToGateway } from './commands/addApiToGateway';
 import { addApiToProduct } from './commands/addApiToProduct';
@@ -114,24 +114,24 @@ export async function activateInternal(context: vscode.ExtensionContext) {
 }
 
 function registerCommands(tree: AzExtTreeDataProvider): void {
-    registerCommand('azureApiManagement.Refresh', async (context: IActionContext, node?: AzureTreeItem) => await tree.refresh(context, node)); // need to double check
+    registerCommand('azureApiManagement.Refresh', async (context: IActionContext, node?: AzExtTreeItem) => await tree.refresh(context, node)); // need to double check
     registerCommand('azureApiManagement.selectSubscriptions', () => vscode.commands.executeCommand("azure-account.selectSubscriptions"));
-    registerCommand('azureApiManagement.LoadMore', async (context: IActionContext, node: AzureTreeItem) => await tree.loadMore(node, context)); // need to double check
+    registerCommand('azureApiManagement.LoadMore', async (context: IActionContext, node: AzExtTreeItem) => await tree.loadMore(node, context)); // need to double check
     registerCommand('azureApiManagement.openInPortal', openInPortal);
     registerCommand('azureApiManagement.createService', createService);
     registerCommand('azureApiManagement.copySubscriptionKey', copySubscriptionKey);
-    registerCommand('azureApiManagement.deleteService', async (context: IActionContext, node?: AzureParentTreeItem) => await deleteNode(context, ServiceTreeItem.contextValue, node));
-    registerCommand('azureApiManagement.deleteApi', async (context: IActionContext, node?: AzureTreeItem) => await deleteNode(context, ApiTreeItem.contextValue, node));
-    registerCommand('azureApiManagement.deleteOperation', async (context: IActionContext, node?: AzureTreeItem) => await deleteNode(context, ApiOperationTreeItem.contextValue, node));
+    registerCommand('azureApiManagement.deleteService', async (context: IActionContext, node?: AzExtParentTreeItem) => await deleteNode(context, ServiceTreeItem.contextValue, node));
+    registerCommand('azureApiManagement.deleteApi', async (context: IActionContext, node?: AzExtTreeItem) => await deleteNode(context, ApiTreeItem.contextValue, node));
+    registerCommand('azureApiManagement.deleteOperation', async (context: IActionContext, node?: AzExtTreeItem) => await deleteNode(context, ApiOperationTreeItem.contextValue, node));
     registerCommand('azureApiManagement.testOperation', testOperation);
     registerCommand('azureApiManagement.importOpenApiByFile', async (context: IActionContext, node?: ApisTreeItem) => { await importOpenApi(context, node, false); });
     registerCommand('azureApiManagement.importOpenApiByLink', async (context: IActionContext, node?: ApisTreeItem) => { await importOpenApi(context, node, true); });
     registerCommand('azureApiManagement.createNamedValue', async (context: IActionContext, node?: NamedValuesTreeItem) => { await createNamedValue(context, node); });
-    registerCommand('azureApiManagement.deleteNamedValue', async (context: IActionContext, node?: AzureTreeItem) => await deleteNode(context, NamedValueTreeItem.contextValue, node));
+    registerCommand('azureApiManagement.deleteNamedValue', async (context: IActionContext, node?: AzExtTreeItem) => await deleteNode(context, NamedValueTreeItem.contextValue, node));
     registerCommand('azureApiManagement.updateNamedValue', updateNamedValue);
-    registerCommand('azureApiManagement.removeApiFromProduct', async (context: IActionContext, node?: AzureTreeItem) => await deleteNode(context, ProductApiTreeItem.contextValue, node));
+    registerCommand('azureApiManagement.removeApiFromProduct', async (context: IActionContext, node?: AzExtTreeItem) => await deleteNode(context, ProductApiTreeItem.contextValue, node));
     registerCommand('azureApiManagement.addApiToProduct', async (context: IActionContext, node?: ProductApisTreeItem) => { await addApiToProduct(context, node); });
-    registerCommand('azureApiManagement.removeApiFromGateway', async (context: IActionContext, node?: AzureTreeItem) => await deleteNode(context, GatewayApiTreeItem.contextValue, node));
+    registerCommand('azureApiManagement.removeApiFromGateway', async (context: IActionContext, node?: AzExtTreeItem) => await deleteNode(context, GatewayApiTreeItem.contextValue, node));
     registerCommand('azureApiManagement.addApiToGateway', async (context: IActionContext, node?: GatewayApisTreeItem) => { await addApiToGateway(context, node); });
     registerCommand('azureApiManagement.extractService', async (context: IActionContext, node: ServiceTreeItem) => await extractService(context, node));
     registerCommand('azureApiManagement.extractApi', async (context: IActionContext, node: ApiTreeItem) => await extractAPI(context, node));
@@ -154,17 +154,17 @@ function registerCommands(tree: AzExtTreeDataProvider): void {
     registerCommand('azureApiManagement.revisions', revisions);
     registerCommand('azureApiManagement.setCustomHostName', setCustomHostName);
     registerCommand('azureApiManagement.createSubscription', createSubscription);
-    registerCommand('azureApiManagement.deleteSubscription', async (context: IActionContext, node?: AzureTreeItem) => await deleteNode(context, SubscriptionTreeItem.contextValue, node));
+    registerCommand('azureApiManagement.deleteSubscription', async (context: IActionContext, node?: AzExtTreeItem) => await deleteNode(context, SubscriptionTreeItem.contextValue, node));
 
     registerCommand('azureApiManagement.createAuthorizationProvider', async (context: IActionContext, node?: AuthorizationProvidersTreeItem) => { await createAuthorizationProvider(context, node); });
     registerCommand('azureApiManagement.createAuthorization', async (context: IActionContext, node?: AuthorizationsTreeItem) => { await createAuthorization(context, node); });
     registerCommand('azureApiManagement.createAuthorizationAccessPolicy', async (context: IActionContext, node?: AuthorizationAccessPoliciesTreeItem) => { await createAuthorizationAccessPolicy(context, node); });
-    registerCommand('azureApiManagement.deleteAuthorizationProvider', async (context: IActionContext, node?: AzureTreeItem) => await deleteNode(context, AuthorizationProviderTreeItem.contextValue, node));
+    registerCommand('azureApiManagement.deleteAuthorizationProvider', async (context: IActionContext, node?: AzExtTreeItem) => await deleteNode(context, AuthorizationProviderTreeItem.contextValue, node));
     registerCommand('azureApiManagement.copyAuthorizationProviderRedirectUrl', async (context: IActionContext, node?: AuthorizationProviderTreeItem) => await copyAuthorizationProviderRedirectUrl(context, node));
     registerCommand('azureApiManagement.authorizeAuthorization', async (context: IActionContext, node?: AuthorizationTreeItem) => { await authorizeAuthorization(context, node); });
     registerCommand('azureApiManagement.copyAuthorizationPolicy', async (context: IActionContext, node?: AuthorizationTreeItem) => { await copyAuthorizationPolicy(context, node); });
-    registerCommand('azureApiManagement.deleteAuthorization', async (context: IActionContext, node?: AzureTreeItem) => await deleteNode(context, AuthorizationTreeItem.contextValue, node));
-    registerCommand('azureApiManagement.deleteAuthorizationAccessPolicy', async (context: IActionContext, node?: AzureTreeItem) => await deleteNode(context, AuthorizationAccessPolicyTreeItem.contextValue, node));
+    registerCommand('azureApiManagement.deleteAuthorization', async (context: IActionContext, node?: AzExtTreeItem) => await deleteNode(context, AuthorizationTreeItem.contextValue, node));
+    registerCommand('azureApiManagement.deleteAuthorizationAccessPolicy', async (context: IActionContext, node?: AzExtTreeItem) => await deleteNode(context, AuthorizationAccessPolicyTreeItem.contextValue, node));
 }
 
 // tslint:disable-next-line: max-func-body-length

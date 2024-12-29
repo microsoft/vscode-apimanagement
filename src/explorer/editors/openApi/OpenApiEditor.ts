@@ -3,10 +3,10 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ApiManagementModels } from "@azure/arm-apimanagement";
+import { ApiCreateOrUpdateParameter } from "@azure/arm-apimanagement";
 import { HttpOperationResponse, RequestPrepareOptions, ServiceClient } from "@azure/ms-rest-js";
 import { ProgressLocation, window } from "vscode";
-import { appendExtensionUserAgent, createGenericClient } from "vscode-azureextensionui";
+import { appendExtensionUserAgent } from "@microsoft/vscode-azext-utils";
 import { openApiAcceptHeader, openApiExport, openApiSchema, showSavePromptConfigKey, swaggerAcceptHeader, swaggerExport, swaggerSchema } from "../../../constants";
 import * as Constants from "../../../constants";
 import { localize } from "../../../localize";
@@ -16,6 +16,8 @@ import { processError } from "../../../utils/errorUtil";
 import { nonNullProp } from "../../../utils/nonNull";
 import { ApiTreeItem } from "../../ApiTreeItem";
 import { Editor } from "../Editor";
+import { uiUtils } from "@microsoft/vscode-azext-azureutils";
+import { clientOptions } from "../../../azure/clientOptions";
 
 export class OpenApiEditor extends Editor<ApiTreeItem> {
     constructor() {
@@ -25,7 +27,7 @@ export class OpenApiEditor extends Editor<ApiTreeItem> {
     public async getData(context: ApiTreeItem): Promise<string> {
         try {
             // Check the supported schemas for API. If no schemas specified then assume open api 3.0
-            const schemas = await context.root.client.apiSchema.listByApi(context.root.resourceGroupName, context.root.serviceName, context.root.apiName);
+            const schemas = await uiUtils.listAllIterator(context.root.client.apiSchema.listByApi(context.root.resourceGroupName, context.root.serviceName, context.root.apiName));
             let exportFormat: string = openApiExport;
             let exportAcceptHeader: string = openApiAcceptHeader;
             if (schemas.length > 0) {
@@ -62,7 +64,7 @@ export class OpenApiEditor extends Editor<ApiTreeItem> {
             }
 
             const swaggerJson = JSON.stringify(openApiDocument.sourceDocument);
-            const payload: ApiManagementModels.ApiCreateOrUpdateParameter = {
+            const payload: ApiCreateOrUpdateParameter = {
                 format: openApiDocument.importFormat,
                 value: swaggerJson,
                 path: context.apiContract.path
@@ -74,7 +76,7 @@ export class OpenApiEditor extends Editor<ApiTreeItem> {
                     title: localize("updatingAPI", `Applying changes to API '${context.root.apiName}' in API Management instance ${context.root.serviceName}...`),
                     cancellable: false
                 },
-                async () => context.root.client.api.createOrUpdate(context.root.resourceGroupName, context.root.serviceName, context.root.apiName, payload)
+                async () => context.root.client.api.beginCreateOrUpdateAndWait(context.root.resourceGroupName, context.root.serviceName, context.root.apiName, payload)
             ).then(async () => {
                 window.showInformationMessage(localize("updateOpenApiSucceded", `Changes to API '${context.apiContract.name}' were succefully uploaded to cloud.`));
                 //await context.refresh();
@@ -103,7 +105,7 @@ export class OpenApiEditor extends Editor<ApiTreeItem> {
     }
 
     private async requestOpenAPIDocument(context: ApiTreeItem, exportFormat: string, exportAcceptHeader: string) : Promise<string> {
-        const client: ServiceClient = await createGenericClient(context.root.credentials);
+        const client: ServiceClient = new ServiceClient(context.root.credentials, clientOptions);
         const options: RequestPrepareOptions = {
             method: "GET",
             url: this.buildAPIExportUrl(context, exportFormat)

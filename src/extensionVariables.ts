@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 import { ExtensionContext } from "vscode";
-import { AzExtTreeDataProvider, IAzExtOutputChannel, IAzureUserInput } from "vscode-azureextensionui";
+import { AzExtTreeDataProvider, IAzExtOutputChannel, IAzureUserInput } from "@microsoft/vscode-azext-utils";
 import { AzureAccountTreeItem } from "./explorer/AzureAccountTreeItem";
 
 /**

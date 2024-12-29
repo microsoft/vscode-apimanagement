@@ -6,7 +6,6 @@
 import { SubscriptionContract } from "@azure/arm-apimanagement";
 import { AzExtTreeItem, AzExtParentTreeItem } from "@microsoft/vscode-azext-utils";
 import { uiUtils } from "@microsoft/vscode-azext-azureutils";
-import { topItemCount } from "../constants";
 import { treeUtils } from "../utils/treeUtils";
 import { IServiceTreeRoot } from "./IServiceTreeRoot";
 import { SubscriptionTreeItem } from "./SubscriptionTreeItem";

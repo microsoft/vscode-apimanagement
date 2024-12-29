@@ -5,7 +5,6 @@
 
 import { AzExtTreeItem } from "@microsoft/vscode-azext-utils";
 import { treeUtils } from "../utils/treeUtils";
-import { IOperationTreeRoot } from "./IOperationTreeRoot";
 
 export class OperationPolicyTreeItem extends AzExtTreeItem {
 
