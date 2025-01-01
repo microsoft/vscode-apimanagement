@@ -5,8 +5,9 @@
 
 import { HttpMethods, HttpOperationResponse, ParameterValue, ServiceClient, WebResource } from "@azure/ms-rest-js";
 import { TokenCredentialsBase } from "@azure/ms-rest-nodeauth";
+import { TokenResponse } from "adal-node";
 import requestPromise from 'request-promise';
-import { appendExtensionUserAgent, createGenericClient } from "vscode-azureextensionui";
+import { createGenericClient } from "vscode-azureextensionui";
 
 export type nRequest = WebResource & requestPromise.RequestPromiseOptions;
 
@@ -26,22 +27,18 @@ export async function sendRequest<T>(httpReq: nRequest): Promise<T> {
 }
 
 // tslint:disable: no-unsafe-any
-export async function getBearerToken(url: string, method: HttpMethods, credentials: TokenCredentialsBase): Promise<string> {
-    const requestOptions: WebResource = new WebResource();
-    requestOptions.headers.set("User-Agent", appendExtensionUserAgent());
-    requestOptions.url = url;
-    requestOptions.method = method;
+export async function getBearerToken(credentials: TokenCredentialsBase): Promise<string> {
+    let token: TokenResponse;
     try {
-        await credentials.signRequest(requestOptions);
+        token = await credentials.getToken();
     } catch (err) {
         throw err;
     }
-    const headers = requestOptions.headers;
-    // tslint:disable-next-line: no-string-literal
-    const authToken : string = headers['authorization'];
+
+    const authToken : string = token.accessToken;
     if (authToken === undefined) {
         throw new Error("Authorization header is missing");
     } else {
-        return authToken;
+        return `Bearer ${authToken}`;
     }
 }

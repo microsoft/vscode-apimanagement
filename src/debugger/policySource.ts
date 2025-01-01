@@ -103,7 +103,7 @@ export class PolicySource {
 		if (this.auth) {
 			authToken = this.auth;
 		} else {
-			authToken = await getBearerToken(policyUrl, "GET", this.credential!);
+			authToken = await getBearerToken(this.credential!);
 		}
 		const policyContract: PolicyContract = await request.get(policyUrl, {
 			headers: {

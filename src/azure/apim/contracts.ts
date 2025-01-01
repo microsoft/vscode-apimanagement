@@ -78,6 +78,7 @@ export interface ISubscriptionProperty {
     displayName: string;
     primaryKey: string;
     secondaryKey: string;
+    allowTracing: boolean;
 }
 
 // Authorization Provider Contracts
