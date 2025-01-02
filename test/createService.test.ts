@@ -7,7 +7,7 @@
 //import { ApiManagementClient, ApiManagementModels } from 'azure-arm-apimanagement';
 //import { ApiManagementClient } from 'azure-arm-apimanagement';
 import { ResourceManagementClient } from '@azure/arm-resources';
-import { IHookCallbackContext, ISuiteCallbackContext } from 'mocha';
+import { Context, Suite } from 'mocha';
 import * as vscode from 'vscode';
 import { ISubscriptionContext, TestAzureAccount} from 'vscode-azureextensiondev';
 import { AzExtTreeDataProvider, AzExtParentTreeItem } from '@microsoft/vscode-azext-utils';
@@ -17,14 +17,14 @@ import { longRunningTestsEnabled } from './global.test';
 //import { runWithApimSetting } from './runWithSetting';
 
 // tslint:disable-next-line:max-func-body-length
-suite('Create Azure Resources', async function (this: ISuiteCallbackContext): Promise<void> {
+suite('Create Azure Resources', async function (this: Suite): Promise<void> {
     this.timeout(1200 * 1000);
     const resourceGroupsToDelete: string[] = [];
     const testAccount: TestAzureAccount = new TestAzureAccount(vscode);
     //let apiManagementClient: ApiManagementClient;
     //const resourceName1: string = `vscode-${getRandomHexString().toLowerCase()}`;
 
-    suiteSetup(async function (this: IHookCallbackContext): Promise<void> {
+    suiteSetup(async function (this: Context): Promise<void> {
         if (!longRunningTestsEnabled) {
             this.skip();
         }
@@ -38,7 +38,7 @@ suite('Create Azure Resources', async function (this: ISuiteCallbackContext): Pr
         //apiManagementClient = getApiManagementClient(testAccount);
     });
 
-    suiteTeardown(async function (this: IHookCallbackContext): Promise<void> {
+    suiteTeardown(async function (this: Context): Promise<void> {
         if (!longRunningTestsEnabled) {
             this.skip();
         }
