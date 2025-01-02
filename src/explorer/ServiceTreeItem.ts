@@ -62,7 +62,7 @@ export class ServiceTreeItem extends AzExtParentTreeItem {
         super(parent);
 
         this._root = this.createRoot(parent.subscription, apiManagementClient);
-        this.servicePolicyTreeItem = new ServicePolicyTreeItem(this);
+        this.servicePolicyTreeItem = new ServicePolicyTreeItem(this, this.root);
         this.apisTreeItem = new ApisTreeItem(this, this.root);
         this.productsTreeItem = new ProductsTreeItem(this, this.root);
         this.namedValuesTreeItem = new NamedValuesTreeItem(this, this.root);

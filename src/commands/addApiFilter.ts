@@ -24,7 +24,7 @@ export async function addApiFilter(context: IActionContext, node?: ApisTreeItem)
     // filter revisions
     const apis = apiCollection.map((s) => {return s; }).filter((s) => (s.isCurrent !== undefined && s.isCurrent === true ));
 
-    const picks = await ext.ui.showQuickPick(apis.map((s) => {
+    const picks = await context.ui.showQuickPick(apis.map((s) => {
         let apiName = s.displayName!;
         if (s.apiVersionSetId !== undefined) {
             if (s.apiVersion !== undefined) {

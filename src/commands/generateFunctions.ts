@@ -47,7 +47,7 @@ export async function generateFunctions(context: IActionContext, node?: ApiTreeI
 
     // tslint:disable-next-line: no-unsafe-any
     const languages: string[] = Object.keys(languageTypes).map(key => languageTypes[key]);
-    const language = await ext.ui.showQuickPick(
+    const language = await context.ui.showQuickPick(
         languages.map((s) => { return { label: s, description: '', detail: '' }; }), { placeHolder: "Select language", canPickMany: false });
 
     if (!await checkEnvironmentInstalled(language.label)) {
@@ -56,12 +56,12 @@ export async function generateFunctions(context: IActionContext, node?: ApiTreeI
 
     let namespace = "";
     if (language.label === languageTypes.Java) {
-        namespace = await askJavaNamespace();
+        namespace = await askJavaNamespace(context);
     } else if (language.label === languageTypes.CSharp) {
-        namespace = await askCSharpNamespace();
+        namespace = await askCSharpNamespace(context);
     }
 
-    const uris = await askFolder();
+    const uris = await askFolder(context);
 
     const openAPIFilePath = path.join(uris[0].fsPath, `${node!.apiContract.name}.json`);
 
@@ -145,7 +145,7 @@ export async function generateFunctions(context: IActionContext, node?: ApiTreeI
     });
 }
 
-async function askFolder(): Promise<Uri[]> {
+async function askFolder(context: IActionContext): Promise<Uri[]> {
     const openDialogOptions: OpenDialogOptions = {
         canSelectFiles: false,
         canSelectFolders: true,
@@ -159,13 +159,13 @@ async function askFolder(): Promise<Uri[]> {
     if (rootPath) {
         openDialogOptions.defaultUri = Uri.file(rootPath);
     }
-    return await ext.ui.showOpenDialog(openDialogOptions);
+    return await context.ui.showOpenDialog(openDialogOptions);
 }
 
-async function askJavaNamespace(): Promise<string> {
+async function askJavaNamespace(context: IActionContext): Promise<string> {
     const namespacePrompt: string = localize('namespacePrompt', 'Enter Java Package Name.');
     const defaultName = "com.function";
-    return (await ext.ui.showInputBox({
+    return (await context.ui.showInputBox({
         prompt: namespacePrompt,
         value: defaultName,
         validateInput: async (value: string | undefined): Promise<string | undefined> => {
@@ -175,10 +175,10 @@ async function askJavaNamespace(): Promise<string> {
     })).trim();
 }
 
-async function askCSharpNamespace(): Promise<string> {
+async function askCSharpNamespace(context: IActionContext): Promise<string> {
     const namespacePrompt: string = localize('namespacePrompt', 'Enter CSharp namespace folder.');
     const defaultName = "Company.Function";
-    return (await ext.ui.showInputBox({
+    return (await context.ui.showInputBox({
         prompt: namespacePrompt,
         value: defaultName,
         validateInput: validateCSharpNamespace

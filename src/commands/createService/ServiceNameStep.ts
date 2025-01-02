@@ -6,7 +6,6 @@
 import { ApiManagementServiceNameAvailabilityResult } from "@azure/arm-apimanagement";
 import { ResourceGroupListStep, resourceGroupNamingRules } from "@microsoft/vscode-azext-azureutils";
 import { AzureNameStep, IAzureNamingRules } from "@microsoft/vscode-azext-utils";
-import { ext } from "../../extensionVariables";
 import { localize } from "../../localize";
 import { nonNullProp } from "../../utils/nonNull";
 import { IServiceWizardContext } from "./IServiceWizardContext";
@@ -14,7 +13,7 @@ import { IServiceWizardContext } from "./IServiceWizardContext";
 export class ServiceNameStep extends AzureNameStep<IServiceWizardContext> {
     public async prompt(wizardContext: IServiceWizardContext): Promise<void> {
         const prompt: string = localize('serviceNamePrompt', 'Enter a globally unique name for the new API Management instance.');
-        wizardContext.serviceName = (await ext.ui.showInputBox({
+        wizardContext.serviceName = (await wizardContext.ui.showInputBox({
             prompt,
             validateInput: async (value: string): Promise<string | undefined> => {
                 value = value ? value.trim() : '';

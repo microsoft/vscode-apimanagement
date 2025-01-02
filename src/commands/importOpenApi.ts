@@ -26,12 +26,12 @@ export async function importOpenApi(context: IActionContext & Partial<IApiTreeIt
 
     let documentString: string | undefined;
     if (!importUsingLink) {
-        const uris = await askDocument();
+        const uris = await askDocument(context);
         const uri = uris[0];
         const fileContent = await fse.readFile(uri.fsPath);
         documentString = fileContent.toString();
     } else {
-        const openApiLink = await askLink();
+        const openApiLink = await askLink(context);
         const webResource = new WebResource();
         webResource.url = openApiLink;
         webResource.method = "GET";
@@ -49,7 +49,7 @@ export async function importOpenApi(context: IActionContext & Partial<IApiTreeIt
     if (documentString !== undefined && documentString.trim() !== "") {
         const documentJson = JSON.parse(documentString);
         const document = await parseDocument(documentJson);
-        const apiName = await apiUtil.askApiName();
+        const apiName = await apiUtil.askApiName(context);
         context.apiName = apiName;
         context.document = document;
 
@@ -69,7 +69,7 @@ export async function importOpenApi(context: IActionContext & Partial<IApiTreeIt
     }
 }
 
-async function askDocument(): Promise<Uri[]> {
+async function askDocument(context: IActionContext): Promise<Uri[]> {
     const openDialogOptions: OpenDialogOptions = {
         canSelectFiles: true,
         canSelectFolders: false,
@@ -83,12 +83,12 @@ async function askDocument(): Promise<Uri[]> {
     if (rootPath) {
         openDialogOptions.defaultUri = Uri.file(rootPath);
     }
-    return await ext.ui.showOpenDialog(openDialogOptions);
+    return await context.ui.showOpenDialog(openDialogOptions);
 }
 
-async function askLink() : Promise<string> {
+async function askLink(context: IActionContext) : Promise<string> {
     const promptStr: string = localize('apiLinkPrompt', 'Specify a OpenAPI 2.0 or 3.0 link.');
-    return (await ext.ui.showInputBox({
+    return (await context.ui.showInputBox({
         prompt: promptStr,
         placeHolder: 'https://',
         validateInput: async (value: string): Promise<string | undefined> => {

@@ -31,7 +31,7 @@ export class ProductTreeItem extends AzExtParentTreeItem {
         this._root = this.createRoot(root);
 
         this.productApisTreeItem = new ProductApisTreeItem(this, this.root);
-        this.policyTreeItem = new ProductPolicyTreeItem(this);
+        this.policyTreeItem = new ProductPolicyTreeItem(this, this.root);
     }
 
     public get label() : string {

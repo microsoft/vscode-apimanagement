@@ -12,7 +12,6 @@ import { ServiceCreateStep } from '../commands/createService/ServiceCreateStep';
 import { ServiceNameStep } from '../commands/createService/ServiceNameStep';
 import { ServiceSkuStep } from '../commands/createService/ServiceSkuStep';
 import { extensionPrefix } from '../constants';
-import { ext } from '../extensionVariables';
 import { localize } from "../localize";
 import { nonNullProp } from '../utils/nonNull';
 import { getWorkspaceSetting, updateGlobalSetting } from '../vsCodeConfig/settings';
@@ -122,7 +121,7 @@ export class ApiManagementProvider extends SubscriptionTreeItemBase {
                 const message: string = localize('tryAdvancedCreate', 'Modify the setting "{0}.{1}" if you want to change the default values when creating a API Management Instance in Azure.', extensionPrefix, advancedCreationKey);
                 const btn: MessageItem = { title: localize('turnOn', 'Turn on advanced creation') };
                 // tslint:disable-next-line: no-floating-promises
-                ext.ui.showWarningMessage(message, btn).then(async result => {
+                context.ui.showWarningMessage(message, btn).then(async result => {
                     if (result === btn) {
                         await updateGlobalSetting(advancedCreationKey, true);
                     }

@@ -19,7 +19,7 @@ export async function copyAuthorizationPolicy(context: IActionContext, node?: Au
     const attachToken = "Attach access token to backend request";
     const tokenBack = "Retrieve access token";
     const purposeOptions = [attachToken, tokenBack];
-    const purposeSelected = await ext.ui.showQuickPick(
+    const purposeSelected = await context.ui.showQuickPick(
         purposeOptions.map(purpose => { return { label: purpose, description: '', detail: '' }; }),
         { placeHolder: 'How do you want to use the policy?', canPickMany: false });
     const managed = "managed";
@@ -34,7 +34,7 @@ export async function copyAuthorizationPolicy(context: IActionContext, node?: Au
             description: "Use the identity of the specified token."
         }
     ];
-    const identityTypeSelected = await ext.ui.showQuickPick(
+    const identityTypeSelected = await context.ui.showQuickPick(
         identityTypeOptions.map(option => { return { label: option.label, description: option.description, detail: '' }; }),
         { placeHolder: 'Which identity type do you want to use?', canPickMany: false, suppressPersistence: true });
 

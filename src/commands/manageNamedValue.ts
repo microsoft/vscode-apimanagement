@@ -17,9 +17,9 @@ export async function createNamedValue(context: IActionContext & Partial<INamedV
         node = serviceNode.namedValuesTreeItem;
     }
 
-    context.key = await askId();
-    context.value = await askValue();
-    context.secret = await isSecret();
+    context.key = await askId(context);
+    context.value = await askValue(context);
+    context.secret = await isSecret(context);
 
     window.withProgress(
         {
@@ -43,8 +43,8 @@ export async function updateNamedValue(context: IActionContext, node?: NamedValu
 
     const displayName = node.propertyContract.displayName;
     const initialValue = await node.getValue();
-    const value = await askValue(initialValue);
-    const secret = await isSecret();
+    const value = await askValue(context, initialValue);
+    const secret = await isSecret(context);
 
     window.withProgress(
         {
@@ -61,18 +61,18 @@ export async function updateNamedValue(context: IActionContext, node?: NamedValu
     });
 }
 
-async function isSecret() : Promise<boolean | undefined> {
+async function isSecret(context: IActionContext) : Promise<boolean | undefined> {
     const options = ['Yes', 'No'];
-    const option = await ext.ui.showQuickPick(options.map((s) => { return { label: s, description: '', detail: '' }; }), { placeHolder: 'Is this a secret?', canPickMany: false });
+    const option = await context.ui.showQuickPick(options.map((s) => { return { label: s, description: '', detail: '' }; }), { placeHolder: 'Is this a secret?', canPickMany: false });
     if (option.label === options[0]) {
         return true;
     }
     return undefined;
 }
 
-async function askId() : Promise<string> {
+async function askId(context: IActionContext) : Promise<string> {
     const idPrompt: string = localize('idPrompt', 'Enter id');
-    return (await ext.ui.showInputBox({
+    return (await context.ui.showInputBox({
         prompt: idPrompt,
         validateInput: async (value: string): Promise<string | undefined> => {
             value = value ? value.trim() : '';
@@ -81,9 +81,9 @@ async function askId() : Promise<string> {
     })).trim();
 }
 
-async function askValue(initialValue?: string) : Promise<string> {
+async function askValue(context: IActionContext, initialValue?: string) : Promise<string> {
     const valuePrompt: string = localize('valuePrompt', 'Enter value');
-    return (await ext.ui.showInputBox({
+    return (await context.ui.showInputBox({
         prompt: valuePrompt,
         value: initialValue,
         validateInput: async (value: string): Promise<string | undefined> => {

@@ -4,7 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { ProgressLocation, window } from "vscode";
-import { AzExtParentTreeItem, AzExtTreeItem, ICreateChildImplContext } from "@microsoft/vscode-azext-utils";
+import { AzExtParentTreeItem, AzExtTreeItem, ICreateChildImplContext, IActionContext } from "@microsoft/vscode-azext-utils";
 import { ApimService } from "../azure/apim/ApimService";
 import { IAuthorizationProviderContract, IAuthorizationProviderOAuth2GrantTypesContract, IAuthorizationProviderPropertiesContract, IGrantTypesContract, ITokenStoreGrantTypeParameterContract, ITokenStoreIdentityProviderContract } from "../azure/apim/contracts";
 import { askAuthorizationProviderParameterValues, askId } from "../commands/authorizations/common";
@@ -65,7 +65,7 @@ export class AuthorizationProvidersTreeItem extends AzExtParentTreeItem {
     }
 
     public async createChildImpl(context: IAuthorizationProviderTreeItemContext): Promise<AuthorizationProviderTreeItem> {
-        await this.checkManagedIdentityEnabled();
+        await this.checkManagedIdentityEnabled(context);
         await this.buildContext(context);
         if (context.name !== null && context.authorizationProvider !== null) {
             return window.withProgress(
@@ -101,11 +101,11 @@ export class AuthorizationProvidersTreeItem extends AzExtParentTreeItem {
         }
     }
 
-    private async checkManagedIdentityEnabled() : Promise<void> {
+    private async checkManagedIdentityEnabled(context: IActionContext): Promise<void> {
         const service = await this.apimService.getService();
         if (service.identity === undefined) {
             const options = ['Yes', 'No'];
-            const option = await ext.ui.showQuickPick(options.map((s) => { return { label: s, description: '', detail: '' }; }), { placeHolder: 'Enable system assigned managed identity', canPickMany: false });
+            const option = await context.ui.showQuickPick(options.map((s) => { return { label: s, description: '', detail: '' }; }), { placeHolder: 'Enable system assigned managed identity', canPickMany: false });
             if (option.label === options[0]) {
                 await window.withProgress(
                     {
@@ -129,19 +129,19 @@ export class AuthorizationProvidersTreeItem extends AzExtParentTreeItem {
             return a.properties.displayName.localeCompare(b.properties.displayName);
         });
 
-        const identityProviderPicked = await ext.ui.showQuickPick(supportedIdentityProviders.map((s) => { return { label: s.properties.displayName, description: '', detail: '' }; }), { placeHolder: 'Select identity provider ...', canPickMany: false });
+        const identityProviderPicked = await context.ui.showQuickPick(supportedIdentityProviders.map((s) => { return { label: s.properties.displayName, description: '', detail: '' }; }), { placeHolder: 'Select identity provider ...', canPickMany: false });
         const selectedIdentityProvider = supportedIdentityProviders.find(s => s.properties.displayName === identityProviderPicked.label);
 
         let grantType: string = "";
         if (selectedIdentityProvider
             && selectedIdentityProvider.properties.oauth2.grantTypes !== null) {
-            const authorizationProviderName = await askId(
+            const authorizationProviderName = await askId(context,
                 'Enter Authorization provider name ...',
                 'Invalid Authorization provider name.');
 
             const grantTypes = Object.keys(selectedIdentityProvider.properties.oauth2.grantTypes);
             if (grantTypes.length > 1) {
-                const grantTypePicked = await ext.ui.showQuickPick(grantTypes.map((s) => { return { label: s[0].toUpperCase() + s.slice(1), description: '', detail: '' }; }), { placeHolder: 'Select grant type ...', canPickMany: false });
+                const grantTypePicked = await context.ui.showQuickPick(grantTypes.map((s) => { return { label: s[0].toUpperCase() + s.slice(1), description: '', detail: '' }; }), { placeHolder: 'Select grant type ...', canPickMany: false });
                 grantType = grantTypePicked.label[0].toLocaleLowerCase() + grantTypePicked.label.slice(1);
             } else {
                 grantType = grantTypes[0];
@@ -153,7 +153,7 @@ export class AuthorizationProvidersTreeItem extends AzExtParentTreeItem {
             // tslint:disable-next-line:no-unsafe-any
             const grant: ITokenStoreGrantTypeParameterContract = selectedIdentityProvider?.properties.oauth2.grantTypes[grantType];
 
-            const parameterValues = await askAuthorizationProviderParameterValues(grant);
+            const parameterValues = await askAuthorizationProviderParameterValues(context, grant);
 
             const authorizationProviderGrant: IAuthorizationProviderOAuth2GrantTypesContract = {};
             if (grantTypeValue === IGrantTypesContract.authorizationCode) {

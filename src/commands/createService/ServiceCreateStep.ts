@@ -11,6 +11,7 @@ import { ext } from "../../extensionVariables";
 import { localize } from "../../localize";
 import { nonNullProp, nonNullValueAndProp } from "../../utils/nonNull";
 import { IServiceWizardContext } from "./IServiceWizardContext";
+import { LocationListStep } from "@microsoft/vscode-azext-azureutils";
 
 export class ServiceCreateStep extends AzureWizardExecuteStep<IServiceWizardContext> {
     public priority: number = 140;
@@ -19,8 +20,9 @@ export class ServiceCreateStep extends AzureWizardExecuteStep<IServiceWizardCont
         const creatingNewService: string = localize('creatingNewAPIManagementService', 'Creating new API Management service "{0}"...', wizardContext.serviceName);
         ext.outputChannel.appendLine(creatingNewService);
         progress.report({ message: creatingNewService });
+        const location = await LocationListStep.getLocation(wizardContext);
         wizardContext.service = await wizardContext.client.apiManagementService.beginCreateOrUpdateAndWait(nonNullValueAndProp(wizardContext.resourceGroup, 'name'), nonNullProp(wizardContext, 'serviceName'), <ApiManagementServiceResource>{
-            location: nonNullValueAndProp(wizardContext.location, 'name'),
+            location: nonNullValueAndProp(location, 'name'),
             sku: <ApiManagementServiceSkuProperties>{
                 name: nonNullValueAndProp(wizardContext, 'sku'),
                 capacity: wizardContext.sku === 'Consumption' ? 0 : 1

@@ -35,7 +35,7 @@ export async function importWebAppToApi(context: IActionContext, node?: ApiTreeI
     ext.outputChannel.show();
 
     // tslint:disable: no-non-null-assertion
-    const pickedWebApp: Site = await getPickedWebApp(node, webAppKind.webApp, context);
+    const pickedWebApp: Site = await getPickedWebApp(context, node, webAppKind.webApp);
     const webAppResourceGroup = nonNullValue(pickedWebApp.resourceGroup);
     const webAppName = nonNullValue(pickedWebApp.name);
     const webConfigbaseUrl = getWebConfigbaseUrl(node!.root.environment.resourceManagerEndpointUrl, node!.root.subscriptionId, webAppResourceGroup, webAppName);
@@ -60,14 +60,14 @@ export async function importWebApp(context: IActionContext & Partial<IApiTreeIte
 
     ext.outputChannel.show();
 
-    const webAppSubscriptionId = await azureClientUtil.selectSubscription();
-    const pickedWebApp: Site = await getPickedWebApp(node, webAppKind.webApp, context);
+    const webAppSubscriptionId = await azureClientUtil.selectSubscription(context);
+    const pickedWebApp: Site = await getPickedWebApp(context, node, webAppKind.webApp);
     const webAppResourceGroup = nonNullValue(pickedWebApp.resourceGroup);
     const webAppName = nonNullValue(pickedWebApp.name);
     const webConfigbaseUrl = getWebConfigbaseUrl(node!.root.environment.resourceManagerEndpointUrl, webAppSubscriptionId, webAppResourceGroup, webAppName);
     const webAppConfig: IWebAppContract = (await request(node.root.credentials, webConfigbaseUrl, "GET")).parsedBody;
 
-    const apiName = await apiUtil.askApiName(webAppName);
+    const apiName = await apiUtil.askApiName(context, webAppName);
     if (webAppConfig.properties.apiDefinition && webAppConfig.properties.apiDefinition.url) {
         ext.outputChannel.appendLine(localize("importWebApp", "Importing Web App from swagger object..."));
         await importFromSwagger(context, webAppConfig, webAppName, apiName, node, pickedWebApp);
@@ -76,7 +76,7 @@ export async function importWebApp(context: IActionContext & Partial<IApiTreeIte
     }
 }
 
-export async function getPickedWebApp(node: ApiTreeItem | ApisTreeItem, webAppType: webAppKind, context: IActionContext): Promise<Site> {
+export async function getPickedWebApp(context: IActionContext, node: ApiTreeItem | ApisTreeItem, webAppType: webAppKind): Promise<Site> {
     let allWebApps: Site[] = [];
     const appType = webAppType === webAppKind.webApp ? "Web Apps" : "Function Apps";
     await window.withProgress(
@@ -92,7 +92,7 @@ export async function getPickedWebApp(node: ApiTreeItem | ApisTreeItem, webAppTy
     ).then(async () => {
         window.showInformationMessage(localize("listWebApps", `Pulled all ${appType} successfully.`));
     });
-    return await pickWebApp(allWebApps);
+    return await pickWebApp(context, allWebApps);
 }
 
 export async function listWebApps(client: WebSiteManagementClient, siteKind: webAppKind): Promise<Site[]> {
@@ -103,9 +103,9 @@ export async function listWebApps(client: WebSiteManagementClient, siteKind: web
     return allWebApps.filter((ele) => !!ele.kind && ele.kind.includes(webAppKind.functionApp));
 }
 
-export async function pickWebApp(apiApps: Site[]): Promise<Site> {
+export async function pickWebApp(context: IActionContext, apiApps: Site[]): Promise<Site> {
     // Pick function app
-    const apiApp = await ext.ui.showQuickPick(apiApps.map((s) => { return { label: nonNullValue(s.name), site: s }; }), { canPickMany: false });
+    const apiApp = await context.ui.showQuickPick(apiApps.map((s) => { return { label: nonNullValue(s.name), site: s }; }), { canPickMany: false });
     return apiApp.site;
 }
 

@@ -45,7 +45,7 @@ export class ApiTreeItem extends AzExtParentTreeItem {
         this._name = nonNullProp(this.apiContract, 'name');
         this._root = this.createRoot(parent.subscription, this._name);
         this._operationsTreeItem = new ApiOperationsTreeItem(this, this.root);
-        this.policyTreeItem = new ApiPolicyTreeItem(this);
+        this.policyTreeItem = new ApiPolicyTreeItem(this, this.root);
     }
 
     public get id(): string {
@@ -106,7 +106,7 @@ export class ApiTreeItem extends AzExtParentTreeItem {
         this._label = this.getRevisionDisplayName(api);
         this._root = this.createRoot(this.root, this._name);
         this._operationsTreeItem = new ApiOperationsTreeItem(this, this.root);
-        this.policyTreeItem = new ApiPolicyTreeItem(this);
+        this.policyTreeItem = new ApiPolicyTreeItem(this, this.root);
     }
 
     private getRevisionDisplayName(api: ApiContract): string {

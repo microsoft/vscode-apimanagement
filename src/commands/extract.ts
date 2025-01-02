@@ -21,7 +21,7 @@ export async function extractService(context: IActionContext, node?: ServiceTree
         node = <ServiceTreeItem>await ext.tree.showTreeItemPicker(ServiceTreeItem.contextValue, context);
     }
 
-    await extract(node);
+    await extract(context, node);
 }
 
 export async function extractAPI(context: IActionContext, node?: ApiTreeItem): Promise<void> {
@@ -31,11 +31,11 @@ export async function extractAPI(context: IActionContext, node?: ApiTreeItem): P
 
     const apiName = node.apiContract.name === undefined ? "" : node.apiContract.name;
 
-    await extract(node, apiName);
+    await extract(context, node, apiName);
 }
 
-async function extract(node: ApiTreeItem | ServiceTreeItem, apiName?: string): Promise<void> {
-    const uris = await askFolder();
+async function extract(context: IActionContext, node: ApiTreeItem | ServiceTreeItem, apiName?: string): Promise<void> {
+    const uris = await askFolder(context);
     const templatesFolder = await createTemplatesFolder(uris);
     const sourceApimName = node.root.serviceName;
     const resourceGroup = node.root.resourceGroupName;
@@ -116,7 +116,7 @@ async function runExtractor(filePath: string, subscriptionId: string): Promise<v
     );
 }
 
-async function askFolder(): Promise<Uri[]> {
+async function askFolder(context: IActionContext): Promise<Uri[]> {
     const openDialogOptions: OpenDialogOptions = {
         canSelectFiles: false,
         canSelectFolders: true,
@@ -128,7 +128,7 @@ async function askFolder(): Promise<Uri[]> {
     if (rootPath) {
         openDialogOptions.defaultUri = Uri.file(rootPath);
     }
-    return await ext.ui.showOpenDialog(openDialogOptions);
+    return await context.ui.showOpenDialog(openDialogOptions);
 }
 
 function generateExtractConfig(sourceApimName: string, resourceGroup: string, fileFolder: string, apiName?: string): string {

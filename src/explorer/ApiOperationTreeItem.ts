@@ -46,7 +46,7 @@ export class ApiOperationTreeItem extends AzExtParentTreeItem {
         super(parent);
 
         this._root = this.createRoot(root);
-        this.policyTreeItem = new OperationPolicyTreeItem(this);
+        this.policyTreeItem = new OperationPolicyTreeItem(this, this.root);
 
         this._label = `[${nonNullProp(this.operationContract, 'method')}] ${nonNullProp(this.operationContract, 'displayName')}`;
         this._name = nonNullProp(this.operationContract, 'name');

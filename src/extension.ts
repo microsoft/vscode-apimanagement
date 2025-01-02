@@ -88,7 +88,6 @@ export async function activateInternal(context: vscode.ExtensionContext) {
     //ext.reporter = createTelemetryReporter(context);
     ext.outputChannel = createAzExtOutputChannel("Azure API Management", ext.prefix);
     context.subscriptions.push(ext.outputChannel);
-    ext.ui = new AzureUserInput(context.globalState);
     vscode.commands.executeCommand('setContext', 'isEditorEnabled', false);
 
     registerUIExtensionVariables(ext);
@@ -180,7 +179,7 @@ function registerEditors(context: vscode.ExtensionContext) : void {
         if (!node) {
             node = <ApiTreeItem>await ext.tree.showTreeItemPicker(ApiTreeItem.contextValue, actionContext);
         }
-        await apiResourceEditor.showEditor(node);
+        await apiResourceEditor.showEditor(actionContext, node);
         vscode.commands.executeCommand('setContext', 'isEditorEnabled', true);
     },              doubleClickDebounceDelay);
 
@@ -194,7 +193,7 @@ function registerEditors(context: vscode.ExtensionContext) : void {
         if (!node) {
             node = <ApiOperationTreeItem>await ext.tree.showTreeItemPicker(ApiOperationTreeItem.contextValue, actionContext);
         }
-        await operationResourceEditor.showEditor(node);
+        await operationResourceEditor.showEditor(actionContext, node);
         vscode.commands.executeCommand('setContext', 'isEditorEnabled', true);
     },              doubleClickDebounceDelay);
 
@@ -208,7 +207,7 @@ function registerEditors(context: vscode.ExtensionContext) : void {
         if (!node) {
             node = <ProductTreeItem>await ext.tree.showTreeItemPicker(ProductTreeItem.contextValue, actionContext);
         }
-        await productResourceEditor.showEditor(node);
+        await productResourceEditor.showEditor(actionContext, node);
         vscode.commands.executeCommand('setContext', 'isEditorEnabled', true);
     },              doubleClickDebounceDelay);
 
@@ -221,7 +220,7 @@ function registerEditors(context: vscode.ExtensionContext) : void {
         if (!node) {
             node = <ApiTreeItem>await ext.tree.showTreeItemPicker(ApiTreeItem.contextValue, actionContext);
         }
-        await apiEditor.showEditor(node);
+        await apiEditor.showEditor(actionContext, node);
         vscode.commands.executeCommand('setContext', 'isEditorEnabled', true);
     },              doubleClickDebounceDelay);
 
@@ -237,7 +236,7 @@ function registerEditors(context: vscode.ExtensionContext) : void {
             const serviceNode = <ServiceTreeItem>await ext.tree.showTreeItemPicker(ServiceTreeItem.contextValue, actionContext);
             node = serviceNode.servicePolicyTreeItem;
         }
-        await servicePolicyEditor.showEditor(node);
+        await servicePolicyEditor.showEditor(actionContext, node);
         vscode.commands.executeCommand('setContext', 'isEditorEnabled', true);
     },              doubleClickDebounceDelay);
 
@@ -251,7 +250,7 @@ function registerEditors(context: vscode.ExtensionContext) : void {
             const apiNode = <ApiTreeItem>await ext.tree.showTreeItemPicker(ApiTreeItem.contextValue, actionContext);
             node = apiNode.policyTreeItem;
         }
-        await apiPolicyEditor.showEditor(node);
+        await apiPolicyEditor.showEditor(actionContext, node);
         vscode.commands.executeCommand('setContext', 'isEditorEnabled', true);
     },              doubleClickDebounceDelay);
 
@@ -265,7 +264,7 @@ function registerEditors(context: vscode.ExtensionContext) : void {
             const operationNode = <ApiOperationTreeItem>await ext.tree.showTreeItemPicker(ApiOperationTreeItem.contextValue, actionContext);
             node = operationNode.policyTreeItem;
         }
-        await operationPolicyEditor.showEditor(node);
+        await operationPolicyEditor.showEditor(actionContext, node);
         vscode.commands.executeCommand('setContext', 'isEditorEnabled', true);
     },              doubleClickDebounceDelay);
 
@@ -277,7 +276,7 @@ function registerEditors(context: vscode.ExtensionContext) : void {
             const productNode = <ProductTreeItem>await ext.tree.showTreeItemPicker(ProductTreeItem.contextValue, actionContext);
             node = productNode.policyTreeItem;
         }
-        await productPolicyEditor.showEditor(node);
+        await productPolicyEditor.showEditor(actionContext, node);
         vscode.commands.executeCommand('setContext', 'isEditorEnabled', true);
     },              doubleClickDebounceDelay);
 
@@ -291,7 +290,7 @@ function registerEditors(context: vscode.ExtensionContext) : void {
         if (!node) {
             node = <AuthorizationProviderTreeItem>await ext.tree.showTreeItemPicker(AuthorizationProviderTreeItem.contextValue, actionContext);
         }
-        await authorizationProviderResourceEditor.showEditor(node);
+        await authorizationProviderResourceEditor.showEditor(actionContext, node);
         vscode.commands.executeCommand('setContext', 'isEditorEnabled', true);
     },              doubleClickDebounceDelay);
 
@@ -305,7 +304,7 @@ function registerEditors(context: vscode.ExtensionContext) : void {
         if (!node) {
             node = <AuthorizationTreeItem>await ext.tree.showTreeItemPicker(AuthorizationTreeItem.contextValue, actionContext);
         }
-        await authorizationResourceEditor.showEditor(node);
+        await authorizationResourceEditor.showEditor(actionContext, node);
         vscode.commands.executeCommand('setContext', 'isEditorEnabled', true);
     },              doubleClickDebounceDelay);
 
@@ -319,7 +318,7 @@ function registerEditors(context: vscode.ExtensionContext) : void {
         if (!node) {
             node = <AuthorizationAccessPolicyTreeItem>await ext.tree.showTreeItemPicker(AuthorizationAccessPolicyTreeItem.contextValue, actionContext);
         }
-        await authorizationAccessPolicyResourceEditor.showEditor(node);
+        await authorizationAccessPolicyResourceEditor.showEditor(actionContext, node);
         vscode.commands.executeCommand('setContext', 'isEditorEnabled', true);
     },              doubleClickDebounceDelay);
 }

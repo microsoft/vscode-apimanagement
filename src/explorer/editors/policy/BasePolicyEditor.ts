@@ -5,7 +5,7 @@
 
 import { PolicyContract } from "@azure/arm-apimanagement";
 import { window } from "vscode";
-import { IParsedError, parseError } from "@microsoft/vscode-azext-utils";
+import { IActionContext, IParsedError, parseError } from "@microsoft/vscode-azext-utils";
 import { policyFormat, showSavePromptConfigKey } from "../../../constants";
 import { ext } from "../../../extensionVariables";
 import { localize } from "../../../localize";
@@ -71,8 +71,8 @@ export abstract class BasePolicyEditor<TRoot extends IServiceTreeRoot> extends E
         return localize("saveConfirmation", "Do you want to upload changes to cloud?");
     }
 
-    public async showEditor(context: ITreeItemWithRoot<TRoot>, sizeLimit?: number /* in Megabytes */): Promise<void> {
-        await super.showEditor(context, sizeLimit);
-        await promptOpenWorkingFolder();
+    public async showEditor(context: IActionContext, treeItem: ITreeItemWithRoot<TRoot>, sizeLimit?: number /* in Megabytes */): Promise<void> {
+        await super.showEditor(context, treeItem, sizeLimit);
+        await promptOpenWorkingFolder(context);
     }
 }

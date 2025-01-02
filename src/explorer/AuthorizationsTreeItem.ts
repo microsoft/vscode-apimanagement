@@ -101,7 +101,7 @@ export class AuthorizationsTreeItem extends AzExtParentTreeItem {
 
     private async buildContext(context: IAuthorizationTreeItemContext): Promise<void> {
         const authorizationProvider: IAuthorizationProviderContract = (<AuthorizationProviderTreeItem>this.parent).authorizationProviderContract;
-        const authorizationName = await askId('Enter Authorization name ...', 'Invalid Authorization name ...');
+        const authorizationName = await askId(context, 'Enter Authorization name ...', 'Invalid Authorization name ...');
         context.authorizationName = authorizationName;
         let parameterValues: IParameterValues = {};
         let grantType = IGrantTypesContract.authorizationCode;
@@ -109,7 +109,7 @@ export class AuthorizationsTreeItem extends AzExtParentTreeItem {
             grantType = IGrantTypesContract.clientCredentials;
             const identityProvider: ITokenStoreIdentityProviderContract = await this.apimService.getTokenStoreIdentityProvider(authorizationProvider.properties.identityProvider);
             const grant = identityProvider.properties.oauth2.grantTypes.clientCredentials;
-            parameterValues = await askAuthorizationParameterValues(nonNullValue(grant));
+            parameterValues = await askAuthorizationParameterValues(context, nonNullValue(grant));
         }
         context.authorization = { authorizationType: "oauth2", oauth2grantType: grantType, parameters: parameterValues };
     }

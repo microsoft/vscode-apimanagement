@@ -43,7 +43,7 @@ export async function authorizeAuthorization(context: IActionContext, node?: Aut
         const identityProvider: ITokenStoreIdentityProviderContract = await apimService.getTokenStoreIdentityProvider(authorizationProvider.properties.identityProvider);
         const grant = identityProvider.properties.oauth2.grantTypes.clientCredentials;
 
-        const parameterValues = await askAuthorizationParameterValues(nonNullValue(grant));
+        const parameterValues = await askAuthorizationParameterValues(context, nonNullValue(grant));
 
         const authorization = node.authorizationContract;
         authorization.properties.parameters = parameterValues;

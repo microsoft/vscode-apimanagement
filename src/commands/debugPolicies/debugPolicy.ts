@@ -25,7 +25,7 @@ export async function debugPolicy(context: IActionContext, node?: ApiOperationTr
         name: "Attach to APIM",
         stopOnEntry: true,
         // tslint:disable-next-line: no-non-null-assertion
-        gatewayAddress: await getDebugGatewayAddressUrl(node!),
+        gatewayAddress: await getDebugGatewayAddressUrl(node!, context),
         managementAddress: getManagementUrl(node.root),
         subscriptionId: node.root.subscriptionId,
         operationData: operationData,
@@ -60,7 +60,7 @@ function getManagementUrl(root: IOperationTreeRoot): string {
     return `${root.environment.resourceManagerEndpointUrl}/subscriptions/${root.subscriptionId}/resourceGroups/${root.resourceGroupName}/providers/microsoft.apimanagement/service/${root.serviceName}`;
 }
 
-async function getDebugGatewayAddressUrl(node: ApiOperationTreeItem): Promise<string> {
+async function getDebugGatewayAddressUrl(node: ApiOperationTreeItem, context: IActionContext): Promise<string> {
     // tslint:disable-next-line: prefer-template
     const gatewayUrl: string | undefined = ext.context.globalState.get(node.root.serviceName + gatewayHostName);
     if (gatewayUrl !== undefined) {
@@ -73,7 +73,7 @@ async function getDebugGatewayAddressUrl(node: ApiOperationTreeItem): Promise<st
         let gatewayHostNameUl = "";
         if (hostNameConfigs.length > 1) {
             const allHostNames = hostNameConfigs.filter((s) => (s.type === "Proxy"));
-            const pick = await ext.ui.showQuickPick(allHostNames.map((s) => { return { label: s.hostName, gateway: s }; }), { canPickMany: false });
+            const pick = await context.ui.showQuickPick(allHostNames.map((s) => { return { label: s.hostName, gateway: s }; }), { canPickMany: false });
             gatewayHostNameUl = `wss://${pick.gateway.hostName}/debug-0123456789abcdef`;
         } else {
             gatewayHostNameUl = `wss://${hostNameConfigs[0].hostName}/debug-0123456789abcdef`;

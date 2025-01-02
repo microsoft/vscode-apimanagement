@@ -37,13 +37,13 @@ export async function importFunctionAppToApi(context: IActionContext, node?: Api
     ext.outputChannel.appendLine(localize("importFunctionApp", `Import Function App started...`));
 
     ext.outputChannel.appendLine(localize("importFunctionApp", "Getting Function Apps..."));
-    const functionSubscriptionId = await azureClientUtil.selectSubscription();
-    const functionApp = await getPickedWebApp(node, webAppKind.functionApp, context);
+    const functionSubscriptionId = await azureClientUtil.selectSubscription(context);
+    const functionApp = await getPickedWebApp(context, node, webAppKind.functionApp);
     const funcName = nonNullOrEmptyValue(functionApp.name);
     const funcAppResourceGroup = nonNullOrEmptyValue(functionApp.resourceGroup);
 
     const funcAppService = new FunctionAppService(node.root.credentials, node.root.environment.resourceManagerEndpointUrl, functionSubscriptionId, funcAppResourceGroup, funcName);
-    const pickedFuncs = await pickFunctions(funcAppService);
+    const pickedFuncs = await pickFunctions(context, funcAppService);
     window.withProgress(
         {
             location: ProgressLocation.Notification,
@@ -73,22 +73,22 @@ export async function importFunctionApp(context: IActionContext & Partial<IApiTr
 
     ext.outputChannel.show();
     ext.outputChannel.appendLine(localize("importFunctionApp", "Getting Function Apps..."));
-    const functionSubscriptionId = await azureClientUtil.selectSubscription();
-    const functionApp = await getPickedWebApp(node, webAppKind.functionApp, context);
+    const functionSubscriptionId = await azureClientUtil.selectSubscription(context);
+    const functionApp = await getPickedWebApp(context, node, webAppKind.functionApp);
     const funcName = nonNullOrEmptyValue(functionApp.name);
     const funcAppResourceGroup = nonNullOrEmptyValue(functionApp.resourceGroup);
 
     // tslint:disable: no-non-null-assertion
     const webConfigbaseUrl = getWebConfigbaseUrl(node!.root.environment.resourceManagerEndpointUrl, functionSubscriptionId, funcAppResourceGroup, funcName);
     const funcConfig: IWebAppContract = (await request(node.root.credentials, webConfigbaseUrl, "GET")).parsedBody;
-    const apiName = await apiUtil.askApiName(funcName);
+    const apiName = await apiUtil.askApiName(context, funcName);
     if (funcConfig.properties.apiDefinition && funcConfig.properties.apiDefinition.url) {
         ext.outputChannel.appendLine(localize("importFuncApp", "Importing Function App from swagger object..."));
         const funcAppService = new FunctionAppService(node.root.credentials, node.root.environment.resourceManagerEndpointUrl, functionSubscriptionId, funcAppResourceGroup, funcName);
         await importFromSwagger(funcAppService, context, funcConfig, funcName, apiName, node);
     } else {
         const funcAppService = new FunctionAppService(node.root.credentials, node.root.environment.resourceManagerEndpointUrl, functionSubscriptionId, funcAppResourceGroup, funcName);
-        const pickedFuncs = await pickFunctions(funcAppService);
+        const pickedFuncs = await pickFunctions(context, funcAppService);
         const apiId = apiUtil.genApiId(apiName);
 
         window.withProgress(
@@ -311,13 +311,13 @@ async function getAllOperations(node: ApiTreeItem): Promise<string[]> {
     return operationsNames;
 }
 
-async function pickFunctions(funcAppService: FunctionAppService): Promise<IFunctionContract[]> {
+async function pickFunctions(context: IActionContext, funcAppService: FunctionAppService): Promise<IFunctionContract[]> {
     const allFunctions = await funcAppService.listAllFunctions();
     const importableFuncs = await filterFunctions(allFunctions);
 
     // Pick functions to import
     ext.outputChannel.appendLine(localize("importFunctionApp", "Getting Functions to import...."));
-    const pickedFuncs = await ext.ui.showQuickPick(importableFuncs.map((s) => { return { label: String(s.properties.name), func: s }; }), { canPickMany: true });
+    const pickedFuncs = await context.ui.showQuickPick(importableFuncs.map((s) => { return { label: String(s.properties.name), func: s }; }), { canPickMany: true });
     return pickedFuncs.map(s => { return s.func; });
 }
 

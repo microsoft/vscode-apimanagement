@@ -5,19 +5,18 @@
 
 import { OperationContract, ApiContract, Protocol, ApiCreateOrUpdateParameter } from "@azure/arm-apimanagement";
 import { window } from "vscode";
-import { AzExtParentTreeItem, DialogResponses, IParsedError, parseError, UserCancelledError } from "@microsoft/vscode-azext-utils";
+import { AzExtParentTreeItem, DialogResponses, IParsedError, parseError, UserCancelledError, IActionContext } from "@microsoft/vscode-azext-utils";
 import { IOpenApiImportObject} from "../../extension.bundle";
 import * as Constants from "../constants";
 import { IServiceTreeRoot } from "../explorer/IServiceTreeRoot";
-import { ext } from "../extensionVariables";
 import { localize } from "../localize";
 import { uiUtils } from "@microsoft/vscode-azext-azureutils";
 import { ITreeItemWithRoot } from "../explorer/ITreeItemWithRoot";
 
 export namespace apiUtil {
-    export async function askApiName(defaultName?: string): Promise<string> {
+    export async function askApiName(context: IActionContext, defaultName?: string): Promise<string> {
         const apiNamePrompt: string = localize('apiNamePrompt', 'Enter API Name.');
-        return (await ext.ui.showInputBox({
+        return (await context.ui.showInputBox({
             prompt: apiNamePrompt,
             value: defaultName,
             validateInput: async (value: string | undefined): Promise<string | undefined> => {

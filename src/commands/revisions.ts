@@ -21,10 +21,10 @@ export async function revisions(context: IActionContext, node?: ApiTreeItem): Pr
     }
 
     const options = [localize("", "Make Current"), localize("", "Switch Revision"), localize("", "Create Revision"), localize("", "Delete Revision")];
-    const commands = await ext.ui.showQuickPick(options.map((s) => { return { label: s }; }), { canPickMany: false });
+    const commands = await context.ui.showQuickPick(options.map((s) => { return { label: s }; }), { canPickMany: false });
 
     if (commands.label === localize("", "Switch Revision")) {
-        const pickedApi = await listRevisions(node);
+        const pickedApi = await listRevisions(context, node);
 
         await node.reloadApi(pickedApi);
         await node.refresh(context);
@@ -47,7 +47,7 @@ export async function revisions(context: IActionContext, node?: ApiTreeItem): Pr
                     },
                     async () => {
                         const apiRevName = node!.apiContract.name!;
-                        const notes = await askReleaseNotes();
+                        const notes = await askReleaseNotes(context);
                         const apiRelease: ApiReleaseContract = {
                             apiId: "/apis/".concat(apiRevName),
                             notes: notes
@@ -65,16 +65,16 @@ export async function revisions(context: IActionContext, node?: ApiTreeItem): Pr
             }
         }
     } else if (commands.label === localize("", "Create Revision")) {
-        await createRevision(node, context);
+        await createRevision(context, node);
     } else if (commands.label === localize("", "Delete Revision")) {
-        await deleteRevision(node);
+        await deleteRevision(context, node);
     }
 }
 
-async function askReleaseNotes(): Promise<string> {
+async function askReleaseNotes(context: IActionContext): Promise<string> {
     const releaseNotesPrompt: string = localize('namespacePrompt', 'Enter release notes.');
     const defaultName = localize('releaseName', "New release");
-    return (await ext.ui.showInputBox({
+    return (await context.ui.showInputBox({
         prompt: releaseNotesPrompt,
         value: defaultName,
         validateInput: async (value: string | undefined): Promise<string | undefined> => {
@@ -84,18 +84,18 @@ async function askReleaseNotes(): Promise<string> {
     })).trim();
 }
 
-async function listRevisions(node: ApiTreeItem): Promise<ApiContract> {
+async function listRevisions(context: IActionContext, node: ApiTreeItem): Promise<ApiContract> {
     const nodeApiName = node.root.apiName.split(";rev=")[0];
     const apiRevisions: ApiRevisionContract[] = await uiUtils.listAllIterator(node.root.client.apiRevision.listByService(node.root.resourceGroupName, node.root.serviceName, nodeApiName));
     const apiIds = apiRevisions.map((s) => {
         return s.isCurrent !== undefined && s.isCurrent === true ? s.apiId!.concat("(Current)") : s.apiId!;
     });
-    const pickedApiRevision = await ext.ui.showQuickPick(apiIds.map((s) => { return { label: s }; }), { canPickMany: false });
+    const pickedApiRevision = await context.ui.showQuickPick(apiIds.map((s) => { return { label: s }; }), { canPickMany: false });
     const apiName = pickedApiRevision.label.replace("/apis/", "").replace("(Current)", "");
     return await node.root.client.api.get(node.root.resourceGroupName, node.root.serviceName, apiName);
 }
 
-async function createRevision(node: ApiTreeItem, context: IActionContext): Promise<void> {
+async function createRevision(context: IActionContext, node: ApiTreeItem): Promise<void> {
     await window.withProgress(
         {
             location: ProgressLocation.Notification,
@@ -112,7 +112,7 @@ async function createRevision(node: ApiTreeItem, context: IActionContext): Promi
                     revNumber = Number(apiRev.apiRevision);
                 }
             }
-            const revDescription = await askRevisionDescription();
+            const revDescription = await askRevisionDescription(context);
             const newApiRev : ApiCreateOrUpdateParameter = {
                 sourceApiId: "/apis/".concat(curApi.id!),
                 apiRevisionDescription: revDescription,
@@ -133,7 +133,7 @@ async function createRevision(node: ApiTreeItem, context: IActionContext): Promi
     });
 }
 
-async function deleteRevision(node: ApiTreeItem): Promise<void> {
+async function deleteRevision(context: IActionContext, node: ApiTreeItem): Promise<void> {
     await window.withProgress(
         {
             location: ProgressLocation.Notification,
@@ -141,7 +141,7 @@ async function deleteRevision(node: ApiTreeItem): Promise<void> {
             cancellable: true
         },
         async () => {
-            const pickedApi = await listRevisions(node);
+            const pickedApi = await listRevisions(context, node);
             await node.root.client.api.delete(node.root.resourceGroupName, node.root.serviceName, nonNullOrEmptyValue(pickedApi.name), "*");
         }
     ).then(async () => {
@@ -149,10 +149,10 @@ async function deleteRevision(node: ApiTreeItem): Promise<void> {
     });
 }
 
-async function askRevisionDescription(): Promise<string> {
+async function askRevisionDescription(context: IActionContext): Promise<string> {
     const releaseNotesPrompt: string = localize('revisionPrompt', 'Enter revision description.');
     const defaultDescription: string = localize('revisionPrompt',  "New API revision");
-    return (await ext.ui.showInputBox({
+    return (await context.ui.showInputBox({
         prompt: releaseNotesPrompt,
         value: defaultDescription,
         validateInput: async (value: string | undefined): Promise<string | undefined> => {
