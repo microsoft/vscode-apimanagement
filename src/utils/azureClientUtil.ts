@@ -3,22 +3,15 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 import { WebSiteManagementClient } from "@azure/arm-appservice";
-import { Environment } from '@azure/ms-rest-azure-env';
-import { TokenCredentialsBase } from "@azure/ms-rest-nodeauth";
 import * as vscode from 'vscode';
-import { createAzureClient } from "vscode-azureextensionui";
-import { IAzureClientInfo } from "../azure/azureClientInfo";
+import { createAzureClient } from '@microsoft/vscode-azext-azureutils';
 import { ext } from "../extensionVariables";
 import { localize } from "../localize";
+import { AzExtTreeItem, IActionContext } from "@microsoft/vscode-azext-utils";
 
 export namespace azureClientUtil {
-    export function getClient(credentials: TokenCredentialsBase, subscriptionId: string, environment: Environment): WebSiteManagementClient {
-        const clientInfo: IAzureClientInfo = {
-            credentials: credentials,
-            subscriptionId: subscriptionId,
-            environment: environment
-        };
-        return createAzureClient(clientInfo, WebSiteManagementClient);
+    export function getClient(context: IActionContext, node: AzExtTreeItem): WebSiteManagementClient {
+        return createAzureClient([context, node], WebSiteManagementClient);
     }
 
     // tslint:disable: no-unsafe-any

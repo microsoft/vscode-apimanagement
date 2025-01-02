@@ -3,11 +3,12 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ApiCollection } from "@azure/arm-apimanagement/src/models";
+import { ApiContract } from "@azure/arm-apimanagement/src/models";
 import { IActionContext } from "@microsoft/vscode-azext-utils";
 import { ApisTreeItem } from "../explorer/ApisTreeItem";
 import { ServiceTreeItem } from '../explorer/ServiceTreeItem';
 import { ext } from "../extensionVariables";
+import { uiUtils } from "@microsoft/vscode-azext-azureutils";
 
 // tslint:disable: no-any
 // tslint:disable: no-non-null-assertion
@@ -17,16 +18,8 @@ export async function addApiFilter(context: IActionContext, node?: ApisTreeItem)
         node = serviceNode.apisTreeItem;
     }
 
-    let nextLink: string | undefined;
-    const apiCollection: ApiCollection = nextLink === undefined ?
-    await node.root.client.api.listByService(node.root.resourceGroupName, node.root.serviceName, {expandApiVersionSet: false, top: 100}) :
-    await node.root.client.api.listByServiceNext(nextLink);
-
-    while (nextLink !== undefined) {
-        const curApiCollection: ApiCollection = await node.root.client.api.listByServiceNext(nextLink);
-        nextLink = curApiCollection.nextLink;
-        apiCollection.concat(curApiCollection);
-    }
+    let apiCollection: ApiContract[];
+    apiCollection = await uiUtils.listAllIterator(node.root.client.api.listByService(node.root.resourceGroupName, node.root.serviceName));
 
     // filter revisions
     const apis = apiCollection.map((s) => {return s; }).filter((s) => (s.isCurrent !== undefined && s.isCurrent === true ));

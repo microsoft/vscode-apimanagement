@@ -8,7 +8,7 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as query from 'querystring';
 import * as vscode from 'vscode';
-import { AzExtTreeDataProvider, AzExtParentTreeItem, AzExtTreeItem, callWithTelemetryAndErrorHandling, createAzExtOutputChannel, IActionContext, registerCommand, registerEvent, registerUIExtensionVariables,IAzureUserInput } from '@microsoft/vscode-azext-utils';
+import { AzExtTreeDataProvider, AzExtParentTreeItem, AzExtTreeItem, callWithTelemetryAndErrorHandling, createAzExtOutputChannel, IActionContext, registerCommand, registerEvent, registerUIExtensionVariables } from '@microsoft/vscode-azext-utils';
 import { addApiFilter } from './commands/addApiFilter';
 import { addApiToGateway } from './commands/addApiToGateway';
 import { addApiToProduct } from './commands/addApiToProduct';

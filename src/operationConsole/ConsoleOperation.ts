@@ -18,9 +18,9 @@ export class ConsoleOperation {
 
     constructor(hostName: string, operationContract: OperationContract) {
         this.hostName = hostName;
-        this.name = operationContract.displayName;
-        this.method = operationContract.method.toUpperCase();
-        this.uriTemplate = operationContract.urlTemplate;
+        this.name = operationContract.displayName!;
+        this.method = operationContract.method!.toUpperCase();
+        this.uriTemplate = operationContract.urlTemplate!;
         this.request = new ConsoleRequest(nonNullProp(operationContract, "request"));
         this.templateParameters = operationContract.templateParameters ?  operationContract.templateParameters.map(parameterContract => new ConsoleParameter(parameterContract)) : [];
         if (this.uriTemplate && this.uriTemplate.length > 0 && this.uriTemplate[this.uriTemplate.length - 1] === "*") {

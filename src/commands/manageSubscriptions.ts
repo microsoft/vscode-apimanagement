@@ -5,13 +5,14 @@
 
 import { ApiContract, ProductContract, UserContract } from "@azure/arm-apimanagement/src/models";
 import { ProgressLocation, window } from "vscode";
-import { IActionContext } from "vscode-azureextensionui";
+import { IActionContext } from "@microsoft/vscode-azext-utils";
 import { ISubscriptionContract } from "../azure/webApp/contracts";
 import * as Constants from "../constants";
 import { ServiceTreeItem } from "../explorer/ServiceTreeItem";
 import { SubscriptionsTreeItem } from "../explorer/SubscriptionsTreeItem";
 import { ext } from "../extensionVariables";
 import { localize } from "../localize";
+import { uiUtils } from "@microsoft/vscode-azext-azureutils";
 
 // tslint:disable: no-non-null-assertion
 // tslint:disable-next-line: export-name
@@ -60,9 +61,9 @@ export async function createSubscription(context: IActionContext, node?: Subscri
 }
 
 async function askName(node: SubscriptionsTreeItem): Promise<string> {
-    const subNames = (await node.root.client.subscription.list(
+    const subNames = (await uiUtils.listAllIterator(node.root.client.subscription.list(
         node.root.resourceGroupName,
-        node.root.serviceName)).map(s => s.name!);
+        node.root.serviceName))).map(s => s.name!);
 
     const subNamePrompt: string = localize('subNamePrompt', 'Enter Subscription Name.');
     return (await ext.ui.showInputBox({
@@ -114,18 +115,18 @@ async function askScope(): Promise<string> {
 }
 
 async function askUser(node: SubscriptionsTreeItem): Promise<{ label: string; value: UserContract; }> {
-    const users = await node.root.client.user.listByService(node.root.resourceGroupName, node.root.serviceName);
+    const users = await uiUtils.listAllIterator(node.root.client.user.listByService(node.root.resourceGroupName, node.root.serviceName));
     return (await ext.ui.showQuickPick(users.map((s) => { return {label: s.firstName!.concat(s.lastName!).concat(" (").concat(s.email!).concat(")"), value: s}; }), { canPickMany: false, placeHolder: 'Select User'}));
 }
 
 async function askAPI(node: SubscriptionsTreeItem): Promise<{ label: string; value: ApiContract; }> {
-    const apis = await node.root.client.api.listByService(node.root.resourceGroupName, node.root.serviceName);
+    const apis = await uiUtils.listAllIterator(node.root.client.api.listByService(node.root.resourceGroupName, node.root.serviceName));
     return (await ext.ui.showQuickPick(apis.map((s) => { return {label: s.displayName!, value: s}; }), { canPickMany: false, placeHolder: 'Select API'}));
 }
 
 async function askProduct(node: SubscriptionsTreeItem): Promise<{ label: string; value: ProductContract; }> {
-    const products = await node.root.client.product.listByService(node.root.resourceGroupName, node.root.serviceName);
-    return (await ext.ui.showQuickPick(products.map((s) => { return {label: s.displayName, value: s}; }), { canPickMany: false, placeHolder: 'Select Product'}));
+    const products = await uiUtils.listAllIterator(node.root.client.product.listByService(node.root.resourceGroupName, node.root.serviceName));
+    return (await ext.ui.showQuickPick(products.map((s) => { return {label: s.displayName!, value: s}; }), { canPickMany: false, placeHolder: 'Select Product'}));
 }
 
 async function askTrace(): Promise<string> {

@@ -3,14 +3,16 @@
 *  Licensed under the MIT License. See License.txt in the project root for license information.
 *--------------------------------------------------------------------------------------------*/
 
-import { ApiContract, ApiCreateOrUpdateParameter, ApiReleaseContract, ApiRevisionCollection } from "@azure/arm-apimanagement/src/models";
+import { ApiContract, ApiCreateOrUpdateParameter, ApiReleaseContract } from "@azure/arm-apimanagement/src/models";
 import { Guid } from "guid-typescript";
 import { MessageItem, ProgressLocation, window } from "vscode";
-import { IActionContext } from "vscode-azureextensionui";
+import { IActionContext } from "@microsoft/vscode-azext-utils";
 import { ApiTreeItem } from "../explorer/ApiTreeItem";
 import { ext } from "../extensionVariables";
 import { localize } from "../localize";
 import { nonNullOrEmptyValue } from "../utils/nonNull";
+import { uiUtils } from "@microsoft/vscode-azext-azureutils";
+import { ApiRevisionContract } from "@azure/arm-apimanagement";
 
 // tslint:disable: no-non-null-assertion
 export async function revisions(context: IActionContext, node?: ApiTreeItem): Promise<void> {
@@ -84,7 +86,7 @@ async function askReleaseNotes(): Promise<string> {
 
 async function listRevisions(node: ApiTreeItem): Promise<ApiContract> {
     const nodeApiName = node.root.apiName.split(";rev=")[0];
-    const apiRevisions: ApiRevisionCollection = await node.root.client.apiRevision.listByService(node.root.resourceGroupName, node.root.serviceName, nodeApiName);
+    const apiRevisions: ApiRevisionContract[] = await uiUtils.listAllIterator(node.root.client.apiRevision.listByService(node.root.resourceGroupName, node.root.serviceName, nodeApiName));
     const apiIds = apiRevisions.map((s) => {
         return s.isCurrent !== undefined && s.isCurrent === true ? s.apiId!.concat("(Current)") : s.apiId!;
     });
@@ -101,9 +103,8 @@ async function createRevision(node: ApiTreeItem, context: IActionContext): Promi
             cancellable: true
         },
         async () => {
-            const result = await node.root.client.api.get(node.root.resourceGroupName, node.root.serviceName, node.root.apiName);
-            const curApi = result._response.parsedBody;
-            const revs = await node.root.client.apiRevision.listByService(node.root.resourceGroupName, node.root.serviceName, node.root.apiName);
+            const curApi = await node.root.client.api.get(node.root.resourceGroupName, node.root.serviceName, node.root.apiName);
+            const revs = await uiUtils.listAllIterator(node.root.client.apiRevision.listByService(node.root.resourceGroupName, node.root.serviceName, node.root.apiName));
             const apiRevisions = revs.map((s) => {return s; });
             let revNumber = 0;
             for (const apiRev of apiRevisions) {
@@ -123,7 +124,7 @@ async function createRevision(node: ApiTreeItem, context: IActionContext): Promi
             curApi.isCurrent = false;
             curApi.sourceApiId =  "/apis/".concat(curApi.id!);
             const apiRevId = node.root.apiName.concat(";rev=", (revNumber + 1).toString());
-            const resApi = await node.root.client.api.createOrUpdate(node.root.resourceGroupName, node.root.serviceName, apiRevId, newApiRev);
+            const resApi = await node.root.client.api.beginCreateOrUpdateAndWait(node.root.resourceGroupName, node.root.serviceName, apiRevId, newApiRev);
             await node.reloadApi(resApi);
             await node.refresh(context);
         }
@@ -141,7 +142,7 @@ async function deleteRevision(node: ApiTreeItem): Promise<void> {
         },
         async () => {
             const pickedApi = await listRevisions(node);
-            await node.root.client.api.deleteMethod(node.root.resourceGroupName, node.root.serviceName, nonNullOrEmptyValue(pickedApi.name), "*");
+            await node.root.client.api.delete(node.root.resourceGroupName, node.root.serviceName, nonNullOrEmptyValue(pickedApi.name), "*");
         }
     ).then(async () => {
         window.showInformationMessage(localize("deleteRevision", "Delete revision has completed successfully."));

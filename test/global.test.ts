@@ -9,7 +9,8 @@ import * as os from 'os';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import { TestOutputChannel, TestUserInput } from 'vscode-azureextensiondev';
-import { ext, getRandomHexString, parseError } from '../extension.bundle';
+import { ext, getRandomHexString } from '../extension.bundle';
+import { parseError } from '@microsoft/vscode-azext-utils';
 
 export let longRunningTestsEnabled: boolean;
 export const testFolderPath: string = path.join(os.tmpdir(), `azureApiManagementTest${getRandomHexString()}`);

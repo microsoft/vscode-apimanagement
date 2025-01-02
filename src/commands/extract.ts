@@ -6,7 +6,7 @@
 import * as fse from 'fs-extra';
 import * as path from 'path';
 import { OpenDialogOptions, ProgressLocation, Uri, window, workspace } from "vscode";
-import { IActionContext } from 'vscode-azureextensionui';
+import { IActionContext } from '@microsoft/vscode-azext-utils';
 import * as Constants from '../constants';
 import { ApiTreeItem } from '../explorer/ApiTreeItem';
 import { ServiceTreeItem } from '../explorer/ServiceTreeItem';

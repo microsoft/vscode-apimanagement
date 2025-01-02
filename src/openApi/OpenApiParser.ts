@@ -5,7 +5,7 @@
 
 import { parse } from "swagger-parser";
 import { Uri } from "vscode";
-import { parseError } from "vscode-azureextensionui";
+import { parseError } from "@microsoft/vscode-azext-utils";
 import { ext } from "../extensionVariables";
 import { localize } from "../localize";
 import { IOpenApiImportObject } from "./OpenApiImportObject";
@@ -106,7 +106,7 @@ export class OpenApiParser {
 interface IOpenApi20 {
     swagger: string;
     host: string;
-    basePath: string;
+    basePath?: string;
     schemes: string[];
 }
 

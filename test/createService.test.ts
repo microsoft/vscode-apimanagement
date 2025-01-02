@@ -10,7 +10,7 @@ import { ResourceManagementClient } from '@azure/arm-resources';
 import { IHookCallbackContext, ISuiteCallbackContext } from 'mocha';
 import * as vscode from 'vscode';
 import { ISubscriptionContext, TestAzureAccount} from 'vscode-azureextensiondev';
-import { AzExtTreeDataProvider, AzureParentTreeItem } from 'vscode-azureextensionui';
+import { AzExtTreeDataProvider, AzExtParentTreeItem } from '@microsoft/vscode-azext-utils';
 //import { ApiManagementProvider, AzureTreeDataProvider, ext, getRandomHexString, TestAzureAccount, TestUserInput, treeUtils } from '../extension.bundle';
 import { AzureAccountTreeItem, ext, treeUtils } from '../extension.bundle';
 import { longRunningTestsEnabled } from './global.test';
@@ -33,8 +33,8 @@ suite('Create Azure Resources', async function (this: ISuiteCallbackContext): Pr
         await testAccount.signIn();
         ext.azureAccountTreeItem = new AzureAccountTreeItem(testAccount);
         ext.tree = new AzExtTreeDataProvider(ext.azureAccountTreeItem, 'azureApiManagement.LoadMore');
-        const rootNode : AzureParentTreeItem = await treeUtils.getRootNode(ext.tree);
-        rootNode.root.userId = "vscodeapimtest@microsoft.com"; // userId doesnt exist for service principal.
+        const rootNode : AzExtParentTreeItem = await treeUtils.getRootNode(ext.tree);
+        rootNode.subscription.userId = "vscodeapimtest@microsoft.com"; // userId doesnt exist for service principal.
         //apiManagementClient = getApiManagementClient(testAccount);
     });
 

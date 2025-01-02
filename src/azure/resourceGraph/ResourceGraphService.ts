@@ -4,12 +4,12 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { HttpOperationResponse, ServiceClient } from "@azure/ms-rest-js";
-import { TokenCredentialsBase } from "@azure/ms-rest-nodeauth";
+import { AzExtServiceClientCredentials } from "@microsoft/vscode-azext-utils";
 import { clientOptions } from "../clientOptions";
 
 export class ResourceGraphService {
     public resourceGraphUrl: string;
-    constructor(public credentials: TokenCredentialsBase,
+    constructor(public credentials: AzExtServiceClientCredentials,
                 public endPointUrl: string,
                 public subscriptionId: string) {
         this.credentials = credentials;

@@ -5,7 +5,7 @@
 
 import * as vscode from 'vscode';
 import { window } from 'vscode';
-import { IActionContext } from "vscode-azureextensionui";
+import { IActionContext } from "@microsoft/vscode-azext-utils";
 import { ApimService } from "../../azure/apim/ApimService";
 import { IAuthorizationProviderContract, ITokenStoreIdentityProviderContract } from "../../azure/apim/contracts";
 import { AuthorizationProviderTreeItem } from "../../explorer/AuthorizationProviderTreeItem";

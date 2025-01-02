@@ -4,7 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { ProgressLocation, window } from "vscode";
-import { IActionContext } from "vscode-azureextensionui";
+import { IActionContext } from "@microsoft/vscode-azext-utils";
 import { INamedValuesTreeItemContext, NamedValuesTreeItem } from "../explorer/NamedValuesTreeItem";
 import { NamedValueTreeItem } from "../explorer/NamedValueTreeItem";
 import { ServiceTreeItem } from "../explorer/ServiceTreeItem";

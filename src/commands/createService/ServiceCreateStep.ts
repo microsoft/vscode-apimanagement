@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ApiManagementModels } from "@azure/arm-apimanagement";
+import { ApiManagementServiceSkuProperties } from "@azure/arm-apimanagement";
 import { ApiManagementServiceResource } from "@azure/arm-apimanagement/src/models";
 import { MessageItem, Progress, window } from "vscode";
 import { AzureWizardExecuteStep } from "@microsoft/vscode-azext-utils";
@@ -19,9 +19,9 @@ export class ServiceCreateStep extends AzureWizardExecuteStep<IServiceWizardCont
         const creatingNewService: string = localize('creatingNewAPIManagementService', 'Creating new API Management service "{0}"...', wizardContext.serviceName);
         ext.outputChannel.appendLine(creatingNewService);
         progress.report({ message: creatingNewService });
-        wizardContext.service = await wizardContext.client.apiManagementService.createOrUpdate(nonNullValueAndProp(wizardContext.resourceGroup, 'name'), nonNullProp(wizardContext, 'serviceName'), <ApiManagementServiceResource>{
+        wizardContext.service = await wizardContext.client.apiManagementService.beginCreateOrUpdateAndWait(nonNullValueAndProp(wizardContext.resourceGroup, 'name'), nonNullProp(wizardContext, 'serviceName'), <ApiManagementServiceResource>{
             location: nonNullValueAndProp(wizardContext.location, 'name'),
-            sku: <ApiManagementModels.ApiManagementServiceSkuProperties>{
+            sku: <ApiManagementServiceSkuProperties>{
                 name: nonNullValueAndProp(wizardContext, 'sku'),
                 capacity: wizardContext.sku === 'Consumption' ? 0 : 1
             },

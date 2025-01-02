@@ -3,11 +3,11 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ApiContract, BackendCredentialsContract, NamedValueCreateContract, OperationCollection, OperationContract } from "@azure/arm-apimanagement/src/models";
+import { ApiContract, BackendCredentialsContract, NamedValueCreateContract, OperationContract } from "@azure/arm-apimanagement/src/models";
 import { Site } from "@azure/arm-appservice/src/models";
 import { WebResource } from "@azure/ms-rest-js";
 import { ProgressLocation, window } from "vscode";
-import { IActionContext } from "vscode-azureextensionui";
+import { IActionContext } from "@microsoft/vscode-azext-utils";
 import { IOpenApiImportObject, OpenApiParser } from "../../../extension.bundle";
 import { getSetBackendPolicy } from "../../azure/apim/policyHelper";
 import { IFunctionContract, IWebAppContract } from "../../azure/webApp/contracts";
@@ -25,6 +25,7 @@ import { nonNullOrEmptyValue } from "../../utils/nonNull";
 import { request, sendRequest } from "../../utils/requestUtil";
 import { createImportXmlPolicy, getPickedWebApp, setAppBackendEntity, webAppKind } from "../importWebApp/importWebApp";
 import { parseUrlTemplate } from "./parseUrlTemplate";
+import { uiUtils } from "@microsoft/vscode-azext-azureutils";
 
 // tslint:disable: no-unsafe-any
 export async function importFunctionAppToApi(context: IActionContext, node?: ApiTreeItem): Promise<void> {
@@ -37,7 +38,7 @@ export async function importFunctionAppToApi(context: IActionContext, node?: Api
 
     ext.outputChannel.appendLine(localize("importFunctionApp", "Getting Function Apps..."));
     const functionSubscriptionId = await azureClientUtil.selectSubscription();
-    const functionApp = await getPickedWebApp(node, webAppKind.functionApp, functionSubscriptionId);
+    const functionApp = await getPickedWebApp(node, webAppKind.functionApp, context);
     const funcName = nonNullOrEmptyValue(functionApp.name);
     const funcAppResourceGroup = nonNullOrEmptyValue(functionApp.resourceGroup);
 
@@ -73,7 +74,7 @@ export async function importFunctionApp(context: IActionContext & Partial<IApiTr
     ext.outputChannel.show();
     ext.outputChannel.appendLine(localize("importFunctionApp", "Getting Function Apps..."));
     const functionSubscriptionId = await azureClientUtil.selectSubscription();
-    const functionApp = await getPickedWebApp(node, webAppKind.functionApp, functionSubscriptionId);
+    const functionApp = await getPickedWebApp(node, webAppKind.functionApp, context);
     const funcName = nonNullOrEmptyValue(functionApp.name);
     const funcAppResourceGroup = nonNullOrEmptyValue(functionApp.resourceGroup);
 
@@ -166,20 +167,20 @@ async function importFromSwagger(funcAppService: FunctionAppService, context: IA
                     const backendId = apiUtil.displayNameToIdentifier(funcAppName);
                     ext.outputChannel.appendLine(localize("importFunctionApp", `Creating new backend entity for the function app...`));
                     await setAppBackendEntity(node, backendId, funcAppName, curApi.serviceUrl!, funcAppService.resourceGroup, funcAppName, backendCredentials);
-                    const allOperations = await node!.root.client.apiOperation.listByApi(
+                    const allOperations = await uiUtils.listAllIterator(node!.root.client.apiOperation.listByApi(
                         node!.root.resourceGroupName,
                         node!.root.serviceName,
                         apiName
-                    );
+                    ));
                     for (const operation of allOperations) {
                         ext.outputChannel.appendLine(localize("importFunctionApp", `Creating policy for operations ${operation.name}...`));
-                        await node.root.client.apiOperationPolicy.createOrUpdate(node.root.resourceGroupName, node.root.serviceName, apiName, nonNullOrEmptyValue(operation.name), {
+                        await node.root.client.apiOperationPolicy.createOrUpdate(node.root.resourceGroupName, node.root.serviceName, apiName, 'policy', nonNullOrEmptyValue(operation.name), {
                             format: "rawxml",
                             value: createImportXmlPolicy([getSetBackendPolicy(backendId)])
                         });
                     }
                     ext.outputChannel.appendLine(localize("importFunctionApp", `Creating policy for API ${apiName}...`));
-                    await node.root.client.apiPolicy.createOrUpdate(node.root.resourceGroupName, node.root.serviceName, apiName, {
+                    await node.root.client.apiPolicy.createOrUpdate(node.root.resourceGroupName, node.root.serviceName, apiName, 'policy', {
                         format: "rawxml",
                         value: createImportXmlPolicy([getSetBackendPolicy(backendId)])
                     });
@@ -258,7 +259,7 @@ async function addOperationsToExistingApi(node: ApiTreeItem | ApisTreeItem, apiI
         await setAppBackendEntity(node, backendId, funcAppName, functionAppBase, funcAppService.resourceGroup, funcAppName, backendCredentials);
         for (const operation of allOperations) {
             ext.outputChannel.appendLine(localize("importFunctionApp", `Creating policy for operations ${operation.name}...`));
-            await node.root.client.apiOperationPolicy.createOrUpdate(node.root.resourceGroupName, node.root.serviceName, apiName, nonNullOrEmptyValue(operation.name), {
+            await node.root.client.apiOperationPolicy.createOrUpdate(node.root.resourceGroupName, node.root.serviceName, apiName, 'policy', nonNullOrEmptyValue(operation.name), {
                 format: "rawxml",
                 value: createImportXmlPolicy([getSetBackendPolicy(backendId)])
             });
@@ -302,7 +303,7 @@ function genUniqueOperationName(opName: string, existingOperations: string[]): n
 
 async function getAllOperations(node: ApiTreeItem): Promise<string[]> {
     ext.outputChannel.appendLine(localize("importFunctionApp", `Getting all operations from API ${node.root.apiName}...`));
-    const operations: OperationCollection = await node.root.client.apiOperation.listByApi(node.root.resourceGroupName, node.root.serviceName, node.root.apiName);
+    const operations: OperationContract[] = await uiUtils.listAllIterator(node.root.client.apiOperation.listByApi(node.root.resourceGroupName, node.root.serviceName, node.root.apiName));
     const operationsNames: string[] = [];
     operations.forEach(ele => {
         operationsNames.push(nonNullOrEmptyValue(ele.name));
@@ -328,7 +329,7 @@ async function createPropertyItem(node: ApisTreeItem | ApiTreeItem, namedValueId
         tags: ["key", "function", "auto"],
         secret: true
     };
-    await node.root.client.namedValue.createOrUpdate(node.root.resourceGroupName, node.root.serviceName, namedValueId, namedValueContract);
+    await node.root.client.namedValue.beginCreateOrUpdateAndWait(node.root.resourceGroupName, node.root.serviceName, namedValueId, namedValueContract);
 }
 
 // create new operation for each function and method

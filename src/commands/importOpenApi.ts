@@ -6,7 +6,7 @@
 import { WebResource } from '@azure/ms-rest-js';
 import * as fse from 'fs-extra';
 import { OpenDialogOptions, ProgressLocation, Uri, window, workspace } from "vscode";
-import { IActionContext } from 'vscode-azureextensionui';
+import { IActionContext } from '@microsoft/vscode-azext-utils';
 import { ApisTreeItem, IApiTreeItemContext } from "../explorer/ApisTreeItem";
 import { ServiceTreeItem } from '../explorer/ServiceTreeItem';
 import { ext } from "../extensionVariables";

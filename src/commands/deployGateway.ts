@@ -7,7 +7,7 @@ import * as fse from 'fs-extra';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import { env, OpenDialogOptions, ProgressLocation, Uri, window, workspace } from "vscode";
-import { DialogResponses, IActionContext } from 'vscode-azureextensionui';
+import { DialogResponses, IActionContext } from '@microsoft/vscode-azext-utils';
 import { ApimService } from '../azure/apim/ApimService';
 import { GatewayKeyType } from '../constants';
 import * as Constants from "../constants";

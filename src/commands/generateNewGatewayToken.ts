@@ -4,7 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { env, window } from "vscode";
-import { IActionContext } from "vscode-azureextensionui";
+import { IActionContext } from "@microsoft/vscode-azext-utils";
 import { ApimService } from "../azure/apim/ApimService";
 import { GatewayKeyType } from "../constants";
 import * as Constants from "../constants";

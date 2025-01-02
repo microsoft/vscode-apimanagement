@@ -10,6 +10,7 @@ import { IOperationTreeRoot } from "../explorer/IOperationTreeRoot";
 import { ext } from "../extensionVariables";
 import { nonNullOrEmptyValue, nonNullProp } from "../utils/nonNull";
 import { ConsoleOperation } from "./ConsoleOperation";
+import { uiUtils } from "@microsoft/vscode-azext-azureutils";
 
 export class OperationConsole {
     public async buildRequestInfo(root: IOperationTreeRoot): Promise<string> {
@@ -17,7 +18,7 @@ export class OperationConsole {
             root.client.apiManagementService.get(root.resourceGroupName, root.serviceName),
             root.client.api.get(root.resourceGroupName, root.serviceName, root.apiName),
             root.client.apiOperation.get(root.resourceGroupName, root.serviceName, root.apiName, root.opName),
-            root.client.apiRevision.listByService(root.resourceGroupName, root.serviceName, root.apiName)]);
+            uiUtils.listAllIterator(root.client.apiRevision.listByService(root.resourceGroupName, root.serviceName, root.apiName))]);
 
         const service = results[0];
         const api = results[1];
@@ -59,7 +60,7 @@ export class OperationConsole {
             root.client.apiManagementService.get(root.resourceGroupName, root.serviceName),
             root.client.api.get(root.resourceGroupName, root.serviceName, root.apiName),
             root.client.apiOperation.get(root.resourceGroupName, root.serviceName, root.apiName, root.opName),
-            root.client.apiRevision.listByService(root.resourceGroupName, root.serviceName, root.apiName)]);
+            uiUtils.listAllIterator(root.client.apiRevision.listByService(root.resourceGroupName, root.serviceName, root.apiName))]);
 
         const service = results[0];
         const api = results[1];

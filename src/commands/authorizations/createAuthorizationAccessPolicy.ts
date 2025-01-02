@@ -3,9 +3,9 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { TokenCredentialsBase } from "@azure/ms-rest-nodeauth";
+import { AzExtServiceClientCredentials } from "@microsoft/vscode-azext-utils";
 import { ProgressLocation, QuickPickItem, window } from "vscode";
-import { IActionContext } from "vscode-azureextensionui";
+import { IActionContext } from "@microsoft/vscode-azext-utils";
 import { ApimService } from "../../azure/apim/ApimService";
 import { GraphService } from "../../azure/graph/GraphService";
 import { ResourceGraphService } from "../../azure/resourceGraph/ResourceGraphService";
@@ -148,7 +148,7 @@ function createAccessPolicy(
 
 async function populateIdentityOptionsAsync(
     apimService: ApimService,
-    credential : TokenCredentialsBase,
+    credential : AzExtServiceClientCredentials,
     resourceManagerEndpointUrl: string) : Promise<QuickPickItem[]> {
     const options : QuickPickItem[] = [];
 

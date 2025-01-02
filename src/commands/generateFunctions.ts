@@ -7,7 +7,7 @@ import * as fse from 'fs-extra';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import { OpenDialogOptions, ProgressLocation, Uri, window, workspace } from "vscode";
-import { DialogResponses, IActionContext } from 'vscode-azureextensionui';
+import { DialogResponses, IActionContext } from '@microsoft/vscode-azext-utils';
 import XRegExp = require('xregexp');
 import { ApiTreeItem } from "../explorer/ApiTreeItem";
 import { OpenApiEditor } from "../explorer/editors/openApi/OpenApiEditor";
