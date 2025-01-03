@@ -7,8 +7,9 @@ import * as fse from 'fs-extra';
 import { Context } from 'mocha';
 import * as os from 'os';
 import * as path from 'path';
-import { getRandomHexString } from '../extension.bundle';
+import { ext, getRandomHexString } from '../extension.bundle';
 import { parseError } from '@microsoft/vscode-azext-utils';
+import { TestOutputChannel } from '@microsoft/vscode-azext-dev';
 
 export let longRunningTestsEnabled: boolean;
 export const testFolderPath: string = path.join(os.tmpdir(), `azureApiManagementTest${getRandomHexString()}`);
@@ -20,8 +21,7 @@ suiteSetup(async function (this: Context): Promise<void> {
     await fse.ensureDir(testFolderPath);
 
     //await vscode.commands.executeCommand('azureApiManagement.Refresh'); // activate the extension before tests begin
-    // TODO: migrate vscode-azureextensiondev package
-    // ext.outputChannel = new TestOutputChannel();
+    ext.outputChannel = new TestOutputChannel();
 
     // tslint:disable-next-line:strict-boolean-expressions
     longRunningTestsEnabled = !/^(false|0)?$/i.test(process.env.ENABLE_LONG_RUNNING_TESTS || '');

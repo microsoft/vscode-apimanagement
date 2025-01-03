@@ -9,11 +9,12 @@
 import { ResourceManagementClient } from '@azure/arm-resources';
 import { Context, Suite } from 'mocha';
 import * as vscode from 'vscode';
-import { ISubscriptionContext, TestAzureAccount} from 'vscode-azureextensiondev';
+import { ISubscriptionContext, TestAzureAccount} from '@microsoft/vscode-azext-dev';
 import { AzExtTreeDataProvider, AzExtParentTreeItem } from '@microsoft/vscode-azext-utils';
 //import { ApiManagementProvider, AzureTreeDataProvider, ext, getRandomHexString, TestAzureAccount, TestUserInput, treeUtils } from '../extension.bundle';
 import { AzureAccountTreeItem, ext, treeUtils } from '../extension.bundle';
 import { longRunningTestsEnabled } from './global.test';
+import { HttpHeaders } from '@azure/ms-rest-js';
 //import { runWithApimSetting } from './runWithSetting';
 
 // tslint:disable-next-line:max-func-body-length
@@ -44,7 +45,7 @@ suite('Create Azure Resources', async function (this: Suite): Promise<void> {
         }
         this.timeout(1200 * 1000);
 
-        const client: ResourceManagementClient = getResourceManagementClient(testAccount);
+        const client: ResourceManagementClient = await getResourceManagementClient(testAccount);
         for (const resourceGroup of resourceGroupsToDelete) {
             if (await client.resourceGroups.checkExistence(resourceGroup) !== undefined) {
                 console.log(`Deleting resource group "${resourceGroup}"...`);
@@ -74,7 +75,18 @@ suite('Create Azure Resources', async function (this: Suite): Promise<void> {
 //     return new ApiManagementClient(testAccount.getSubscriptionCredentials(), testAccount.getSubscriptionId());
 // }
 
-function getResourceManagementClient(testAccount: TestAzureAccount): ResourceManagementClient {
+async function getResourceManagementClient(testAccount: TestAzureAccount): Promise<ResourceManagementClient> {
     const subscriptionContext: ISubscriptionContext = testAccount.getSubscriptionContext();
-    return new ResourceManagementClient(subscriptionContext.credentials, subscriptionContext.subscriptionId);
+    const creds = getCredentialForToken(await subscriptionContext.credentials.getToken());
+    return new ResourceManagementClient(creds, subscriptionContext.subscriptionId);
+}
+
+function getCredentialForToken(accessToken: any) {
+    return {
+      signRequest: (request: any) => {
+        if (!request.headers) {request.headers = new HttpHeaders();}
+        request.headers.set("Authorization", `Bearer ${accessToken.token}`);
+        return Promise.resolve(request);
+      }
+    };
 }
