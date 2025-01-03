@@ -78,6 +78,7 @@ import { ServiceTreeItem } from './explorer/ServiceTreeItem';
 import { SubscriptionTreeItem } from './explorer/SubscriptionTreeItem';
 import { ext } from './extensionVariables';
 import { localize } from './localize';
+import { registerAzureUtilsExtensionVariables } from '@microsoft/vscode-azext-azureutils';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -91,6 +92,7 @@ export async function activateInternal(context: vscode.ExtensionContext) {
     vscode.commands.executeCommand('setContext', 'isEditorEnabled', false);
 
     registerUIExtensionVariables(ext);
+    registerAzureUtilsExtensionVariables(ext);
 
     await callWithTelemetryAndErrorHandling('azureApiManagement.Activate', async (activateContext: IActionContext) => {
         activateContext.telemetry.properties.isActivationEvent = 'true';

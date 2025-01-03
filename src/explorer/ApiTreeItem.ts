@@ -5,7 +5,7 @@
 
 import { ApiContract } from "@azure/arm-apimanagement";
 import { ProgressLocation, window } from "vscode";
-import { AzExtParentTreeItem, AzExtTreeItem, DialogResponses, ISubscriptionContext, UserCancelledError } from "@microsoft/vscode-azext-utils";
+import { AzExtParentTreeItem, AzExtTreeItem, DialogResponses, UserCancelledError } from "@microsoft/vscode-azext-utils";
 import { localize } from "../localize";
 import { nonNullProp } from "../utils/nonNull";
 import { treeUtils } from "../utils/treeUtils";
@@ -33,6 +33,7 @@ export class ApiTreeItem extends AzExtParentTreeItem {
     constructor(
         parent: AzExtParentTreeItem,
         public apiContract: ApiContract,
+        root: IServiceTreeRoot,
         apiVersion?: string) {
         super(parent);
 
@@ -43,7 +44,7 @@ export class ApiTreeItem extends AzExtParentTreeItem {
         }
 
         this._name = nonNullProp(this.apiContract, 'name');
-        this._root = this.createRoot(parent.subscription, this._name);
+        this._root = this.createRoot(root, this._name);
         this._operationsTreeItem = new ApiOperationsTreeItem(this, this.root);
         this.policyTreeItem = new ApiPolicyTreeItem(this, this.root);
     }
@@ -118,7 +119,7 @@ export class ApiTreeItem extends AzExtParentTreeItem {
         }
     }
 
-    private createRoot(subRoot: ISubscriptionContext, apiName: string): IApiTreeRoot {
+    private createRoot(subRoot: IServiceTreeRoot, apiName: string): IApiTreeRoot {
         return Object.assign({}, <IServiceTreeRoot>subRoot, {
             apiName: apiName
         });

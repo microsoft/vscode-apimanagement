@@ -64,7 +64,7 @@ export class ApisTreeItem extends AzExtParentTreeItem {
                 if (api.apiVersionSetId) {
                     let apiVersionSetTreeItem = versionSetMap.get(api.apiVersionSetId);
                     if (!apiVersionSetTreeItem) {
-                        apiVersionSetTreeItem = new ApiVersionSetTreeItem(this, api);
+                        apiVersionSetTreeItem = new ApiVersionSetTreeItem(this, this.root, api);
                         // tslint:disable-next-line: no-non-null-assertion
                         versionSetMap.set(api.apiVersionSetId, apiVersionSetTreeItem!);
                         return apiVersionSetTreeItem;
@@ -75,7 +75,7 @@ export class ApisTreeItem extends AzExtParentTreeItem {
                         return undefined;
                     }
                 } else if (apiUtil.isNotApiRevision(api)) {
-                    return new ApiTreeItem(this, api);
+                    return new ApiTreeItem(this, api, this.root);
                 }
                 return undefined;
             },
@@ -98,7 +98,7 @@ export class ApisTreeItem extends AzExtParentTreeItem {
             showCreatingTreeItem(apiName);
             try {
                 const api = await apiUtil.createOrUpdateApiWithSwaggerObject(this, apiName, document);
-                return new ApiTreeItem(this, api);
+                return new ApiTreeItem(this, api, this.root);
             } catch (error) {
                 throw new Error(processError(error, localize("createAPIFailed", `Failed to create the API ${apiName}`)));
             }
@@ -114,7 +114,7 @@ export class ApisTreeItem extends AzExtParentTreeItem {
                 await apiUtil.checkApiExist(this, apiName);
                 const apiPayload: ApiCreateOrUpdateParameter = { displayName: apiName, path: apiName, description: apiContract.description, protocols: apiContract.protocols };
                 const api = await this.root.client.api.beginCreateOrUpdateAndWait(this.root.resourceGroupName, this.root.serviceName, apiName, apiPayload);
-                return new ApiTreeItem(this, api);
+                return new ApiTreeItem(this, api, this.root);
             } catch (error) {
                 throw new Error(processError(error, localize("createAPIFailed", `Failed to create the API ${apiName}`)));
             }

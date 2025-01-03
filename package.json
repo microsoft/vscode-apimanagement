@@ -820,6 +820,7 @@
     },
     "devDependencies": {
         "@azure/ms-rest-js": "^2.7.0",
+        "@microsoft/vscode-azext-dev": "^2.1.0",
         "@types/fs-extra": "^4.0.3",
         "@types/gulp": "^4.0.6",
         "@types/mocha": "^10.0.0",
@@ -840,16 +841,16 @@
         "tslint-microsoft-contrib": "5.0.1",
         "typescript": "^5.0.0",
         "vsce": "^1.74.0",
-        "vscode-azureextensiondev": "^0.6.0",
         "vscode-debugadapter-testsupport": "1.40.2",
         "vscode-extension-telemetry": "^0.0.18",
-        "webpack": "4.29.6",
-        "webpack-cli": "^3.3.11"
+        "webpack": "^5.76.0",
+        "webpack-cli": "^4.6.0"
     },
     "dependencies": {
         "@azure/arm-apimanagement": "^9.2.0",
         "@azure/arm-appservice": "^15.0.0",
         "@azure/arm-resources": "^4.0.0",
+        "@azure/ms-rest-nodeauth": "^3.1.1",
         "@microsoft/vscode-azext-azureutils": "^3.1.2",
         "@microsoft/vscode-azext-utils": "^2.5.12",
         "@types/xml": "^1.0.4",

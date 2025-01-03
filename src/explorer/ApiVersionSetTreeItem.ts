@@ -8,18 +8,23 @@ import { AzExtParentTreeItem, AzExtTreeItem } from "@microsoft/vscode-azext-util
 import { nonNullProp, nonNullValue } from "../utils/nonNull";
 import { treeUtils } from "../utils/treeUtils";
 import { ApiTreeItem } from "./ApiTreeItem";
+import { IServiceTreeRoot } from "./IServiceTreeRoot";
 
 export class ApiVersionSetTreeItem extends AzExtParentTreeItem {
     public static contextValue: string = 'azureApiManagementApiVersionSet';
     public contextValue: string = ApiVersionSetTreeItem.contextValue;
+
+    public readonly root: IServiceTreeRoot;
 
     private _apis: ApiContract[] = [];
     private _apiVersionSet: ApiVersionSetContractDetails;
 
     constructor(
         parent: AzExtParentTreeItem,
+        root: IServiceTreeRoot,
         public readonly initialApi: ApiContract) {
         super(parent);
+        this.root = root;
         this._apis.push(initialApi);
 
         this._apiVersionSet = nonNullValue(initialApi, "apiVersionSet");
@@ -43,7 +48,7 @@ export class ApiVersionSetTreeItem extends AzExtParentTreeItem {
     }
 
     public async loadMoreChildrenImpl(): Promise<AzExtTreeItem[]> {
-        const apis = this._apis.map(async (api) => new ApiTreeItem(this, api, api.apiVersion ? api.apiVersion : "Original"));
+        const apis = this._apis.map(async (api) => new ApiTreeItem(this, api, this.root, api.apiVersion ? api.apiVersion : "Original"));
         return Promise.all(apis);
     }
 

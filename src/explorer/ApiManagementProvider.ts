@@ -5,7 +5,7 @@
 
 import { ApiManagementClient, ApiManagementServiceResource } from '@azure/arm-apimanagement';
 import { MessageItem } from 'vscode';
-import { AzExtTreeItem, AzExtParentTreeItem, AzureWizard, AzureWizardExecuteStep, AzureWizardPromptStep, ICreateChildImplContext, parseError, IActionContext } from '@microsoft/vscode-azext-utils';
+import { AzExtTreeItem, AzExtParentTreeItem, AzureWizard, AzureWizardExecuteStep, AzureWizardPromptStep, ICreateChildImplContext, parseError, IActionContext, ISubscriptionContext } from '@microsoft/vscode-azext-utils';
 import { createAzureClient, LocationListStep, ResourceGroupCreateStep, ResourceGroupListStep, SubscriptionTreeItemBase, uiUtils } from '@microsoft/vscode-azext-azureutils';
 import { IServiceWizardContext } from '../commands/createService/IServiceWizardContext';
 import { ServiceCreateStep } from '../commands/createService/ServiceCreateStep';
@@ -16,11 +16,17 @@ import { localize } from "../localize";
 import { nonNullProp } from '../utils/nonNull';
 import { getWorkspaceSetting, updateGlobalSetting } from '../vsCodeConfig/settings';
 import { ServiceTreeItem } from './ServiceTreeItem';
+import { treeUtils } from '../utils/treeUtils';
 
 export class ApiManagementProvider extends SubscriptionTreeItemBase {
     public readonly childTypeLabel: string = localize('azureApiManagement.ApimService', 'API Management Service');
 
     private _nextLink: string | undefined;
+
+    constructor(parent: AzExtParentTreeItem, subscription: ISubscriptionContext) {
+        super(parent, subscription);
+        this.iconPath = treeUtils.getIconPath('azureSubscription');
+    }
 
     public hasMoreChildrenImpl(): boolean {
         return this._nextLink !== undefined;
