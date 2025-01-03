@@ -3,10 +3,9 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ApiManagementModels } from "@azure/arm-apimanagement";
-import { ApiContract } from "@azure/arm-apimanagement/src/models";
+import { ApiContract } from "@azure/arm-apimanagement";
 import { ProgressLocation, window } from "vscode";
-import { AzureParentTreeItem, AzureTreeItem, DialogResponses, ISubscriptionContext, UserCancelledError } from "vscode-azureextensionui";
+import { AzExtParentTreeItem, AzExtTreeItem, DialogResponses, UserCancelledError } from "@microsoft/vscode-azext-utils";
 import { localize } from "../localize";
 import { nonNullProp } from "../utils/nonNull";
 import { treeUtils } from "../utils/treeUtils";
@@ -18,10 +17,12 @@ import { IServiceTreeRoot } from "./IServiceTreeRoot";
 import { OperationPolicyTreeItem } from "./OperationPolicyTreeItem";
 
 // tslint:disable: no-non-null-assertion
-export class ApiTreeItem extends AzureParentTreeItem<IApiTreeRoot> {
+export class ApiTreeItem extends AzExtParentTreeItem {
     public static contextValue: string = 'azureApiManagementApi';
     public contextValue: string = ApiTreeItem.contextValue;
-    public readonly commandId: string = 'azureApiManagement.showArmApi';
+    public get commandId(): string {
+        return 'azureApiManagement.showArmApi';
+    }
     public policyTreeItem: ApiPolicyTreeItem;
 
     private _name: string;
@@ -30,8 +31,9 @@ export class ApiTreeItem extends AzureParentTreeItem<IApiTreeRoot> {
     private _operationsTreeItem: ApiOperationsTreeItem;
 
     constructor(
-        parent: AzureParentTreeItem,
-        public apiContract: ApiManagementModels.ApiContract,
+        parent: AzExtParentTreeItem,
+        public apiContract: ApiContract,
+        root: IServiceTreeRoot,
         apiVersion?: string) {
         super(parent);
 
@@ -42,9 +44,9 @@ export class ApiTreeItem extends AzureParentTreeItem<IApiTreeRoot> {
         }
 
         this._name = nonNullProp(this.apiContract, 'name');
-        this._root = this.createRoot(parent.root, this._name);
-        this._operationsTreeItem = new ApiOperationsTreeItem(this);
-        this.policyTreeItem = new ApiPolicyTreeItem(this);
+        this._root = this.createRoot(root, this._name);
+        this._operationsTreeItem = new ApiOperationsTreeItem(this, this.root);
+        this.policyTreeItem = new ApiPolicyTreeItem(this, this.root);
     }
 
     public get id(): string {
@@ -63,7 +65,7 @@ export class ApiTreeItem extends AzureParentTreeItem<IApiTreeRoot> {
         return treeUtils.getThemedIconPath('api');
     }
 
-    public async loadMoreChildrenImpl(): Promise<AzureTreeItem<IApiTreeRoot>[]> {
+    public async loadMoreChildrenImpl(): Promise<AzExtTreeItem[]> {
         return [this._operationsTreeItem, this.policyTreeItem];
     }
 
@@ -77,7 +79,7 @@ export class ApiTreeItem extends AzureParentTreeItem<IApiTreeRoot> {
         if (result === DialogResponses.deleteResponse) {
             const deletingMessage: string = localize("deletingApi", `Deleting API "${this.root.apiName}"...`);
             await window.withProgress({ location: ProgressLocation.Notification, title: deletingMessage }, async () => {
-                await this.root.client.api.deleteMethod(this.root.resourceGroupName, this.root.serviceName, this.root.apiName, '*');
+                await this.root.client.api.delete(this.root.resourceGroupName, this.root.serviceName, this.root.apiName, '*');
             });
             // don't wait
             window.showInformationMessage(localize("deletedApi", `Successfully deleted API "${this.root.apiName}".`));
@@ -87,7 +89,7 @@ export class ApiTreeItem extends AzureParentTreeItem<IApiTreeRoot> {
         }
     }
 
-    public pickTreeItemImpl(expectedContextValues: (string | RegExp)[]): AzureTreeItem<IApiTreeRoot> | undefined {
+    public pickTreeItemImpl(expectedContextValues: (string | RegExp)[]): AzExtTreeItem | undefined {
         for (const expectedContextValue of expectedContextValues) {
             switch (expectedContextValue) {
                 case OperationPolicyTreeItem.contextValue:
@@ -104,8 +106,8 @@ export class ApiTreeItem extends AzureParentTreeItem<IApiTreeRoot> {
         this._name = nonNullProp(api, 'name');
         this._label = this.getRevisionDisplayName(api);
         this._root = this.createRoot(this.root, this._name);
-        this._operationsTreeItem = new ApiOperationsTreeItem(this);
-        this.policyTreeItem = new ApiPolicyTreeItem(this);
+        this._operationsTreeItem = new ApiOperationsTreeItem(this, this.root);
+        this.policyTreeItem = new ApiPolicyTreeItem(this, this.root);
     }
 
     private getRevisionDisplayName(api: ApiContract): string {
@@ -117,7 +119,7 @@ export class ApiTreeItem extends AzureParentTreeItem<IApiTreeRoot> {
         }
     }
 
-    private createRoot(subRoot: ISubscriptionContext, apiName: string): IApiTreeRoot {
+    private createRoot(subRoot: IServiceTreeRoot, apiName: string): IApiTreeRoot {
         return Object.assign({}, <IServiceTreeRoot>subRoot, {
             apiName: apiName
         });

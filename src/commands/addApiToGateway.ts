@@ -4,7 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { ProgressLocation, window } from "vscode";
-import { IActionContext } from "vscode-azureextensionui";
+import { IActionContext } from "@microsoft/vscode-azext-utils";
 import { ApiTreeItem } from "../explorer/ApiTreeItem";
 import { GatewayApisTreeItem, IGatewayTreeItemContext } from "../explorer/GatewayApisTreeItem";
 import { GatewaysTreeItem } from "../explorer/GatewaysTreeItem";

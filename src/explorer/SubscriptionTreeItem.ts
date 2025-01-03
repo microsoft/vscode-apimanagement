@@ -3,16 +3,17 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { SubscriptionContract } from "@azure/arm-apimanagement/src/models";
+import { SubscriptionContract } from "@azure/arm-apimanagement";
 import { ProgressLocation, window } from "vscode";
-import { AzureTreeItem, DialogResponses, ISubscriptionContext, UserCancelledError } from "vscode-azureextensionui";
+import { AzExtTreeItem, DialogResponses, ISubscriptionContext, UserCancelledError } from "@microsoft/vscode-azext-utils";
 import { localize } from "../localize";
 import { nonNullProp } from "../utils/nonNull";
 import { treeUtils } from "../utils/treeUtils";
 import { ISubscriptionTreeRoot } from "./ISubscriptionTreeRoot";
 import { SubscriptionsTreeItem } from "./SubscriptionsTreeItem";
+import { IServiceTreeRoot } from "./IServiceTreeRoot";
 
-export class SubscriptionTreeItem extends AzureTreeItem<ISubscriptionTreeRoot> {
+export class SubscriptionTreeItem extends AzExtTreeItem {
     public static contextValue: string = 'azureApiManagementSubscriptionTreeItem';
     public contextValue: string = SubscriptionTreeItem.contextValue;
 
@@ -21,15 +22,15 @@ export class SubscriptionTreeItem extends AzureTreeItem<ISubscriptionTreeRoot> {
 
     constructor(
         parent: SubscriptionsTreeItem,
-        public readonly subscriptionContract: SubscriptionContract) {
+        public readonly subscriptionContract: SubscriptionContract,
+        root: IServiceTreeRoot) {
         super(parent);
         if (this.subscriptionContract.displayName === null || this.subscriptionContract.displayName === undefined) {
             this._label = nonNullProp(this.subscriptionContract, 'name');
         } else {
             this._label = nonNullProp(this.subscriptionContract, 'displayName');
         }
-        // tslint:disable-next-line: no-unsafe-any
-        this._root = this.createRoot(parent.root);
+        this._root = this.createRoot(root);
     }
 
     public get label() : string {
@@ -54,7 +55,7 @@ export class SubscriptionTreeItem extends AzureTreeItem<ISubscriptionTreeRoot> {
         if (result === DialogResponses.deleteResponse) {
             const deletingMessage: string = localize("", `Deleting subscription "${this.root.subscriptionSid}"...`);
             await window.withProgress({ location: ProgressLocation.Notification, title: deletingMessage }, async () => {
-                await this.root.client.subscription.deleteMethod(this.root.resourceGroupName, this.root.serviceName, this.root.subscriptionSid, '*');
+                await this.root.client.subscription.delete(this.root.resourceGroupName, this.root.serviceName, this.root.subscriptionSid, '*');
             });
             window.showInformationMessage(localize("deletedSubscription", `Successfully deleted Subscription "${this.root.subscriptionSid}".`));
 

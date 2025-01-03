@@ -7,9 +7,9 @@ import * as fse from 'fs-extra';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import { advancedPolicyAuthoringExperienceConfigKey, extensionName } from '../constants';
-import { ext } from '../extensionVariables';
 import { localize } from '../localize';
 import { getDefaultWorkspacePath } from './fsUtil';
+import { IActionContext } from '@microsoft/vscode-azext-utils';
 
 // tslint:disable-next-line:export-name
 export async function writeToEditor(editor: vscode.TextEditor, data: string): Promise<void> {
@@ -22,7 +22,7 @@ export async function writeToEditor(editor: vscode.TextEditor, data: string): Pr
     });
 }
 
-export async function promptOpenWorkingFolder(): Promise<void> {
+export async function promptOpenWorkingFolder(context: IActionContext): Promise<void> {
     const showPrompt: boolean | undefined = vscode.workspace.getConfiguration().get(advancedPolicyAuthoringExperienceConfigKey);
     if (showPrompt) {
         const dontAskAgain: vscode.MessageItem = { title: localize('dontAskAgain', "Don't Ask Again") };
@@ -31,7 +31,7 @@ export async function promptOpenWorkingFolder(): Promise<void> {
                 const message: string = localize('initializeAndOpenFolderInWorkspace', 'For advanced policy authoring experience, initialize and open extension workspace folder "{0}".', getDefaultWorkspacePath());
                 const btn: vscode.MessageItem = { title: localize('initializeAndOpenFolder', 'Initialize and Open') };
                 // tslint:disable-next-line: no-floating-promises
-                ext.ui.showWarningMessage(message, btn, dontAskAgain).then(async result => {
+                context.ui.showWarningMessage(message, btn, dontAskAgain).then(async result => {
                     if (result === btn) {
                         // Initialize and Open folder
                         vscode.commands.executeCommand("azureApiManagement.initializeExtensionWorkspaceFolder")
@@ -46,7 +46,7 @@ export async function promptOpenWorkingFolder(): Promise<void> {
                 const message: string = localize('openFolderInWorkspace', 'For advanved policy authoring experience, open extension workspace folder "{0}".', getDefaultWorkspacePath());
                 const btn: vscode.MessageItem = { title: localize('openFolder', 'Open Folder') };
                 // tslint:disable-next-line: no-floating-promises
-                ext.ui.showWarningMessage(message, btn, dontAskAgain).then(async result => {
+                context.ui.showWarningMessage(message, btn, dontAskAgain).then(async result => {
                     if (result === btn) {
                         vscode.commands.executeCommand("azureApiManagement.openExtensionWorkspaceFolder");
                     } else if (result === dontAskAgain) {
@@ -59,7 +59,7 @@ export async function promptOpenWorkingFolder(): Promise<void> {
                 const message: string = localize('setupWorkingFolder', 'For advanved policy authoring experience, initialize extension workspace folder "{0}".', getDefaultWorkspacePath());
                 const btn: vscode.MessageItem = { title: localize('initialize', 'Initialize') };
                 // tslint:disable-next-line: no-floating-promises
-                ext.ui.showWarningMessage(message, btn, dontAskAgain).then(async result => {
+                context.ui.showWarningMessage(message, btn, dontAskAgain).then(async result => {
                     if (result === btn) {
                         vscode.commands.executeCommand("azureApiManagement.initializeExtensionWorkspaceFolder");
                     } else if (result === dontAskAgain) {

@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { IParsedError, parseError } from "vscode-azureextensionui";
+import { IParsedError, parseError } from '@microsoft/vscode-azext-utils';
 import { ext } from "../extensionVariables";
 
 // tslint:disable: no-unsafe-any

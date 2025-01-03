@@ -3,14 +3,14 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ApiManagementModels } from "@azure/arm-apimanagement";
-import { AzExtTreeItem, AzureParentTreeItem } from "vscode-azureextensionui";
-import { topItemCount } from "../constants";
+import { SubscriptionContract } from "@azure/arm-apimanagement";
+import { AzExtTreeItem, AzExtParentTreeItem } from "@microsoft/vscode-azext-utils";
+import { uiUtils } from "@microsoft/vscode-azext-azureutils";
 import { treeUtils } from "../utils/treeUtils";
 import { IServiceTreeRoot } from "./IServiceTreeRoot";
 import { SubscriptionTreeItem } from "./SubscriptionTreeItem";
 
-export class SubscriptionsTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
+export class SubscriptionsTreeItem extends AzExtParentTreeItem {
     public get iconPath(): { light: string, dark: string } {
         return treeUtils.getThemedIconPath('list');
     }
@@ -18,6 +18,12 @@ export class SubscriptionsTreeItem extends AzureParentTreeItem<IServiceTreeRoot>
     public label: string = "Subscriptions";
     public contextValue: string = SubscriptionsTreeItem.contextValue;
     private _nextLink: string | undefined;
+    public readonly root: IServiceTreeRoot;
+
+    constructor(parent: AzExtParentTreeItem, root: IServiceTreeRoot) {
+        super(parent);
+        this.root = root;
+    }
 
     public hasMoreChildrenImpl(): boolean {
         return this._nextLink !== undefined;
@@ -28,18 +34,15 @@ export class SubscriptionsTreeItem extends AzureParentTreeItem<IServiceTreeRoot>
             this._nextLink = undefined;
         }
 
-        const subscriptionCollection: ApiManagementModels.SubscriptionCollection = this._nextLink === undefined ?
-        await this.root.client.subscription.list(this.root.resourceGroupName, this.root.serviceName,  {top: topItemCount}) :
-        await this.root.client.subscription.listNext(this._nextLink);
-
-        this._nextLink = subscriptionCollection.nextLink;
+        let subscriptionCollection: SubscriptionContract[];
+        subscriptionCollection = await uiUtils.listAllIterator(this.root.client.subscription.list(this.root.resourceGroupName, this.root.serviceName));
 
         return this.createTreeItemsWithErrorHandling(
             subscriptionCollection,
             "invalidApiManagementSubscription",
-            async (subscription: ApiManagementModels.SubscriptionContract) => new SubscriptionTreeItem(this, subscription),
-            (subscription: ApiManagementModels.SubscriptionContract) => {
-                if (subscription.displayName !== null &&  subscription.displayName !== undefined) {
+            async (subscription: SubscriptionContract) => new SubscriptionTreeItem(this, subscription, this.root),
+            (subscription: SubscriptionContract) => {
+                if (subscription.displayName !== null && subscription.displayName !== undefined) {
                     return subscription.displayName;
                 } else {
                     return subscription.name;

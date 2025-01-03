@@ -3,9 +3,9 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { TokenCredentialsBase } from "@azure/ms-rest-nodeauth";
+import { AzExtServiceClientCredentials } from "@microsoft/vscode-azext-utils";
 import { ProgressLocation, QuickPickItem, window } from "vscode";
-import { IActionContext } from "vscode-azureextensionui";
+import { IActionContext } from "@microsoft/vscode-azext-utils";
 import { ApimService } from "../../azure/apim/ApimService";
 import { GraphService } from "../../azure/graph/GraphService";
 import { ResourceGraphService } from "../../azure/resourceGraph/ResourceGraphService";
@@ -55,7 +55,7 @@ export async function createAuthorizationAccessPolicy(context: IActionContext & 
     const identityOptions = await populateIdentityOptionsAsync(
         apimService, node.root.credentials, node.root.environment.resourceManagerEndpointUrl);
 
-    const identitySelected = await ext.ui.showQuickPick(
+    const identitySelected = await context.ui.showQuickPick(
         identityOptions, { placeHolder: 'Select identity...', canPickMany: false, suppressPersistence: true });
 
     let permissionName = '';
@@ -66,7 +66,7 @@ export async function createAuthorizationAccessPolicy(context: IActionContext & 
          // tslint:disable-next-line: no-any no-unsafe-any
         const otherManagedIdentityOptions = await populateManageIdentityOptions(response);
 
-        const managedIdentitySelected = await ext.ui.showQuickPick(
+        const managedIdentitySelected = await context.ui.showQuickPick(
             otherManagedIdentityOptions, { placeHolder: 'Select system assigned managed identity ...', canPickMany: false, suppressPersistence: true });
 
         permissionName = managedIdentitySelected.label;
@@ -75,13 +75,13 @@ export async function createAuthorizationAccessPolicy(context: IActionContext & 
         const response =  await resourceGraphService.listUserAssignedIdentities();
         const otherManagedIdentityOptions = await populateManageIdentityOptions(response);
 
-        const managedIdentitySelected = await ext.ui.showQuickPick(
+        const managedIdentitySelected = await context.ui.showQuickPick(
             otherManagedIdentityOptions, { placeHolder: 'Select user assigned managed identity ...', canPickMany: false, suppressPersistence: true });
 
         permissionName = managedIdentitySelected.label;
         oid = nonNullValue(managedIdentitySelected.description);
     } else if (identitySelected.label === userEmailIdLabel) {
-        const userId = await askInput('Enter user emailId ...', 'mary@contoso.net');
+        const userId = await askInput(context, 'Enter user emailId ...', 'mary@contoso.net');
         const user = await graphService.getUser(userId);
 
         if (user !== undefined && user.objectId !== null) {
@@ -91,7 +91,7 @@ export async function createAuthorizationAccessPolicy(context: IActionContext & 
             window.showErrorMessage(localize('invalidUserEmailId', 'Please specify a valid user emailId.'));
         }
     } else if (identitySelected.label === groupDisplayNameorEmailIdLabel) {
-        const groupDisplayNameOrEmailId = await askInput('Enter group displayname (or) emailId ...', 'myfullgroupname (or) mygroup@contoso.net');
+        const groupDisplayNameOrEmailId = await askInput(context, 'Enter group displayname (or) emailId ...', 'myfullgroupname (or) mygroup@contoso.net');
         const group = await graphService.getGroup(groupDisplayNameOrEmailId);
 
         if (group !== undefined && group.objectId !== null) {
@@ -101,7 +101,7 @@ export async function createAuthorizationAccessPolicy(context: IActionContext & 
             window.showErrorMessage(localize('invalidGroupDisplayNameorEmailId', 'Please specify a valid group display name (or) emailId. Example, myfullgroupname (or) mygroup@contoso.net'));
         }
     } else if (identitySelected.label === servicePrincipalDisplayNameLabel) {
-        const servicePrincipalDisplayName = await askInput('Enter service principal display name ...', 'myserviceprincipalname');
+        const servicePrincipalDisplayName = await askInput(context, 'Enter service principal display name ...', 'myserviceprincipalname');
 
         const spn = await graphService.getServicePrincipal(servicePrincipalDisplayName);
 
@@ -148,7 +148,7 @@ function createAccessPolicy(
 
 async function populateIdentityOptionsAsync(
     apimService: ApimService,
-    credential : TokenCredentialsBase,
+    credential : AzExtServiceClientCredentials,
     resourceManagerEndpointUrl: string) : Promise<QuickPickItem[]> {
     const options : QuickPickItem[] = [];
 
@@ -211,9 +211,9 @@ async function populateManageIdentityOptions(data: { name: string, id: string, p
     return options;
 }
 
-async function askInput(message: string, placeholder: string = '') : Promise<string> {
+async function askInput(context: IActionContext, message: string, placeholder: string = '') : Promise<string> {
     const idPrompt: string = localize('value', message);
-    return (await ext.ui.showInputBox({
+    return (await context.ui.showInputBox({
         prompt: idPrompt,
         placeHolder: placeholder,
         validateInput: async (value: string): Promise<string | undefined> => {

@@ -30,7 +30,7 @@ export enum HttpTriggerDirectionContract {
 export const HttpTriggerAuthLevelAdmin = "admin";
 export const FunctionAppKeyLength = 40;
 export const webAppApiVersion20190801 = "2019-08-01";
-export const apimApiVersion = "2024-05-01";
+export const apimApiVersion = "2024-06-01-preview";
 export const maxTokenValidTimeSpan = 29;
 export const gatewayHostName = "CustomerHostName";
 

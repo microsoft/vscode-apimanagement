@@ -3,10 +3,9 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ApiManagementModels } from "@azure/arm-apimanagement";
-import { ApiContract, ApiCreateOrUpdateParameter } from "@azure/arm-apimanagement/src/models";
-import { AzExtTreeItem, AzureParentTreeItem, ICreateChildImplContext } from "vscode-azureextensionui";
-import { topItemCount } from "../constants";
+import { ApiContract, ApiCreateOrUpdateParameter } from "@azure/arm-apimanagement";
+import { AzExtTreeItem, AzExtParentTreeItem, ICreateChildImplContext } from "@microsoft/vscode-azext-utils";
+import { uiUtils } from "@microsoft/vscode-azext-azureutils";
 import { localize } from "../localize";
 import { IOpenApiImportObject } from "../openApi/OpenApiImportObject";
 import { apiUtil } from "../utils/apiUtil";
@@ -22,7 +21,14 @@ export interface IApiTreeItemContext extends ICreateChildImplContext {
     apiContract?: ApiContract;
 }
 
-export class ApisTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
+export class ApisTreeItem extends AzExtParentTreeItem {
+
+    public readonly root: IServiceTreeRoot;
+
+    constructor(parent: AzExtParentTreeItem | undefined, root: IServiceTreeRoot) {
+        super(parent);
+        this.root = root;
+    }
 
     public get iconPath(): { light: string, dark: string } {
         return treeUtils.getThemedIconPath('list');
@@ -44,26 +50,21 @@ export class ApisTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
             this._nextLink = undefined;
         }
 
-        let apisToLoad : ApiContract[] = this.selectedApis;
+        let apisToLoad: ApiContract[] = this.selectedApis;
         if (this.selectedApis.length === 0) {
-            const apiCollection: ApiManagementModels.ApiCollection = this._nextLink === undefined ?
-            await this.root.client.api.listByService(this.root.resourceGroupName, this.root.serviceName, { expandApiVersionSet: true, top: topItemCount }) :
-            await this.root.client.api.listByServiceNext(this._nextLink);
-
-            this._nextLink = apiCollection.nextLink;
-
-            apisToLoad = apiCollection.map((s) => s).filter(s => apiUtil.isNotApiRevision(s));
+            const apiCollection: ApiContract[] = await uiUtils.listAllIterator(this.root.client.api.listByService(this.root.resourceGroupName, this.root.serviceName, { expandApiVersionSet: true }));
+            apisToLoad = apiCollection.filter(s => apiUtil.isNotApiRevision(s));
         }
 
         const versionSetMap: Map<string, ApiVersionSetTreeItem> = new Map<string, ApiVersionSetTreeItem>();
         return await this.createTreeItemsWithErrorHandling(
             apisToLoad,
             "invalidApiManagementApi",
-            async (api: ApiManagementModels.ApiContract) => {
+            async (api: ApiContract) => {
                 if (api.apiVersionSetId) {
                     let apiVersionSetTreeItem = versionSetMap.get(api.apiVersionSetId);
                     if (!apiVersionSetTreeItem) {
-                        apiVersionSetTreeItem = new ApiVersionSetTreeItem(this, api);
+                        apiVersionSetTreeItem = new ApiVersionSetTreeItem(this, this.root, api);
                         // tslint:disable-next-line: no-non-null-assertion
                         versionSetMap.set(api.apiVersionSetId, apiVersionSetTreeItem!);
                         return apiVersionSetTreeItem;
@@ -74,11 +75,11 @@ export class ApisTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
                         return undefined;
                     }
                 } else if (apiUtil.isNotApiRevision(api)) {
-                    return new ApiTreeItem(this, api);
+                    return new ApiTreeItem(this, api, this.root);
                 }
                 return undefined;
             },
-            (api: ApiManagementModels.ApiContract) => {
+            (api: ApiContract) => {
                 return api.name;
             });
     }
@@ -97,7 +98,7 @@ export class ApisTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
             showCreatingTreeItem(apiName);
             try {
                 const api = await apiUtil.createOrUpdateApiWithSwaggerObject(this, apiName, document);
-                return new ApiTreeItem(this, api);
+                return new ApiTreeItem(this, api, this.root);
             } catch (error) {
                 throw new Error(processError(error, localize("createAPIFailed", `Failed to create the API ${apiName}`)));
             }
@@ -112,8 +113,8 @@ export class ApisTreeItem extends AzureParentTreeItem<IServiceTreeRoot> {
             try {
                 await apiUtil.checkApiExist(this, apiName);
                 const apiPayload: ApiCreateOrUpdateParameter = { displayName: apiName, path: apiName, description: apiContract.description, protocols: apiContract.protocols };
-                const api = await this.root.client.api.createOrUpdate(this.root.resourceGroupName, this.root.serviceName, apiName, apiPayload);
-                return new ApiTreeItem(this, api);
+                const api = await this.root.client.api.beginCreateOrUpdateAndWait(this.root.resourceGroupName, this.root.serviceName, apiName, apiPayload);
+                return new ApiTreeItem(this, api, this.root);
             } catch (error) {
                 throw new Error(processError(error, localize("createAPIFailed", `Failed to create the API ${apiName}`)));
             }

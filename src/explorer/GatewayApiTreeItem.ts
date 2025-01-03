@@ -4,7 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { ProgressLocation, window } from "vscode";
-import { AzureParentTreeItem, AzureTreeItem, DialogResponses, UserCancelledError } from "vscode-azureextensionui";
+import { AzExtParentTreeItem, AzExtTreeItem, DialogResponses, UserCancelledError } from "@microsoft/vscode-azext-utils";
 import { ApimService } from "../azure/apim/ApimService";
 import { IGatewayApiContract } from "../azure/apim/contracts";
 import { localize } from "../localize";
@@ -12,16 +12,19 @@ import { nonNullProp } from "../utils/nonNull";
 import { treeUtils } from "../utils/treeUtils";
 import { IGatewayTreeRoot } from "./IGatewayTreeRoot";
 
-export class GatewayApiTreeItem extends AzureTreeItem<IGatewayTreeRoot> {
+export class GatewayApiTreeItem extends AzExtTreeItem {
     public static contextValue: string = 'azureApiManagementGatewayApi';
     public contextValue: string = GatewayApiTreeItem.contextValue;
     private _label: string;
+    public readonly root: IGatewayTreeRoot;
 
     constructor(
-        parent: AzureParentTreeItem,
-        public readonly gatewayApiContract: IGatewayApiContract) {
+        parent: AzExtParentTreeItem,
+        public readonly gatewayApiContract: IGatewayApiContract,
+        root: IGatewayTreeRoot) {
         super(parent);
         this._label = nonNullProp(gatewayApiContract, 'name');
+        this.root = root;
     }
 
     public get label() : string {

@@ -3,19 +3,20 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ApiManagementModels } from "@azure/arm-apimanagement";
-import { ApiContract, OperationCollection, Protocol } from "@azure/arm-apimanagement/src/models";
+import { OperationContract, ApiContract, Protocol, ApiCreateOrUpdateParameter } from "@azure/arm-apimanagement";
 import { window } from "vscode";
-import { AzureParentTreeItem, DialogResponses, IOpenApiImportObject, IParsedError, parseError, UserCancelledError } from "../../extension.bundle";
+import { AzExtParentTreeItem, DialogResponses, IParsedError, parseError, UserCancelledError, IActionContext } from "@microsoft/vscode-azext-utils";
+import { IOpenApiImportObject} from "../../extension.bundle";
 import * as Constants from "../constants";
 import { IServiceTreeRoot } from "../explorer/IServiceTreeRoot";
-import { ext } from "../extensionVariables";
 import { localize } from "../localize";
+import { uiUtils } from "@microsoft/vscode-azext-azureutils";
+import { ITreeItemWithRoot } from "../explorer/ITreeItemWithRoot";
 
 export namespace apiUtil {
-    export async function askApiName(defaultName?: string): Promise<string> {
+    export async function askApiName(context: IActionContext, defaultName?: string): Promise<string> {
         const apiNamePrompt: string = localize('apiNamePrompt', 'Enter API Name.');
-        return (await ext.ui.showInputBox({
+        return (await context.ui.showInputBox({
             prompt: apiNamePrompt,
             value: defaultName,
             validateInput: async (value: string | undefined): Promise<string | undefined> => {
@@ -63,13 +64,13 @@ export namespace apiUtil {
         return identifier;
     }
 
-    export async function createOrUpdateApiWithSwaggerObject(node: AzureParentTreeItem<IServiceTreeRoot>, apiName: string, document: IOpenApiImportObject): Promise<ApiContract> {
+    export async function createOrUpdateApiWithSwaggerObject(node: AzExtParentTreeItem & ITreeItemWithRoot<IServiceTreeRoot>, apiName: string, document: IOpenApiImportObject): Promise<ApiContract> {
         document.info.title = apiName;
 
         await checkApiExist(node, apiName);
 
         // import doesn't specify format
-        const openApiImportPayload: ApiManagementModels.ApiCreateOrUpdateParameter = { displayName: apiName, path: apiName, format: undefined, value: '' };
+        const openApiImportPayload: ApiCreateOrUpdateParameter = { displayName: apiName, path: apiName, format: undefined, value: '' };
         if (document.schemes === undefined) {
             openApiImportPayload.protocols = ["https"];
         } else {
@@ -86,10 +87,10 @@ export namespace apiUtil {
         openApiImportPayload.value = JSON.stringify(document.sourceDocument);
 
         const options = { ifMatch: "*" };
-        return await node.root.client.api.createOrUpdate(node.root.resourceGroupName, node.root.serviceName, apiName, openApiImportPayload, options);
+        return await node.root.client.api.beginCreateOrUpdateAndWait(node.root.resourceGroupName, node.root.serviceName, apiName, openApiImportPayload, options);
     }
 
-    export async function checkApiExist(node: AzureParentTreeItem<IServiceTreeRoot>, apiName: string): Promise<void> {
+    export async function checkApiExist(node: AzExtParentTreeItem & ITreeItemWithRoot<IServiceTreeRoot>, apiName: string): Promise<void> {
         let apiExists: boolean = true;
         try {
             await node.root.client.api.get(node.root.resourceGroupName, node.root.serviceName, apiName);
@@ -107,14 +108,8 @@ export namespace apiUtil {
         }
     }
 
-    export async function getAllOperationsForApi(root: IServiceTreeRoot, apiId: string): Promise<OperationCollection> {
-        let operations: OperationCollection = await root.client.apiOperation.listByApi(root.resourceGroupName, root.serviceName, apiId);
-        let nextLink = operations.nextLink;
-        while (nextLink) {
-            const nOperations: OperationCollection = await root.client.apiOperation.listByApiNext(nextLink);
-            nextLink = nOperations.nextLink;
-            operations = operations.concat(nOperations);
-        }
+    export async function getAllOperationsForApi(root: IServiceTreeRoot, apiId: string): Promise<OperationContract[]> {
+        let operations: OperationContract[] = await uiUtils.listAllIterator(root.client.apiOperation.listByApi(root.resourceGroupName, root.serviceName, apiId));
         return operations;
     }
 

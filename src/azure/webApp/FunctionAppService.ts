@@ -4,22 +4,22 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { HttpMethods, HttpOperationResponse, ParameterValue, ServiceClient } from "@azure/ms-rest-js";
-import { TokenCredentialsBase } from "@azure/ms-rest-nodeauth";
-import { createGenericClient } from "vscode-azureextensionui";
+import { clientOptions } from "../clientOptions";
 import * as Constants from "../../constants";
 import { nonNullOrEmptyValue } from "../../utils/nonNull";
 import { IFunctionKeys, IWebAppContract } from "./contracts";
 import { IFunctionContract } from "./contracts";
+import { AzExtServiceClientCredentials } from "@microsoft/vscode-azext-utils";
 
 export class FunctionAppService {
     public baseUrl: string;
-    public credentials: TokenCredentialsBase;
+    public credentials: AzExtServiceClientCredentials;
     public endPointUrl: string;
     public subscriptionId: string;
     public resourceGroup: string;
     public functionName: string;
 
-    constructor(credentials: TokenCredentialsBase, endPointUrl: string, subscriptionId: string, resourceGroup: string, functionName: string) {
+    constructor(credentials: AzExtServiceClientCredentials, endPointUrl: string, subscriptionId: string, resourceGroup: string, functionName: string) {
         this.baseUrl = this.genSiteUrl(endPointUrl, subscriptionId, resourceGroup, functionName);
         this.credentials = credentials;
         this.endPointUrl = endPointUrl;
@@ -88,7 +88,7 @@ export class FunctionAppService {
 
     // tslint:disable-next-line: no-any
     private async request(url: string, method: HttpMethods, queryParameters?: { [key: string]: any | ParameterValue }, body?: any): Promise<HttpOperationResponse> {
-        const client: ServiceClient = await createGenericClient(this.credentials);
+        const client: ServiceClient = new ServiceClient(this.credentials, clientOptions);
         return await client.sendRequest({
             method: method,
             url: url,

@@ -4,25 +4,26 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { window } from "vscode";
-import { AzureTreeItem, parseError } from "vscode-azureextensionui";
+import { parseError } from "@microsoft/vscode-azext-utils";
 import { showSavePromptConfigKey } from "../../../constants";
 import { localize } from "../../../localize";
 import { processError } from "../../../utils/errorUtil";
 import { nameUtil } from "../../../utils/nameUtil";
 import { IServiceTreeRoot } from "../../IServiceTreeRoot";
 import { Editor } from "../Editor";
+import { ITreeItemWithRoot } from "../../ITreeItemWithRoot";
 
 // tslint:disable:no-any
-export abstract class BaseArmResourceEditor<TRoot extends IServiceTreeRoot> extends Editor<AzureTreeItem<TRoot>> {
+export abstract class BaseArmResourceEditor<TRoot extends IServiceTreeRoot> extends Editor<ITreeItemWithRoot<TRoot>> {
     constructor() {
         super(showSavePromptConfigKey);
     }
 
     public abstract get entityType(): string;
-    public abstract getDataInternal(context: AzureTreeItem<TRoot>): Promise<any>;
-    public abstract updateDataInternal(context: AzureTreeItem<TRoot>, payload: any): Promise<any>;
+    public abstract getDataInternal(context: ITreeItemWithRoot<TRoot>): Promise<any>;
+    public abstract updateDataInternal(context: ITreeItemWithRoot<TRoot>, payload: any): Promise<any>;
 
-    public async getData(context: AzureTreeItem<TRoot>): Promise<string> {
+    public async getData(context: ITreeItemWithRoot<TRoot>): Promise<string> {
         try {
             const response = await this.getDataInternal(context);
             return JSON.stringify(response, null, "\t");
@@ -32,7 +33,7 @@ export abstract class BaseArmResourceEditor<TRoot extends IServiceTreeRoot> exte
     }
 
 // tslint:disable: no-unsafe-any
-    public async updateData(context: AzureTreeItem<TRoot>, data: string): Promise<string> {
+    public async updateData(context: ITreeItemWithRoot<TRoot>, data: string): Promise<string> {
         try {
             const payload = JSON.parse(data);
             const response = await this.updateDataInternal(context, payload);
@@ -44,11 +45,11 @@ export abstract class BaseArmResourceEditor<TRoot extends IServiceTreeRoot> exte
         }
     }
 
-    public async getDiffFilename(context: AzureTreeItem<TRoot>): Promise<string> {
+    public async getDiffFilename(context: ITreeItemWithRoot<TRoot>): Promise<string> {
         return `${nameUtil(context.root)}-${this.entityType.toLowerCase()}-arm.json`;
     }
 
-    public async getFilename(context: AzureTreeItem<TRoot>): Promise<string> {
+    public async getFilename(context: ITreeItemWithRoot<TRoot>): Promise<string> {
         return `${nameUtil(context.root)}-${this.entityType.toLowerCase()}-arm-tempFile.json`;
     }
 

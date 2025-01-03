@@ -5,7 +5,7 @@
 
 import * as vscode from 'vscode';
 import { window } from 'vscode';
-import { IActionContext } from "vscode-azureextensionui";
+import { IActionContext } from "@microsoft/vscode-azext-utils";
 import { ApimService } from "../../azure/apim/ApimService";
 import { IAuthorizationProviderContract, ITokenStoreIdentityProviderContract } from "../../azure/apim/contracts";
 import { AuthorizationProviderTreeItem } from "../../explorer/AuthorizationProviderTreeItem";
@@ -43,7 +43,7 @@ export async function authorizeAuthorization(context: IActionContext, node?: Aut
         const identityProvider: ITokenStoreIdentityProviderContract = await apimService.getTokenStoreIdentityProvider(authorizationProvider.properties.identityProvider);
         const grant = identityProvider.properties.oauth2.grantTypes.clientCredentials;
 
-        const parameterValues = await askAuthorizationParameterValues(nonNullValue(grant));
+        const parameterValues = await askAuthorizationParameterValues(context, nonNullValue(grant));
 
         const authorization = node.authorizationContract;
         authorization.properties.parameters = parameterValues;

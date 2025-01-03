@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-import { AzureTreeItem } from "vscode-azureextensionui";
+import { ITreeItemWithRoot } from "../../ITreeItemWithRoot";
 import { ApimService } from "../../../azure/apim/ApimService";
 import { IAuthorizationContract } from "../../../azure/apim/contracts";
 
@@ -17,7 +17,7 @@ export class AuthorizationResourceEditor extends BaseArmResourceEditor<IAuthoriz
         super();
     }
 
-    public async getDataInternal(context: AzureTreeItem<IAuthorizationTreeRoot>): Promise<IAuthorizationContract>  {
+    public async getDataInternal(context: ITreeItemWithRoot<IAuthorizationTreeRoot>): Promise<IAuthorizationContract>  {
         const apimService = new ApimService(
             context.root.credentials,
             context.root.environment.resourceManagerEndpointUrl,
@@ -29,7 +29,7 @@ export class AuthorizationResourceEditor extends BaseArmResourceEditor<IAuthoriz
         return nonNullValue(response);
     }
 
-    public async updateDataInternal(context: AzureTreeItem<IAuthorizationTreeRoot>, payload: IAuthorizationContract): Promise<IAuthorizationContract> {
+    public async updateDataInternal(context: ITreeItemWithRoot<IAuthorizationTreeRoot>, payload: IAuthorizationContract): Promise<IAuthorizationContract> {
         const apimService = new ApimService(
             context.root.credentials,
             context.root.environment.resourceManagerEndpointUrl,

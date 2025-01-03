@@ -19,7 +19,6 @@ export { activateInternal, deactivateInternal } from './src/extension';
 // At runtime the tests live in dist/tests and will therefore pick up the main webpack bundle at dist/extension.bundle.js.
 export { ext } from './src/extensionVariables';
 export * from './src/constants';
-export * from "vscode-azureextensionui";
 export * from './src/utils/fsUtil';
 export * from './src/explorer/ApiManagementProvider';
 export * from './src/vsCodeConfig/settings';

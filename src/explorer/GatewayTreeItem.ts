@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { AzureParentTreeItem, AzureTreeItem, ISubscriptionContext } from "vscode-azureextensionui";
+import { AzExtParentTreeItem, AzExtTreeItem, ISubscriptionContext } from "@microsoft/vscode-azext-utils";
 import { IGatewayContract } from "../azure/apim/contracts";
 import { nonNullProp } from "../utils/nonNull";
 import { treeUtils } from "../utils/treeUtils";
@@ -12,7 +12,7 @@ import { GatewaysTreeItem } from "./GatewaysTreeItem";
 import { IGatewayTreeRoot } from "./IGatewayTreeRoot";
 import { IServiceTreeRoot } from "./IServiceTreeRoot";
 
-export class GatewayTreeItem extends AzureParentTreeItem<IGatewayTreeRoot> {
+export class GatewayTreeItem extends AzExtParentTreeItem {
     public static contextValue: string = 'azureApiManagementGatewayTreeItem';
     public contextValue: string = GatewayTreeItem.contextValue;
     public readonly gatewayApisTreeItem: GatewayApisTreeItem;
@@ -22,12 +22,13 @@ export class GatewayTreeItem extends AzureParentTreeItem<IGatewayTreeRoot> {
 
     constructor(
         parent: GatewaysTreeItem,
-        public readonly gatewayContract: IGatewayContract) {
+        public readonly gatewayContract: IGatewayContract,
+        root: IServiceTreeRoot) {
         super(parent);
         this._label = nonNullProp(this.gatewayContract, 'name');
-        this._root = this.createRoot(parent.root);
+        this._root = this.createRoot(root);
 
-        this.gatewayApisTreeItem = new GatewayApisTreeItem(this);
+        this.gatewayApisTreeItem = new GatewayApisTreeItem(this, this.root);
     }
 
     public get label() : string {
@@ -46,7 +47,7 @@ export class GatewayTreeItem extends AzureParentTreeItem<IGatewayTreeRoot> {
         return false;
     }
 
-    public async loadMoreChildrenImpl(): Promise<AzureTreeItem<IGatewayTreeRoot>[]> {
+    public async loadMoreChildrenImpl(): Promise<AzExtTreeItem[]> {
         return [this.gatewayApisTreeItem];
     }
 

@@ -4,7 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { env, window } from "vscode";
-import { IActionContext } from "vscode-azureextensionui";
+import { IActionContext } from "@microsoft/vscode-azext-utils";
 import { ApimService } from "../azure/apim/ApimService";
 import { GatewayKeyType } from "../constants";
 import * as Constants from "../constants";
@@ -19,7 +19,7 @@ export async function generateNewGatewayToken(context: IActionContext, node?: Ga
 
   ext.outputChannel.show();
   ext.outputChannel.appendLine(localize("genGatewayToken", "Please specify the expiry date for the Gateway token..."));
-  const numOfDaysResponse = (await ext.ui.showInputBox({
+  const numOfDaysResponse = (await context.ui.showInputBox({
     prompt: localize('gatewayPrompt', 'Enter days to expire.'),
     value: Constants.maxTokenValidTimeSpan.toString(),
     validateInput: async (value: string): Promise<string | undefined> => {
@@ -31,7 +31,7 @@ export async function generateNewGatewayToken(context: IActionContext, node?: Ga
     }
   })).trim();
   const options = [GatewayKeyType.primary, GatewayKeyType.secondary];
-  const keyType = await ext.ui.showQuickPick(options.map((s) => { return { label: s, description: '', detail: '' }; }), { placeHolder: 'Pick key to generate token?', canPickMany: false });
+  const keyType = await context.ui.showQuickPick(options.map((s) => { return { label: s, description: '', detail: '' }; }), { placeHolder: 'Pick key to generate token?', canPickMany: false });
   const numOfDays = Number.parseInt(numOfDaysResponse);
   // tslint:disable: no-non-null-assertion
   const apimService = new ApimService(node!.root.credentials, node!.root.environment.resourceManagerEndpointUrl, node!.root.subscriptionId, node!.root.resourceGroupName, node!.root.serviceName);

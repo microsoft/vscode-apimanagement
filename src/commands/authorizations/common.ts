@@ -4,16 +4,16 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { ITokenStoreGrantTypeParameterContract, ITokenStoreGrantTypeParameterDefinitionContract } from "../../azure/apim/contracts";
-import { ext } from "../../extensionVariables";
 import { localize } from "../../localize";
+import { IActionContext } from "@microsoft/vscode-azext-utils";
 
-export async function askAuthorizationProviderParameterValues(grant: ITokenStoreGrantTypeParameterContract) : Promise<IParameterValues> {
+export async function askAuthorizationProviderParameterValues(context: IActionContext, grant: ITokenStoreGrantTypeParameterContract) : Promise<IParameterValues> {
     const parameterValues: IParameterValues = {};
     // tslint:disable-next-line:forin no-for-in
     for (const parameter in grant) {
             const parameterUIMetadata = <ITokenStoreGrantTypeParameterDefinitionContract>grant[parameter];
             if (parameterUIMetadata.uidefinition.atAuthorizationProviderLevel !== "HIDDEN") {
-                parameterValues[parameter] = await askParam(
+                parameterValues[parameter] = await askParam(context,
                     parameterUIMetadata,
                     parameterUIMetadata.uidefinition.atAuthorizationProviderLevel === "REQUIRED" );
             }
@@ -22,13 +22,13 @@ export async function askAuthorizationProviderParameterValues(grant: ITokenStore
     return parameterValues;
 }
 
-export async function askAuthorizationParameterValues(grant: ITokenStoreGrantTypeParameterContract) : Promise<IParameterValues> {
+export async function askAuthorizationParameterValues(context: IActionContext, grant: ITokenStoreGrantTypeParameterContract) : Promise<IParameterValues> {
     const parameterValues: IParameterValues = {};
     // tslint:disable-next-line:forin no-for-in
     for (const parameter in grant) {
             const parameterUIMetadata = <ITokenStoreGrantTypeParameterDefinitionContract>grant[parameter];
             if (parameterUIMetadata.uidefinition.atAuthorizationProviderLevel === "HIDDEN") {
-                parameterValues[parameter] = await askParam(
+                parameterValues[parameter] = await askParam(context,
                     parameterUIMetadata,
                     true);
             }
@@ -37,8 +37,8 @@ export async function askAuthorizationParameterValues(grant: ITokenStoreGrantTyp
     return parameterValues;
 }
 
-async function askParam(parameterUIMetadata: ITokenStoreGrantTypeParameterDefinitionContract, isRequired: boolean) : Promise<string> {
-    return await ext.ui.showInputBox({
+async function askParam(context: IActionContext, parameterUIMetadata: ITokenStoreGrantTypeParameterDefinitionContract, isRequired: boolean) : Promise<string> {
+    return await context.ui.showInputBox({
         placeHolder: localize('parameterDisplayName', `Enter ${parameterUIMetadata.displayName} ...`),
         prompt: localize('parameterDescription', `${parameterUIMetadata.description}`),
         value: parameterUIMetadata.default,
@@ -55,9 +55,9 @@ async function askParam(parameterUIMetadata: ITokenStoreGrantTypeParameterDefini
     });
 }
 
-export async function askId(prompt: string, errorMessage: string, defaultValue: string = ''): Promise<string> {
+export async function askId(context: IActionContext, prompt: string, errorMessage: string, defaultValue: string = ''): Promise<string> {
     const idPrompt: string = localize('idPrompt', prompt);
-    return (await ext.ui.showInputBox({
+    return (await context.ui.showInputBox({
         prompt: idPrompt,
         value: defaultValue,
         validateInput: async (value: string): Promise<string | undefined> => {

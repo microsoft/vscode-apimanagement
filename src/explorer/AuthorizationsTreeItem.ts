@@ -4,7 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { ProgressLocation, window } from "vscode";
-import { AzExtTreeItem, AzureParentTreeItem, ICreateChildImplContext } from "vscode-azureextensionui";
+import { AzExtTreeItem, AzExtParentTreeItem, ICreateChildImplContext } from "@microsoft/vscode-azext-utils";
 import { ApimService } from "../azure/apim/ApimService";
 import { IAuthorizationContract, IAuthorizationPropertiesContract, IAuthorizationProviderContract, IGrantTypesContract, ITokenStoreIdentityProviderContract } from "../azure/apim/contracts";
 import { askAuthorizationParameterValues, askId, IParameterValues } from "../commands/authorizations/common";
@@ -21,7 +21,7 @@ export interface IAuthorizationTreeItemContext extends ICreateChildImplContext {
     authorization: IAuthorizationPropertiesContract;
 }
 
-export class AuthorizationsTreeItem extends AzureParentTreeItem<IAuthorizationProviderTreeRoot> {
+export class AuthorizationsTreeItem extends AzExtParentTreeItem {
     public get iconPath(): { light: string, dark: string } {
         return treeUtils.getThemedIconPath('list');
     }
@@ -31,6 +31,12 @@ export class AuthorizationsTreeItem extends AzureParentTreeItem<IAuthorizationPr
     public readonly childTypeLabel: string = localize('azureApiManagement.Authorization', 'Authorization');
     private _nextLink: string | undefined;
     private apimService: ApimService;
+    public readonly root: IAuthorizationProviderTreeRoot;
+
+    constructor(parent: AzExtParentTreeItem, root: IAuthorizationProviderTreeRoot) {
+        super(parent);
+        this.root = root;
+    }
 
     public hasMoreChildrenImpl(): boolean {
         return this._nextLink !== undefined;
@@ -53,7 +59,7 @@ export class AuthorizationsTreeItem extends AzureParentTreeItem<IAuthorizationPr
         return this.createTreeItemsWithErrorHandling(
             authorizations,
             "invalidApiManagementAuthorization",
-            async (authorization: IAuthorizationContract) => new AuthorizationTreeItem(this, authorization),
+            async (authorization: IAuthorizationContract) => new AuthorizationTreeItem(this, authorization, this.root),
             (authorization: IAuthorizationContract) => {
                 return authorization.name;
             });
@@ -79,7 +85,7 @@ export class AuthorizationsTreeItem extends AzureParentTreeItem<IAuthorizationPr
                         if (authorization === undefined) {
                             authorization = await apimService.createAuthorization(this.root.authorizationProviderName, authorizationName, context.authorization);
                             window.showInformationMessage(localize("createdAuthorization", `Created Authorization '${authorizationName}' succesfully.`));
-                            return new AuthorizationTreeItem(this, authorization);
+                            return new AuthorizationTreeItem(this, authorization, this.root);
                         } else {
                             throw new Error(localize("createAuthorization", `Authorization '${authorizationName}' already exists.`));
                         }
@@ -95,7 +101,7 @@ export class AuthorizationsTreeItem extends AzureParentTreeItem<IAuthorizationPr
 
     private async buildContext(context: IAuthorizationTreeItemContext): Promise<void> {
         const authorizationProvider: IAuthorizationProviderContract = (<AuthorizationProviderTreeItem>this.parent).authorizationProviderContract;
-        const authorizationName = await askId('Enter Authorization name ...', 'Invalid Authorization name ...');
+        const authorizationName = await askId(context, 'Enter Authorization name ...', 'Invalid Authorization name ...');
         context.authorizationName = authorizationName;
         let parameterValues: IParameterValues = {};
         let grantType = IGrantTypesContract.authorizationCode;
@@ -103,7 +109,7 @@ export class AuthorizationsTreeItem extends AzureParentTreeItem<IAuthorizationPr
             grantType = IGrantTypesContract.clientCredentials;
             const identityProvider: ITokenStoreIdentityProviderContract = await this.apimService.getTokenStoreIdentityProvider(authorizationProvider.properties.identityProvider);
             const grant = identityProvider.properties.oauth2.grantTypes.clientCredentials;
-            parameterValues = await askAuthorizationParameterValues(nonNullValue(grant));
+            parameterValues = await askAuthorizationParameterValues(context, nonNullValue(grant));
         }
         context.authorization = { authorizationType: "oauth2", oauth2grantType: grantType, parameters: parameterValues };
     }

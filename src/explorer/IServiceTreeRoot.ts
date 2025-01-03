@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 import { ApiManagementClient } from "@azure/arm-apimanagement";
-import { ISubscriptionContext } from "vscode-azureextensionui";
+import { ISubscriptionContext } from "@microsoft/vscode-azext-utils";
 
 export interface IServiceTreeRoot extends ISubscriptionContext {
     client: ApiManagementClient;

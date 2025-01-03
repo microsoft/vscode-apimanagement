@@ -4,7 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { window } from 'vscode';
-import { IActionContext } from 'vscode-azureextensionui';
+import { IActionContext } from '@microsoft/vscode-azext-utils';
 import { gatewayHostName } from '../constants';
 import { ServiceTreeItem } from '../explorer/ServiceTreeItem';
 import { ext } from '../extensionVariables';
@@ -36,10 +36,10 @@ export async function setCustomHostName(context: IActionContext, node?: ServiceT
     const selfDefined = localize('', "Input a hostname (for self-hosted gateway)");
     allHostNames.push({label: selfDefined, hostName: ""});
     window.showInformationMessage(localize("", "Select the gateway hostname for testing and debugging APIs."));
-    const pick = await ext.ui.showQuickPick(allHostNames.map((s) => { return {label: s.label, gateway: s}; }), { canPickMany: false});
+    const pick = await context.ui.showQuickPick(allHostNames.map((s) => { return {label: s.label, gateway: s}; }), { canPickMany: false});
     if (pick.label === selfDefined) {
         const namespacePrompt: string = localize('urlPrompt', 'Enter Custom Host Name.');
-        const input = await ext.ui.showInputBox({
+        const input = await context.ui.showInputBox({
             prompt: namespacePrompt,
             validateInput: async (value: string | undefined): Promise<string | undefined> => {
                 value = value ? value.trim() : '';

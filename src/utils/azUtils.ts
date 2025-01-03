@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { DialogResponses } from "../../extension.bundle";
+import { DialogResponses } from "@microsoft/vscode-azext-utils";
 import { localize } from "../localize";
 import { cpUtils } from "./cpUtils";
 import { openUrl } from "./openUrl";

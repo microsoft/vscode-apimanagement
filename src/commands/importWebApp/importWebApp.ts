@@ -3,12 +3,11 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ApiContract, BackendContract, BackendCredentialsContract, NamedValueCreateContract, OperationCollection, OperationContract } from "@azure/arm-apimanagement/src/models";
-import { WebSiteManagementClient } from "@azure/arm-appservice";
-import { Site, WebAppCollection } from "@azure/arm-appservice/src/models";
+import { ApiContract, BackendContract, BackendCredentialsContract, NamedValueCreateContract, OperationContract } from "@azure/arm-apimanagement";
+import { WebSiteManagementClient, Site } from "@azure/arm-appservice";
 import { WebResource } from "@azure/ms-rest-js";
 import { ProgressLocation, window } from "vscode";
-import { IActionContext } from "vscode-azureextensionui";
+import { IActionContext } from "@microsoft/vscode-azext-utils";
 import xml = require("xml");
 import { IOpenApiImportObject, ISecurityType, OpenApiParser } from "../../../extension.bundle";
 import { getRewriteUrlPolicy, getSetBackendPolicy, getSetHeaderPolicy, getSetMethodPolicy } from "../../azure/apim/policyHelper";
@@ -25,6 +24,7 @@ import { azureClientUtil } from "../../utils/azureClientUtil";
 import { processError } from "../../utils/errorUtil";
 import { nonNullValue } from "../../utils/nonNull";
 import { request, sendRequest } from "../../utils/requestUtil";
+import { uiUtils } from "@microsoft/vscode-azext-azureutils";
 
 export async function importWebAppToApi(context: IActionContext, node?: ApiTreeItem): Promise<void> {
     if (!node) {
@@ -35,8 +35,7 @@ export async function importWebAppToApi(context: IActionContext, node?: ApiTreeI
     ext.outputChannel.show();
 
     // tslint:disable: no-non-null-assertion
-    const webAppSubscriptionId = await azureClientUtil.selectSubscription();
-    const pickedWebApp: Site = await getPickedWebApp(node, webAppKind.webApp, webAppSubscriptionId);
+    const pickedWebApp: Site = await getPickedWebApp(context, node, webAppKind.webApp);
     const webAppResourceGroup = nonNullValue(pickedWebApp.resourceGroup);
     const webAppName = nonNullValue(pickedWebApp.name);
     const webConfigbaseUrl = getWebConfigbaseUrl(node!.root.environment.resourceManagerEndpointUrl, node!.root.subscriptionId, webAppResourceGroup, webAppName);
@@ -61,14 +60,14 @@ export async function importWebApp(context: IActionContext & Partial<IApiTreeIte
 
     ext.outputChannel.show();
 
-    const webAppSubscriptionId = await azureClientUtil.selectSubscription();
-    const pickedWebApp: Site = await getPickedWebApp(node, webAppKind.webApp, webAppSubscriptionId);
+    const webAppSubscriptionId = await azureClientUtil.selectSubscription(context);
+    const pickedWebApp: Site = await getPickedWebApp(context, node, webAppKind.webApp);
     const webAppResourceGroup = nonNullValue(pickedWebApp.resourceGroup);
     const webAppName = nonNullValue(pickedWebApp.name);
     const webConfigbaseUrl = getWebConfigbaseUrl(node!.root.environment.resourceManagerEndpointUrl, webAppSubscriptionId, webAppResourceGroup, webAppName);
     const webAppConfig: IWebAppContract = (await request(node.root.credentials, webConfigbaseUrl, "GET")).parsedBody;
 
-    const apiName = await apiUtil.askApiName(webAppName);
+    const apiName = await apiUtil.askApiName(context, webAppName);
     if (webAppConfig.properties.apiDefinition && webAppConfig.properties.apiDefinition.url) {
         ext.outputChannel.appendLine(localize("importWebApp", "Importing Web App from swagger object..."));
         await importFromSwagger(context, webAppConfig, webAppName, apiName, node, pickedWebApp);
@@ -77,7 +76,7 @@ export async function importWebApp(context: IActionContext & Partial<IApiTreeIte
     }
 }
 
-export async function getPickedWebApp(node: ApiTreeItem | ApisTreeItem, webAppType: webAppKind, subscriptionId: string): Promise<Site> {
+export async function getPickedWebApp(context: IActionContext, node: ApiTreeItem | ApisTreeItem, webAppType: webAppKind): Promise<Site> {
     let allWebApps: Site[] = [];
     const appType = webAppType === webAppKind.webApp ? "Web Apps" : "Function Apps";
     await window.withProgress(
@@ -87,26 +86,26 @@ export async function getPickedWebApp(node: ApiTreeItem | ApisTreeItem, webAppTy
             cancellable: false
         },
         async () => {
-            const client = azureClientUtil.getClient(node.root.credentials, subscriptionId, node.root.environment);
+            const client = azureClientUtil.getClient(context, node);
             allWebApps = await listWebApps(client, webAppType);
         }
     ).then(async () => {
         window.showInformationMessage(localize("listWebApps", `Pulled all ${appType} successfully.`));
     });
-    return await pickWebApp(allWebApps);
+    return await pickWebApp(context, allWebApps);
 }
 
 export async function listWebApps(client: WebSiteManagementClient, siteKind: webAppKind): Promise<Site[]> {
-    const allWebApps: WebAppCollection = await client.webApps.list();
+    const allWebApps: Site[] = await uiUtils.listAllIterator(client.webApps.list());
     if ((siteKind === webAppKind.webApp)) {
         return allWebApps.filter((ele) => !!ele.kind && !ele.kind.includes(webAppKind.functionApp));
     }
     return allWebApps.filter((ele) => !!ele.kind && ele.kind.includes(webAppKind.functionApp));
 }
 
-export async function pickWebApp(apiApps: Site[]): Promise<Site> {
+export async function pickWebApp(context: IActionContext, apiApps: Site[]): Promise<Site> {
     // Pick function app
-    const apiApp = await ext.ui.showQuickPick(apiApps.map((s) => { return { label: nonNullValue(s.name), site: s }; }), { canPickMany: false });
+    const apiApp = await context.ui.showQuickPick(apiApps.map((s) => { return { label: nonNullValue(s.name), site: s }; }), { canPickMany: false });
     return apiApp.site;
 }
 
@@ -206,7 +205,7 @@ async function createApiWithWildCardOperations(context: IActionContext & Partial
             const serviceUrl = "https://".concat(nonNullValue(nonNullValue(pickedWebApp.hostNames)[0]));
             const backendId = `WebApp_${apiUtil.displayNameToIdentifier(webAppName)}`;
             await setAppBackendEntity(node!, backendId, apiName, serviceUrl, webAppResourceGroup, webAppName);
-            await node!.root.client.apiPolicy.createOrUpdate(node!.root.resourceGroupName, node!.root.serviceName, apiName, {
+            await node!.root.client.apiPolicy.createOrUpdate(node!.root.resourceGroupName, node!.root.serviceName, apiName, 'policy', {
                 format: "rawxml",
                 value: createImportXmlPolicy([getSetBackendPolicy(backendId)])
             });
@@ -264,14 +263,14 @@ async function importFromSwagger(context: IActionContext & Partial<IApiTreeItemC
                         ext.outputChannel.appendLine(localize("importWebApp", "Updating API service url..."));
                         curApi = await node!.root.client.api.get(node!.root.resourceGroupName, node!.root.serviceName, apiName);
                         curApi.serviceUrl = "";
-                        await node!.root.client.api.createOrUpdate(node!.root.resourceGroupName, node!.root.serviceName, apiName, curApi);
+                        await node!.root.client.api.beginCreateOrUpdateAndWait(node!.root.resourceGroupName, node!.root.serviceName, apiName, curApi);
                     }
                     ext.outputChannel.appendLine(localize("importWebApp", "Setting up backend and policies..."));
                     const serviceUrl = "https://".concat(nonNullValue(nonNullValue(pickedWebApp.hostNames)[0]));
                     const backendId = `WebApp_${apiUtil.displayNameToIdentifier(webAppName)}`;
                     await setAppBackendEntity(node!, backendId, apiName, serviceUrl, nonNullValue(pickedWebApp.resourceGroup), webAppName);
                     const backendPolicy = [getSetBackendPolicy(backendId)];
-                    await node!.root.client.apiPolicy.createOrUpdate(node!.root.resourceGroupName, node!.root.serviceName, apiName, {
+                    await node!.root.client.apiPolicy.createOrUpdate(node!.root.resourceGroupName, node!.root.serviceName, apiName, 'policy', {
                         format: "rawxml",
                         value: createImportXmlPolicy(backendPolicy)
                     });
@@ -282,8 +281,8 @@ async function importFromSwagger(context: IActionContext & Partial<IApiTreeItemC
                         let secretProperty: NamedValueCreateContract | undefined;
 
                         if (securityKeys) {
-                            const operationKey = operation.urlTemplate.split("?")[0];
-                            const operationSecurity = document.sourceDocument.paths[operationKey][operation.method.toLowerCase()].security;
+                            const operationKey = operation.urlTemplate!.split("?")[0];
+                            const operationSecurity = document.sourceDocument.paths[operationKey][operation.method!.toLowerCase()].security;
 
                             if (operationSecurity && operationSecurity.length > 0) {
                                 const secretPropertyType = Object.keys(operationSecurity[0])[0];
@@ -292,7 +291,7 @@ async function importFromSwagger(context: IActionContext & Partial<IApiTreeItemC
 
                             if (secretProperty && propertyNamesToUpdate.indexOf(nonNullValue(secretProperty.name)) === -1) {
                                 propertyNamesToUpdate.push(nonNullValue(secretProperty.name));
-                                await node.root.client.namedValue.createOrUpdate(node.root.resourceGroupName, node.root.serviceName, nonNullValue(secretProperty.id), secretProperty);
+                                await node.root.client.namedValue.beginCreateOrUpdateAndWait(node.root.resourceGroupName, node.root.serviceName, nonNullValue(secretProperty.id), secretProperty);
                             }
                         }
                         await assignAppDataToOperation(operation, curApi, secretProperty, node!.root);
@@ -314,16 +313,16 @@ async function assignAppDataToOperation(operation: OperationContract, api: ApiCo
     let triggerUrl;
 
     const inboundPolicies: Object[] = [];
-    inboundPolicies.push(getSetMethodPolicy(operation.method));
+    inboundPolicies.push(getSetMethodPolicy(operation.method!));
 
     if (secret) {
-        const secretParamName = secret.value.split(" for ")[0];
+        const secretParamName = secret.value!.split(" for ")[0];
 
         if (secret.name!.indexOf("_query_") !== -1) {
             triggerUrl = `${operation.urlTemplate}?${secretParamName}={{${secret.name}}}`;
             inboundPolicies.push(getRewriteUrlPolicy(triggerUrl));
         } else {
-            inboundPolicies.push(getRewriteUrlPolicy(operation.urlTemplate));
+            inboundPolicies.push(getRewriteUrlPolicy(operation.urlTemplate!));
             inboundPolicies.push(getSetHeaderPolicy(secretParamName, "append", [`{{${secret.name}}}`]));
         }
     } else {
@@ -337,7 +336,7 @@ async function assignAppDataToOperation(operation: OperationContract, api: ApiCo
     }
 
     inboundPolicies.push(getSetHeaderPolicy(subscriptionKeyHeaderName, "delete", []));
-    await root.client.apiOperationPolicy.createOrUpdate(root.resourceGroupName, root.serviceName, nonNullValue(api.name), nonNullValue(operation.name), {
+    await root.client.apiOperationPolicy.createOrUpdate(root.resourceGroupName, root.serviceName, nonNullValue(api.name), nonNullValue(operation.name), 'policy', {
         format: "rawxml",
         value: createImportXmlPolicy(inboundPolicies)
     });
@@ -347,7 +346,7 @@ async function getWildcardOperationsForApi(apiId: string, node?: ApiTreeItem): P
     const operations: OperationContract[] = [];
     const HttpMethods = ["GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS", "PATCH", "TRACE"];
     if (node) {
-        const allOperations = await node.root.client.apiOperation.listByApi(node.root.resourceGroupName, node.root.serviceName, node.root.apiName);
+        const allOperations = await uiUtils.listAllIterator(node.root.client.apiOperation.listByApi(node.root.resourceGroupName, node.root.serviceName, node.root.apiName));
         const existingOperationNamePair = getAllOperationNames(allOperations);
         const existingOperationNames = Object.keys(existingOperationNamePair);
         const existingOperationDisplayNames = Object.values(existingOperationNames);
@@ -417,7 +416,7 @@ function generateUniqueOperationNameSubfix(operationName: string, operationDispl
     return cnt;
 }
 
-function getAllOperationNames(operations: OperationCollection): {} {
+function getAllOperationNames(operations: OperationContract[]): {} {
     const operationNamesPair: { [dispayName: string]: string } = {};
     operations.forEach(ele => {
         operationNamesPair[nonNullValue(ele.displayName)] = nonNullValue(ele.name);
