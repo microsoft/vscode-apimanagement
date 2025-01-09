@@ -3,11 +3,8 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { Environment } from "@azure/ms-rest-azure-env";
-import { AzExtServiceClientCredentials } from "@microsoft/vscode-azext-utils";
+import { IServiceTreeRoot } from "./IServiceTreeRoot";
 
-export interface IAzureClientInfo {
-    credentials: AzExtServiceClientCredentials;
-    subscriptionId: string;
-    environment: Environment;
+export interface ITreeItemWithRoot<TRoot extends IServiceTreeRoot> {
+  get root(): TRoot
 }

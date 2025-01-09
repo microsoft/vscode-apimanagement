@@ -4,8 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { HttpOperationResponse, ServiceClient } from "@azure/ms-rest-js";
-import { TokenCredentialsBase } from "@azure/ms-rest-nodeauth";
-import { createGenericClient } from "vscode-azureextensionui";
+import { clientOptions } from "../clientOptions";
 import * as Constants from "../../constants";
 import {
     IApimServiceContract,
@@ -22,17 +21,18 @@ import {
     IMasterSubscriptionsSecrets,
     ITokenStoreIdentityProviderContract
 } from "./contracts";
+import { AzExtServiceClientCredentials } from "@microsoft/vscode-azext-utils";
 
 export class ApimService {
     public baseUrl: string;
-    public credentials: TokenCredentialsBase;
+    public credentials: AzExtServiceClientCredentials;
     public endPointUrl: string;
     public subscriptionId: string;
     public resourceGroup: string;
     public serviceName: string;
     private readonly authorizationProviderApiVersion: string = "2021-12-01-preview";
 
-    constructor(credentials: TokenCredentialsBase, endPointUrl: string, subscriptionId: string, resourceGroup: string, serviceName: string) {
+    constructor(credentials: AzExtServiceClientCredentials, endPointUrl: string, subscriptionId: string, resourceGroup: string, serviceName: string) {
         this.baseUrl = this.genSiteUrl(endPointUrl, subscriptionId, resourceGroup, serviceName);
         this.credentials = credentials;
         this.endPointUrl = endPointUrl;
@@ -42,7 +42,7 @@ export class ApimService {
     }
 
     public async listGateways(): Promise<IGatewayContract[]> {
-        const client: ServiceClient = await createGenericClient(this.credentials);
+        const client: ServiceClient = new ServiceClient(this.credentials, clientOptions);
         const result: HttpOperationResponse = await client.sendRequest({
             method: "GET",
             url: `${this.baseUrl}/gateways?api-version=${Constants.apimApiVersion}&$top=100`
@@ -52,7 +52,7 @@ export class ApimService {
     }
 
     public async listGatewayApis(gatewayName: string): Promise<IGatewayApiContract[]> {
-        const client: ServiceClient = await createGenericClient(this.credentials);
+        const client: ServiceClient = new ServiceClient(this.credentials, clientOptions);
         const result: HttpOperationResponse = await client.sendRequest({
             method: "GET",
             url: `${this.baseUrl}/gateways/${gatewayName}/apis?api-version=${Constants.apimApiVersion}&$top=100`
@@ -62,7 +62,7 @@ export class ApimService {
     }
 
     public async createGatewayApi(gatewayName: string, apiName: string): Promise<IGatewayApiContract> {
-        const client: ServiceClient = await createGenericClient(this.credentials);
+        const client: ServiceClient = new ServiceClient(this.credentials, clientOptions);
         const result: HttpOperationResponse = await client.sendRequest({
             method: "PUT",
             url: `${this.baseUrl}/gateways/${gatewayName}/apis/${apiName}?api-version=${Constants.apimApiVersion}`
@@ -72,7 +72,7 @@ export class ApimService {
     }
 
     public async deleteGatewayApi(gatewayName: string, apiName: string): Promise<void> {
-        const client: ServiceClient = await createGenericClient(this.credentials);
+        const client: ServiceClient = new ServiceClient(this.credentials, clientOptions);
         await client.sendRequest({
             method: "DELETE",
             url: `${this.baseUrl}/gateways/${gatewayName}/apis/${apiName}?api-version=${Constants.apimApiVersion}`
@@ -83,7 +83,7 @@ export class ApimService {
         const now = new Date();
         const timeSpan = now.setDate(now.getDate() + numOfDays);
         const expiryDate = (new Date(timeSpan)).toISOString();
-        const client: ServiceClient = await createGenericClient(this.credentials);
+        const client: ServiceClient = new ServiceClient(this.credentials, clientOptions);
         const result: HttpOperationResponse = await client.sendRequest({
             method: "POST",
             url: `https://management.azure.com/subscriptions/${this.subscriptionId}/resourceGroups/${this.resourceGroup}/providers/Microsoft.ApiManagement/service/${this.serviceName}/gateways/${gatewayName}/token?api-version=${Constants.apimApiVersion}`,
@@ -97,7 +97,7 @@ export class ApimService {
     }
 
     public async getSubscriptionMasterkey(): Promise<IMasterSubscriptionsSecrets> {
-        const client: ServiceClient = await createGenericClient(this.credentials);
+        const client: ServiceClient = new ServiceClient(this.credentials, clientOptions);
         const result: HttpOperationResponse = await client.sendRequest({
             method: "POST",
             url: `${this.baseUrl}/subscriptions/master/listSecrets?api-version=${Constants.apimApiVersion}`
@@ -109,7 +109,7 @@ export class ApimService {
 
     // Authorization Providers
     public async listTokenStoreIdentityProviders(): Promise<ITokenStoreIdentityProviderContract[]> {
-        const client: ServiceClient = await createGenericClient(this.credentials);
+        const client: ServiceClient = new ServiceClient(this.credentials, clientOptions);
         const result: HttpOperationResponse = await client.sendRequest({
             method: "GET",
             url: `${this.baseUrl}/authorizationIdentityProviders?api-version=${this.authorizationProviderApiVersion}`
@@ -119,7 +119,7 @@ export class ApimService {
     }
 
     public async getTokenStoreIdentityProvider(providerName: string): Promise<ITokenStoreIdentityProviderContract> {
-        const client: ServiceClient = await createGenericClient(this.credentials);
+        const client: ServiceClient = new ServiceClient(this.credentials, clientOptions);
         const result: HttpOperationResponse = await client.sendRequest({
             method: "GET",
             url: `${this.baseUrl}/authorizationIdentityProviders/${providerName}?api-version=${this.authorizationProviderApiVersion}`
@@ -129,7 +129,7 @@ export class ApimService {
     }
 
     public async listAuthorizationProviders(): Promise<IAuthorizationProviderContract[]> {
-        const client: ServiceClient = await createGenericClient(this.credentials);
+        const client: ServiceClient = new ServiceClient(this.credentials, clientOptions);
         const result: HttpOperationResponse = await client.sendRequest({
             method: "GET",
             url: `${this.baseUrl}/authorizationProviders?api-version=${this.authorizationProviderApiVersion}`
@@ -139,7 +139,7 @@ export class ApimService {
     }
 
     public async listAuthorizations(authorizationProviderId: string): Promise<IAuthorizationContract[]> {
-        const client: ServiceClient = await createGenericClient(this.credentials);
+        const client: ServiceClient = new ServiceClient(this.credentials, clientOptions);
         const result: HttpOperationResponse = await client.sendRequest({
             method: "GET",
             url: `${this.baseUrl}/authorizationProviders/${authorizationProviderId}/authorizations?api-version=${this.authorizationProviderApiVersion}`
@@ -149,7 +149,7 @@ export class ApimService {
     }
 
     public async listAuthorizationAccessPolicies(authorizationProviderId: string, authorizationName: string): Promise<IAuthorizationAccessPolicyContract[]> {
-        const client: ServiceClient = await createGenericClient(this.credentials);
+        const client: ServiceClient = new ServiceClient(this.credentials, clientOptions);
         const result: HttpOperationResponse = await client.sendRequest({
             method: "GET",
             url: `${this.baseUrl}/authorizationProviders/${authorizationProviderId}/authorizations/${authorizationName}/accesspolicies?api-version=${this.authorizationProviderApiVersion}`
@@ -159,7 +159,7 @@ export class ApimService {
     }
 
     public async getAuthorizationAccessPolicy(authorizationProviderId: string, authorizationName: string, accessPolicyName: string): Promise<IAuthorizationAccessPolicyContract | undefined> {
-        const client: ServiceClient = await createGenericClient(this.credentials);
+        const client: ServiceClient = new ServiceClient(this.credentials, clientOptions);
         const result: HttpOperationResponse = await client.sendRequest({
             method: "GET",
             url: `${this.baseUrl}/authorizationProviders/${authorizationProviderId}/authorizations/${authorizationName}/accesspolicies/${accessPolicyName}?api-version=${this.authorizationProviderApiVersion}`
@@ -174,7 +174,7 @@ export class ApimService {
     }
 
     public async createAuthorizationAccessPolicy(authorizationProviderId: string, authorizationName: string, accessPolicyName: string, accessPolicyPaylod: IAuthorizationAccessPolicyPropertiesContract): Promise<IAuthorizationAccessPolicyContract> {
-        const client: ServiceClient = await createGenericClient(this.credentials);
+        const client: ServiceClient = new ServiceClient(this.credentials, clientOptions);
         const result: HttpOperationResponse = await client.sendRequest({
             method: "PUT",
             url: `${this.baseUrl}/authorizationProviders/${authorizationProviderId}/authorizations/${authorizationName}/accesspolicies/${accessPolicyName}?api-version=${this.authorizationProviderApiVersion}`,
@@ -185,7 +185,7 @@ export class ApimService {
     }
 
     public async deleteAuthorizationAccessPolicy(authorizationProviderId: string, authorizationName: string, accessPolicyName: string): Promise<void> {
-        const client: ServiceClient = await createGenericClient(this.credentials);
+        const client: ServiceClient = new ServiceClient(this.credentials, clientOptions);
         await client.sendRequest({
             method: "DELETE",
             url: `${this.baseUrl}/authorizationProviders/${authorizationProviderId}/authorizations/${authorizationName}/accesspolicies/${accessPolicyName}?api-version=${this.authorizationProviderApiVersion}`
@@ -193,7 +193,7 @@ export class ApimService {
     }
 
     public async createAuthorizationProvider(authorizationProviderName: string, authorizationProviderPayload: IAuthorizationProviderPropertiesContract): Promise<IAuthorizationProviderContract> {
-        const client: ServiceClient = await createGenericClient(this.credentials);
+        const client: ServiceClient = new ServiceClient(this.credentials, clientOptions);
         const result: HttpOperationResponse = await client.sendRequest({
             method: "PUT",
             url: `${this.baseUrl}/authorizationProviders/${authorizationProviderName}?api-version=${this.authorizationProviderApiVersion}`,
@@ -204,7 +204,7 @@ export class ApimService {
     }
 
     public async createAuthorization(authorizationProviderName: string, authorizationName: string, authorizationPayload: IAuthorizationPropertiesContract): Promise<IAuthorizationContract> {
-        const client: ServiceClient = await createGenericClient(this.credentials);
+        const client: ServiceClient = new ServiceClient(this.credentials, clientOptions);
         const result: HttpOperationResponse = await client.sendRequest({
             method: "PUT",
             url: `${this.baseUrl}/authorizationProviders/${authorizationProviderName}/authorizations/${authorizationName}?api-version=${this.authorizationProviderApiVersion}`,
@@ -215,7 +215,7 @@ export class ApimService {
     }
 
     public async deleteAuthorization(authorizationProviderName: string, authorizationName: string): Promise<void> {
-        const client: ServiceClient = await createGenericClient(this.credentials);
+        const client: ServiceClient = new ServiceClient(this.credentials, clientOptions);
         await client.sendRequest({
             method: "DELETE",
             url: `${this.baseUrl}/authorizationProviders/${authorizationProviderName}/authorizations/${authorizationName}?api-version=${this.authorizationProviderApiVersion}`
@@ -223,7 +223,7 @@ export class ApimService {
     }
 
     public async getAuthorization(authorizationProviderName: string, authorizationName: string): Promise<IAuthorizationContract | undefined> {
-        const client: ServiceClient = await createGenericClient(this.credentials);
+        const client: ServiceClient = new ServiceClient(this.credentials, clientOptions);
         const result: HttpOperationResponse = await client.sendRequest({
             method: "GET",
             url: `${this.baseUrl}/authorizationProviders/${authorizationProviderName}/authorizations/${authorizationName}?api-version=${this.authorizationProviderApiVersion}`
@@ -238,7 +238,7 @@ export class ApimService {
     }
 
     public async deleteAuthorizationProvider(authorizationProviderName: string): Promise<void> {
-        const client: ServiceClient = await createGenericClient(this.credentials);
+        const client: ServiceClient = new ServiceClient(this.credentials, clientOptions);
         await client.sendRequest({
             method: "DELETE",
             url: `${this.baseUrl}/authorizationProviders/${authorizationProviderName}?api-version=${this.authorizationProviderApiVersion}`
@@ -246,7 +246,7 @@ export class ApimService {
     }
 
     public async getAuthorizationProvider(authorizationProviderName: string): Promise<IAuthorizationProviderContract | undefined> {
-        const client: ServiceClient = await createGenericClient(this.credentials);
+        const client: ServiceClient = new ServiceClient(this.credentials, clientOptions);
         const result: HttpOperationResponse = await client.sendRequest({
             method: "GET",
             url: `${this.baseUrl}/authorizationProviders/${authorizationProviderName}?api-version=${this.authorizationProviderApiVersion}`
@@ -261,7 +261,7 @@ export class ApimService {
     }
 
     public async listAuthorizationLoginLinks(authorizationProviderName: string, authorizationName: string, loginLinkRequestPayload: IAuthorizationLoginLinkRequest): Promise<IAuthorizationLoginLinkResponse> {
-        const client: ServiceClient = await createGenericClient(this.credentials);
+        const client: ServiceClient = new ServiceClient(this.credentials, clientOptions);
         const result: HttpOperationResponse = await client.sendRequest({
             method: "POST",
             url: `${this.baseUrl}/authorizationProviders/${authorizationProviderName}/authorizations/${authorizationName}/getLoginLinks?api-version=${this.authorizationProviderApiVersion}`,
@@ -272,7 +272,7 @@ export class ApimService {
     }
 
     public async getService(): Promise<IApimServiceContract> {
-        const client: ServiceClient = await createGenericClient(this.credentials);
+        const client: ServiceClient = new ServiceClient(this.credentials, clientOptions);
         const result: HttpOperationResponse = await client.sendRequest({
             method: "GET",
             url: `${this.baseUrl}?api-version=${Constants.apimApiVersion}`
@@ -282,7 +282,7 @@ export class ApimService {
     }
 
     public async turnOnManagedIdentity(): Promise<IApimServiceContract> {
-        const client: ServiceClient = await createGenericClient(this.credentials);
+        const client: ServiceClient = new ServiceClient(this.credentials, clientOptions);
         const result: HttpOperationResponse = await client.sendRequest({
             method: "PATCH",
             url: `${this.baseUrl}?api-version=${Constants.apimApiVersion}`,

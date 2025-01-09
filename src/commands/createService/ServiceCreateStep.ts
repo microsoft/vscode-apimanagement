@@ -3,14 +3,15 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ApiManagementModels } from "@azure/arm-apimanagement";
+import { ApiManagementServiceSkuProperties } from "@azure/arm-apimanagement";
 import { ApiManagementServiceResource } from "@azure/arm-apimanagement/src/models";
 import { MessageItem, Progress, window } from "vscode";
-import { AzureWizardExecuteStep } from "vscode-azureextensionui";
+import { AzureWizardExecuteStep } from "@microsoft/vscode-azext-utils";
 import { ext } from "../../extensionVariables";
 import { localize } from "../../localize";
 import { nonNullProp, nonNullValueAndProp } from "../../utils/nonNull";
 import { IServiceWizardContext } from "./IServiceWizardContext";
+import { LocationListStep } from "@microsoft/vscode-azext-azureutils";
 
 export class ServiceCreateStep extends AzureWizardExecuteStep<IServiceWizardContext> {
     public priority: number = 140;
@@ -19,9 +20,10 @@ export class ServiceCreateStep extends AzureWizardExecuteStep<IServiceWizardCont
         const creatingNewService: string = localize('creatingNewAPIManagementService', 'Creating new API Management service "{0}"...', wizardContext.serviceName);
         ext.outputChannel.appendLine(creatingNewService);
         progress.report({ message: creatingNewService });
-        wizardContext.service = await wizardContext.client.apiManagementService.createOrUpdate(nonNullValueAndProp(wizardContext.resourceGroup, 'name'), nonNullProp(wizardContext, 'serviceName'), <ApiManagementServiceResource>{
-            location: nonNullValueAndProp(wizardContext.location, 'name'),
-            sku: <ApiManagementModels.ApiManagementServiceSkuProperties>{
+        const location = await LocationListStep.getLocation(wizardContext);
+        wizardContext.service = await wizardContext.client.apiManagementService.beginCreateOrUpdateAndWait(nonNullValueAndProp(wizardContext.resourceGroup, 'name'), nonNullProp(wizardContext, 'serviceName'), <ApiManagementServiceResource>{
+            location: nonNullValueAndProp(location, 'name'),
+            sku: <ApiManagementServiceSkuProperties>{
                 name: nonNullValueAndProp(wizardContext, 'sku'),
                 capacity: wizardContext.sku === 'Consumption' ? 0 : 1
             },

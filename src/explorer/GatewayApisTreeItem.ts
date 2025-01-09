@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { AzExtTreeItem, AzureParentTreeItem, ICreateChildImplContext } from "vscode-azureextensionui";
+import { AzExtTreeItem, AzExtParentTreeItem, ICreateChildImplContext } from "@microsoft/vscode-azext-utils";
 import { ApimService } from "../azure/apim/ApimService";
 import { IGatewayApiContract } from "../azure/apim/contracts";
 import { localize } from "../localize";
@@ -16,7 +16,7 @@ export interface IGatewayTreeItemContext extends ICreateChildImplContext {
     apiName: string;
 }
 
-export class GatewayApisTreeItem extends AzureParentTreeItem<IGatewayTreeRoot> {
+export class GatewayApisTreeItem extends AzExtParentTreeItem {
     public get iconPath(): { light: string, dark: string } {
         return treeUtils.getThemedIconPath('list');
     }
@@ -25,6 +25,12 @@ export class GatewayApisTreeItem extends AzureParentTreeItem<IGatewayTreeRoot> {
     public contextValue: string = GatewayApisTreeItem.contextValue;
     public readonly childTypeLabel: string = localize('azureApiManagement.GatewayApi', 'Gateway API');
     private _nextLink: string | undefined;
+    public readonly root: IGatewayTreeRoot;
+
+    constructor(parent: AzExtParentTreeItem, root: IGatewayTreeRoot) {
+        super(parent);
+        this.root = root;
+    }
 
     public hasMoreChildrenImpl(): boolean {
         return this._nextLink !== undefined;
@@ -42,7 +48,7 @@ export class GatewayApisTreeItem extends AzureParentTreeItem<IGatewayTreeRoot> {
         return this.createTreeItemsWithErrorHandling(
             gatewayApis,
             "invalidApiManagementGatewayApi",
-            async (api: IGatewayApiContract) => new GatewayApiTreeItem(this, api),
+            async (api: IGatewayApiContract) => new GatewayApiTreeItem(this, api, this.root),
             (api: IGatewayApiContract) => {
                 return api.name;
             });
@@ -56,7 +62,7 @@ export class GatewayApisTreeItem extends AzureParentTreeItem<IGatewayTreeRoot> {
             try {
                 const apimService = new ApimService(this.root.credentials, this.root.environment.resourceManagerEndpointUrl, this.root.subscriptionId, this.root.resourceGroupName, this.root.serviceName);
                 const api = await apimService.createGatewayApi(this.root.gatewayName, apiName);
-                return new GatewayApiTreeItem(this, api);
+                return new GatewayApiTreeItem(this, api, this.root);
 
             } catch (error) {
                 throw new Error(processError(error, localize("addApiToProductFailed", `Failed to add '${apiName}' to gateway '${this.root.gatewayName}'.`)));

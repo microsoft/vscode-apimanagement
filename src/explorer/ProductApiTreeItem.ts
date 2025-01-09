@@ -3,24 +3,27 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ApiManagementModels } from "@azure/arm-apimanagement";
+import { ApiContract } from "@azure/arm-apimanagement";
 import { ProgressLocation, window } from "vscode";
-import { AzureParentTreeItem, AzureTreeItem, DialogResponses, UserCancelledError } from "vscode-azureextensionui";
+import { AzExtParentTreeItem, AzExtTreeItem, DialogResponses, UserCancelledError } from "@microsoft/vscode-azext-utils";
 import { localize } from "../localize";
 import { nonNullProp } from "../utils/nonNull";
 import { treeUtils } from "../utils/treeUtils";
 import { IProductTreeRoot } from "./IProductTreeRoot";
 
-export class ProductApiTreeItem extends AzureTreeItem<IProductTreeRoot> {
+export class ProductApiTreeItem extends AzExtTreeItem {
     public static contextValue: string = 'azureApiManagementProductApi';
     public contextValue: string = ProductApiTreeItem.contextValue;
+    public readonly root: IProductTreeRoot;
 
     private _label: string;
 
     constructor(
-        parent: AzureParentTreeItem,
-        public readonly productApiContract: ApiManagementModels.ApiContract) {
+        parent: AzExtParentTreeItem,
+        public readonly productApiContract: ApiContract,
+        root: IProductTreeRoot) {
         super(parent);
+        this.root = root;
         this._label = nonNullProp(productApiContract, 'displayName');
     }
 
@@ -39,7 +42,7 @@ export class ProductApiTreeItem extends AzureTreeItem<IProductTreeRoot> {
         if (result === DialogResponses.deleteResponse) {
             const deletingMessage: string = localize("removingProductAPI", `Removing API "${this.productApiContract.displayName}" from product '${this.root.productName}.'`);
             await window.withProgress({ location: ProgressLocation.Notification, title: deletingMessage }, async () => {
-                await this.root.client.productApi.deleteMethod(this.root.resourceGroupName, this.root.serviceName, this.root.productName, nonNullProp(this.productApiContract, "name"));
+                await this.root.client.productApi.delete(this.root.resourceGroupName, this.root.serviceName, this.root.productName, nonNullProp(this.productApiContract, "name"));
             });
             // don't wait
             window.showInformationMessage(localize("removedProduct", `Successfully removed API "${this.productApiContract.displayName}" from product '${this.root.productName}'.`));

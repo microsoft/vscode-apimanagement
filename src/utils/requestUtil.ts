@@ -6,13 +6,15 @@
 import { HttpMethods, HttpOperationResponse, ParameterValue, ServiceClient, WebResource } from "@azure/ms-rest-js";
 import { TokenCredentialsBase } from "@azure/ms-rest-nodeauth";
 import requestPromise from 'request-promise';
-import { appendExtensionUserAgent, createGenericClient } from "vscode-azureextensionui";
+import { appendExtensionUserAgent } from '@microsoft/vscode-azext-utils';
+import { AzExtServiceClientCredentials } from "@microsoft/vscode-azext-utils";
+import { clientOptions } from "../azure/clientOptions";
 
 export type nRequest = WebResource & requestPromise.RequestPromiseOptions;
 
 // tslint:disable-next-line: no-any
-export async function request(credentials: TokenCredentialsBase, url: string, method: HttpMethods, queryParameters?: { [key: string]: any | ParameterValue }, body?: any): Promise<HttpOperationResponse> {
-    const client: ServiceClient = await createGenericClient(credentials);
+export async function request(credentials: AzExtServiceClientCredentials, url: string, method: HttpMethods, queryParameters?: { [key: string]: any | ParameterValue }, body?: any): Promise<HttpOperationResponse> {
+    const client: ServiceClient = new ServiceClient(credentials, clientOptions);
     return await client.sendRequest({
         method: method,
         url: url,

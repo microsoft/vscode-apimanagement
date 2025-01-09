@@ -4,28 +4,29 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { ProgressLocation, window } from "vscode";
-import { AzureParentTreeItem, AzureTreeItem, DialogResponses, ISubscriptionContext, UserCancelledError } from "vscode-azureextensionui";
+import { AzExtParentTreeItem, AzExtTreeItem, DialogResponses, ISubscriptionContext, UserCancelledError } from "@microsoft/vscode-azext-utils";
 import { ApimService } from "../azure/apim/ApimService";
 import { IAuthorizationAccessPolicyContract } from "../azure/apim/contracts";
 import { localize } from "../localize";
 import { nonNullProp } from "../utils/nonNull";
 import { treeUtils } from "../utils/treeUtils";
 import { IAuthorizationAccessPolicyTreeRoot } from "./IAuthorizationAccessPolicyTreeRoot";
+import { IServiceTreeRoot } from "./IServiceTreeRoot";
 
-export class AuthorizationAccessPolicyTreeItem extends AzureTreeItem<IAuthorizationAccessPolicyTreeRoot> {
+export class AuthorizationAccessPolicyTreeItem extends AzExtTreeItem {
     public static contextValue: string = 'azureApiManagementAuthorizationAccessPolicy';
     public contextValue: string = AuthorizationAccessPolicyTreeItem.contextValue;
-    public readonly commandId: string = 'azureApiManagement.showArmAuthorizationAccessPolicy';
 
     private _label: string;
     private _root: IAuthorizationAccessPolicyTreeRoot;
 
     constructor(
-        parent: AzureParentTreeItem,
-        public readonly authorizationAccessPolicyContract: IAuthorizationAccessPolicyContract) {
+        parent: AzExtParentTreeItem,
+        public readonly authorizationAccessPolicyContract: IAuthorizationAccessPolicyContract,
+        root: IServiceTreeRoot) {
         super(parent);
 
-        this._root = this.createRoot(parent.root);
+        this._root = this.createRoot(root);
 
         this._label = nonNullProp(authorizationAccessPolicyContract, 'name');
     }
@@ -44,6 +45,10 @@ export class AuthorizationAccessPolicyTreeItem extends AzureTreeItem<IAuthorizat
 
     public get iconPath(): { light: string, dark: string } {
         return treeUtils.getThemedIconPath('accesspolicy');
+    }
+
+    public get commandId(): string {
+        return 'azureApiManagement.showArmAuthorizationAccessPolicy';
     }
 
     public async deleteTreeItemImpl(): Promise<void> {

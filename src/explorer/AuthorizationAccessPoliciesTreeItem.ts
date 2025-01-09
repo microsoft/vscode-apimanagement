@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { AzExtTreeItem, AzureParentTreeItem, ICreateChildImplContext } from "vscode-azureextensionui";
+import { AzExtTreeItem, AzExtParentTreeItem, ICreateChildImplContext } from "@microsoft/vscode-azext-utils";
 import { ApimService } from "../azure/apim/ApimService";
 import { IAuthorizationAccessPolicyContract, IAuthorizationAccessPolicyPropertiesContract } from "../azure/apim/contracts";
 import { localize } from "../localize";
@@ -17,7 +17,7 @@ export interface IAuthorizationAccessPolicyTreeItemContext extends ICreateChildI
     authorizationAccessPolicy: IAuthorizationAccessPolicyPropertiesContract;
 }
 
-export class AuthorizationAccessPoliciesTreeItem extends AzureParentTreeItem<IAuthorizationTreeRoot> {
+export class AuthorizationAccessPoliciesTreeItem extends AzExtParentTreeItem {
     public get iconPath(): { light: string, dark: string } {
         return treeUtils.getThemedIconPath('list');
     }
@@ -26,6 +26,12 @@ export class AuthorizationAccessPoliciesTreeItem extends AzureParentTreeItem<IAu
     public contextValue: string = AuthorizationAccessPoliciesTreeItem.contextValue;
     public readonly childTypeLabel: string = localize('azureApiManagement.AuthorizationAccessPolicy', 'AuthorizationAccessPolicy');
     private _nextLink: string | undefined;
+    public readonly root: IAuthorizationTreeRoot;
+
+    constructor(parent: AzExtParentTreeItem, root: IAuthorizationTreeRoot) {
+        super(parent);
+        this.root = root;
+    }
 
     public hasMoreChildrenImpl(): boolean {
         return this._nextLink !== undefined;
@@ -50,7 +56,7 @@ export class AuthorizationAccessPoliciesTreeItem extends AzureParentTreeItem<IAu
         return this.createTreeItemsWithErrorHandling(
             authorizationAccessPolicies,
             "invalidApiManagementAuthorizationAccessPolicy",
-            async (accessPolicy: IAuthorizationAccessPolicyContract) => new AuthorizationAccessPolicyTreeItem(this, accessPolicy),
+            async (accessPolicy: IAuthorizationAccessPolicyContract) => new AuthorizationAccessPolicyTreeItem(this, accessPolicy, this.root),
             (accessPolicy: IAuthorizationAccessPolicyContract) => {
                 return accessPolicy.name;
             });
@@ -71,7 +77,7 @@ export class AuthorizationAccessPoliciesTreeItem extends AzureParentTreeItem<IAu
                         this.root.authorizationName,
                         authorizationAccessPolicyName,
                         context.authorizationAccessPolicy);
-                    return new AuthorizationAccessPolicyTreeItem(this, authorizationAccessPolicy);
+                    return new AuthorizationAccessPolicyTreeItem(this, authorizationAccessPolicy, this.root);
                 } else {
                     throw new Error(localize("createAuthorizationAccessPolicy", `Access policy '${authorizationAccessPolicyName}' already exists.`));
                 }

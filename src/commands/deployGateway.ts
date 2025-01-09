@@ -7,7 +7,7 @@ import * as fse from 'fs-extra';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import { env, OpenDialogOptions, ProgressLocation, Uri, window, workspace } from "vscode";
-import { DialogResponses, IActionContext } from 'vscode-azureextensionui';
+import { DialogResponses, IActionContext } from '@microsoft/vscode-azext-utils';
 import { ApimService } from '../azure/apim/ApimService';
 import { GatewayKeyType } from '../constants';
 import * as Constants from "../constants";
@@ -74,7 +74,7 @@ export async function generateKubernetesDeployment(context: IActionContext, node
       ext.outputChannel.appendLine(localize("deployGateway", "Generating deployment yaml file..."));
       const confEndpoint = getConfigEndpointUrl(node!);
       const depYaml = generateDeploymentYaml(node!.root.gatewayName, gatewayToken, confEndpoint);
-      const uris = await askFolder();
+      const uris = await askFolder(context);
       const configFilePath = path.join(uris[0].fsPath, `${node!.root.gatewayName}.yaml`);
       await fse.writeFile(configFilePath, depYaml);
       env.clipboard.writeText(`kubectl apply -f ${configFilePath}`);
@@ -167,7 +167,7 @@ spec:
   return gatewayContent;
 }
 
-async function askFolder(): Promise<Uri[]> {
+async function askFolder(context: IActionContext): Promise<Uri[]> {
   const openDialogOptions: OpenDialogOptions = {
     canSelectFiles: false,
     canSelectFolders: true,
@@ -179,5 +179,5 @@ async function askFolder(): Promise<Uri[]> {
   if (rootPath) {
     openDialogOptions.defaultUri = Uri.file(rootPath);
   }
-  return await ext.ui.showOpenDialog(openDialogOptions);
+  return await context.ui.showOpenDialog(openDialogOptions);
 }

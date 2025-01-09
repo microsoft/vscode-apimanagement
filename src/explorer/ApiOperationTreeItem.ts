@@ -3,9 +3,9 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ApiManagementModels } from "@azure/arm-apimanagement";
+import { OperationContract } from "@azure/arm-apimanagement";
 import { ProgressLocation, window } from "vscode";
-import { AzureParentTreeItem, AzureTreeItem, DialogResponses, ISubscriptionContext, UserCancelledError } from "vscode-azureextensionui";
+import { AzExtParentTreeItem, AzExtTreeItem, DialogResponses, ISubscriptionContext, UserCancelledError } from "@microsoft/vscode-azext-utils";
 import { localize } from "../localize";
 import { OperationConsole } from "../operationConsole/OperationConsole";
 import { nonNullProp } from "../utils/nonNull";
@@ -14,10 +14,9 @@ import { IApiTreeRoot } from "./IApiTreeRoot";
 import { IOperationTreeRoot } from "./IOperationTreeRoot";
 import { OperationPolicyTreeItem } from "./OperationPolicyTreeItem";
 
-export class ApiOperationTreeItem extends AzureParentTreeItem<IOperationTreeRoot> {
+export class ApiOperationTreeItem extends AzExtParentTreeItem {
     public static contextValue: string = 'azureApiManagementApiOperation';
     public contextValue: string = ApiOperationTreeItem.contextValue;
-    public readonly commandId: string = 'azureApiManagement.showArmApiOperation';
     public readonly policyTreeItem: OperationPolicyTreeItem;
 
     private _name: string;
@@ -41,18 +40,19 @@ export class ApiOperationTreeItem extends AzureParentTreeItem<IOperationTreeRoot
 
     private _root: IOperationTreeRoot;
     constructor(
-        parent: AzureParentTreeItem,
-        public readonly operationContract: ApiManagementModels.OperationContract) {
+        parent: AzExtParentTreeItem,
+        public readonly operationContract: OperationContract,
+        root: IApiTreeRoot) {
         super(parent);
 
-        this._root = this.createRoot(parent.root);
-        this.policyTreeItem = new OperationPolicyTreeItem(this);
+        this._root = this.createRoot(root);
+        this.policyTreeItem = new OperationPolicyTreeItem(this, this.root);
 
         this._label = `[${nonNullProp(this.operationContract, 'method')}] ${nonNullProp(this.operationContract, 'displayName')}`;
         this._name = nonNullProp(this.operationContract, 'name');
     }
 
-    public async loadMoreChildrenImpl(): Promise<AzureTreeItem<IOperationTreeRoot>[]> {
+    public async loadMoreChildrenImpl(): Promise<AzExtTreeItem[]> {
         return [this.policyTreeItem];
     }
 
@@ -66,7 +66,7 @@ export class ApiOperationTreeItem extends AzureParentTreeItem<IOperationTreeRoot
         if (result === DialogResponses.deleteResponse) {
             const deletingMessage: string = localize("", `Deleting operation "${this.root.opName}"...`);
             await window.withProgress({ location: ProgressLocation.Notification, title: deletingMessage }, async () => {
-                await this.root.client.apiOperation.deleteMethod(this.root.resourceGroupName, this.root.serviceName, this.root.apiName, this.root.opName, '*');
+                await this.root.client.apiOperation.delete(this.root.resourceGroupName, this.root.serviceName, this.root.apiName, this.root.opName, '*');
             });
             // don't wait
             window.showInformationMessage(localize("deletedOperation", `Successfully deleted API "${this.root.apiName}".`));

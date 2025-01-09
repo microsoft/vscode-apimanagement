@@ -4,7 +4,8 @@
  *--------------------------------------------------------------------------------------------*/
 
 import * as path from 'path';
-import { AzExtTreeDataProvider, AzureParentTreeItem, AzureTreeItem, SubscriptionTreeItemBase } from 'vscode-azureextensionui';
+import { AzExtTreeDataProvider, AzExtParentTreeItem, AzExtTreeItem } from '@microsoft/vscode-azext-utils';
+import { SubscriptionTreeItemBase } from '@microsoft/vscode-azext-azureutils';
 import { ext } from '../extensionVariables';
 import { localize } from '../localize';
 
@@ -29,8 +30,8 @@ export namespace treeUtils {
         return ext.context.asAbsolutePath('resources');
     }
 
-    export async function getSubscriptionNode(tree: AzExtTreeDataProvider, subscriptionId: string): Promise<AzureParentTreeItem> {
-        const node: AzureParentTreeItem | undefined = <AzureParentTreeItem | undefined>(await tree.getChildren()).find((n: AzureTreeItem) => n.root.subscriptionId === subscriptionId);
+    export async function getSubscriptionNode(tree: AzExtTreeDataProvider, subscriptionId: string): Promise<AzExtParentTreeItem> {
+        const node: AzExtParentTreeItem | undefined = <AzExtParentTreeItem | undefined>(await tree.getChildren()).find((n: AzExtTreeItem) => n.subscription.subscriptionId === subscriptionId);
         if (node) {
             return node;
         } else {
@@ -38,8 +39,8 @@ export namespace treeUtils {
         }
     }
 
-    export async function getRootNode(tree: AzExtTreeDataProvider): Promise<AzureParentTreeItem> {
+    export async function getRootNode(tree: AzExtTreeDataProvider): Promise<AzExtParentTreeItem> {
         // need to double check
-        return <AzureParentTreeItem>(await tree.getChildren()).find((n: AzureParentTreeItem) => n instanceof SubscriptionTreeItemBase);
+        return <AzExtParentTreeItem>(await tree.getChildren()).find((n: AzExtParentTreeItem) => n instanceof SubscriptionTreeItemBase);
     }
 }
