@@ -4,7 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import * as vscode from 'vscode';
-import { IActionContext } from 'vscode-azureextensionui';
+import { IActionContext } from '@microsoft/vscode-azext-utils';
 import { ApiOperationTreeItem } from "../explorer/ApiOperationTreeItem";
 import { ext } from '../extensionVariables';
 import { createTemporaryFile } from "../utils/fsUtil";

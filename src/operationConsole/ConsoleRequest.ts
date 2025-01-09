@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { RequestContract } from "@azure/arm-apimanagement/src/models";
+import { RequestContract } from "@azure/arm-apimanagement";
 import { ConsoleHeader } from "./ConsoleHeader";
 import { ConsoleParameter } from "./ConsoleParameter";
 
@@ -24,8 +24,8 @@ export class ConsoleRequest {
         this.body = "";
 
         if (representations.length > 0) {
-            if (representations[0].sample) {
-                this.body = representations[0].sample;
+            if (representations[0].examples) {
+                this.body = JSON.stringify(representations[0].examples);
             }
 
             const contentType = representations[0].contentType;

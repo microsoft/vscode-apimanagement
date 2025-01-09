@@ -6,7 +6,7 @@
 import * as fse from 'fs-extra';
 import * as path from 'path';
 import * as vscode from 'vscode';
-import { DialogResponses, IActionContext, UserCancelledError } from 'vscode-azureextensionui';
+import { DialogResponses, IActionContext, UserCancelledError } from '@microsoft/vscode-azext-utils';
 import { ext } from '../../extensionVariables';
 import { localize } from "../../localize";
 import { createTemporaryFile } from '../../utils/fsUtil';
@@ -26,7 +26,7 @@ export abstract class Editor<ContextT> implements vscode.Disposable {
     public abstract getDiffFilename(context: ContextT): Promise<string>;
     public abstract getSaveConfirmationText(context: ContextT): Promise<string>;
     public abstract getSize(context: ContextT): Promise<number>;
-    public async showEditor(context: ContextT, sizeLimit?: number /* in Megabytes */): Promise<void> {
+    public async showEditor(_actionContext: IActionContext, context: ContextT, sizeLimit?: number /* in Megabytes */): Promise<void> {
         const fileName: string = await this.getFilename(context);
         const originFileName: string = await this.getDiffFilename(context);
         this.appendLineToOutput(localize('opening', 'Opening "{0}"...', fileName));

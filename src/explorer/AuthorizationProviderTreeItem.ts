@@ -4,7 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { ProgressLocation, window } from "vscode";
-import { AzureParentTreeItem, AzureTreeItem, DialogResponses, ISubscriptionContext, UserCancelledError } from "vscode-azureextensionui";
+import { AzExtParentTreeItem, AzExtTreeItem, DialogResponses, ISubscriptionContext, UserCancelledError } from "@microsoft/vscode-azext-utils";
 import { ApimService } from "../azure/apim/ApimService";
 import { IAuthorizationProviderContract } from "../azure/apim/contracts";
 import { localize } from "../localize";
@@ -15,26 +15,25 @@ import { AuthorizationTreeItem } from "./AuthorizationTreeItem";
 import { IAuthorizationProviderTreeRoot } from "./IAuthorizationProviderTreeRoot";
 import { IServiceTreeRoot } from "./IServiceTreeRoot";
 
-export class AuthorizationProviderTreeItem extends AzureParentTreeItem<IAuthorizationProviderTreeRoot> {
+export class AuthorizationProviderTreeItem extends AzExtParentTreeItem {
     public static contextValue: string = 'azureApiManagementAuthorizationProvider';
     public contextValue: string = AuthorizationProviderTreeItem.contextValue;
     public readonly authorizationsTreeItem: AuthorizationsTreeItem;
-    public readonly commandId: string = 'azureApiManagement.showArmAuthorizationProvider';
-
     private _label: string;
     private _root: IAuthorizationProviderTreeRoot;
 
     constructor(
-        parent: AzureParentTreeItem,
-        public readonly authorizationProviderContract: IAuthorizationProviderContract) {
+        parent: AzExtParentTreeItem,
+        public readonly authorizationProviderContract: IAuthorizationProviderContract,
+        root: IServiceTreeRoot) {
         super(parent);
         this._label = nonNullProp(this.authorizationProviderContract, 'name');
-        this._root = this.createRoot(parent.root);
+        this._root = this.createRoot(root);
 
-        this.authorizationsTreeItem = new AuthorizationsTreeItem(this);
+        this.authorizationsTreeItem = new AuthorizationsTreeItem(this,this.root);
     }
 
-    public get label() : string {
+    public get label(): string {
         return this._label;
     }
 
@@ -46,15 +45,19 @@ export class AuthorizationProviderTreeItem extends AzureParentTreeItem<IAuthoriz
         return treeUtils.getThemedIconPath('authorizationprovider');
     }
 
+    public get commandId(): string {
+        return 'azureApiManagement.showArmAuthorizationProvider';
+    }
+
     public hasMoreChildrenImpl(): boolean {
         return false;
     }
 
-    public async loadMoreChildrenImpl(): Promise<AzureTreeItem<IAuthorizationProviderTreeRoot>[]> {
+    public async loadMoreChildrenImpl(): Promise<AzExtTreeItem[]> {
         return [this.authorizationsTreeItem];
     }
 
-    public pickTreeItemImpl(expectedContextValues: (string | RegExp)[]): AzureTreeItem<IAuthorizationProviderTreeRoot> | undefined {
+    public pickTreeItemImpl(expectedContextValues: (string | RegExp)[]): AzExtTreeItem | undefined {
         for (const expectedContextValue of expectedContextValues) {
             switch (expectedContextValue) {
                 case AuthorizationTreeItem.contextValue:

@@ -8,7 +8,7 @@
 import * as cp from 'child_process';
 import * as gulp from 'gulp';
 import * as path from 'path';
-import { gulp_installAzureAccount, gulp_webpack } from 'vscode-azureextensiondev';
+import { gulp_installAzureAccount, gulp_webpack } from '@microsoft/vscode-azext-dev';
 import { gulp_installRestClient } from './gulp/gulp_installRestClient';
 
 const env = process.env;

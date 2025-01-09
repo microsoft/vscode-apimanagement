@@ -3,10 +3,10 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ApiManagementModels } from "@azure/arm-apimanagement";
-import { AzureTreeItem } from "vscode-azureextensionui";
+import { ApiContract, ApiCreateOrUpdateParameter } from "@azure/arm-apimanagement";
 import { IApiTreeRoot } from "../../IApiTreeRoot";
 import { BaseArmResourceEditor } from "./BaseArmResourceEditor";
+import { ITreeItemWithRoot } from "../../ITreeItemWithRoot";
 
 // tslint:disable-next-line:no-any
 export class ApiResourceEditor extends BaseArmResourceEditor<IApiTreeRoot>  {
@@ -15,11 +15,11 @@ export class ApiResourceEditor extends BaseArmResourceEditor<IApiTreeRoot>  {
         super();
     }
 
-    public async getDataInternal(context: AzureTreeItem<IApiTreeRoot>): Promise<ApiManagementModels.ApiContract> {
+    public async getDataInternal(context: ITreeItemWithRoot<IApiTreeRoot>): Promise<ApiContract> {
         return await context.root.client.api.get(context.root.resourceGroupName, context.root.serviceName, context.root.apiName);
     }
 
-    public async updateDataInternal(context: AzureTreeItem<IApiTreeRoot>, payload: ApiManagementModels.ApiCreateOrUpdateParameter): Promise<ApiManagementModels.ApiContract> {
-        return await context.root.client.api.createOrUpdate(context.root.resourceGroupName, context.root.serviceName, context.root.apiName, payload);
+    public async updateDataInternal(context: ITreeItemWithRoot<IApiTreeRoot>, payload: ApiCreateOrUpdateParameter): Promise<ApiContract> {
+        return await context.root.client.api.beginCreateOrUpdateAndWait(context.root.resourceGroupName, context.root.serviceName, context.root.apiName, payload);
     }
 }

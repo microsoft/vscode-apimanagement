@@ -3,26 +3,18 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 import { WebSiteManagementClient } from "@azure/arm-appservice";
-import { Environment } from '@azure/ms-rest-azure-env';
-import { TokenCredentialsBase } from "@azure/ms-rest-nodeauth";
 import * as vscode from 'vscode';
-import { createAzureClient } from "vscode-azureextensionui";
-import { IAzureClientInfo } from "../azure/azureClientInfo";
-import { ext } from "../extensionVariables";
+import { createAzureClient } from '@microsoft/vscode-azext-azureutils';
 import { localize } from "../localize";
+import { AzExtTreeItem, IActionContext } from "@microsoft/vscode-azext-utils";
 
 export namespace azureClientUtil {
-    export function getClient(credentials: TokenCredentialsBase, subscriptionId: string, environment: Environment): WebSiteManagementClient {
-        const clientInfo: IAzureClientInfo = {
-            credentials: credentials,
-            subscriptionId: subscriptionId,
-            environment: environment
-        };
-        return createAzureClient(clientInfo, WebSiteManagementClient);
+    export function getClient(context: IActionContext, node: AzExtTreeItem): WebSiteManagementClient {
+        return createAzureClient([context, node], WebSiteManagementClient);
     }
 
     // tslint:disable: no-unsafe-any
-    export async function selectSubscription(): Promise<string> {
+    export async function selectSubscription(context: IActionContext): Promise<string> {
         const azureAccountExtension = vscode.extensions.getExtension('ms-vscode.azure-account');
         // tslint:disable-next-line: no-non-null-assertion
         const azureAccount = azureAccountExtension!.exports;
@@ -31,7 +23,7 @@ export namespace azureClientUtil {
             throw new Error(localize("", "Please Log in at first!"));
         }
         const subscriptions : {id: string, name: string}[] = azureAccount.filters.map(filter => {return {id: filter.subscription.subscriptionId, name: filter.subscription.displayName}; });
-        const subscriptionId = await ext.ui.showQuickPick(subscriptions.map((s) => {
+        const subscriptionId = await context.ui.showQuickPick(subscriptions.map((s) => {
             const option = s.id.concat(' (', s.name, ')');
             return { label: option, subscriptionId: s.id};
         }),                                               { canPickMany: false, placeHolder: localize("", "Please choose the Azure subscription")});

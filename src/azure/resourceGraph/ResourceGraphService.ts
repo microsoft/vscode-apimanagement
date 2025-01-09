@@ -4,12 +4,12 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { HttpOperationResponse, ServiceClient } from "@azure/ms-rest-js";
-import { TokenCredentialsBase } from "@azure/ms-rest-nodeauth";
-import { createGenericClient } from "vscode-azureextensionui";
+import { AzExtServiceClientCredentials } from "@microsoft/vscode-azext-utils";
+import { clientOptions } from "../clientOptions";
 
 export class ResourceGraphService {
     public resourceGraphUrl: string;
-    constructor(public credentials: TokenCredentialsBase,
+    constructor(public credentials: AzExtServiceClientCredentials,
                 public endPointUrl: string,
                 public subscriptionId: string) {
         this.credentials = credentials;
@@ -21,7 +21,7 @@ export class ResourceGraphService {
 
     // tslint:disable-next-line:no-any no-reserved-keywords
     public async listSystemAssignedIdentities(): Promise<{ name: string, id: string, type: string, principalId: string }[]> {
-        const client: ServiceClient = await createGenericClient(this.credentials);
+        const client: ServiceClient = new ServiceClient(this.credentials, clientOptions);
         const result: HttpOperationResponse = await client.sendRequest({
             method: "POST",
             url: this.resourceGraphUrl,
@@ -38,7 +38,7 @@ export class ResourceGraphService {
 
      // tslint:disable-next-line:no-any
     public async listUserAssignedIdentities(): Promise<{ name: string, id: string, principalId: string }[]> {
-        const client: ServiceClient = await createGenericClient(this.credentials);
+        const client: ServiceClient = new ServiceClient(this.credentials, clientOptions);
         const result: HttpOperationResponse = await client.sendRequest({
             method: "POST",
             url: this.resourceGraphUrl,
