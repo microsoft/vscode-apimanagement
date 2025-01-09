@@ -805,12 +805,11 @@
     },
     "scripts": {
         "vscode:prepublish": "npm run webpack-prod",
-        "build": "tsc -p ./",
+        "build": "tsc -p ./ && gulp webpack-prod",
         "compile": "tsc -watch -p ./",
         "package": "vsce package",
         "lint": "tslint --project tsconfig.json -e src/*.d.ts -t verbose",
         "lint-fix": "tslint --project tsconfig.json -t verbose --fix",
-        "pretest": "npm run build && npm run webpack",
         "test": "vscode-test",
         "watch": "tsc -watch -p ./",
         "all": "npm i && npm run lint && npm test",
