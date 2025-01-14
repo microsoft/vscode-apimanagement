@@ -12,7 +12,7 @@ parameters:
 resources:
   pipelines:
     - pipeline: build
-      source: \API Catalog Tooling\VSCode\Extensions\vscode-apimanagement # CUSTOMIZE - location of the pipeline that produces the artifacts
+      source: \API Catalog Tooling\VSCode\Extensions\vscode-apimanagement-main # CUSTOMIZE - location of the pipeline that produces the artifacts
   repositories:
     - repository: azExtTemplates
       type: github
