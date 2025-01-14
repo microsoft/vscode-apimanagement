@@ -28,7 +28,23 @@ parameters:
   - name: enableLongRunningTests
     displayName: Enable Long Running Tests
     type: boolean
-    default: true
+    default: false
+  - name: enableSigning
+    displayName: Enable Signing
+    type: boolean
+    default: false
+  - name: isOfficialBuild
+    displayName: Is Official Build
+    type: boolean
+    default: false
+  - name: additionalSetupSteps
+    type: stepList
+    default:
+      - script: |
+          echo Updating aikey in package.json
+          (Get-Content package.json) -replace '"aikey": ".*"', '"aikey": "$(PRODUCTION_AI_KEY)"' | Set-Content package.json
+        displayName: 'Update aikey in package.json'
+        condition: eq(parameters.isOfficialBuild, true)
 
 variables:
   # Required by MicroBuild template
@@ -40,3 +56,6 @@ extends:
   template: azure-pipelines/1esmain.yml@azExtTemplates
   parameters:
     useAzureFederatedCredentials: ${{ parameters.enableLongRunningTests }}
+    enableSigning: ${{ parameters.enableSigning }}
+    isOfficialBuild: ${{ parameters.isOfficialBuild }}
+    additionalSetupSteps: ${{ parameters.additionalSetupSteps }}
