@@ -46,7 +46,6 @@ extends:
     useAzureFederatedCredentials: ${{ parameters.enableLongRunningTests }}
     enableSigning: ${{ parameters.enableSigning }}
     additionalSetupSteps: 
-      ${{ if eq(parameters.enableSigning, true) }}:
       - script: |
           echo Updating aikey in package.json
           (Get-Content package.json) -replace '"aikey": ".*"', '"aikey": "$(PRODUCTION_AI_KEY)"' | Set-Content package.json
