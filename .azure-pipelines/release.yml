@@ -18,7 +18,7 @@ resources:
       type: github
       name: microsoft/vscode-azuretools
       ref: main
-      endpoint: GitHub-AzureTools
+      endpoint: GitHub-chyuan
 
 variables:
   # Required by MicroBuild template
