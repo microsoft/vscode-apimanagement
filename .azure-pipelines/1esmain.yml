@@ -33,18 +33,6 @@ parameters:
     displayName: Enable Signing
     type: boolean
     default: false
-  - name: isOfficialBuild
-    displayName: Is Official Build
-    type: boolean
-    default: false
-  - name: additionalSetupSteps
-    type: stepList
-    default:
-      - script: |
-          echo Updating aikey in package.json
-          (Get-Content package.json) -replace '"aikey": ".*"', '"aikey": "$(PRODUCTION_AI_KEY)"' | Set-Content package.json
-        displayName: 'Update aikey in package.json'
-        condition: eq(parameters.isOfficialBuild, true)
 
 variables:
   # Required by MicroBuild template
@@ -57,5 +45,11 @@ extends:
   parameters:
     useAzureFederatedCredentials: ${{ parameters.enableLongRunningTests }}
     enableSigning: ${{ parameters.enableSigning }}
-    isOfficialBuild: ${{ parameters.isOfficialBuild }}
-    additionalSetupSteps: ${{ parameters.additionalSetupSteps }}
+    additionalSetupSteps: 
+      ${{ if eq(parameters.enableSigning, true) }}:
+      - script: |
+          echo Updating aikey in package.json
+          (Get-Content package.json) -replace '"aikey": ".*"', '"aikey": "$(PRODUCTION_AI_KEY)"' | Set-Content package.json
+        displayName: Update aikey in package.json
+        env:
+          PRODUCTION_AI_KEY: $(PRODUCTION_AI_KEY)
