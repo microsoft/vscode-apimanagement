@@ -48,7 +48,7 @@ extends:
     additionalSetupSteps: 
       - pwsh: |
           echo Updating aikey in package.json
-          (Get-Content package.json) -replace '"aikey": ".*"', '"aikey": "$(PRODUCTION_AI_KEY)"' | Set-Content package.json
+          (Get-Content package.json) -replace '"aiKey": ".*"', '"aiKey": "$(PRODUCTION_AI_KEY)"' | Set-Content package.json
         displayName: Update aikey in package.json
         env:
           PRODUCTION_AI_KEY: $(PRODUCTION_AI_KEY)
