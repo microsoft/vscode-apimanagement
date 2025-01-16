@@ -2,6 +2,11 @@
 
 All notable changes to the "Azure Api Management VS Code" extension will be documented in this file.
 
+## [1.0.9 - 2025-01-16]
+
+- Update api-version to 2022-08-01
+- Upgrade deprecated packages used in the extension
+
 ## [1.0.8 - 2023-09-12]
 
 - Fixed loading API Management instances when expanding an Azure subscription
