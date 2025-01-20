@@ -69,7 +69,7 @@ export class ApiOperationTreeItem extends AzExtParentTreeItem {
                 await this.root.client.apiOperation.delete(this.root.resourceGroupName, this.root.serviceName, this.root.apiName, this.root.opName, '*');
             });
             // don't wait
-            window.showInformationMessage(localize("deletedOperation", `Successfully deleted API "${this.root.apiName}".`));
+            window.showInformationMessage(localize("deletedOperation", `Successfully deleted API Operation "${this.root.opName}".`));
 
         } else {
             throw new UserCancelledError();
