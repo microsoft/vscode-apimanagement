@@ -24,7 +24,7 @@ export function processError(error: any, message: string) : string {
         message = err.message;
         if (err.errorType.toLowerCase() === 'validationerror') {
             // tslint:disable-next-line: no-unsafe-any
-            message = errorUtil(error.response.body);
+            message = errorUtil(error.response.bodyAsText);
         }
     } catch (e) {
         ext.outputChannel.appendLine("Could not parse error.");
