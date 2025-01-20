@@ -78,7 +78,7 @@ export class OpenApiEditor extends Editor<ApiTreeItem> {
                 },
                 async () => context.root.client.api.beginCreateOrUpdateAndWait(context.root.resourceGroupName, context.root.serviceName, context.root.apiName, payload)
             ).then(async () => {
-                window.showInformationMessage(localize("updateOpenApiSucceded", `Changes to API '${context.apiContract.name}' were succefully uploaded to cloud.`));
+                window.showInformationMessage(localize("updateOpenApiSucceded", `Changes to API '${context.apiContract.name}' were successfully uploaded to cloud.`));
                 //await context.refresh();
                 return this.getData(context);
             });
