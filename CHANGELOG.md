@@ -6,6 +6,7 @@ All notable changes to the "Azure Api Management VS Code" extension will be docu
 
 - Update api-version to 2022-08-01
 - Upgrade deprecated packages used in the extension
+- Remove the experimental Scaffold Azure Functions functionality due to deprecated packages, ensuring better stability for future updates
 
 ## [1.0.8 - 2023-09-12]
 
