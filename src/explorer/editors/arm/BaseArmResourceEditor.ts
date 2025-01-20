@@ -38,7 +38,7 @@ export abstract class BaseArmResourceEditor<TRoot extends IServiceTreeRoot> exte
             const payload = JSON.parse(data);
             const response = await this.updateDataInternal(context, payload);
             //await context.refresh();
-            window.showInformationMessage(localize("updateSucceded", `Changes to ${this.entityType} were succefully uploaded to cloud.`));
+            window.showInformationMessage(localize("updateSucceded", `Changes to ${this.entityType} were successfully uploaded to cloud.`));
             return JSON.stringify(response, null, "\t");
         } catch (error) {
             throw new Error(processError(error, localize("updateFailed", `Changes to ${this.entityType} could not be uploaded to cloud.`)));
