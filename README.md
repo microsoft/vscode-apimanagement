@@ -25,7 +25,6 @@ All you need is an Azure Subscription to get started. If you don't have one, [cl
 -   Import App Service WebApp
 -   Manage Self-Hosted Gateways
 -   Policy Debugging
--   Scaffold Azure Functions
 -   Show diffs against last saved version
 -   Switch / Release API Revisions
 -   API Filter
@@ -81,9 +80,6 @@ Please note: only JSON format is supported currently.
 
 ## Debug Policy
 ![debugPolicy](resources/debug.gif)
-
-## Scaffold Azure Functions
-![generateFunctions](resources/stencil.gif)
 
 ## Show diffs against last saved version
 ![diffing](resources/diffing.gif)
