@@ -56,7 +56,7 @@ export namespace dotnetUtils {
             for (const version of versions) {
                 const versionNumber = version.split(' ')[1];
                 if (compareVersion(versionNumber, minVersion) >= 0) {
-                    return false;
+                    return true;
                 }
             }
         } catch (error) {
