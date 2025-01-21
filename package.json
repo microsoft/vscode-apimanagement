@@ -70,7 +70,6 @@
         "onCommand:azureApiManagement.generateKubernetesDeployment",
         "onCommand:azureApiManagement.generateNewGatewayToken",
         "onCommand:azureApiManagement.debugPolicy",
-        "onCommand:azureApiManagement.generateFunctions",
         "onCommand:azureApiManagement.revisions",
         "onCommand:azureApiManagement.setCustomHostName",
         "onCommand:azureApiManagement.createSubscription",
@@ -376,11 +375,6 @@
                 "category": "Azure API Management"
             },
             {
-                "command": "azureApiManagement.generateFunctions",
-                "title": "%azureApiManagement.generateFunctions%",
-                "category": "Azure API Management"
-            },
-            {
                 "command": "azureApiManagement.setCustomHostName",
                 "title": "%azureApiManagement.setCustomHostName%",
                 "category": "Azure API Management"
@@ -604,11 +598,6 @@
                     "group": "2@2"
                 },
                 {
-                    "command": "azureApiManagement.generateFunctions",
-                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApi && config.azureApiManagement.scaffoldAzureFunctions == true",
-                    "group": "3@1"
-                },
-                {
                     "command": "azureApiManagement.extractApi",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApi",
                     "group": "4@1"
@@ -793,11 +782,6 @@
                         "type": "boolean",
                         "default": false,
                         "description": "%azureApiManagement.advancedPolicyAuthoringExperience%"
-                    },
-                    "azureApiManagement.scaffoldAzureFunctions": {
-                        "type": "boolean",
-                        "default": true,
-                        "description": "%azureApiManagement.scaffoldAzureFunctions%"
                     }
                 }
             }
