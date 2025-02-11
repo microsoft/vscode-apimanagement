@@ -42,8 +42,12 @@ export enum GatewayKeyType {
 export const APIMAccount = {
     createAzureAccount: "Create an Azure Account...",
     createAzureStudentAccount: "Create an Azure for Students Account...",
-
 }
+
+export const AzureAccountCreateUrl = {
+    createAzureAccountUrl: "https://aka.ms/VSCodeCreateAzureAccount",
+    createAzureStudentUrl: "https://aka.ms/student-account"
+};
 
 // constants for extractor
 export const templatesFolder = "templates";

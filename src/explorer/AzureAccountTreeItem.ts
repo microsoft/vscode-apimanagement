@@ -56,6 +56,8 @@ export class AzureAccountTreeItem extends AzExtParentTreeItem {
   
     // no need to sort the array
     public compareChildrenImpl(item1: AzExtTreeItem, item2: AzExtTreeItem): number {
+      item1;
+      item2;
       return 0;
     }
   
@@ -77,7 +79,7 @@ export class AzureAccountTreeItem extends AzExtParentTreeItem {
           return [
             new GenericTreeItem(this, {
               label: UiStrings.SignIntoAzure,
-              commandId: "azure-api-center.signInToAzure",
+              commandId: "azureApiManagement.signInToAzure",
               contextValue: "azureCommand",
               id: "azureapicenterAccountSignIn",
               iconPath: new vscode.ThemeIcon("sign-in"),
@@ -85,7 +87,7 @@ export class AzureAccountTreeItem extends AzExtParentTreeItem {
             }),
             new GenericTreeItem(this, {
               label: UiStrings.CreateAzureAccount,
-              commandId: "azure-api-center.openUrl",
+              commandId: "azureApiManagement.openUrl",
               contextValue: "azureCommand",
               id: APIMAccount.createAzureAccount,
               iconPath: new vscode.ThemeIcon("add"),
@@ -93,7 +95,7 @@ export class AzureAccountTreeItem extends AzExtParentTreeItem {
             }),
             new GenericTreeItem(this, {
               label: UiStrings.CreateAzureStudentAccount,
-              commandId: "azure-api-center.openUrl",
+              commandId: "azureApiManagement.openUrl",
               contextValue: "azureCommand",
               id: APIMAccount.createAzureStudentAccount,
               iconPath: new vscode.ThemeIcon("mortar-board"),
@@ -116,7 +118,7 @@ export class AzureAccountTreeItem extends AzExtParentTreeItem {
         return [
           new GenericTreeItem(this, {
             label: UiStrings.SelectTenant,
-            commandId: "azure-api-center.selectTenant",
+            commandId: "azureApiManagement.selectTenant",
             contextValue: "azureCommand",
             id: "azureapicenterAccountSelectTenant",
             iconPath: new vscode.ThemeIcon("account"),

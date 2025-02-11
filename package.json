@@ -782,6 +782,13 @@
                         "type": "boolean",
                         "default": false,
                         "description": "%azureApiManagement.advancedPolicyAuthoringExperience%"
+                    },
+                    "azureApiManagement.selectedSubscriptions": {
+                        "type": "array",
+                        "description": "Selected Azure subscriptions",
+                        "items": {
+                            "type": "string"
+                        }
                     }
                 }
             }

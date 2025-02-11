@@ -4,18 +4,11 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { SubscriptionContract } from "@azure/arm-apimanagement";
-import { AzExtTreeItem, AzExtParentTreeItem, ISubscriptionContext } from "@microsoft/vscode-azext-utils";
+import { AzExtTreeItem, AzExtParentTreeItem } from "@microsoft/vscode-azext-utils";
 import { uiUtils } from "@microsoft/vscode-azext-azureutils";
 import { treeUtils } from "../utils/treeUtils";
 import { IServiceTreeRoot } from "./IServiceTreeRoot";
 import { SubscriptionTreeItem } from "./SubscriptionTreeItem";
-
-export function createSubscriptionTreeItem(
-    parent: AzExtParentTreeItem,
-    subscription: ISubscriptionContext,
-): AzExtTreeItem {
-    return new SubscriptionsTreeItem(parent, subscription);
-}
 
 export class SubscriptionsTreeItem extends AzExtParentTreeItem {
     public get iconPath(): { light: string, dark: string } {

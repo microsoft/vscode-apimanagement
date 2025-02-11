@@ -15,7 +15,7 @@ export namespace AzureSubscriptionHelper {
 
     export function getFilteredSubscriptions(): SubscriptionFilter[] {
         try {
-            let values = vscode.workspace.getConfiguration("azure-api-center").get<string[]>("selectedSubscriptions", []);
+            let values = vscode.workspace.getConfiguration("azureApiManagement").get<string[]>("selectedSubscriptions", []);
             return values.map(asSubscriptionFilter).filter((v) => v !== null) as SubscriptionFilter[];
         } catch (e) {
             return [];
@@ -73,7 +73,7 @@ export namespace AzureSubscriptionHelper {
 
         if (filtersChanged) {
             await vscode.workspace
-                .getConfiguration("azure-api-center")
+                .getConfiguration("azureApiManagement")
                 .update("selectedSubscriptions", values, vscode.ConfigurationTarget.Global, true);
             onFilteredSubscriptionsChangeEmitter.fire();
         }

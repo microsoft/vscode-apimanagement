@@ -386,6 +386,11 @@ export class ApimDebugSession extends LoggingDebugSession {
 		}
 		const creds = azureAccount.filters.filter(filter => filter.subscription.subscriptionId === subscriptionId).map(filter => filter.session.credentials);
 		return creds[0];
+		// const session = await AzureAuth.getReadySessionProvider();
+		// if(!session.succeeded) {
+		// 	throw new Error("ERROR!");
+		// }
+		// return AzureAuth.getCredential(session.result);
 	}
 
 	private async getMasterSubscriptionKey(managementAddress: string, credential?: TokenCredentialsBase, managementAuth?: string) {
