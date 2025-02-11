@@ -39,6 +39,12 @@ export enum GatewayKeyType {
     secondary = "secondary"
 }
 
+export const APIMAccount = {
+    createAzureAccount: "Create an Azure Account...",
+    createAzureStudentAccount: "Create an Azure for Students Account...",
+
+}
+
 // constants for extractor
 export const templatesFolder = "templates";
 
