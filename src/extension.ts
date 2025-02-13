@@ -101,10 +101,11 @@ export async function activateInternal(context: vscode.ExtensionContext) {
         // ext.azureAccountTreeItem = new AzureAccountTreeItem();
         AzureSessionProviderHelper.activateAzureSessionProvider(context);
         const sessionProvider = AzureSessionProviderHelper.getSessionProvider();
-        ext.azureAccountTreeItem = createAzureAccountTreeItem(sessionProvider);
-        context.subscriptions.push(ext.azureAccountTreeItem);
-
-        ext.tree = new AzExtTreeDataProvider(ext.azureAccountTreeItem, 'azureApiManagement.LoadMore');
+        const azureAccountTreeItem = createAzureAccountTreeItem(sessionProvider);
+        context.subscriptions.push(azureAccountTreeItem);
+        ext.azureAccountTreeItem = azureAccountTreeItem;
+        
+        ext.tree = new AzExtTreeDataProvider(azureAccountTreeItem, 'azureApiManagement.loadMore');
         context.subscriptions.push(vscode.window.registerTreeDataProvider('azureApiManagementExplorer', ext.tree));
 
         registerCommands(ext.tree);

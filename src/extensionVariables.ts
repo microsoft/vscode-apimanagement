@@ -3,8 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 import { ExtensionContext } from "vscode";
-import { AzExtTreeDataProvider, IAzExtOutputChannel } from "@microsoft/vscode-azext-utils";
-import { AzExtParentTreeItem } from "@microsoft/vscode-azext-utils";
+import { AzExtTreeDataProvider, IAzExtOutputChannel, AzExtParentTreeItem } from "@microsoft/vscode-azext-utils";
 
 /**
  * Namespace for common variables used throughout the extension. They must be initialized in the activate() method of extension.ts
