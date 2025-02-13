@@ -122,7 +122,7 @@ export async function activateInternal(context: vscode.ExtensionContext) {
 function registerCommands(tree: AzExtTreeDataProvider): void {
     registerCommand('azureApiManagement.signInToAzure', async () => { await AzureAccount.signInToAzure(); });
     registerCommand('azureApiManagement.openUrl', async(context: IActionContext, node?: AzExtTreeItem) => { await openUrlFromTreeNode(context, node); });
-    registerCommand('azureApiManagement.Refresh', async (context: IActionContext, node?: AzExtTreeItem) => await tree.refresh(context, node)); // need to double check
+    registerCommand('azureApiManagement.Refresh', async (context: IActionContext) => await ext.azureAccountTreeItem.refresh(context)); // need to double check
     registerCommand('azureApiManagement.selectSubscriptions', async() => { await AzureAccount.selectSubscriptions();});
     registerCommand('azureApiManagement.selectTenant', async() => { await AzureAccount.selectTenant();});
     registerCommand('azureApiManagement.LoadMore', async (context: IActionContext, node: AzExtTreeItem) => await tree.loadMore(node, context)); // need to double check
