@@ -56,5 +56,7 @@
     "azureApiManagement.deleteAuthorizationAccessPolicy": "Delete Access Policy",
     "azureApiManagement.showArmAuthorizationProvider": "Edit Authorization Provider",
     "azureApiManagement.showArmAuthorization": "Edit Authorization",
-    "azureApiManagement.showArmAuthorizationAccessPolicy": "Edit Authorization Access Policy"
+    "azureApiManagement.showArmAuthorizationAccessPolicy": "Edit Authorization Access Policy",
+    "azureApiManagement.selectTenant": "Select Tenant...",
+    "azureApiManagement.selectSubscriptions": "Select Subscription..."
 }

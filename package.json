@@ -191,12 +191,18 @@
                 "category": "Azure API Management"
             },
             {
+                "command": "azureApiManagement.selectTenant",
+                "title": "%azureApiManagement.selectTenant%",
+                "category": "Azure API Management"
+            },
+            {
                 "command": "azureApiManagement.selectSubscriptions",
-                "title": "Select Subscription...",
+                "title": "%azureApiManagement.selectSubscriptions%",
                 "icon": {
                     "light": "resources/light/filter.svg",
                     "dark": "resources/dark/filter.svg"
-                }
+                },
+                "category": "Azure API Management"
             },
             {
                 "command": "azureApiManagement.Refresh",

@@ -142,7 +142,7 @@ export class AzureAccountTreeItem extends AzExtParentTreeItem {
         ];
       }
   
-      const subscriptions = await AzureSubscriptionHelper.getSubscriptions(this.sessionProvider, SelectionType.AllIfNoFilters);
+      const subscriptions = await AzureSubscriptionHelper.getSubscriptions(this.sessionProvider, SelectionType.Filtered);
       if (GeneralUtils.failed(subscriptions)) {
         return [
           new GenericTreeItem(this, {
