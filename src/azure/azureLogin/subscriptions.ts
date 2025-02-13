@@ -5,6 +5,8 @@ import * as vscode from "vscode";
 import { GeneralUtils } from "../../utils/generalUtils";
 import { ReadyAzureSessionProvider, SelectionType, SubscriptionFilter } from "./authTypes";
 import { AzureAuth } from "./azureAuth";
+import { extensionPrefix } from "../../constants";
+import { AzureLoginConstantString } from "./constants";
 
 export namespace AzureSubscriptionHelper {
     const onFilteredSubscriptionsChangeEmitter = new vscode.EventEmitter<void>();
@@ -15,7 +17,7 @@ export namespace AzureSubscriptionHelper {
 
     export function getFilteredSubscriptions(): SubscriptionFilter[] {
         try {
-            let values = vscode.workspace.getConfiguration("azureApiManagement").get<string[]>("selectedSubscriptions", []);
+            let values = vscode.workspace.getConfiguration(extensionPrefix).get<string[]>(AzureLoginConstantString.selectedSubscriptions, []);
             return values.map(asSubscriptionFilter).filter((v) => v !== null) as SubscriptionFilter[];
         } catch (e) {
             return [];
@@ -73,8 +75,8 @@ export namespace AzureSubscriptionHelper {
 
         if (filtersChanged) {
             await vscode.workspace
-                .getConfiguration("azureApiManagement")
-                .update("selectedSubscriptions", values, vscode.ConfigurationTarget.Global, true);
+                .getConfiguration(extensionPrefix)
+                .update(AzureLoginConstantString.selectedSubscriptions, values, vscode.ConfigurationTarget.Global, true);
             onFilteredSubscriptionsChangeEmitter.fire();
         }
     }

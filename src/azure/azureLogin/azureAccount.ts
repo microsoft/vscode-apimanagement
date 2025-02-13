@@ -2,16 +2,26 @@
 // Licensed under the MIT license.
 import { SubscriptionClient, TenantIdDescription } from "@azure/arm-resources-subscriptions";
 import { TokenCredential } from "@azure/core-auth";
-import { AuthenticationSession, QuickPickItem, Uri, env, window } from "vscode";
+import { AuthenticationSession, QuickPickItem, Uri, env, window, workspace, ConfigurationTarget } from "vscode";
 import { UiStrings } from "../../uiStrings";
 import { GeneralUtils } from "../../utils/generalUtils";
 import { SelectionType, SignInStatus, SubscriptionFilter, Tenant } from "./authTypes";
 import { AzureAuth } from "./azureAuth";
 import { AzureSessionProviderHelper } from "./azureSessionProvider";
 import { AzureSubscriptionHelper } from "./subscriptions";
+import { AzureAccountUrl, extensionPrefix } from "../../constants";
+import { AzureLoginConstantString } from "./constants";
 export namespace AzureAccount {
     export async function signInToAzure(): Promise<void> {
         await AzureSessionProviderHelper.getSessionProvider().signIn();
+    }
+
+    export function getSelectedTenant(): Tenant | undefined {
+        return workspace.getConfiguration(extensionPrefix).get<Tenant>(AzureLoginConstantString.selectedTenant);
+    }
+
+    export async function updateSelectedTenant(value?: Tenant): Promise<void> {
+        await workspace.getConfiguration(extensionPrefix).update(AzureLoginConstantString.selectedTenant, value, ConfigurationTarget.Global, true);
     }
     
     export async function selectTenant(): Promise<void> {
@@ -42,6 +52,7 @@ export namespace AzureAccount {
         }
 
         sessionProvider.selectedTenant = selectedTenant;
+        await updateSelectedTenant(selectedTenant);
     }
     
     type SubscriptionQuickPickItem = QuickPickItem & { subscription: SubscriptionFilter };
@@ -64,7 +75,7 @@ export namespace AzureAccount {
             const setupAccount = UiStrings.SetUpAzureAccount;
             const response = await window.showInformationMessage(noSubscriptionsFound, setupAccount);
             if (response === setupAccount) {
-                env.openExternal(Uri.parse("https://azure.microsoft.com/"));
+                env.openExternal(Uri.parse(AzureAccountUrl.azureMicrosoftLink));
             }
 
             return;

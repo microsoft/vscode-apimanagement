@@ -39,14 +39,20 @@ export enum GatewayKeyType {
     secondary = "secondary"
 }
 
-export const APIMAccount = {
+export const APIMAccountCommandId = {
     createAzureAccount: "Create an Azure Account...",
     createAzureStudentAccount: "Create an Azure for Students Account...",
+    accountLoading: "azureManagementAccountLoading",
+    accountSignIn: "azureManagementAccountSignIn",
+    accountSigningIn: "azureManagementAccountSigningIn",
+    accountSelectTenant: "azureManagementAccountSelectTenant",
+    accountError: "AzureAccountError",
 }
 
-export const AzureAccountCreateUrl = {
+export const AzureAccountUrl = {
     createAzureAccountUrl: "https://aka.ms/VSCodeCreateAzureAccount",
-    createAzureStudentUrl: "https://aka.ms/student-account"
+    createAzureStudentUrl: "https://aka.ms/student-account",
+    azureMicrosoftLink: "https://azure.microsoft.com/",
 };
 
 // constants for extractor

@@ -8,6 +8,7 @@ import { UiStrings } from "../../uiStrings";
 import { GeneralUtils } from "../../utils/generalUtils";
 import { AzureSessionProvider, GetAuthSessionOptions, ReadyAzureSessionProvider, SignInStatus, Tenant } from "./authTypes";
 import { AzureSessionProviderHelper } from "./azureSessionProvider";
+import { AzureEnvType, AzureLoginConstantString } from "./constants";
 export namespace AzureAuth {
     export function getEnvironment(): Environment {
         return getConfiguredAzureEnv();
@@ -98,16 +99,16 @@ export namespace AzureAuth {
         // See:
         // https://github.com/microsoft/vscode/blob/eac16e9b63a11885b538db3e0b533a02a2fb8143/extensions/microsoft-authentication/package.json#L40-L99
         const section = "microsoft-sovereign-cloud";
-        const settingName = "environment";
+        const settingName = AzureLoginConstantString.environment;
         const authProviderConfig = vscode.workspace.getConfiguration(section);
         const environmentSettingValue = authProviderConfig.get<string | undefined>(settingName);
 
-        if (environmentSettingValue === "ChinaCloud") {
+        if (environmentSettingValue === AzureEnvType.ChinaCloud) {
             return Environment.ChinaCloud;
-        } else if (environmentSettingValue === "USGovernment") {
+        } else if (environmentSettingValue === AzureEnvType.USGovernment) {
             return Environment.USGovernment;
-        } else if (environmentSettingValue === "custom") {
-            const customCloud = authProviderConfig.get<EnvironmentParameters | undefined>("customEnvironment");
+        } else if (environmentSettingValue === AzureEnvType.custom) {
+            const customCloud = authProviderConfig.get<EnvironmentParameters | undefined>(AzureEnvType.customEnvironment);
             if (customCloud) {
                 return new Environment(customCloud);
             }

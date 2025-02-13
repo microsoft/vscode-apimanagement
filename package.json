@@ -795,6 +795,20 @@
                         "items": {
                             "type": "string"
                         }
+                    },
+                    "azureApiManagement.selectedTenant": {
+                        "type": "object",
+                        "description": "A specific tenant to sign in to",
+                        "properties": {
+                            "name": {
+                                "type": "string",
+                                "description": "tenant name"
+                            },
+                            "id": {
+                                "type": "string",
+                                "description": "tenant id"
+                            }
+                        }
                     }
                 }
             }

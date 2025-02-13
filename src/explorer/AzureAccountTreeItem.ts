@@ -9,7 +9,7 @@ import { AzureSubscriptionHelper } from "../azure/azureLogin/subscriptions";
 import { AzureSessionProvider, ReadyAzureSessionProvider, SelectionType, SignInStatus } from "../azure/azureLogin/authTypes";
 import { GeneralUtils } from "../utils/generalUtils";
 import { AzureAuth } from "../azure/azureLogin/azureAuth";
-import { APIMAccount } from "../constants";
+import { APIMAccountCommandId } from "../constants";
 import { Subscription } from "@azure/arm-resources-subscriptions";
 import { createSubscriptionTreeItem } from "./ApiManagementProvider";
 
@@ -21,7 +21,7 @@ export function createAzureAccountTreeItem(
 
 export class AzureAccountTreeItem extends AzExtParentTreeItem {
     private subscriptionTreeItems: AzExtTreeItem[] | undefined;
-    public static contextValue: string = "azureApiCenterAzureAccount";
+    public static contextValue: string = "azureApiManagementAzureAccount";
     public readonly contextValue: string = AzureAccountTreeItem.contextValue;
     constructor(private readonly sessionProvider: AzureSessionProvider) {
       super(undefined);
@@ -62,7 +62,7 @@ export class AzureAccountTreeItem extends AzExtParentTreeItem {
             new GenericTreeItem(this, {
               label: UiStrings.Loading,
               contextValue: "azureCommand",
-              id: "azureapicenterAccountLoading",
+              id: APIMAccountCommandId.accountLoading,
               iconPath: new vscode.ThemeIcon("loading~spin"),
             }),
           ];
@@ -72,7 +72,7 @@ export class AzureAccountTreeItem extends AzExtParentTreeItem {
               label: UiStrings.SignIntoAzure,
               commandId: "azureApiManagement.signInToAzure",
               contextValue: "azureCommand",
-              id: "azureapicenterAccountSignIn",
+              id: APIMAccountCommandId.accountSignIn,
               iconPath: new vscode.ThemeIcon("sign-in"),
               includeInTreeItemPicker: true,
             }),
@@ -80,7 +80,7 @@ export class AzureAccountTreeItem extends AzExtParentTreeItem {
               label: UiStrings.CreateAzureAccount,
               commandId: "azureApiManagement.openUrl",
               contextValue: "azureCommand",
-              id: APIMAccount.createAzureAccount,
+              id: APIMAccountCommandId.createAzureAccount,
               iconPath: new vscode.ThemeIcon("add"),
               includeInTreeItemPicker: true,
             }),
@@ -88,7 +88,7 @@ export class AzureAccountTreeItem extends AzExtParentTreeItem {
               label: UiStrings.CreateAzureStudentAccount,
               commandId: "azureApiManagement.openUrl",
               contextValue: "azureCommand",
-              id: APIMAccount.createAzureStudentAccount,
+              id: APIMAccountCommandId.createAzureStudentAccount,
               iconPath: new vscode.ThemeIcon("mortar-board"),
               includeInTreeItemPicker: true,
             })
@@ -98,7 +98,7 @@ export class AzureAccountTreeItem extends AzExtParentTreeItem {
             new GenericTreeItem(this, {
               label: UiStrings.WaitForAzureSignIn,
               contextValue: "azureCommand",
-              id: "azureapicenterAccountSigningIn",
+              id: APIMAccountCommandId.accountSigningIn,
               iconPath: new vscode.ThemeIcon("loading~spin"),
             }),
           ];
@@ -111,7 +111,7 @@ export class AzureAccountTreeItem extends AzExtParentTreeItem {
             label: UiStrings.SelectTenant,
             commandId: "azureApiManagement.selectTenant",
             contextValue: "azureCommand",
-            id: "azureapicenterAccountSelectTenant",
+            id: APIMAccountCommandId.accountSelectTenant,
             iconPath: new vscode.ThemeIcon("account"),
             includeInTreeItemPicker: true,
           }),
@@ -127,7 +127,7 @@ export class AzureAccountTreeItem extends AzExtParentTreeItem {
           new GenericTreeItem(this, {
             label: UiStrings.ErrorAuthenticating,
             contextValue: "azureCommand",
-            id: "AzureAccountError",
+            id: APIMAccountCommandId.accountError,
             iconPath: new vscode.ThemeIcon("error"),
           }),
         ];
@@ -139,7 +139,7 @@ export class AzureAccountTreeItem extends AzExtParentTreeItem {
           new GenericTreeItem(this, {
             label: UiStrings.ErrorLoadingSubscriptions,
             contextValue: "azureCommand",
-            id: "AzureAccountError",
+            id: APIMAccountCommandId.accountError,
             iconPath: new vscode.ThemeIcon("error"),
             description: subscriptions.error,
           }),
@@ -151,7 +151,7 @@ export class AzureAccountTreeItem extends AzExtParentTreeItem {
           new GenericTreeItem(this, {
             label: UiStrings.NoSubscriptionsFound,
             contextValue: "azureCommand",
-            id: "AzureAccountError",
+            id: APIMAccountCommandId.accountError,
             iconPath: new vscode.ThemeIcon("info"),
           }),
         ];

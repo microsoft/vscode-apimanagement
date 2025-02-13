@@ -16,6 +16,7 @@ import { GeneralUtils } from "../../utils/generalUtils";
 import { AzureAuthenticationSession, AzureSessionProvider, GetAuthSessionOptions, SignInStatus, Tenant } from "./authTypes";
 import { AzureAccount } from "./azureAccount";
 import { AzureAuth } from "./azureAuth";
+import { AzureLoginConstantString } from "./constants";
 
 enum AuthScenario {
     Initialization,
@@ -120,7 +121,7 @@ export namespace AzureSessionProviderHelper {
             // This allows the user to sign in to the Microsoft provider and list tenants,
             // but the resulting session will not allow tenant-level operations. For that,
             // we need to get a session for a specific tenant.
-            const orgTenantId = "organizations";
+            const orgTenantId = AzureLoginConstantString.organizations;
             const scopes = AzureAuth.getScopes(orgTenantId, {});
             const getSessionResult = await this.getArmSession(orgTenantId, scopes, authScenario);
 
@@ -143,6 +144,9 @@ export namespace AzureSessionProviderHelper {
             this.tenants = newTenants;
             this.signInStatusValue = newSignInStatus;
             if (signInStatusChanged || tenantsChanged || selectedTenantChanged) {
+                if (newSignInStatus === SignInStatus.SignedOut) {
+                    await AzureAccount.updateSelectedTenant();
+                }
                 this.onSignInStatusChangeEmitter.fire(this.signInStatusValue);
             }
         }
@@ -220,7 +224,11 @@ export namespace AzureSessionProviderHelper {
             );
             const results = await Promise.all(getSessionPromises);
             const accessibleTenants = results.filter(GeneralUtils.succeeded).map((r) => r.result);
-            return accessibleTenants.length === 1 ? AzureAccount.findTenant(tenants, accessibleTenants[0].tenantId) : null;
+            if (accessibleTenants.length === 1) {
+                return AzureAccount.findTenant(tenants, accessibleTenants[0].tenantId);
+            }
+            const lastTenant = AzureAccount.getSelectedTenant();
+            return lastTenant && accessibleTenants.some(item => item.tenantId === lastTenant.id) ? lastTenant : null;
         }
 
         private async getArmSession(
