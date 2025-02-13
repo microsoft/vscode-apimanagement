@@ -4,7 +4,6 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { HttpMethods, HttpOperationResponse, ParameterValue, ServiceClient, WebResource, Constants as MSRestConstants } from "@azure/ms-rest-js";
-// import { TokenCredentialsBase } from "@azure/ms-rest-nodeauth";
 import { AccessToken, TokenCredential } from "@azure/core-auth";
 import requestPromise from 'request-promise';
 import { appendExtensionUserAgent } from '@microsoft/vscode-azext-utils';
@@ -65,10 +64,6 @@ function createMsalScope(authority: string, scope: string = '.default'): string 
 export async function signRequest(credential: TokenCredential, webResource: WebResource): Promise<WebResource | undefined> {
     const tokenResponse: AccessToken| null = await credential.getToken(getDefaultMsalScopes(AzureAuth.getEnvironment()));
     if(tokenResponse) {
-        // webResource.headers.set(
-        //     ,
-        //     `${MSRestConstants.HeaderConstants.AUTHORIZATION_SCHEME} ${tokenResponse.token}`
-        // );
         webResource.headers[MSRestConstants.HeaderConstants.AUTHORIZATION]= `${MSRestConstants.HeaderConstants.AUTHORIZATION_SCHEME} ${tokenResponse.token}`;
         return webResource;
     }

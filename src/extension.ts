@@ -98,7 +98,6 @@ export async function activateInternal(context: vscode.ExtensionContext) {
 
     await callWithTelemetryAndErrorHandling('azureApiManagement.Activate', async (activateContext: IActionContext) => {
         activateContext.telemetry.properties.isActivationEvent = 'true';
-        // ext.azureAccountTreeItem = new AzureAccountTreeItem();
         AzureSessionProviderHelper.activateAzureSessionProvider(context);
         const sessionProvider = AzureSessionProviderHelper.getSessionProvider();
         const azureAccountTreeItem = createAzureAccountTreeItem(sessionProvider);

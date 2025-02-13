@@ -12,15 +12,6 @@ import { AzureAuth } from "../azure/azureLogin/azureAuth";
 import { APIMAccount } from "../constants";
 import { Subscription } from "@azure/arm-resources-subscriptions";
 import { createSubscriptionTreeItem } from "./ApiManagementProvider";
-// export class AzureAccountTreeItem extends AzureAccountTreeItemBase {
-//     public constructor(testAccount?: {}) {
-//         super(undefined, testAccount);
-//     }
-
-//     public createSubscriptionTreeItem(root: ISubscriptionContext): ApiManagementProvider {
-//         return new ApiManagementProvider(this, root);
-//     }
-// }
 
 export function createAzureAccountTreeItem(
     sessionProvider: AzureSessionProvider,

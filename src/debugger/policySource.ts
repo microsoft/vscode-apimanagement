@@ -2,7 +2,6 @@
  * Copyright (C) Microsoft Corporation. All rights reserved.
  *--------------------------------------------------------*/
 import { TokenCredential } from "@azure/core-auth";
-// import { TokenCredentialsBase } from "@azure/ms-rest-nodeauth";
 import * as path from 'path';
 import * as request from 'request-promise-native';
 import { Source } from 'vscode-debugadapter';
