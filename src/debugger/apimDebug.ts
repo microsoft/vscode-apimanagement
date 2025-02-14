@@ -381,7 +381,7 @@ export class ApimDebugSession extends LoggingDebugSession {
 	private async getAccountCredentials(): Promise<TokenCredential> {
 		const session = await AzureAuth.getReadySessionProvider();
 		if (GeneralUtils.failed(session)) {
-			throw new Error("ERROR!");
+			throw new Error("Failed to access the Azure Account Session.");
 		}
 		return await AzureAuth.getCredential(session.result);
 	}

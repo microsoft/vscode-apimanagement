@@ -791,22 +791,22 @@
                     },
                     "azureApiManagement.selectedSubscriptions": {
                         "type": "array",
-                        "description": "Selected Azure subscriptions",
+                        "description": "%azureApiManagement.selectAzureSubscriptions%",
                         "items": {
                             "type": "string"
                         }
                     },
                     "azureApiManagement.selectedTenant": {
                         "type": "object",
-                        "description": "A specific tenant to sign in to",
+                        "description": "%azureApiManagement.selectAzureTenant%",
                         "properties": {
                             "name": {
                                 "type": "string",
-                                "description": "tenant name"
+                                "description": "%azureApiManagement.selectAzureTenant.tenantName%"
                             },
                             "id": {
                                 "type": "string",
-                                "description": "tenant id"
+                                "description": "%azureApiManagement.selectAzureTenant.tenantId%"
                             }
                         }
                     }

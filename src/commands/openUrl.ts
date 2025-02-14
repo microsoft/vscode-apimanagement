@@ -14,5 +14,7 @@ export async function openUrlFromTreeNode(context: IActionContext, node?: AzExtT
             await openUrl(AzureAccountUrl.createAzureStudentUrl);
             break;
         }
+        default:
+            break;
     }
 }
