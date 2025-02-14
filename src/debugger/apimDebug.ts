@@ -2,7 +2,6 @@
  * Copyright (C) Microsoft Corporation. All rights reserved.
  *--------------------------------------------------------*/
 
-import { TokenCredentialsBase } from "@azure/ms-rest-nodeauth";
 import * as request from 'request-promise-native';
 import * as vscode from 'vscode';
 import { Breakpoint, Handles, InitializedEvent, Logger, logger, LoggingDebugSession, OutputEvent, Scope, StackFrame, StoppedEvent, TerminatedEvent, Thread, ThreadEvent, Variable } from 'vscode-debugadapter';
@@ -17,7 +16,9 @@ import { DebuggerConnection, RequestContract } from './debuggerConnection';
 import { PolicySource } from './policySource';
 import { UiRequest } from './uiRequest';
 import { UiThread } from './uiThread';
-
+import { AzureAuth } from "../azure/azureLogin/azureAuth";
+import { GeneralUtils } from "../utils/generalUtils";
+import { TokenCredential } from "@azure/core-auth";
 // tslint:disable: no-unsafe-any
 // tslint:disable: indent
 // tslint:disable: export-name
@@ -91,7 +92,7 @@ export class ApimDebugSession extends LoggingDebugSession {
 			masterKey = await this.getMasterSubscriptionKey(args.managementAddress, undefined, args.managementAuth);
 			this.availablePolicies = await this.getAvailablePolicies(args.managementAddress, undefined, args.managementAuth);
 		} else {
-			const credential = await this.getAccountCredentials(args.subscriptionId);
+			const credential = await this.getAccountCredentials();
 			this.policySource = new PolicySource(args.managementAddress, credential);
 			masterKey = await this.getMasterSubscriptionKey(args.managementAddress, credential);
 			this.availablePolicies = await this.getAvailablePolicies(args.managementAddress, credential);
@@ -377,18 +378,15 @@ export class ApimDebugSession extends LoggingDebugSession {
 		}
 	}
 
-	private async getAccountCredentials(subscriptionId: string): Promise<TokenCredentialsBase> {
-		const azureAccountExtension = vscode.extensions.getExtension('ms-vscode.azure-account');
-		const azureAccount = azureAccountExtension!.exports;
-		await azureAccount.waitForFilters();
-		if (azureAccount.status !== 'LoggedIn') {
-			throw new Error("ERROR!");
+	private async getAccountCredentials(): Promise<TokenCredential> {
+		const session = await AzureAuth.getReadySessionProvider();
+		if (GeneralUtils.failed(session)) {
+			throw new Error("Failed to access the Azure Account Session.");
 		}
-		const creds = azureAccount.filters.filter(filter => filter.subscription.subscriptionId === subscriptionId).map(filter => filter.session.credentials);
-		return creds[0];
+		return await AzureAuth.getCredential(session.result);
 	}
 
-	private async getMasterSubscriptionKey(managementAddress: string, credential?: TokenCredentialsBase, managementAuth?: string) {
+	private async getMasterSubscriptionKey(managementAddress: string, credential?: TokenCredential, managementAuth?: string) {
 		const resourceUrl = `${managementAddress}/subscriptions/master/listSecrets?api-version=${Constants.apimApiVersion}`;
 		const authToken = managementAuth ? managementAuth : await getBearerToken(resourceUrl, "GET", credential!);
 		const subscription: IMasterSubscriptionsSecrets = await request.post(resourceUrl, {
@@ -409,7 +407,7 @@ export class ApimDebugSession extends LoggingDebugSession {
 		return subscription.primaryKey;
 	}
 
-	private async getAvailablePolicies(managementAddress: string, credential?: TokenCredentialsBase, managementAuth?: string) {
+	private async getAvailablePolicies(managementAddress: string, credential?: TokenCredential, managementAuth?: string) {
 		const resourceUrl = `${managementAddress}/policyDescriptions?api-version=${Constants.apimApiVersion}`;
 		const authToken = managementAuth ? managementAuth : await getBearerToken(resourceUrl, "GET", credential!);
 		const policyDescriptions: IPaged<IArmResource> = await request.get(resourceUrl, {

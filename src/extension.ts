@@ -79,7 +79,9 @@ import { SubscriptionTreeItem } from './explorer/SubscriptionTreeItem';
 import { ext } from './extensionVariables';
 import { localize } from './localize';
 import { registerAzureUtilsExtensionVariables } from '@microsoft/vscode-azext-azureutils';
-
+import { AzureSessionProviderHelper } from "./azure/azureLogin/azureSessionProvider";
+import { AzureAccount } from "./azure/azureLogin/azureAccount";
+import { openUrlFromTreeNode } from './commands/openUrl';
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 // tslint:disable-next-line:typedef
@@ -96,10 +98,13 @@ export async function activateInternal(context: vscode.ExtensionContext) {
 
     await callWithTelemetryAndErrorHandling('azureApiManagement.Activate', async (activateContext: IActionContext) => {
         activateContext.telemetry.properties.isActivationEvent = 'true';
-        ext.azureAccountTreeItem = new AzureAccountTreeItem();
-        context.subscriptions.push(ext.azureAccountTreeItem);
-
-        ext.tree = new AzExtTreeDataProvider(ext.azureAccountTreeItem, 'azureApiManagement.LoadMore');
+        AzureSessionProviderHelper.activateAzureSessionProvider(context);
+        const sessionProvider = AzureSessionProviderHelper.getSessionProvider();
+        const azureAccountTreeItem = new AzureAccountTreeItem(sessionProvider);
+        context.subscriptions.push(azureAccountTreeItem);
+        ext.azureAccountTreeItem = azureAccountTreeItem;
+        
+        ext.tree = new AzExtTreeDataProvider(azureAccountTreeItem, 'azureApiManagement.LoadMore');
         context.subscriptions.push(vscode.window.registerTreeDataProvider('azureApiManagementExplorer', ext.tree));
 
         registerCommands(ext.tree);
@@ -115,8 +120,11 @@ export async function activateInternal(context: vscode.ExtensionContext) {
 }
 
 function registerCommands(tree: AzExtTreeDataProvider): void {
-    registerCommand('azureApiManagement.Refresh', async (context: IActionContext, node?: AzExtTreeItem) => await tree.refresh(context, node)); // need to double check
-    registerCommand('azureApiManagement.selectSubscriptions', () => vscode.commands.executeCommand("azure-account.selectSubscriptions"));
+    registerCommand('azureApiManagement.signInToAzure', async () => { await AzureAccount.signInToAzure(); });
+    registerCommand('azureApiManagement.openUrl', async(context: IActionContext, node?: AzExtTreeItem) => { await openUrlFromTreeNode(context, node); });
+    registerCommand('azureApiManagement.Refresh', async (context: IActionContext) => await ext.azureAccountTreeItem.refresh(context)); // need to double check
+    registerCommand('azureApiManagement.selectSubscriptions', async() => { await AzureAccount.selectSubscriptions();});
+    registerCommand('azureApiManagement.selectTenant', async() => { await AzureAccount.selectTenant();});
     registerCommand('azureApiManagement.LoadMore', async (context: IActionContext, node: AzExtTreeItem) => await tree.loadMore(node, context)); // need to double check
     registerCommand('azureApiManagement.openInPortal', openInPortal);
     registerCommand('azureApiManagement.createService', createService);
