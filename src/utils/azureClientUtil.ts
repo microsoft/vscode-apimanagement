@@ -14,8 +14,7 @@ export namespace azureClientUtil {
     }
 
     // tslint:disable: no-unsafe-any
-    export async function selectSubscription(context: IActionContext): Promise<string> {
-        context;
+    export async function selectSubscription(_context: IActionContext): Promise<string> {
         await AzureAccount.selectSubscriptions();
         let res = await AzureSubscriptionHelper.getFilteredSubscriptions();
         return res[0].subscriptionId;

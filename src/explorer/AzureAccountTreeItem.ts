@@ -11,13 +11,7 @@ import { GeneralUtils } from "../utils/generalUtils";
 import { AzureAuth } from "../azure/azureLogin/azureAuth";
 import { APIMAccountCommandId } from "../constants";
 import { Subscription } from "@azure/arm-resources-subscriptions";
-import { createSubscriptionTreeItem } from "./ApiManagementProvider";
-
-export function createAzureAccountTreeItem(
-    sessionProvider: AzureSessionProvider,
-): AzExtParentTreeItem & { dispose(): unknown } {
-    return new AzureAccountTreeItem(sessionProvider);
-}
+import { ApiManagementProvider } from "./ApiManagementProvider";
 
 export class AzureAccountTreeItem extends AzExtParentTreeItem {
     private subscriptionTreeItems: AzExtTreeItem[] | undefined;
@@ -46,9 +40,7 @@ export class AzureAccountTreeItem extends AzExtParentTreeItem {
     }
   
     // no need to sort the array
-    public compareChildrenImpl(item1: AzExtTreeItem, item2: AzExtTreeItem): number {
-      item1;
-      item2;
+    public compareChildrenImpl(_item1: AzExtTreeItem, _item2: AzExtTreeItem): number {
       return 0;
     }
   
@@ -173,7 +165,7 @@ export class AzureAccountTreeItem extends AzExtParentTreeItem {
               session.result,
               subscription,
             );
-            return await createSubscriptionTreeItem(this, subscriptionContext);
+            return new ApiManagementProvider(this, subscriptionContext);
           }
         }),
       );

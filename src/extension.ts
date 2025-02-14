@@ -51,7 +51,7 @@ import { AuthorizationProvidersTreeItem } from './explorer/AuthorizationProvider
 import { AuthorizationProviderTreeItem } from './explorer/AuthorizationProviderTreeItem';
 import { AuthorizationsTreeItem } from './explorer/AuthorizationsTreeItem';
 import { AuthorizationTreeItem } from './explorer/AuthorizationTreeItem';
-import { createAzureAccountTreeItem } from './explorer/AzureAccountTreeItem';
+import { AzureAccountTreeItem } from './explorer/AzureAccountTreeItem';
 import { ApiResourceEditor } from './explorer/editors/arm/ApiResourceEditor';
 import { AuthorizationAccessPolicyResourceEditor } from './explorer/editors/arm/AuthorizationAccessPolicyResourceEditor';
 import { AuthorizationProviderResourceEditor } from './explorer/editors/arm/AuthorizationProviderResourceEditor';
@@ -100,11 +100,11 @@ export async function activateInternal(context: vscode.ExtensionContext) {
         activateContext.telemetry.properties.isActivationEvent = 'true';
         AzureSessionProviderHelper.activateAzureSessionProvider(context);
         const sessionProvider = AzureSessionProviderHelper.getSessionProvider();
-        const azureAccountTreeItem = createAzureAccountTreeItem(sessionProvider);
+        const azureAccountTreeItem = new AzureAccountTreeItem(sessionProvider);
         context.subscriptions.push(azureAccountTreeItem);
         ext.azureAccountTreeItem = azureAccountTreeItem;
         
-        ext.tree = new AzExtTreeDataProvider(azureAccountTreeItem, 'azureApiManagement.loadMore');
+        ext.tree = new AzExtTreeDataProvider(azureAccountTreeItem, 'azureApiManagement.LoadMore');
         context.subscriptions.push(vscode.window.registerTreeDataProvider('azureApiManagementExplorer', ext.tree));
 
         registerCommands(ext.tree);

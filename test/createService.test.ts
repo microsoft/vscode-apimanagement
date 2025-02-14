@@ -32,8 +32,6 @@ suite('Create Azure Resources', async function (this: Suite): Promise<void> {
 
         this.timeout(120 * 1000);
         await testAccount.signIn();
-        // ext.azureAccountTreeItem = new AzureAccountTreeItem(testAccount);
-        // ext.tree = new AzExtTreeDataProvider(ext.azureAccountTreeItem, 'azureApiManagement.LoadMore');
         const rootNode : AzExtParentTreeItem = await treeUtils.getRootNode(ext.tree);
         rootNode.subscription.userId = "vscodeapimtest@microsoft.com"; // userId doesnt exist for service principal.
         //apiManagementClient = getApiManagementClient(testAccount);

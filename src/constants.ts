@@ -40,13 +40,13 @@ export enum GatewayKeyType {
 }
 
 export const APIMAccountCommandId = {
-    createAzureAccount: "Create an Azure Account...",
-    createAzureStudentAccount: "Create an Azure for Students Account...",
-    accountLoading: "azureManagementAccountLoading",
-    accountSignIn: "azureManagementAccountSignIn",
-    accountSigningIn: "azureManagementAccountSigningIn",
-    accountSelectTenant: "azureManagementAccountSelectTenant",
-    accountError: "AzureAccountError",
+    createAzureAccount: "azureApiManagementCreateAzureAccount",
+    createAzureStudentAccount: "azureApiManagementCreateAzureStudentAccount",
+    accountLoading: "azureApiManagementAccountLoading",
+    accountSignIn: "azureApiManagementAccountSignIn",
+    accountSigningIn: "azureApiManagementAccountSigningIn",
+    accountSelectTenant: "azureApiManagementAccountSelectTenant",
+    accountError: "azureApiManagementAccountError",
 }
 
 export const AzureAccountUrl = {

@@ -18,13 +18,6 @@ import { getWorkspaceSetting, updateGlobalSetting } from '../vsCodeConfig/settin
 import { ServiceTreeItem } from './ServiceTreeItem';
 import { treeUtils } from '../utils/treeUtils';
 
-export function createSubscriptionTreeItem(
-    parent: AzExtParentTreeItem,
-    subscription: ISubscriptionContext,
-): AzExtTreeItem {
-    return new ApiManagementProvider(parent, subscription);
-}
-
 export class ApiManagementProvider extends SubscriptionTreeItemBase {
     public readonly childTypeLabel: string = localize('azureApiManagement.ApimService', 'API Management Service');
 
