@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="retry">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip" />
+            </xs:sequence>
+            <xs:attribute name="id" type="xs:string" use="optional" />
+            <xs:attribute name="condition" use="required">
+                <xs:simpleType>
+                    <xs:union memberTypes="xs:boolean expression" />
+                </xs:simpleType>
+            </xs:attribute>
+            <xs:attribute name="count" use="required">
+                <xs:simpleType>
+                    <xs:union memberTypes="xs:positiveInteger expression" />
+                </xs:simpleType>
+            </xs:attribute>
+            <xs:attribute name="interval" use="required">
+                <xs:simpleType>
+                    <xs:union memberTypes="xs:nonNegativeInteger expression" />
+                </xs:simpleType>
+            </xs:attribute>
+            <xs:attribute name="delta" use="optional">
+                <xs:simpleType>
+                    <xs:union memberTypes="xs:positiveInteger expression" />
+                </xs:simpleType>
+            </xs:attribute>
+            <xs:attribute name="max-interval" use="optional">
+                <xs:simpleType>
+                    <xs:union memberTypes="xs:positiveInteger expression" />
+                </xs:simpleType>
+            </xs:attribute>
+            <xs:attribute name="first-fast-retry" use="optional" default="false">
+                <xs:simpleType>
+                    <xs:union memberTypes="xs:boolean expression" />
+                </xs:simpleType>
+            </xs:attribute>
+        </xs:complexType>
+    </xs:element>
+    <xs:simpleType name="expression">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="@[\(\{][\s\S]+"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>

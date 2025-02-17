@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="find-and-replace" type="FindAndReplacePolicyConfiguration" />
+  <xs:complexType name="FindAndReplacePolicyConfiguration">
+    <xs:attribute name="id" type="xs:string" use="optional" />
+    <xs:attribute name="from" type="xs:string" use="required" />
+    <xs:attribute name="to" type="xs:string" use="required" />
+  </xs:complexType>
+</xs:schema>

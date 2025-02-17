@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="rate-limit-by-key" type="RateLimitByKeyPolicyConfiguration" />
+  <xs:complexType name="RateLimitByKeyPolicyConfiguration">
+      <xs:attribute name="id" type="xs:string" use="optional" />
+      <xs:attribute name="calls" use="required">
+        <xs:simpleType>
+          <xs:union memberTypes="xs:int expression" />
+        </xs:simpleType>
+      </xs:attribute>
+      <xs:attribute name="renewal-period" use="required">
+        <xs:simpleType>
+          <xs:union memberTypes="xs:int expression" />
+        </xs:simpleType>
+      </xs:attribute>
+      <xs:attribute name="counter-key" type="xs:string" use="required" />
+      <xs:attribute name="increment-condition" type="xs:string" />
+      <xs:attribute name="increment-count" type="xs:string" />
+      <xs:attribute name="increment-after-response" type="xs:boolean" />
+      <xs:attribute name="flexible-retry-window" type="xs:boolean" />
+      <xs:attribute name="retry-after-header-name" type="xs:string" />
+      <xs:attribute name="retry-after-variable-name" type="xs:string" />
+      <xs:attribute name="remaining-calls-header-name" type="xs:string" />
+      <xs:attribute name="remaining-calls-variable-name" type="xs:string" />
+      <xs:attribute name="total-calls-header-name" type="xs:string" />
+  </xs:complexType>
+  <xs:simpleType name="expression">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="@[\(\{][\s\S]+"/>
+    </xs:restriction>
+  </xs:simpleType>
+</xs:schema>

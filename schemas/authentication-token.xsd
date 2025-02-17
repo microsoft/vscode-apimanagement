@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="authentication-token" type="AuthenticateTokenConfiguration" />
+    <xs:complexType name="AuthenticateTokenConfiguration">
+        <xs:attribute name="id" type="xs:string" use="optional" />
+        <xs:attribute name="token-type" default="managed-service-identity" >
+            <xs:simpleType>
+                <xs:union memberTypes="TokenType" />
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="token-service-url" type="xs:string" use="optional" />
+        <xs:attribute name="resource-url" type="xs:string" use="optional" />
+        <xs:attribute name="ignore-error" type="xs:boolean" use="optional" />
+    </xs:complexType>
+    <xs:simpleType name="TokenType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="managed-service-identity"/>
+            <xs:enumeration value="token-service"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>

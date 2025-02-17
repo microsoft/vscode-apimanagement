@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="emit-metric" type="EmitMetricPolicyConfiguration" />
+    <xs:complexType name="EmitMetricPolicyConfiguration">
+        <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="10" name="dimension" type="Dimension" />
+        </xs:sequence>
+        <xs:attribute name="id" type="xs:string" use="optional" />
+        <xs:attribute name="default-dimensions" type="xs:boolean" use="optional" />
+        <xs:attribute name="name" type="xs:string" use="required" />
+        <xs:attribute name="namespace" type="xs:string" use="optional" />
+        <xs:attribute name="value" use="optional">
+            <xs:simpleType>
+                <xs:union memberTypes="xs:double expression" />
+            </xs:simpleType>
+        </xs:attribute>
+    </xs:complexType>
+    <xs:complexType name="Dimension">
+        <xs:attribute name="name" type="xs:string" use="required" />
+        <xs:attribute name="value" use="optional">
+            <xs:simpleType>
+                <xs:union memberTypes="xs:string expression" />
+            </xs:simpleType>
+        </xs:attribute>
+    </xs:complexType>
+    <xs:simpleType name="expression">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="@[\(\{][\s\S]+"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>

@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="azure-openai-semantic-cache-lookup" type="AzureOpenAISemanticCacheLookup" />
+    <xs:element name="llm-semantic-cache-lookup" type="AzureOpenAISemanticCacheLookup" />
+    <xs:complexType name="AzureOpenAISemanticCacheLookup">
+        <xs:choice>
+            <xs:element minOccurs="0" maxOccurs="unbounded" name="vary-by" type="xs:string" />
+        </xs:choice>
+        <xs:attribute name = "score-threshold" type="xs:float" use="required" />
+        <xs:attribute name = "embeddings-backend-id" type="xs:string" use="required" />
+        <xs:attribute name = "embeddings-backend-auth" default="system-assigned" >
+            <xs:simpleType>
+                <xs:union memberTypes="AuthType" />
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name = "ignore-system-messages" type="xs:string" use="optional" default="false" />
+        <xs:attribute name = "cache-id" type="xs:string" use="optional" />
+        <xs:attribute name = "max-message-count" type="xs:string" use="optional" />
+    </xs:complexType>
+    <xs:simpleType name="AuthType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="system-assigned"/>
+            <xs:enumeration value="header"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>

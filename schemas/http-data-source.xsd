@@ -1,0 +1,56 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="http-data-source" type="HTTPDataSourceConfiguration" />
+    <xs:complexType name="HTTPDataSourceConfiguration">
+        <xs:sequence>
+            <xs:element minOccurs="1" maxOccurs="1" name="http-request" type="HttpRequest" />
+            <xs:element minOccurs="0" maxOccurs="1" name="backend" type="Backend" />
+            <xs:element minOccurs="0" maxOccurs="1" name="http-response" type="HttpResponse" />
+        </xs:sequence>
+        <xs:attribute name="id" type="xs:string" use="optional" />
+    </xs:complexType>
+
+    <xs:complexType name ="HttpRequest">
+        <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="get-authorization-context" />
+            <xs:element minOccurs="0" maxOccurs="1" name="set-backend-service" />
+            <xs:element minOccurs="1" maxOccurs="1" name="set-method" >
+                <xs:simpleType>
+                    <xs:union memberTypes="MethodType" />
+                </xs:simpleType>
+            </xs:element>
+            <xs:element minOccurs="1" maxOccurs="1" name="set-url" type="xs:string"/>
+            <xs:element minOccurs="0" maxOccurs="unbounded" name="include-fragment" />
+            <xs:element minOccurs="0" maxOccurs="unbounded" name="set-header" />
+            <xs:element minOccurs="0" maxOccurs="1" name="set-body" />
+            <xs:element minOccurs="0" maxOccurs="1" name="authentication-certificate" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name ="Backend">
+        <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="forward-request" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name ="HttpResponse">
+        <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="set-body" />
+            <xs:element minOccurs="0" maxOccurs="1" name="json-to-xml" />
+            <xs:element minOccurs="0" maxOccurs="1" name="xml-to-json" />
+            <xs:element minOccurs="0" maxOccurs="1" name="find-and-replace" />
+            <xs:element minOccurs="0" maxOccurs="1" name="publish-event" />
+            <xs:element minOccurs="0" maxOccurs="unbounded" name="include-fragment" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:simpleType name="MethodType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="GET" />
+            <xs:enumeration value="POST" />
+            <xs:enumeration value="PUT" />
+            <xs:enumeration value="PATCH" />
+            <xs:enumeration value="DELETE" />
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>

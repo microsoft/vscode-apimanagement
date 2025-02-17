@@ -1,0 +1,53 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="json-to-xml">
+        <xs:complexType>
+            <xs:attribute name="id" type="xs:string" use="optional" />
+            <xs:attribute name="apply" use="required">
+                <xs:simpleType>
+                    <xs:union memberTypes="Apply expression" />
+                </xs:simpleType>
+            </xs:attribute>
+            <xs:attribute name="consider-accept-header">
+                <xs:simpleType>
+                    <xs:union memberTypes="xs:boolean expression" />
+                </xs:simpleType>
+            </xs:attribute>
+            <xs:attribute name="parse-date" use="optional">
+                <xs:simpleType>
+                    <xs:union memberTypes="xs:boolean" />
+                </xs:simpleType>
+            </xs:attribute>
+            <xs:attribute name="attribute-block-name" type="xs:string" use="optional" />
+            <xs:attribute name="attribute-prefix" type="xs:string" use="optional" />
+            <xs:attribute name="namespace-block-name" type="xs:string" use="optional" />
+            <xs:attribute name="namespace-separator" type="xs:string" use="optional" />
+            <xs:attribute name="namespace-prefix" type="xs:string" use="optional" />
+            <xs:attribute name="invalid-character-replacement" type="xs:string" use="optional" />
+            <xs:attribute name="null-values" type="xs:string" use="optional" />
+            <xs:attribute name="trim-values" type="xs:boolean" use="optional" />
+            <xs:attribute name="empty-values" use="optional">
+                <xs:simpleType>
+                    <xs:union memberTypes="EmptyValuesBehavior expression" />
+                </xs:simpleType>
+            </xs:attribute>
+        </xs:complexType>
+    </xs:element>
+    <xs:simpleType name="Apply">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="always" />
+            <xs:enumeration value="content-type-json" />
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="EmptyValuesBehavior">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="preserve" />
+            <xs:enumeration value="as-null" />
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="expression">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="@[\(\{][\s\S]+"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>

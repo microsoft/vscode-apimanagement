@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="cosmosdb-data-source" type="CosmosDataSourceConfiguration" />
+    <xs:complexType name="CosmosDataSourceConfiguration">
+        <xs:sequence>
+            <xs:element minOccurs="1" maxOccurs="1" name="connection-info" type="ConnectionInfo" />
+            <xs:element minOccurs="0" maxOccurs="1" name="query-request" type="QueryRequest" />
+            <xs:element minOccurs="0" maxOccurs="1" name="read-request" type="ReadRequest" />
+            <xs:element minOccurs="0" maxOccurs="1" name="delete-request" type="DeleteRequest" />
+            <xs:element minOccurs="0" maxOccurs="1" name="write-request" type="WriteRequest" />
+            <xs:element minOccurs="0" maxOccurs="1" name="response" type="Response" />
+        </xs:sequence>
+        <xs:attribute name="id" type="xs:string" use="optional" />
+    </xs:complexType>
+
+    <xs:complexType name="ConnectionInfo">
+        <xs:sequence>
+            <xs:element minOccurs="1" maxOccurs="1" name="connection-string" type="ConnectionString" />
+            <xs:element minOccurs="1" maxOccurs="1" name="database-name" />
+            <xs:element minOccurs="1" maxOccurs="1" name="container-name" />
+        </xs:sequence>
+    </xs:complexType>
+    
+    <xs:complexType name="QueryRequest" mixed="true">
+        <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="sql-statement" />
+            <xs:element minOccurs="0" maxOccurs="1" name="parameters" type="QueryParameters" />
+            <xs:element minOccurs="0" maxOccurs="1" name="partition-key" type="PartitionKey" />
+            <xs:element minOccurs="0" maxOccurs="1" name="paging" type="Paging" />
+        </xs:sequence>
+        <xs:attribute name = "enable-low-precision-order-by" type ="xs:boolean" use ="optional" />
+    </xs:complexType>
+
+    <xs:complexType name="ReadRequest" mixed="true">
+        <xs:sequence>
+            <xs:element minOccurs="1" maxOccurs="1" name="id" type="Id" />
+            <xs:element minOccurs="0" maxOccurs="1" name="partition-key" type="PartitionKey" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="DeleteRequest" mixed="true">
+        <xs:sequence>
+            <xs:element minOccurs="1" maxOccurs="1" name="id" type="Id" />
+            <xs:element minOccurs="0" maxOccurs="1" name="partition-key" type="PartitionKey" />
+            <xs:element minOccurs="0" maxOccurs="1" name="etag" type="Etag" />
+        </xs:sequence>
+        <xs:attribute name = "consistency-level" type ="xs:string" use ="optional" />
+        <xs:attribute name = "pre-trigger" type ="xs:string" use ="optional" />
+        <xs:attribute name = "post-trigger" type ="xs:string" use ="optional" />
+    </xs:complexType>
+
+    <xs:complexType name="WriteRequest" mixed="true">
+        <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="partition-key" type="PartitionKey" />
+            <xs:element minOccurs="0" maxOccurs="1" name="etag" type="Etag" />
+            <xs:element minOccurs="0" maxOccurs="1" name="set-body" />
+            <xs:element minOccurs="0" maxOccurs="unbounded" name="include-fragment" />
+        </xs:sequence>
+        <xs:attribute name = "type" type ="xs:string" use ="optional" />
+        <xs:attribute name = "consistency-level" type ="xs:string" use ="optional" />
+        <xs:attribute name = "enable-content-response-on-write" type ="xs:string" use ="optional" />
+        <xs:attribute name = "indexing-directive" type ="xs:string" use ="optional" />
+        <xs:attribute name = "pre-trigger" type ="xs:string" use ="optional" />
+        <xs:attribute name = "post-trigger" type ="xs:string" use ="optional" />
+    </xs:complexType>
+
+    <xs:complexType name="Response">
+        <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="set-body" />
+            <xs:element minOccurs="0" maxOccurs="1" name="publish-event" />
+            <xs:element minOccurs="0" maxOccurs="unbounded" name="include-fragment" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="ConnectionString" mixed="true">
+        <xs:attribute name = "use-managed-identity" type ="xs:string" use ="optional" />
+        <xs:attribute name = "client-id" type ="xs:string" use ="optional" />
+    </xs:complexType>
+
+    <xs:complexType name="QueryParameters">
+        <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="unbounded" name="parameter" type="Parameter" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="PartitionKey" mixed="true">
+        <xs:attribute name = "data-type" type ="xs:string" use ="optional" />
+        <!--<xs:attribute name = "template" type ="xs:string" use ="optional" />-->
+    </xs:complexType>
+
+    <xs:complexType name="Paging">
+        <xs:sequence>
+            <xs:element minOccurs="1" maxOccurs="1" name="max-item-count" type="MaxItemCount" />
+            <xs:element minOccurs="1" maxOccurs="1" name="continuation-token" type="ContinuationToken" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="Id" mixed="true">
+        <!--<xs:attribute name = "template" type ="xs:string" use ="optional" />-->
+    </xs:complexType>
+
+    <xs:complexType name="Etag" mixed="true">
+        <xs:attribute name = "type" type ="xs:string" use ="optional" />
+        <!--<xs:attribute name = "template" type ="xs:string" use ="optional" />-->
+    </xs:complexType>
+
+    <xs:complexType name="Parameter" mixed="true">
+        <xs:attribute name = "name" type ="xs:string" use ="required" />
+        <xs:attribute name="type" use="optional" type="xs:string"/>
+        <!--<xs:attribute name = "template" type ="xs:string" use ="optional" />-->
+    </xs:complexType>
+
+    <xs:complexType name="MaxItemCount" mixed="true">
+        <!--<xs:attribute name = "template" type ="xs:string" use ="optional" />-->
+    </xs:complexType>
+
+    <xs:complexType name="ContinuationToken" mixed="true">
+        <!--<xs:attribute name = "template" type ="xs:string" use ="optional" />-->
+    </xs:complexType>
+
+</xs:schema>

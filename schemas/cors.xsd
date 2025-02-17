@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="cors">
+        <xs:complexType>
+            <xs:all>
+                <xs:element name="allowed-origins">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="origin" type="xs:string" minOccurs="1" maxOccurs="unbounded" />
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="allowed-methods" minOccurs="0" maxOccurs="1">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="method" type="xs:string" minOccurs="1" maxOccurs="unbounded" />
+                        </xs:sequence>
+                        <xs:attribute name="preflight-result-max-age" use="optional" >
+                            <xs:simpleType>
+                                <xs:union memberTypes="xs:unsignedInt expression" />
+                            </xs:simpleType>
+                        </xs:attribute>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="allowed-headers" minOccurs="0" maxOccurs="1">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="header" type="xs:string" minOccurs="1" maxOccurs="unbounded" />
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="expose-headers" minOccurs="0" maxOccurs="1">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="header" type="xs:string" minOccurs="1" maxOccurs="unbounded" />
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+            </xs:all>
+            <xs:attribute name="id" type="xs:string" use="optional" />
+            <xs:attribute name="allow-credentials" use="optional">
+                <xs:simpleType>
+                    <xs:union memberTypes="xs:boolean expression" />
+                </xs:simpleType>
+            </xs:attribute>
+            <xs:attribute name="terminate-unmatched-request" use="optional">
+                <xs:simpleType>
+                    <xs:union memberTypes="xs:boolean expression" />
+                </xs:simpleType>
+            </xs:attribute>
+        </xs:complexType>
+    </xs:element>
+    <xs:simpleType name="expression">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="@[\(\{][\s\S]+"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>

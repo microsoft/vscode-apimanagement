@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="quota" type="PeriodicQuotaPolicyConfiguration" />
+  <xs:complexType name="PeriodicQuotaPolicyConfiguration">
+    <xs:complexContent mixed="false">
+      <xs:extension base="QuotaConfiguration">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="api" type="ApiConfiguration" />
+        </xs:sequence>
+        <xs:attribute name="id" type="xs:string" use="optional" />
+        <xs:attribute name="renewal-period" type="xs:int" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="QuotaConfiguration" abstract="true">
+    <xs:attribute name="calls" type="xs:int" />
+    <xs:attribute name="bandwidth" type="xs:long" />
+  </xs:complexType>
+  <xs:complexType name="OperationConfiguration">
+    <xs:complexContent mixed="false">
+      <xs:extension base="QuotaConfiguration">
+        <xs:attribute name="id" type="xs:string" use="optional" />
+        <xs:attribute name="name" type="xs:string" use="optional" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ApiConfiguration">
+    <xs:complexContent mixed="false">
+      <xs:extension base="QuotaConfiguration">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="operation" type="OperationConfiguration" />
+        </xs:sequence>
+        <xs:attribute name="id" type="xs:string" use="optional" />
+        <xs:attribute name="name" type="xs:string" use="optional" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+</xs:schema>

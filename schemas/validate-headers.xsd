@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="validate-headers" type="ValidateHeadersPolicyConfiguration" />
+    <xs:complexType name="ValidateHeadersPolicyConfiguration">
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" name="header" type="HeaderConfiguration" />
+      </xs:sequence>
+      <xs:attribute name="id" type="xs:string" use="optional" />
+      <xs:attribute name="specified-header-action" use="required">
+        <xs:simpleType>
+          <xs:union memberTypes="ValidationMode expression" />
+        </xs:simpleType>
+      </xs:attribute>
+      <xs:attribute name="unspecified-header-action" use="required">
+        <xs:simpleType>
+          <xs:union memberTypes="ValidationMode expression" />
+        </xs:simpleType>
+      </xs:attribute>
+      <xs:attribute name="errors-variable-name" use="optional" type="xs:string" />
+    </xs:complexType>
+
+    <xs:simpleType name="ValidationMode">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="ignore" />
+            <xs:enumeration value="prevent" />
+            <xs:enumeration value="detect" />
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="expression">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="@[\(\{][\s\S]+"/>
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <xs:complexType name="HeaderConfiguration">
+        <xs:attribute name="name" use="required" type="xs:string"/>
+        <xs:attribute name="action" use="required">
+            <xs:simpleType>
+                <xs:union memberTypes="ValidationMode expression" />
+            </xs:simpleType>
+        </xs:attribute>
+    </xs:complexType>
+</xs:schema>
