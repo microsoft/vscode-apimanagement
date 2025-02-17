@@ -39,6 +39,23 @@ export enum GatewayKeyType {
     secondary = "secondary"
 }
 
+export const APIMAccountCommandId = {
+    createAzureAccount: "azureApiManagementCreateAzureAccount",
+    createAzureStudentAccount: "azureApiManagementCreateAzureStudentAccount",
+    accountLoading: "azureApiManagementAccountLoading",
+    accountSignIn: "azureApiManagementAccountSignIn",
+    accountSigningIn: "azureApiManagementAccountSigningIn",
+    accountSelectTenant: "azureApiManagementAccountSelectTenant",
+    accountError: "azureApiManagementAccountError",
+    accountSubscription: "azureApiManagementAccountSubscription",
+}
+
+export const AzureAccountUrl = {
+    createAzureAccountUrl: "https://aka.ms/VSCodeCreateAzureAccount",
+    createAzureStudentUrl: "https://aka.ms/student-account",
+    azureMicrosoftLink: "https://azure.microsoft.com/",
+};
+
 // constants for extractor
 export const templatesFolder = "templates";
 

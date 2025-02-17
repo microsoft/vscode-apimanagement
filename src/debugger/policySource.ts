@@ -1,8 +1,7 @@
 /*---------------------------------------------------------
  * Copyright (C) Microsoft Corporation. All rights reserved.
  *--------------------------------------------------------*/
-
-import { TokenCredentialsBase } from "@azure/ms-rest-nodeauth";
+import { TokenCredential } from "@azure/core-auth";
 import * as path from 'path';
 import * as request from 'request-promise-native';
 import { Source } from 'vscode-debugadapter';
@@ -25,11 +24,11 @@ export class PolicySource {
 	private static NextSourceReference : number = 1;
 
 	private managementAddress: string;
-	private credential: TokenCredentialsBase | undefined;
+	private credential: TokenCredential | undefined;
 	private auth: string | undefined;
 	private policies: { [key: string]: Policy } = {};
 
-	constructor(managementAddress: string, credential?: TokenCredentialsBase, auth?: string) {
+	constructor(managementAddress: string, credential?: TokenCredential, auth?: string) {
 		this.managementAddress = managementAddress;
 		this.credential = credential;
 		this.auth = auth;
