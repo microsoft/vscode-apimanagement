@@ -27,4 +27,5 @@ export class UiStrings {
     static readonly NoTenantFound = vscode.l10n.t("No tenants found.");
     static readonly NoAzureSessionFound = vscode.l10n.t("No Azure session found.");
     static readonly FailedTo = vscode.l10n.t("Failed to retrieve Azure session: {0}");
+    static readonly SelectSubscriptionInPanel = vscode.l10n.t("Select Subscriptions...");
 }

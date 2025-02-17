@@ -47,6 +47,7 @@ export const APIMAccountCommandId = {
     accountSigningIn: "azureApiManagementAccountSigningIn",
     accountSelectTenant: "azureApiManagementAccountSelectTenant",
     accountError: "azureApiManagementAccountError",
+    accountSubscription: "azureApiManagementAccountSubscription",
 }
 
 export const AzureAccountUrl = {
