@@ -141,10 +141,11 @@ export class AzureAccountTreeItem extends AzExtParentTreeItem {
       if (subscriptions.result.length === 0) {
         return [
           new GenericTreeItem(this, {
-            label: UiStrings.NoSubscriptionsFound,
+            label: UiStrings.SelectSubscriptionInPanel,
+            commandId: "azureApiManagement.selectSubscriptions",
             contextValue: "azureCommand",
-            id: APIMAccountCommandId.accountError,
-            iconPath: new vscode.ThemeIcon("info"),
+            id: APIMAccountCommandId.accountSubscription,
+            includeInTreeItemPicker: true,
           }),
         ];
       }
