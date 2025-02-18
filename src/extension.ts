@@ -93,6 +93,22 @@ export async function activateInternal(context: vscode.ExtensionContext) {
     context.subscriptions.push(ext.outputChannel);
     vscode.commands.executeCommand('setContext', 'isEditorEnabled', false);
 
+    // Add XML schema association for policy files
+    const xmlExtension = vscode.extensions.getExtension('redhat.vscode-xml');
+    if (xmlExtension) {
+        if (!xmlExtension.isActive) {
+            await xmlExtension.activate();
+        }
+        // Get the XML API
+        const xmlAPI = xmlExtension.exports;
+        if (xmlAPI && xmlAPI.addXMLFileAssociations) {
+            xmlAPI.addXMLFileAssociations([{
+                pattern: "**/*.policy.xml",
+                systemId: context.asAbsolutePath("resources/policySchemas/policies.xsd")
+            }]);
+        }
+    }
+
     registerUIExtensionVariables(ext);
     registerAzureUtilsExtensionVariables(ext);
 
