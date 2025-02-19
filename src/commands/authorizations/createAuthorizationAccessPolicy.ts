@@ -157,8 +157,8 @@ async function populateIdentityOptionsAsync(
     const token = await credential.getToken();
     const decoded = jwt.decode(token.token, { complete: true }) as any;
     const meOption : QuickPickItem = {
-        label: nonNullValue(decoded.payload.unique_name),
-        description: decoded.payload.oid,
+        label: nonNullValue(decoded.payload!.unique_name!),
+        description: decoded.payload!.oid,
         detail: "Current signedIn user"
     };
     options.push(meOption);
