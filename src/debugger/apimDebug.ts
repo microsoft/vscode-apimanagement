@@ -19,6 +19,7 @@ import { UiThread } from './uiThread';
 import { AzureAuth } from "../azure/azureLogin/azureAuth";
 import { GeneralUtils } from "../utils/generalUtils";
 import { TokenCredential } from "@azure/core-auth";
+import { UiStrings } from '../uiStrings';
 // tslint:disable: no-unsafe-any
 // tslint:disable: indent
 // tslint:disable: export-name
@@ -84,27 +85,108 @@ export class ApimDebugSession extends LoggingDebugSession {
 		this.configurationDone.notify();
 	}
 
-	protected async launchRequest(response: DebugProtocol.LaunchResponse, args: ILaunchRequestArguments): Promise<void> {
-		logger.setup(Logger.LogLevel.Verbose, false);
-		let masterKey;
-		if (args.managementAuth) {
-			this.policySource = new PolicySource(args.managementAddress, undefined, args.managementAuth);
-			masterKey = await this.getMasterSubscriptionKey(args.managementAddress, undefined, args.managementAuth);
-			this.availablePolicies = await this.getAvailablePolicies(args.managementAddress, undefined, args.managementAuth);
-		} else {
-			const credential = await this.getAccountCredentials();
-			this.policySource = new PolicySource(args.managementAddress, credential);
-			masterKey = await this.getMasterSubscriptionKey(args.managementAddress, credential);
-			this.availablePolicies = await this.getAvailablePolicies(args.managementAddress, credential);
+	protected async getMasterSubscriptionTracing(managementAddress: string, authToken: string): Promise<any> {
+		const resourceUrl = `${managementAddress}/subscriptions/master?api-version=${Constants.apimApiVersion}`;
+		return await request.get(resourceUrl, {
+			headers: {
+				Authorization: authToken
+			},
+			json: true,
+			strictSSL: false
+		}).on('error', _e => {
+			this.sendEvent(new TerminatedEvent());
+		}).on('response', e => {
+			if (e.statusCode !== 200) {
+				this.sendEvent(new OutputEvent(localize("", `Error checking subscription tracing status: ${e.statusCode} ${e.statusMessage}`, 'stderr')));
+				this.sendEvent(new TerminatedEvent());
+			}
+		});
+	}
+
+	protected async updateMasterSubscriptionTracing(managementAddress: string, authToken: string): Promise<void> {
+		const resourceUrl = `${managementAddress}/subscriptions/master?api-version=${Constants.apimApiVersion}`;
+		await request.patch(resourceUrl, {
+			headers: {
+				Authorization: authToken
+			},
+			body: {
+				properties: {
+					allowTracing: true
+				}
+			},
+			json: true,
+			strictSSL: false
+		}).on('error', _e => {
+			this.sendEvent(new TerminatedEvent());
+		}).on('response', e => {
+			if (e.statusCode !== 200 && e.statusCode !== 202) {
+				this.sendEvent(new OutputEvent(localize("", `Error enabling subscription tracing: ${e.statusCode} ${e.statusMessage}`, 'stderr')));
+				this.sendEvent(new TerminatedEvent());
+			}
+		});
+	}
+
+	protected async showTracingEnablePrompt(managementAddress: string): Promise<boolean> {
+		const serviceNameMatch = managementAddress.match(/\/service\/([^\/]+)/i);
+		const serviceName = serviceNameMatch ? serviceNameMatch[1] : 'API Management service';
+		
+		const confirmation = await vscode.window.showWarningMessage(
+			UiStrings.EnableTracingConfirmTitle.replace("{0}", serviceName),
+			{ modal: true, detail: UiStrings.EnableTracingConfirmDetail },
+			{ title: UiStrings.EnableTracingConfirmButton, isCloseAffordance: false },
+			{ title: UiStrings.CancelDebugButton, isCloseAffordance: true }
+		);
+
+		if (!confirmation || confirmation.title === UiStrings.CancelDebugButton) {
+			this.sendEvent(new TerminatedEvent());
+			return false;
+		}
+		return true;
+	}
+
+	protected async enableMasterSubscriptionTracing(managementAddress: string, credential?: TokenCredential, managementAuth?: string): Promise<void> {
+		const authToken = managementAuth ? managementAuth : await getBearerToken(`${managementAddress}/subscriptions/master`, "GET", credential!);
+		
+		// Check current tracing status
+		const masterSubscription = await this.getMasterSubscriptionTracing(managementAddress, authToken);
+
+		// If tracing is already enabled, no need to prompt
+		if (masterSubscription.properties?.allowTracing === true) {
+			return;
 		}
 
-		await this.runtime.attach(args.gatewayAddress, masterKey, !!args.stopOnEntry);
-		this.sendEvent(new InitializedEvent());
-		await this.configurationDone.wait(1000);
-		this.sendResponse(response);
-		this.updateRequests(await this.runtime.getRequests(), true);
-		await this.createTestOperationFile(args.operationData, args.fileName);
+		// Prompt user to enable tracing
+		if (!await this.showTracingEnablePrompt(managementAddress)) {
+			return;
+		}
+
+		// Enable tracing
+		await this.updateMasterSubscriptionTracing(managementAddress, authToken);
 	}
+
+    protected async launchRequest(response: DebugProtocol.LaunchResponse, args: ILaunchRequestArguments): Promise<void> {
+        logger.setup(Logger.LogLevel.Verbose, false);
+        let masterKey;
+        if (args.managementAuth) {
+            this.policySource = new PolicySource(args.managementAddress, undefined, args.managementAuth);
+            await this.enableMasterSubscriptionTracing(args.managementAddress, undefined, args.managementAuth);
+            masterKey = await this.getMasterSubscriptionKey(args.managementAddress, undefined, args.managementAuth);
+            this.availablePolicies = await this.getAvailablePolicies(args.managementAddress, undefined, args.managementAuth);
+        } else {
+            const credential = await this.getAccountCredentials();
+            this.policySource = new PolicySource(args.managementAddress, credential);
+            await this.enableMasterSubscriptionTracing(args.managementAddress, credential);
+            masterKey = await this.getMasterSubscriptionKey(args.managementAddress, credential);
+            this.availablePolicies = await this.getAvailablePolicies(args.managementAddress, credential);
+        }
+
+        await this.runtime.attach(args.gatewayAddress, masterKey, !!args.stopOnEntry);
+        this.sendEvent(new InitializedEvent());
+        await this.configurationDone.wait(1000);
+        this.sendResponse(response);
+        this.updateRequests(await this.runtime.getRequests(), true);
+        await this.createTestOperationFile(args.operationData, args.fileName);
+    }
 
 	protected async threadsRequest(response: DebugProtocol.ThreadsResponse) {
 		if (this.runtime.isConnected()) {
