@@ -2,7 +2,10 @@
 
 All notable changes to the "Azure Api Management VS Code" extension will be documented in this file.
 
+## 1.0.10
 
+### Updates
+- Remove the dependency to Azure Account extension
 
 ## 1.0.9
 
