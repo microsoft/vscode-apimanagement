@@ -14,6 +14,7 @@ import { AuthorizationTreeItem } from "../../explorer/AuthorizationTreeItem";
 import { ext } from "../../extensionVariables";
 import { localize } from "../../localize";
 import { nonNullValue } from "../../utils/nonNull";
+import * as jwt from "jsonwebtoken";
 
 const systemAssignedManagedIdentitiesOptionLabel = "System assigned managed identity";
 const userAssignedManagedIdentitiesOptionLabel = "User assigned managed identity";
@@ -154,9 +155,10 @@ async function populateIdentityOptionsAsync(
 
     // 1. Self
     const token = await credential.getToken();
+    const decoded = jwt.decode(token.token, { complete: true }) as any;
     const meOption : QuickPickItem = {
-        label: nonNullValue(token.userId),
-        description: token.oid,
+        label: nonNullValue(decoded.payload.unique_name),
+        description: decoded.payload.oid,
         detail: "Current signedIn user"
     };
     options.push(meOption);

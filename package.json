@@ -5,7 +5,7 @@
     "version": "1.0.10",
     "publisher": "ms-azuretools",
     "icon": "resources/apim-icon-newone.png",
-    "aiKey": "AIF-d9b70cd4-b9f9-4d70-929b-a071c400b217",
+    "aiKey": "20f6d4af-3678-4602-ae98-f6724f057cd5",
     "engines": {
         "vscode": "^1.50.1"
     },
@@ -833,6 +833,7 @@
         "@microsoft/vscode-azext-dev": "^2.1.0",
         "@types/fs-extra": "^4.0.3",
         "@types/gulp": "^4.0.6",
+        "@types/jsonwebtoken": "^9.0.8",
         "@types/mocha": "^10.0.0",
         "@types/node": "^8.10.59",
         "@types/request": "^2.48.4",
@@ -873,6 +874,7 @@
         "guid-typescript": "^1.0.9",
         "gulp-decompress": "^3.0.0",
         "gulp-download": "0.0.1",
+        "jsonwebtoken": "^9.0.2",
         "opn": "^5.3.0",
         "request": "^2.88.2",
         "request-promise": "^4.2.5",
