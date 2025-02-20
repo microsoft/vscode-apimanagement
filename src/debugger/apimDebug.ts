@@ -85,6 +85,30 @@ export class ApimDebugSession extends LoggingDebugSession {
 		this.configurationDone.notify();
 	}
 
+	protected async launchRequest(response: DebugProtocol.LaunchResponse, args: ILaunchRequestArguments): Promise<void> {
+		logger.setup(Logger.LogLevel.Verbose, false);
+		let masterKey;
+		if (args.managementAuth) {
+			this.policySource = new PolicySource(args.managementAddress, undefined, args.managementAuth);
+			await this.enableMasterSubscriptionTracing(args.managementAddress, undefined, args.managementAuth);
+			masterKey = await this.getMasterSubscriptionKey(args.managementAddress, undefined, args.managementAuth);
+			this.availablePolicies = await this.getAvailablePolicies(args.managementAddress, undefined, args.managementAuth);
+		} else {
+			const credential = await this.getAccountCredentials();
+			this.policySource = new PolicySource(args.managementAddress, credential);
+			await this.enableMasterSubscriptionTracing(args.managementAddress, credential);
+			masterKey = await this.getMasterSubscriptionKey(args.managementAddress, credential);
+			this.availablePolicies = await this.getAvailablePolicies(args.managementAddress, credential);
+		}
+
+		await this.runtime.attach(args.gatewayAddress, masterKey, !!args.stopOnEntry);
+		this.sendEvent(new InitializedEvent());
+		await this.configurationDone.wait(1000);
+		this.sendResponse(response);
+		this.updateRequests(await this.runtime.getRequests(), true);
+		await this.createTestOperationFile(args.operationData, args.fileName);
+	}
+
 	protected async getMasterSubscriptionTracing(managementAddress: string, authToken: string): Promise<any> {
 		const resourceUrl = `${managementAddress}/subscriptions/master?api-version=${Constants.apimApiVersion}`;
 		return await request.get(resourceUrl, {
@@ -163,30 +187,6 @@ export class ApimDebugSession extends LoggingDebugSession {
 		// Enable tracing
 		await this.updateMasterSubscriptionTracing(managementAddress, authToken);
 	}
-
-    protected async launchRequest(response: DebugProtocol.LaunchResponse, args: ILaunchRequestArguments): Promise<void> {
-        logger.setup(Logger.LogLevel.Verbose, false);
-        let masterKey;
-        if (args.managementAuth) {
-            this.policySource = new PolicySource(args.managementAddress, undefined, args.managementAuth);
-            await this.enableMasterSubscriptionTracing(args.managementAddress, undefined, args.managementAuth);
-            masterKey = await this.getMasterSubscriptionKey(args.managementAddress, undefined, args.managementAuth);
-            this.availablePolicies = await this.getAvailablePolicies(args.managementAddress, undefined, args.managementAuth);
-        } else {
-            const credential = await this.getAccountCredentials();
-            this.policySource = new PolicySource(args.managementAddress, credential);
-            await this.enableMasterSubscriptionTracing(args.managementAddress, credential);
-            masterKey = await this.getMasterSubscriptionKey(args.managementAddress, credential);
-            this.availablePolicies = await this.getAvailablePolicies(args.managementAddress, credential);
-        }
-
-        await this.runtime.attach(args.gatewayAddress, masterKey, !!args.stopOnEntry);
-        this.sendEvent(new InitializedEvent());
-        await this.configurationDone.wait(1000);
-        this.sendResponse(response);
-        this.updateRequests(await this.runtime.getRequests(), true);
-        await this.createTestOperationFile(args.operationData, args.fileName);
-    }
 
 	protected async threadsRequest(response: DebugProtocol.ThreadsResponse) {
 		if (this.runtime.isConnected()) {
