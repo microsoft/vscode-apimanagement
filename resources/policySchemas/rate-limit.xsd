@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="rate-limit" type="RateLimitPolicyConfiguration" />
+  <xs:complexType name="RateLimitPolicyConfiguration">
+    <xs:complexContent mixed="false">
+      <xs:extension base="RateLimitConfiguration">
+        <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="unbounded" name="api" type="ApiConfiguration" />
+            <xs:element minOccurs="0" maxOccurs="unbounded" name="operation" type="OperationConfiguration" />
+        </xs:sequence>
+        <xs:attribute name="id" type="xs:string" use="optional" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="RateLimitConfiguration" abstract="true">
+    <xs:attribute name="calls" type="xs:int" />
+    <xs:attribute name="renewal-period" type="xs:int" />
+    <xs:attribute name="retry-after-header-name" type="xs:string" />
+    <xs:attribute name="retry-after-variable-name" type="xs:string" />
+    <xs:attribute name="remaining-calls-header-name" type="xs:string" />
+    <xs:attribute name="remaining-calls-variable-name" type="xs:string" />
+    <xs:attribute name="total-calls-header-name" type="xs:string" />
+  </xs:complexType>
+  <xs:complexType name="OperationConfiguration">
+    <xs:complexContent mixed="false">
+      <xs:extension base="RateLimitConfiguration">
+        <xs:attribute name="id" type="xs:string" use="optional" />
+        <xs:attribute name="name" type="xs:string" use="optional" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ApiConfiguration">
+    <xs:complexContent mixed="false">
+      <xs:extension base="RateLimitConfiguration">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="operation" type="OperationConfiguration" />
+        </xs:sequence>
+        <xs:attribute name="id" type="xs:string" use="optional" />
+        <xs:attribute name="name" type="xs:string" use="optional" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+</xs:schema>

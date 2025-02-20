@@ -1,0 +1,82 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="validate-content" type="ValidateContentPolicyConfiguration" />
+    <xs:complexType name="ValidateContentPolicyConfiguration">
+        <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="content-type-map" type="ContentTypeMapConfiguration" />
+            <xs:element minOccurs="0" maxOccurs="unbounded" name="content" type="ContentTypeConfiguration" />
+        </xs:sequence>
+        <xs:attribute name="id" type="xs:string" use="optional" />
+        <xs:attribute name="unspecified-content-type-action" use="required">
+            <xs:simpleType>
+                <xs:union memberTypes="ValidationMode expression" />
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="max-size" use="required" >
+            <xs:simpleType>
+                <xs:union memberTypes="xs:unsignedInt expression" />
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="size-exceeded-action" use="required">
+            <xs:simpleType>
+                <xs:union memberTypes="ValidationMode expression" />
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="errors-variable-name" use="optional" type="xs:string" />
+    </xs:complexType>
+
+    <xs:simpleType name="ValidationMode">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="ignore" />
+            <xs:enumeration value="prevent" />
+            <xs:enumeration value="detect" />
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="ContentValidatorType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="json" />
+            <xs:enumeration value="xml" />
+            <xs:enumeration value="soap" />
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="expression">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="@[\(\{][\s\S]+"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:complexType name="ContentTypeConfiguration">
+        <xs:attribute name="validate-as" use="required" type="ContentValidatorType"/>
+        <xs:attribute name="type" use="optional" type="xs:string" />
+        <xs:attribute name="action" use="required">
+            <xs:simpleType>
+                <xs:union memberTypes="ValidationMode expression" />
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="schema-id" use="optional" type="xs:string"/>
+        <xs:attribute name="schema-ref" use="optional" type="xs:string"/>
+        <xs:attribute name="allow-additional-properties" use="optional" type="xs:boolean"/>
+        <xs:attribute name="case-insensitive-property-names" use="optional" type="xs:boolean"/>
+    </xs:complexType>
+  
+    <xs:complexType name="ContentTypeMapConfiguration">
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" name="type" type="TypeConfiguration" />
+      </xs:sequence>
+      <xs:attribute name="any-content-type-value" use="optional" type="xs:string" />
+      <xs:attribute name="missing-content-type-value" use="optional" type="xs:string" />
+    </xs:complexType>
+  
+    <xs:complexType name="TypeConfiguration">
+      <xs:attribute name="from" use="optional" type="xs:string" />
+      <xs:attribute name="when" use="optional">
+        <xs:simpleType>
+                <xs:union memberTypes="xs:boolean expression" />
+        </xs:simpleType>
+      </xs:attribute>
+      <xs:attribute name="to" use="required" type="xs:string" />
+    </xs:complexType>
+
+</xs:schema>

@@ -1,0 +1,65 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="xml-to-json" type="XmlToJsonPolicyConfiguration" />
+    <xs:complexType name="XmlToJsonPolicyConfiguration">
+        <xs:attribute name="id" type="xs:string" use="optional" />
+        <xs:attribute name="kind" use="required">
+            <xs:simpleType>
+                <xs:union memberTypes="Kind expression" />
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="apply" use="required">
+            <xs:simpleType>
+                <xs:union memberTypes="Apply expression" />
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="consider-accept-header">
+            <xs:simpleType>
+                <xs:union memberTypes="xs:boolean expression" />
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="preserve-whitespace-nodes">
+          <xs:simpleType>
+            <xs:union memberTypes="xs:boolean expression" />
+          </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="empty-values" use="optional">
+            <xs:simpleType>
+                <xs:union memberTypes="EmptyValues expression" />
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="trim-values" use="optional">
+            <xs:simpleType>
+                <xs:union memberTypes="xs:boolean expression" />
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="always-array-child-elements" use="optional" default="false">
+            <xs:simpleType>
+                <xs:union memberTypes="xs:boolean expression" />
+            </xs:simpleType>
+        </xs:attribute>
+    </xs:complexType>
+    <xs:simpleType name="Kind">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="javascript-friendly" />
+            <xs:enumeration value="direct" />
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="Apply">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="always" />
+            <xs:enumeration value="content-type-xml" />
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="EmptyValues">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="preserve" />
+            <xs:enumeration value="as-null" />
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="expression">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="@[\(\{][\s\S]+"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>

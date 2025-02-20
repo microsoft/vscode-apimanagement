@@ -47,11 +47,11 @@ export abstract class BasePolicyEditor<TRoot extends IServiceTreeRoot> extends E
     }
 
     public async getDiffFilename(context: ITreeItemWithRoot<TRoot>): Promise<string> {
-        return `${nameUtil(context.root)}.policy.cshtml`;
+        return `${nameUtil(context.root)}.policy.xml`;
     }
 
     public async getFilename(context: ITreeItemWithRoot<TRoot>): Promise<string> {
-        return `${nameUtil(context.root)}-tempFile.policy.cshtml`;
+        return `${nameUtil(context.root)}-tempFile.policy.xml`;
     }
 
     public async updateData(context: ITreeItemWithRoot<TRoot>, data: string): Promise<string> {

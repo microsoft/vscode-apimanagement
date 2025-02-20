@@ -1,0 +1,34 @@
+﻿<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="validate-client-certificate" type="ValidateClientCertificateConfiguration" />
+  <xs:complexType name="ValidateClientCertificateConfiguration">
+    <xs:sequence>
+      <xs:element name="identities" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="1" maxOccurs="10" name="identity" type="CertificateIdentity" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute name="id" type="xs:string" use="optional" />
+    <xs:attribute name="validate-revocation" type="xs:boolean" />
+    <xs:attribute name="validate-trust" type="xs:boolean" />
+    <xs:attribute name="validate-not-before" type="xs:boolean" />
+    <xs:attribute name="validate-not-after" type="xs:boolean" />
+    <xs:attribute name="ignore-error" type="xs:boolean" />
+  </xs:complexType>
+  <xs:complexType name="CertificateIdentity">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="thumbprint" type="xs:string" />
+        <xs:attribute name="serial-number" type="xs:string" />
+        <xs:attribute name="common-name" type="xs:string" />
+        <xs:attribute name="subject" type="xs:string" />
+        <xs:attribute name="dns-name" type="xs:string" />
+        <xs:attribute name="issuer-subject" type="xs:string" />
+        <xs:attribute name="issuer-thumbprint" type="xs:string" />
+        <xs:attribute name="issuer-certificate-id" type="xs:string" />
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+</xs:schema>

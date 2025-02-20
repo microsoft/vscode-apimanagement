@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="llm-content-safety" type="LlmContentSafetyPolicyConfiguration" />
+    <xs:complexType name="LlmContentSafetyPolicyConfiguration">
+        <xs:all>
+            <xs:element minOccurs="0" maxOccurs="1" name="categories" type="CategoriesConfiguration" />
+            <xs:element minOccurs="0" maxOccurs="1" name="blocklists" type="BlocklistIdsConfiguration" />
+        </xs:all>
+        <xs:attribute name="backend-id" type="xs:string" use="required" />
+        <xs:attribute name="shield-prompt" use="optional" type="xs:string" />
+    </xs:complexType>
+
+    <xs:complexType name="CategoriesConfiguration">
+        <xs:sequence>
+            <xs:element minOccurs="1" maxOccurs="unbounded" name="category" type="CategoryConfiguration" />
+        </xs:sequence>
+        <xs:attribute name="output-type">
+            <xs:simpleType>
+                <xs:union memberTypes="OutputType expression" />
+            </xs:simpleType>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="CategoryConfiguration">
+        <xs:attribute name="name" use="required">
+            <xs:simpleType>
+                <xs:union memberTypes="Category expression" />
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="threshold" use="required">
+            <xs:simpleType>
+                <xs:union memberTypes="xs:int expression" />
+            </xs:simpleType>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="BlocklistIdsConfiguration">
+        <xs:sequence>
+            <xs:element minOccurs="1" name="id" type="xs:string" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:simpleType name="OutputType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="FourSeverityLevels" />
+            <xs:enumeration value="EightSeverityLevels" />
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="Category">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="Hate" />
+            <xs:enumeration value="SelfHarm" />
+            <xs:enumeration value="Sexual" />
+            <xs:enumeration value="Violence" />
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="expression">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="@[\(\{][\s\S]+"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>

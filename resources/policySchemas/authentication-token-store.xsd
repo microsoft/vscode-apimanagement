@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="authentication-token-store" type="AuthenticateTokenConfiguration" />
+    <xs:complexType name="AuthenticateTokenConfiguration">
+        <xs:attribute name="id" type="xs:string" use="optional" />
+        <xs:attribute name="token-id" type="xs:string" />
+        <xs:attribute name="client-id" type="xs:string" use="optional" />
+        <xs:attribute name="output-token-variable-name" type="xs:string" use="optional" />
+        <xs:attribute name="ignore-error" type="xs:boolean" use="optional"/>
+    </xs:complexType>
+</xs:schema>

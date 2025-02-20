@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="set-status">
+        <xs:complexType>
+            <xs:attribute name="id" use="optional" type="xs:string" />
+            <xs:attribute name="code" use="optional">
+                <xs:simpleType>
+                    <xs:union memberTypes="xs:positiveInteger expression" />
+                </xs:simpleType>
+            </xs:attribute>
+            <xs:attribute name="reason" use="optional" type="xs:string" />
+        </xs:complexType>
+    </xs:element>
+    <xs:simpleType name="expression">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="@[\(\{][\s\S]+"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>

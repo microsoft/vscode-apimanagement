@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="send-request" type="SendRequestPolicyConfiguration" />
+    <xs:complexType name="SendRequestPolicyConfiguration">
+        <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="set-url" type="xs:string" />
+            <xs:element minOccurs="0" maxOccurs="1" name="set-method" />
+            <xs:element minOccurs="0" maxOccurs="unbounded" name="set-header" />
+            <xs:element minOccurs="0" maxOccurs="1" name="set-body" />
+            <xs:element minOccurs="0" maxOccurs="1" name="authentication-certificate" />
+            <xs:element minOccurs="0" maxOccurs="1" name="authentication-token" />
+            <xs:element minOccurs="0" maxOccurs="1" name="authentication-token-store" />
+            <xs:element minOccurs="0" maxOccurs="1" name="authentication-managed-identity" />
+            <xs:element minOccurs="0" maxOccurs="1" name="proxy" />
+        </xs:sequence>
+        <xs:attribute name="id" type="xs:string" use="optional" />
+        <xs:attribute name="mode">
+            <xs:simpleType>
+                <xs:union memberTypes="RequestCreationMode expression" />
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="response-variable-name" type="xs:string" />
+        <xs:attribute name="timeout">
+            <xs:simpleType>
+                <xs:union memberTypes="xs:int expression" />
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="timeout-ms" use="optional">
+            <xs:simpleType>
+                <xs:union memberTypes="xs:int expression" />
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="ignore-error" type="xs:boolean" />
+        <xs:attribute name="buffer-response" type="xs:boolean" use="optional" default="true" />
+        <xs:attribute name="fail-on-error-status-code" type="xs:boolean" use="optional" default="false" />
+    </xs:complexType>
+    <xs:simpleType name="RequestCreationMode">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="new" />
+            <xs:enumeration value="copy" />
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="expression">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="@[\(\{][\s\S]+"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>

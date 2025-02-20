@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="ip-filter" type="IpFilterPolicyConfiguration" />
+    <xs:complexType name="IpFilterPolicyConfiguration">
+        <xs:choice maxOccurs="unbounded">
+            <xs:element minOccurs="0" maxOccurs="unbounded" name="address" type="IpAddress" />
+            <xs:element minOccurs="0" maxOccurs="unbounded" name="address-range" type="IpRange" />
+        </xs:choice>
+        <xs:attribute name="id" type="xs:string" use="optional" />
+        <xs:attribute name="action" default="allow">
+            <xs:simpleType>
+                <xs:union memberTypes="IpFilterAction expression" />
+            </xs:simpleType>
+        </xs:attribute>
+    </xs:complexType>
+    <xs:complexType name="IpAddress">
+        <xs:simpleContent>
+            <xs:extension base="xs:string" />
+        </xs:simpleContent>
+    </xs:complexType>
+    <xs:complexType name="IpRange">
+        <xs:attribute name="from" type="xs:string" use="required" />
+        <xs:attribute name="to" type="xs:string" use="required" />
+    </xs:complexType>
+    <xs:simpleType name="IpFilterAction">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="allow" />
+            <xs:enumeration value="forbid" />
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="expression">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="@[\(\{][\s\S]+"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>

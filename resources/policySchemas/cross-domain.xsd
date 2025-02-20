@@ -1,0 +1,116 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+    <!-- XML Schema for HTTPS policy files -->
+    <!-- Refinement of generic schema at PolicyFile.xsd -->
+    <!-- Note that several different user-agents support policy files, and each may support
+     a different set of the tags described here.  Consult the documentation for your
+     particular user-agent in order to verify that you are using syntax it supports.
+     The rules here only help validate that a policy file is well-formed. -->
+
+    <!-- No target namespace. Flash Player will not parse policy files that
+         use explicit namespace qualification (e.g. <pf:cross-domain-policy>),
+         so we place our types in the unqualified namespace to discourage
+         qualification in policy files. -->
+
+    <!-- Difference from generic schema: "by-ftp-filename" not allowed -->
+    <xs:simpleType name="meta-policy-attribute">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="all"/>
+            <xs:enumeration value="by-content-type"/>
+            <xs:enumeration value="master-only"/>
+            <xs:enumeration value="none"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- Same as generic schema -->
+    <xs:simpleType name="domain-attribute">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="\*|(\*?[A-Za-z0-9\-\.]+)"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- Same as generic schema -->
+    <xs:simpleType name="secure-attribute">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="true"/>
+            <xs:enumeration value="false"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- Same as generic schema -->
+    <xs:simpleType name="headers-attribute">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="\*|([\x21-\x29\x2b\x2d-\x39\x3b-\x7e]+\*?(,[\x21-\x29\x2b\x2d-\x39\x3b-\x7e]+\*?)*)"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- Same as generic schema -->
+    <xs:simpleType name="sha1-fingerprint-attribute">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="([0-9a-fA-F][: ]?){40}"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- Same as generic schema -->
+    <xs:simpleType name="sha1-fingerprint-algorithm-attribute">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[Ss][Hh][Aa]-1"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- Same as generic schema -->
+    <xs:complexType name="site-control-element">
+        <xs:attribute name="permitted-cross-domain-policies" use="required" type="meta-policy-attribute"/>
+    </xs:complexType>
+
+    <!-- Difference from generic schema: "to-ports" not allowed, default for "secure" -->
+    <xs:complexType name="allow-access-element">
+        <xs:attribute name="domain" use="required" type="domain-attribute"/>
+        <xs:attribute name="secure" use="optional" type="secure-attribute" default="true"/>
+    </xs:complexType>
+
+    <!-- Difference from generic schema: default for "secure" -->
+    <xs:complexType name="allow-headers-element">
+        <xs:attribute name="domain" use="required" type="domain-attribute"/>
+        <xs:attribute name="headers" use="required" type="headers-attribute"/>
+        <xs:attribute name="secure" use="optional" type="secure-attribute" default="true"/>
+    </xs:complexType>
+
+    <!-- Same as generic schema -->
+    <xs:complexType name="certificate-element">
+        <xs:attribute name="fingerprint" use="required" type="sha1-fingerprint-attribute"/>
+        <xs:attribute name="fingerprint-algorithm" use="required" type="sha1-fingerprint-algorithm-attribute"/>
+    </xs:complexType>
+
+    <!-- Same as generic schema -->
+    <xs:complexType name="signatory-element">
+        <xs:choice>
+            <xs:element name="certificate" type="certificate-element" minOccurs="1" maxOccurs="1"/>
+        </xs:choice>
+    </xs:complexType>
+
+    <!-- Same as generic schema -->
+    <xs:complexType name="allow-access-identity-element">
+        <xs:choice>
+            <xs:element name="signatory" type="signatory-element" minOccurs="1" maxOccurs="1"/>
+        </xs:choice>
+    </xs:complexType>
+
+    <!-- Same as generic schema -->
+    <xs:complexType name="cross-domain-policy-element">
+        <xs:sequence>
+            <xs:element name="site-control" minOccurs="0" maxOccurs="1" type="site-control-element"/>
+            <xs:element name="allow-access-from" minOccurs="0" maxOccurs="unbounded" type="allow-access-element"/>
+            <xs:element name="allow-http-request-headers-from" minOccurs="0" maxOccurs="unbounded" type="allow-headers-element"/>
+        </xs:sequence>
+    </xs:complexType>    
+  <xs:element name="cross-domain">
+    <xs:complexType>
+        <xs:sequence>
+            <xs:element name="cross-domain-policy" type="cross-domain-policy-element" minOccurs="0" maxOccurs="1" />
+        </xs:sequence>
+        <xs:attribute name="id" type="xs:string" use="optional" />
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

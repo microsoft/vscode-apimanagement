@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="azure-openai-semantic-cache-store" type="AzureOpenAISemanticCacheStore" />
+    <xs:element name="llm-semantic-cache-store" type="AzureOpenAISemanticCacheStore" />
+    <xs:complexType name="AzureOpenAISemanticCacheStore">
+        <xs:attribute name="duration" use="required">
+            <xs:simpleType>
+                <xs:union memberTypes="xs:int expression" />
+            </xs:simpleType>
+        </xs:attribute>
+    </xs:complexType>
+    <xs:simpleType name="expression">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="@[\(\{][\s\S]+"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>

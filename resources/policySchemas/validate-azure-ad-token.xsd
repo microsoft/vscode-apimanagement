@@ -1,0 +1,100 @@
+﻿<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="validate-azure-ad-token" type="ValidateAzureAdTokenPolicyConfiguration"/>
+    <xs:complexType name="ValidateAzureAdTokenPolicyConfiguration">
+        <xs:all>
+            <xs:element name="backend-application-ids" minOccurs="0" maxOccurs="1">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element type="xs:string" name="application-id" maxOccurs="unbounded" minOccurs="1"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="client-application-ids" minOccurs="0" maxOccurs="1">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element type="xs:string" name="application-id" maxOccurs="unbounded" minOccurs="1"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="audiences" minOccurs="0">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element type="xs:string" name="audience" maxOccurs="unbounded" minOccurs="1"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="required-claims" minOccurs="0">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element type="Claim" name="claim" maxOccurs="unbounded" minOccurs="1"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="decryption-keys" minOccurs="0">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="1" maxOccurs="unbounded" name="key">
+                            <xs:complexType>
+                                <xs:attribute name="id" type="xs:string" />
+                                <xs:attribute name="certificate-id" type="xs:string" use="required"/>
+                            </xs:complexType>
+                        </xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:all>
+        <xs:attribute name="id" type="xs:string" use="optional" />
+        <xs:attribute name="failed-validation-httpcode">
+            <xs:simpleType>
+                <xs:union memberTypes="xs:integer expression"/>
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute type="xs:string" name="failed-validation-error-message" />
+        <xs:attribute type="xs:string" name="tenant-id" use="required"/>
+        <xs:attribute type="xs:string" name="header-name"/>
+        <xs:attribute type="xs:string" name="authentication-endpoint"/>
+        <xs:attribute type="xs:string" name="require-scheme"/>
+        <xs:attribute type="xs:string" name="query-parameter-name"/>
+        <xs:attribute type="xs:string" name="token-value"/>
+        <xs:attribute name="allow-protected-forwarded-tokens">
+            <xs:simpleType>
+                <xs:union memberTypes="xs:boolean expression" />
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="allow-proof-of-possession-tokens">
+            <xs:simpleType>
+                <xs:union memberTypes="xs:boolean expression" />
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="output-token-variable-name">
+            <xs:simpleType>
+                <xs:restriction base="xs:string">
+                    <xs:minLength value="1"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
+    </xs:complexType>
+    <xs:complexType name="Claim">
+        <xs:sequence>
+            <xs:element type="xs:string" name="value" maxOccurs="unbounded" minOccurs="0"/>
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:string"/>
+        <xs:attribute name="match" default="all">
+            <xs:simpleType>
+                <xs:union memberTypes="ClaimMatch expression"/>
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="separator" type="xs:string"/>
+    </xs:complexType>
+    <xs:simpleType name="ClaimMatch">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="all"/>
+            <xs:enumeration value="any"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="expression">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="@[\(\{][\s\S]+"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>

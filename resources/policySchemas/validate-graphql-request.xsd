@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:element name="validate-graphql-request" type="ValidateGraphQLRequestPolicy" />
+	<xs:complexType name="ValidateGraphQLRequestPolicy">
+		<xs:sequence>
+			<xs:element minOccurs="0" maxOccurs="1" name="authorize" type="AuthorizeGraphQLRequest" />
+		</xs:sequence>
+        <xs:attribute name="id" type="xs:string" use="optional" />
+		<xs:attribute name = "error-variable-name" type ="xs:string" use ="optional" />
+		<xs:attribute name = "max-depth" type ="xs:string" use ="optional" />
+		<xs:attribute name = "max-size" type ="xs:string" use ="optional" />
+        <xs:attribute name = "max-total-depth" type ="xs:string" use ="optional" />
+        <xs:attribute name = "max-complexity" type ="xs:string" use ="optional" />
+	</xs:complexType>
+
+	<xs:complexType name="AuthorizeGraphQLRequest">
+		<xs:sequence>
+			<xs:element minOccurs="1" maxOccurs="100" name="rule" type="AuthorizeRule" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="AuthorizeRule">
+		<xs:attribute name = "path" type ="xs:string" use ="required" />
+		<xs:attribute name = "action" use ="optional" default="allow">
+			<xs:simpleType>
+				<xs:union memberTypes="ActionMode expression" />
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+
+	<xs:simpleType name="ActionMode">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="allow" />
+			<xs:enumeration value="reject" />
+			<xs:enumeration value="remove" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="expression">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="@[\(\{][\s\S]+"/>
+		</xs:restriction>
+	</xs:simpleType>
+</xs:schema>

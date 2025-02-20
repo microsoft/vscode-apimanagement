@@ -1,0 +1,62 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="azure-openai-token-limit" type="OpenAITokenLimitPolicyConfiguration" />
+    <xs:element name="llm-token-limit" type="OpenAITokenLimitPolicyConfiguration" />
+    <xs:complexType name="OpenAITokenLimitPolicyConfiguration">
+        <xs:attribute name="id" type="xs:string" use="optional" />
+        <xs:attribute name="tokens-per-minute">
+            <xs:simpleType>
+                <xs:union memberTypes="xs:int expression" />
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="token-quota">
+            <xs:simpleType>
+                <xs:union memberTypes="xs:long expression" />
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="token-quota-period" default="Indefinite" >
+            <xs:simpleType>
+                <xs:union memberTypes="TokenQuotaPeriod" />
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="counter-key" type="xs:string" use="required" />
+        <xs:attribute name="estimate-prompt-tokens" type="xs:boolean" use="required" />
+        <xs:attribute name="prompt-type" default="auto" >
+            <xs:simpleType>
+                <xs:union memberTypes="PromptType" />
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="retry-after-header-name" type="xs:string" />
+        <xs:attribute name="retry-after-variable-name" type="xs:string" />
+        <xs:attribute name="remaining-tokens-header-name" type="xs:string" />
+        <xs:attribute name="remaining-tokens-variable-name" type="xs:string" />
+        <xs:attribute name="remaining-quota-tokens-header-name" type="xs:string" />
+        <xs:attribute name="remaining-quota-tokens-variable-name" type="xs:string" />
+        <xs:attribute name="tokens-consumed-header-name" type="xs:string" />
+        <xs:attribute name="tokens-consumed-variable-name" type="xs:string" />
+        <xs:attribute name="ignore-prompt" type="xs:boolean" use="optional" default="false" />
+    </xs:complexType>
+    <xs:simpleType name="PromptType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="auto"/>
+            <xs:enumeration value="chat-completion"/>
+            <xs:enumeration value="completion"/>
+            <xs:enumeration value="embeddings"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="TokenQuotaPeriod">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="Indefinite"/>
+            <xs:enumeration value="Hourly"/>
+            <xs:enumeration value="Daily"/>
+            <xs:enumeration value="Weekly"/>
+            <xs:enumeration value="Monthly"/>
+            <xs:enumeration value="Yearly"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="expression">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="@[\(\{][\s\S]+"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>

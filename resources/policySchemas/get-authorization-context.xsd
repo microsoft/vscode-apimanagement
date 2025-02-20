@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="get-authorization-context" type="GetAuthorizationContextPolicy" />
+	<xs:complexType name="GetAuthorizationContextPolicy">
+        <xs:attribute name="id" type="xs:string" use="optional" />
+		<xs:attribute name="provider-id" use="required">
+			<xs:simpleType>
+				<xs:union memberTypes="xs:string expression" />
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="authorization-id" use="required">
+			<xs:simpleType>
+				<xs:union memberTypes="xs:string expression" />
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="identity-type" use="optional" default="managed">
+			<xs:simpleType>
+				<xs:union memberTypes="xs:string expression" />
+			</xs:simpleType>
+		</xs:attribute>		
+		<xs:attribute name="identity" use="optional" default="">
+			<xs:simpleType>
+				<xs:union memberTypes="xs:string expression" />
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="context-variable-name" use="required">
+			<xs:simpleType>
+				<xs:union memberTypes="xs:string expression" />
+			</xs:simpleType>
+		</xs:attribute>
+        <xs:attribute name="ignore-error" use="optional" default="false">
+            <xs:simpleType>
+                <xs:union memberTypes="xs:boolean expression" />
+            </xs:simpleType>
+        </xs:attribute>	</xs:complexType>
+  <xs:simpleType name="expression">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="@[\(\{][\s\S]+"/>
+    </xs:restriction>
+  </xs:simpleType>
+</xs:schema>

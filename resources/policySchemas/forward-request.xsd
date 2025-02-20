@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="forward-request" type="ForwardRequestConfiguration" />
+    <xs:complexType name="ForwardRequestConfiguration">
+        <xs:attribute name="id" type="xs:string" use="optional" />
+        <xs:attribute name="timeout" use="optional">
+            <xs:simpleType>
+                <xs:union memberTypes="xs:int expression" />
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="timeout-ms" use="optional">
+            <xs:simpleType>
+                <xs:union memberTypes="xs:int expression" />
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="continue-timeout" use="optional">
+            <xs:simpleType>
+                <xs:union memberTypes="xs:int expression" />
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="follow-redirects" use="optional">
+            <xs:simpleType>
+                <xs:union memberTypes="xs:boolean expression" />
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="buffer-request-body" type="xs:boolean" use="optional" default="false" />
+        <xs:attribute name="buffer-response" type="xs:boolean" use="optional" default="true" />
+        <xs:attribute name="fail-on-error-status-code" type="xs:boolean" use="optional" default="false" />
+        <xs:attribute name="http-version" type="xs:string" use="optional" />
+    </xs:complexType>
+    <xs:simpleType name="expression">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="@[\(\{][\s\S]+"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>
