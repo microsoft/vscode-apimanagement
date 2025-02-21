@@ -180,7 +180,7 @@ export class AzureAccountTreeItem extends AzExtParentTreeItem {
     session: vscode.AuthenticationSession,
     subscription: Subscription,
   ): ISubscriptionContext {
-    const credentials = AzureAuth.getCredential(sessionProvider);
+    const credentials = AzureAuth.getCredential(sessionProvider);      
     const environment = AzureAuth.getEnvironment();
   
     return {
@@ -190,7 +190,7 @@ export class AzureAccountTreeItem extends AzExtParentTreeItem {
       subscriptionId: subscription.subscriptionId || "",
       subscriptionPath: `/subscriptions/${subscription.subscriptionId}`,
       tenantId: subscription.tenantId || "",
-      userId: session.account.id,
+      userId: session.account.label,
       environment,
       isCustomCloud: environment.name === "AzureCustomCloud",
     };

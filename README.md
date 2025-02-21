@@ -105,13 +105,15 @@ Follow instructions [here](https://github.com/microsoft/vscode-apimanagement/iss
 
 ## Managing Azure Subscriptions
 
-If you are not signed in to Azure, you will see a "Sign in to Azure..." link. Alternatively, you can select "View->Command Palette" in the VS Code menu, and search for "Azure: Sign In".
+If you are not signed in to Azure, a 'Sign in to Azure...' link will appear.
 
-If you don't have an Azure Account, you can sign up for one today for free and receive $200 in credits by selecting "Create a Free Azure Account..." or selecting "View->Command Palette" and searching for "Azure: Create an Account".
+If you don't have an Azure Account, you can sign up for one today for free and receive $200 in credits by selecting "Create a Free Azure Account...", or select "Create an Azure for Students Account...".
 
-You may sign out of Azure by selecting "View->Command Palette" and searching for "Azure: Sign Out".
+To sign out of Azure in VSCode, go to the account page, select your Azure account, and click 'Sign Out'.
 
-To select which subscriptions show up in the extension's explorer, click on the "Select Subscriptions..." button on any subscription node (indicated by a "filter" icon when you hover over it), or select "View->Command Palette" and search for "Azure: Select Subscriptions". Note that this selection affects all VS Code extensions that support the [Azure Account and Sign-In](https://github.com/Microsoft/vscode-azure-account) extension.
+To switch tenants in VSCode, go to "View" -> "Command Palette" and search for "Azure API Management: Select Tenant...".
+
+To choose which subscriptions appear in the extension's explorer, click the "Select Subscriptions..." button on any subscription node (indicated by a filter icon when you hover over it), or go to "View" -> "Command Palette" and search for "Azure API Management: Select Subscriptions".
 
 ## Contributing
 
