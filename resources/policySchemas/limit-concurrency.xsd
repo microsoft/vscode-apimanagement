@@ -10,9 +10,4 @@
             <xs:attribute name="max-count" type="xs:int" use="required" />
         </xs:complexType>
     </xs:element>
-    <xs:simpleType name="expression">
-        <xs:restriction base="xs:string">
-            <xs:pattern value="@[\(\{][\s\S]+"/>
-        </xs:restriction>
-    </xs:simpleType>
 </xs:schema>

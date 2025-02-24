@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<xs:schema version="1.0.0" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    
     <xs:element name="validate-content" type="ValidateContentPolicyConfiguration" />
     <xs:complexType name="ValidateContentPolicyConfiguration">
         <xs:sequence>
@@ -25,25 +26,11 @@
         <xs:attribute name="errors-variable-name" use="optional" type="xs:string" />
     </xs:complexType>
 
-    <xs:simpleType name="ValidationMode">
-        <xs:restriction base="xs:string">
-            <xs:enumeration value="ignore" />
-            <xs:enumeration value="prevent" />
-            <xs:enumeration value="detect" />
-        </xs:restriction>
-    </xs:simpleType>
-
     <xs:simpleType name="ContentValidatorType">
         <xs:restriction base="xs:string">
             <xs:enumeration value="json" />
             <xs:enumeration value="xml" />
             <xs:enumeration value="soap" />
-        </xs:restriction>
-    </xs:simpleType>
-
-    <xs:simpleType name="expression">
-        <xs:restriction base="xs:string">
-            <xs:pattern value="@[\(\{][\s\S]+"/>
         </xs:restriction>
     </xs:simpleType>
 
@@ -62,21 +49,20 @@
     </xs:complexType>
   
     <xs:complexType name="ContentTypeMapConfiguration">
-      <xs:sequence>
-        <xs:element minOccurs="0" maxOccurs="unbounded" name="type" type="TypeConfiguration" />
-      </xs:sequence>
-      <xs:attribute name="any-content-type-value" use="optional" type="xs:string" />
-      <xs:attribute name="missing-content-type-value" use="optional" type="xs:string" />
+        <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="unbounded" name="type" type="TypeConfiguration" />
+        </xs:sequence>
+        <xs:attribute name="any-content-type-value" use="optional" type="xs:string" />
+        <xs:attribute name="missing-content-type-value" use="optional" type="xs:string" />
     </xs:complexType>
   
     <xs:complexType name="TypeConfiguration">
-      <xs:attribute name="from" use="optional" type="xs:string" />
-      <xs:attribute name="when" use="optional">
-        <xs:simpleType>
+        <xs:attribute name="from" use="optional" type="xs:string" />
+        <xs:attribute name="when" use="optional">
+            <xs:simpleType>
                 <xs:union memberTypes="xs:boolean expression" />
-        </xs:simpleType>
-      </xs:attribute>
-      <xs:attribute name="to" use="required" type="xs:string" />
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="to" use="required" type="xs:string" />
     </xs:complexType>
-
 </xs:schema>

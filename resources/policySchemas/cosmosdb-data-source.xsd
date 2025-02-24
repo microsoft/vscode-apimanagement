@@ -3,7 +3,7 @@
     <xs:element name="cosmosdb-data-source" type="CosmosDataSourceConfiguration" />
     <xs:complexType name="CosmosDataSourceConfiguration">
         <xs:sequence>
-            <xs:element minOccurs="1" maxOccurs="1" name="connection-info" type="ConnectionInfo" />
+            <xs:element minOccurs="1" maxOccurs="1" name="connection-info" type="CosmosDBConnectionInfo" />
             <xs:element minOccurs="0" maxOccurs="1" name="query-request" type="QueryRequest" />
             <xs:element minOccurs="0" maxOccurs="1" name="read-request" type="ReadRequest" />
             <xs:element minOccurs="0" maxOccurs="1" name="delete-request" type="DeleteRequest" />
@@ -13,9 +13,9 @@
         <xs:attribute name="id" type="xs:string" use="optional" />
     </xs:complexType>
 
-    <xs:complexType name="ConnectionInfo">
+    <xs:complexType name="CosmosDBConnectionInfo">
         <xs:sequence>
-            <xs:element minOccurs="1" maxOccurs="1" name="connection-string" type="ConnectionString" />
+            <xs:element minOccurs="1" maxOccurs="1" name="connection-string" type="CosmosDBConnectionString" />
             <xs:element minOccurs="1" maxOccurs="1" name="database-name" />
             <xs:element minOccurs="1" maxOccurs="1" name="container-name" />
         </xs:sequence>
@@ -72,7 +72,7 @@
         </xs:sequence>
     </xs:complexType>
 
-    <xs:complexType name="ConnectionString" mixed="true">
+    <xs:complexType name="CosmosDBConnectionString" mixed="true">
         <xs:attribute name = "use-managed-identity" type ="xs:string" use ="optional" />
         <xs:attribute name = "client-id" type ="xs:string" use ="optional" />
     </xs:complexType>

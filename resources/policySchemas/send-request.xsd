@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<xs:schema version="1.0.0" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    
     <xs:element name="send-request" type="SendRequestPolicyConfiguration" />
     <xs:complexType name="SendRequestPolicyConfiguration">
         <xs:sequence>
@@ -34,15 +35,4 @@
         <xs:attribute name="buffer-response" type="xs:boolean" use="optional" default="true" />
         <xs:attribute name="fail-on-error-status-code" type="xs:boolean" use="optional" default="false" />
     </xs:complexType>
-    <xs:simpleType name="RequestCreationMode">
-        <xs:restriction base="xs:string">
-            <xs:enumeration value="new" />
-            <xs:enumeration value="copy" />
-        </xs:restriction>
-    </xs:simpleType>
-    <xs:simpleType name="expression">
-        <xs:restriction base="xs:string">
-            <xs:pattern value="@[\(\{][\s\S]+"/>
-        </xs:restriction>
-    </xs:simpleType>
 </xs:schema>

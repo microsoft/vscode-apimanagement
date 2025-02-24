@@ -5,8 +5,8 @@
     <xs:complexContent mixed="false">
       <xs:extension base="RateLimitConfiguration">
         <xs:sequence>
-            <xs:element minOccurs="0" maxOccurs="unbounded" name="api" type="ApiConfiguration" />
-            <xs:element minOccurs="0" maxOccurs="unbounded" name="operation" type="OperationConfiguration" />
+            <xs:element minOccurs="0" maxOccurs="unbounded" name="api" type="RateLimitApiConfiguration" />
+            <xs:element minOccurs="0" maxOccurs="unbounded" name="operation" type="RateLimitOperationConfiguration" />
         </xs:sequence>
         <xs:attribute name="id" type="xs:string" use="optional" />
       </xs:extension>
@@ -21,7 +21,7 @@
     <xs:attribute name="remaining-calls-variable-name" type="xs:string" />
     <xs:attribute name="total-calls-header-name" type="xs:string" />
   </xs:complexType>
-  <xs:complexType name="OperationConfiguration">
+  <xs:complexType name="RateLimitOperationConfiguration">
     <xs:complexContent mixed="false">
       <xs:extension base="RateLimitConfiguration">
         <xs:attribute name="id" type="xs:string" use="optional" />
@@ -29,11 +29,11 @@
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
-  <xs:complexType name="ApiConfiguration">
+  <xs:complexType name="RateLimitApiConfiguration">
     <xs:complexContent mixed="false">
       <xs:extension base="RateLimitConfiguration">
         <xs:sequence>
-          <xs:element minOccurs="0" maxOccurs="unbounded" name="operation" type="OperationConfiguration" />
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="operation" type="RateLimitOperationConfiguration" />
         </xs:sequence>
         <xs:attribute name="id" type="xs:string" use="optional" />
         <xs:attribute name="name" type="xs:string" use="optional" />
