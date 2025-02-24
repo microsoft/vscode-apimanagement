@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema"><xs:element name="mock-response" type="MockResponsePolicyConfiguration" />
+<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="mock-response" type="MockResponsePolicyConfiguration" />
     <xs:complexType name="MockResponsePolicyConfiguration">
         <xs:attribute name="id" type="xs:string" use="optional" />
         <xs:attribute name="enabled" type="xs:boolean" use="optional" />

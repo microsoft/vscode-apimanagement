@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">	<xs:element name="validate-graphql-request" type="ValidateGraphQLRequestPolicy" />
+<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:element name="validate-graphql-request" type="ValidateGraphQLRequestPolicy" />
 	<xs:complexType name="ValidateGraphQLRequestPolicy">
 		<xs:sequence>
 			<xs:element minOccurs="0" maxOccurs="1" name="authorize" type="AuthorizeGraphQLRequest" />

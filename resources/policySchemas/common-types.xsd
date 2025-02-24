@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema"><!-- Common expression type used across many policies -->
+<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <!-- Common expression type used across many policies -->
     <xs:simpleType name="expression">
         <xs:restriction base="xs:string">
             <xs:pattern value="@[\(\{][\s\S]+"/>

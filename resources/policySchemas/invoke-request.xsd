@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema"><xs:element name="invoke-request" type="InvokeRequest" />
+<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="invoke-request" type="InvokeRequest" />
     <xs:complexType name="InvokeRequest">
         <xs:sequence>
             <xs:element minOccurs="0" maxOccurs="unbounded" name="value" type="xs:string" />

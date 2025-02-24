@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema"><xs:element name="azure-openai-semantic-cache-lookup" type="AzureOpenAISemanticCacheLookup" />
+<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="azure-openai-semantic-cache-lookup" type="AzureOpenAISemanticCacheLookup" />
     <xs:element name="llm-semantic-cache-lookup" type="AzureOpenAISemanticCacheLookup" />
     <xs:complexType name="AzureOpenAISemanticCacheLookup">
         <xs:choice>

@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema"> <xs:element name="quota" type="PeriodicQuotaPolicyConfiguration" />
+<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="quota" type="PeriodicQuotaPolicyConfiguration" />
   <xs:complexType name="PeriodicQuotaPolicyConfiguration">
     <xs:complexContent mixed="false">
       <xs:extension base="QuotaConfiguration">

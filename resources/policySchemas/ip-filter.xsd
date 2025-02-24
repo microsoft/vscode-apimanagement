@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema"><xs:element name="ip-filter" type="IpFilterPolicyConfiguration" />
+<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="ip-filter" type="IpFilterPolicyConfiguration" />
     <xs:complexType name="IpFilterPolicyConfiguration">
         <xs:choice maxOccurs="unbounded">
             <xs:element minOccurs="0" maxOccurs="unbounded" name="address" type="IpAddress" />
