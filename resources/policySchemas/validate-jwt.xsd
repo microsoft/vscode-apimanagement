@@ -1,4 +1,4 @@
-﻿<xs:schema version="1.0.0" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema"> 
+﻿<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema"> 
   <xs:element name="validate-jwt" type="ValidateJwtPolicyConfiguration" />
   <xs:complexType name="ValidateJwtPolicyConfiguration">
     <xs:sequence>
@@ -104,7 +104,7 @@
       </xs:extension>
     </xs:simpleContent>
   </xs:complexType>
-    <xs:complexType name="DecryptionKey">
+  <xs:complexType name="DecryptionKey">
     <xs:simpleContent>
       <xs:extension base="xs:string">
         <xs:attribute name="id" type="xs:string" />
