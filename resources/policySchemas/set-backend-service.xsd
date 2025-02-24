@@ -1,6 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <xs:schema version="1.0.0" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-    
     <xs:element name="set-backend-service">
         <xs:complexType>
             <xs:attribute name="backend-id" type="xs:string" use="optional" />

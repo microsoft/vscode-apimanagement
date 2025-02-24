@@ -1,6 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <xs:schema version="1.0.0" attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-    
     <xs:element name="wait">
         <xs:complexType>
             <xs:choice minOccurs="1" maxOccurs="unbounded">

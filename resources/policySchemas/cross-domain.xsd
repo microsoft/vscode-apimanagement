@@ -1,6 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-
     <!-- XML Schema for HTTPS policy files -->
     <!-- Refinement of generic schema at PolicyFile.xsd -->
     <!-- Note that several different user-agents support policy files, and each may support

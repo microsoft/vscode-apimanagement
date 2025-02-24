@@ -1,6 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-    
     <xs:element name="cache-lookup" type="CacheLookupConfiguration" />
     <xs:complexType name="CacheLookupConfiguration">
         <xs:choice minOccurs="0" maxOccurs="unbounded">
