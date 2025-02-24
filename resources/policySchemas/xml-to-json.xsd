@@ -57,9 +57,4 @@
             <xs:enumeration value="as-null" />
         </xs:restriction>
     </xs:simpleType>
-    <xs:simpleType name="expression">
-        <xs:restriction base="xs:string">
-            <xs:pattern value="@[\(\{][\s\S]+"/>
-        </xs:restriction>
-    </xs:simpleType>
 </xs:schema>

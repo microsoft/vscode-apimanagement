@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
     <!-- Include all existing policy schemas -->
+    <xs:include schemaLocation="common-types.xsd"/>
     <xs:include schemaLocation="authentication-basic.xsd"/>
     <xs:include schemaLocation="authentication-certificate.xsd"/>
     <xs:include schemaLocation="authentication-managed-identity.xsd"/>
