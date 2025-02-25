@@ -74,27 +74,4 @@
             </xs:simpleType>
         </xs:attribute>
     </xs:complexType>
-    <xs:complexType name="Claim">
-        <xs:sequence>
-            <xs:element type="xs:string" name="value" maxOccurs="unbounded" minOccurs="0"/>
-        </xs:sequence>
-        <xs:attribute name="name" type="xs:string"/>
-        <xs:attribute name="match" default="all">
-            <xs:simpleType>
-                <xs:union memberTypes="ClaimMatch expression"/>
-            </xs:simpleType>
-        </xs:attribute>
-        <xs:attribute name="separator" type="xs:string"/>
-    </xs:complexType>
-    <xs:simpleType name="ClaimMatch">
-        <xs:restriction base="xs:string">
-            <xs:enumeration value="all"/>
-            <xs:enumeration value="any"/>
-        </xs:restriction>
-    </xs:simpleType>
-    <xs:simpleType name="expression">
-        <xs:restriction base="xs:string">
-            <xs:pattern value="@[\(\{][\s\S]+"/>
-        </xs:restriction>
-    </xs:simpleType>
 </xs:schema>

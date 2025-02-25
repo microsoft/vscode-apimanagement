@@ -11,9 +11,4 @@
             <xs:attribute name="reason" use="optional" type="xs:string" />
         </xs:complexType>
     </xs:element>
-    <xs:simpleType name="expression">
-        <xs:restriction base="xs:string">
-            <xs:pattern value="@[\(\{][\s\S]+"/>
-        </xs:restriction>
-    </xs:simpleType>
 </xs:schema>

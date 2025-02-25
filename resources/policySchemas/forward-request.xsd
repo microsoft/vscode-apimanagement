@@ -28,9 +28,4 @@
         <xs:attribute name="fail-on-error-status-code" type="xs:boolean" use="optional" default="false" />
         <xs:attribute name="http-version" type="xs:string" use="optional" />
     </xs:complexType>
-    <xs:simpleType name="expression">
-        <xs:restriction base="xs:string">
-            <xs:pattern value="@[\(\{][\s\S]+"/>
-        </xs:restriction>
-    </xs:simpleType>
 </xs:schema>

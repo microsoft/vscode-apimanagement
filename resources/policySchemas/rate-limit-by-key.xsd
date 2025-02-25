@@ -24,9 +24,4 @@
       <xs:attribute name="remaining-calls-variable-name" type="xs:string" />
       <xs:attribute name="total-calls-header-name" type="xs:string" />
   </xs:complexType>
-  <xs:simpleType name="expression">
-    <xs:restriction base="xs:string">
-      <xs:pattern value="@[\(\{][\s\S]+"/>
-    </xs:restriction>
-  </xs:simpleType>
 </xs:schema>

@@ -15,17 +15,4 @@
             </xs:simpleType>
         </xs:attribute>
     </xs:complexType>
-    <xs:complexType name="Dimension">
-        <xs:attribute name="name" type="xs:string" use="required" />
-        <xs:attribute name="value" use="optional">
-            <xs:simpleType>
-                <xs:union memberTypes="xs:string expression" />
-            </xs:simpleType>
-        </xs:attribute>
-    </xs:complexType>
-    <xs:simpleType name="expression">
-        <xs:restriction base="xs:string">
-            <xs:pattern value="@[\(\{][\s\S]+"/>
-        </xs:restriction>
-    </xs:simpleType>
 </xs:schema>

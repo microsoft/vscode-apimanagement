@@ -5,7 +5,7 @@
             <xs:attribute name="id" type="xs:string" use="optional" />
             <xs:attribute name="apply" use="required">
                 <xs:simpleType>
-                    <xs:union memberTypes="Apply expression" />
+                    <xs:union memberTypes="JsonToXmlApply expression" />
                 </xs:simpleType>
             </xs:attribute>
             <xs:attribute name="consider-accept-header">
@@ -33,7 +33,7 @@
             </xs:attribute>
         </xs:complexType>
     </xs:element>
-    <xs:simpleType name="Apply">
+    <xs:simpleType name="JsonToXmlApply">
         <xs:restriction base="xs:string">
             <xs:enumeration value="always" />
             <xs:enumeration value="content-type-json" />
@@ -43,11 +43,6 @@
         <xs:restriction base="xs:string">
             <xs:enumeration value="preserve" />
             <xs:enumeration value="as-null" />
-        </xs:restriction>
-    </xs:simpleType>
-    <xs:simpleType name="expression">
-        <xs:restriction base="xs:string">
-            <xs:pattern value="@[\(\{][\s\S]+"/>
         </xs:restriction>
     </xs:simpleType>
 </xs:schema>

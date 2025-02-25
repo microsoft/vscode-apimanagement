@@ -18,9 +18,9 @@
         <xs:attribute name="response-variable-name" type="xs:string" use="optional"/>
         <xs:attribute name="operation" type="xs:string" use="optional" default="create"/>
         <xs:attribute name="timeout" use="optional">
-        <xs:simpleType>
-            <xs:union memberTypes="xs:int expression" />
-        </xs:simpleType>
+            <xs:simpleType>
+                <xs:union memberTypes="xs:int expression" />
+            </xs:simpleType>
         </xs:attribute>
         <xs:attribute name="ignore-error" type="xs:boolean" use="optional"/>
     </xs:complexType>
@@ -37,9 +37,4 @@
             <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip" />
         </xs:sequence>
     </xs:complexType>
-    <xs:simpleType name="expression">
-        <xs:restriction base="xs:string">
-            <xs:pattern value="@[\(\{][\s\S]+"/>
-        </xs:restriction>
-    </xs:simpleType>
 </xs:schema>

@@ -13,20 +13,6 @@
       </xs:attribute>
       <xs:attribute name="errors-variable-name" use="optional" type="xs:string" />
     </xs:complexType>
-
-    <xs:simpleType name="ValidationMode">
-        <xs:restriction base="xs:string">
-            <xs:enumeration value="ignore" />
-            <xs:enumeration value="prevent" />
-            <xs:enumeration value="detect" />
-        </xs:restriction>
-    </xs:simpleType>
-
-    <xs:simpleType name="expression">
-        <xs:restriction base="xs:string">
-            <xs:pattern value="@[\(\{][\s\S]+"/>
-        </xs:restriction>
-    </xs:simpleType>
     
     <xs:complexType name="StatusCodeConfiguration">
         <xs:attribute name="code" use="required" type="xs:unsignedInt"/>

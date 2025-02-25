@@ -6,32 +6,32 @@
       <xs:element minOccurs="0" maxOccurs="unbounded" name="vary-by-header" type="xs:string" />
       <xs:element minOccurs="0" maxOccurs="unbounded" name="vary-by-query-parameter" type="xs:string" />
     </xs:choice>
-        <xs:attribute name="id" type="xs:string" use="optional" />
-        <xs:attribute name="vary-by-developer" use="required">
-            <xs:simpleType>
-                <xs:union memberTypes="xs:boolean expression" />
-            </xs:simpleType>
-        </xs:attribute>
-        <xs:attribute name="vary-by-developer-groups" use="required">
-            <xs:simpleType>
-                <xs:union memberTypes="xs:boolean expression" />
-            </xs:simpleType>
-        </xs:attribute>
-      <xs:attribute name="downstream-caching-type" default="none" >
-          <xs:simpleType>
-              <xs:union memberTypes="DownstreamCachingType expression" />
-          </xs:simpleType>
-      </xs:attribute>
-      <xs:attribute name="must-revalidate" default="true">
-          <xs:simpleType>
-              <xs:union memberTypes="xs:boolean expression" />
-          </xs:simpleType>        
-      </xs:attribute>
-      <xs:attribute name="caching-type" default="prefer-external" >
-          <xs:simpleType>
-              <xs:union memberTypes="CachingType" />
-          </xs:simpleType>
-      </xs:attribute>    
+    <xs:attribute name="id" type="xs:string" use="optional" />
+    <xs:attribute name="vary-by-developer" use="required">
+      <xs:simpleType>
+        <xs:union memberTypes="xs:boolean expression" />
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="vary-by-developer-groups" use="required">
+      <xs:simpleType>
+        <xs:union memberTypes="xs:boolean expression" />
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="downstream-caching-type" default="none">
+      <xs:simpleType>
+        <xs:union memberTypes="DownstreamCachingType expression" />
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="must-revalidate" default="true">
+      <xs:simpleType>
+        <xs:union memberTypes="xs:boolean expression" />
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="caching-type" default="prefer-external">
+      <xs:simpleType>
+        <xs:union memberTypes="CachingType" />
+      </xs:simpleType>
+    </xs:attribute>
     <xs:attribute name="allow-private-response-caching" default="false">
       <xs:simpleType>
         <xs:union memberTypes="xs:boolean expression" />
@@ -45,16 +45,4 @@
       <xs:enumeration value="public"/>
     </xs:restriction>
   </xs:simpleType>
-    <xs:simpleType name="CachingType">
-        <xs:restriction base="xs:string">
-            <xs:enumeration value="prefer-external"/>
-            <xs:enumeration value="internal"/>
-            <xs:enumeration value="external"/>
-        </xs:restriction>
-    </xs:simpleType>
-    <xs:simpleType name="expression">
-        <xs:restriction base="xs:string">
-            <xs:pattern value="@[\(\{][\s\S]+"/>
-        </xs:restriction>
-    </xs:simpleType>
 </xs:schema>

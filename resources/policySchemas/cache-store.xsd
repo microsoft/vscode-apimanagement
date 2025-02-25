@@ -15,9 +15,4 @@
         </xs:attribute>
         <xs:attribute name="caching-mode" type="xs:string" use="optional" />
     </xs:complexType>
-    <xs:simpleType name="expression">
-        <xs:restriction base="xs:string">
-            <xs:pattern value="@[\(\{][\s\S]+"/>
-        </xs:restriction>
-    </xs:simpleType>
 </xs:schema>

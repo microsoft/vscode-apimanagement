@@ -21,15 +21,4 @@
         </xs:attribute>
         <xs:attribute name="timeout" type="xs:int" />
     </xs:complexType>
-    <xs:simpleType name="RequestCreationMode">
-        <xs:restriction base="xs:string">
-            <xs:enumeration value="new" />
-            <xs:enumeration value="copy" />
-        </xs:restriction>
-    </xs:simpleType>
-    <xs:simpleType name="expression">
-        <xs:restriction base="xs:string">
-            <xs:pattern value="@[\(\{][\s\S]+"/>
-        </xs:restriction>
-    </xs:simpleType>
 </xs:schema>
