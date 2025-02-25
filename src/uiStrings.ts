@@ -28,4 +28,8 @@ export class UiStrings {
     static readonly NoAzureSessionFound = vscode.l10n.t("No Azure session found.");
     static readonly FailedTo = vscode.l10n.t("Failed to retrieve Azure session: {0}");
     static readonly SelectSubscriptionInPanel = vscode.l10n.t("Select Subscriptions...");
+    static readonly EnableTracingConfirmTitle = vscode.l10n.t("To enable policy debugging for {0}, the master subscription key needs tracing enabled. This allows capturing request and response details during debugging.");
+    static readonly EnableTracingConfirmDetail = vscode.l10n.t("You can disable tracing later if needed.");
+    static readonly EnableTracingConfirmButton = vscode.l10n.t("Enable Tracing & Continue");
+    static readonly CancelDebugButton = vscode.l10n.t("Cancel Debugging");
 }
