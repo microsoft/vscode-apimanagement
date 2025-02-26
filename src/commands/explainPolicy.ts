@@ -3,8 +3,6 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-'use strict';
-
 import * as vscode from 'vscode';
 import { IActionContext } from '@microsoft/vscode-azext-utils';
 import { loadPromptTemplate } from '../utils/promptUtils';
