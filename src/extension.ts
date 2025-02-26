@@ -39,7 +39,7 @@ import { revisions } from './commands/revisions';
 import { setCustomHostName } from './commands/setCustomHostName';
 import { setupWorkingFolder } from './commands/setupWorkingFolder';
 import { testOperation } from './commands/testOperation';
-import { doubleClickDebounceDelay } from './constants';
+import { doubleClickDebounceDelay, environmentVariables } from './constants';
 import { activate } from './debugger/extension';
 import { ApiOperationTreeItem } from './explorer/ApiOperationTreeItem';
 import { ApiPolicyTreeItem } from './explorer/ApiPolicyTreeItem';
@@ -123,7 +123,7 @@ export async function activateInternal(context: vscode.ExtensionContext) {
 }
 
 export async function associateXmlSchema(context: vscode.ExtensionContext): Promise<void> {
-    const shouldAssociateSchema = process.env.APIM_AUTO_ASSOCIATE_SCHEMA?.toLowerCase() !== 'false';
+    const shouldAssociateSchema = process.env[environmentVariables.autoAssociateSchema]?.toLowerCase() !== 'false';
     if (shouldAssociateSchema) {
         const xmlExtension = vscode.extensions.getExtension('redhat.vscode-xml');
         if (xmlExtension) {
