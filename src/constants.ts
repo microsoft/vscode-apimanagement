@@ -10,6 +10,11 @@ export const extensionPrefix: string = 'azureApiManagement';
 export const doubleClickDebounceDelay = 500; //milliseconds
 export const topItemCount: number = 20;
 
+// Environment variables grouped in an object
+export const environmentVariables = {
+    autoAssociateSchema: 'APIM_AUTO_ASSOCIATE_SCHEMA'
+} as const;
+
 export const swaggerSchema = "application/vnd.ms-azure-apim.swagger.definitions+json";
 export const openApiSchema = "application/vnd.oai.openapi.components+json";
 export const swaggerExport = "swagger";

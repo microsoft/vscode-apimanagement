@@ -39,7 +39,7 @@ import { revisions } from './commands/revisions';
 import { setCustomHostName } from './commands/setCustomHostName';
 import { setupWorkingFolder } from './commands/setupWorkingFolder';
 import { testOperation } from './commands/testOperation';
-import { doubleClickDebounceDelay } from './constants';
+import { doubleClickDebounceDelay, environmentVariables } from './constants';
 import { activate } from './debugger/extension';
 import { ApiOperationTreeItem } from './explorer/ApiOperationTreeItem';
 import { ApiPolicyTreeItem } from './explorer/ApiPolicyTreeItem';
@@ -93,21 +93,8 @@ export async function activateInternal(context: vscode.ExtensionContext) {
     context.subscriptions.push(ext.outputChannel);
     vscode.commands.executeCommand('setContext', 'isEditorEnabled', false);
 
-    // Add XML schema association for policy files
-    const xmlExtension = vscode.extensions.getExtension('redhat.vscode-xml');
-    if (xmlExtension) {
-        if (!xmlExtension.isActive) {
-            await xmlExtension.activate();
-        }
-        // Get the XML API
-        const xmlAPI = xmlExtension.exports;
-        if (xmlAPI && xmlAPI.addXMLFileAssociations) {
-            xmlAPI.addXMLFileAssociations([{
-                pattern: "**/*.policy.xml",
-                systemId: context.asAbsolutePath("resources/policySchemas/policies.xsd")
-            }]);
-        }
-    }
+    // Add XML schema association for policy files unless explicitly disabled by environment variable
+    await associateXmlSchema(context);
 
     registerUIExtensionVariables(ext);
     registerAzureUtilsExtensionVariables(ext);
@@ -133,6 +120,26 @@ export async function activateInternal(context: vscode.ExtensionContext) {
 
         activate(context); // activeta debug context
     });
+}
+
+export async function associateXmlSchema(context: vscode.ExtensionContext): Promise<void> {
+    const shouldAssociateSchema = process.env[environmentVariables.autoAssociateSchema]?.toLowerCase() !== 'false';
+    if (shouldAssociateSchema) {
+        const xmlExtension = vscode.extensions.getExtension('redhat.vscode-xml');
+        if (xmlExtension) {
+            if (!xmlExtension.isActive) {
+                await xmlExtension.activate();
+            }
+            // Get the XML API
+            const xmlAPI = xmlExtension.exports;
+            if (xmlAPI && xmlAPI.addXMLFileAssociations) {
+                xmlAPI.addXMLFileAssociations([{
+                    pattern: "**/*.policy.xml",
+                    systemId: context.asAbsolutePath("resources/policySchemas/policies.xsd")
+                }]);
+            }
+        }
+    }
 }
 
 function registerCommands(tree: AzExtTreeDataProvider): void {
