@@ -457,6 +457,11 @@
                 "command": "azureApiManagement.showArmAuthorizationAccessPolicy",
                 "title": "%azureApiManagement.showArmAuthorizationAccessPolicy%",
                 "category": "Azure API Management"
+            },
+            {
+                "command": "azureApiManagement.explainPolicy",
+                "title": "%azureApiManagement.explainPolicy%",
+                "when": "never"
             }
         ],
         "viewsContainers": {
@@ -762,6 +767,13 @@
                     "command": "azureApiManagement.deleteAuthorizationAccessPolicy",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementAuthorizationAccessPolicy",
                     "group": "3@1"
+                }
+            ],
+            "copilot": [
+                {
+                    "command": "azureApiManagement.explainPolicy",
+                    "when": "github.copilot-chat.activated && resourceScheme == 'file'",
+                    "group": "apiManagement"
                 }
             ]
         },
