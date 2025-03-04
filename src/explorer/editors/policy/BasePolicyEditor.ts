@@ -11,7 +11,6 @@ import { ext } from "../../../extensionVariables";
 import { localize } from "../../../localize";
 import { errorUtil, processError } from "../../../utils/errorUtil";
 import { nameUtil } from "../../../utils/nameUtil";
-import { promptOpenWorkingFolder } from "../../../utils/vscodeUtils";
 import { IServiceTreeRoot } from "../../IServiceTreeRoot";
 import { Editor } from "../Editor";
 import { ITreeItemWithRoot } from "../../ITreeItemWithRoot";
@@ -67,12 +66,12 @@ export abstract class BasePolicyEditor<TRoot extends IServiceTreeRoot> extends E
     public async getSize(): Promise<number> {
         throw new Error(localize("", "Method not implemented."));
     }
+
     public async getSaveConfirmationText(): Promise<string> {
         return localize("saveConfirmation", "Do you want to upload changes to cloud?");
     }
 
     public async showEditor(context: IActionContext, treeItem: ITreeItemWithRoot<TRoot>, sizeLimit?: number /* in Megabytes */): Promise<void> {
         await super.showEditor(context, treeItem, sizeLimit);
-        await promptOpenWorkingFolder(context);
     }
 }
