@@ -771,12 +771,12 @@
             "copilot": [
                 {
                     "command": "azureApiManagement.explainPolicy",
-                    "when": "github.copilot-chat.activated && resourceScheme == 'file'",
+                    "when": "github.copilot-chat.activated && resourceExtname == '.xml'",
                     "group": "apiManagement"
                 },
                 {
                     "command": "azureApiManagement.draftPolicy",
-                    "when": "github.copilot-chat.activated && resourceScheme == 'file'",
+                    "when": "github.copilot-chat.activated && resourceExtname == '.xml'",
                     "group": "apiManagement"
                 }
             ]
