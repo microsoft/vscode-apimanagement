@@ -140,8 +140,8 @@
         ],
         "snippets": [
             {
-                "language": "aspnetcorerazor",
-                "path": "./aspnetcorerazor.json"
+                "language": "xml",
+                "path": "./apim-policy.code-snippets.json"
             }
         ],
         "commands": [
