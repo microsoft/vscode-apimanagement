@@ -83,6 +83,7 @@ import { AzureSessionProviderHelper } from "./azure/azureLogin/azureSessionProvi
 import { AzureAccount } from "./azure/azureLogin/azureAccount";
 import { openUrlFromTreeNode } from './commands/openUrl';
 import { explainPolicy } from './commands/explainPolicy';
+import { draftPolicy } from './commands/draftPolicy';
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 // tslint:disable-next-line:typedef
@@ -200,6 +201,7 @@ function registerCommands(tree: AzExtTreeDataProvider): void {
     registerCommand('azureApiManagement.deleteAuthorizationAccessPolicy', async (context: IActionContext, node?: AzExtTreeItem) => await deleteNode(context, AuthorizationAccessPolicyTreeItem.contextValue, node));
 
     registerCommand('azureApiManagement.explainPolicy', async (context: IActionContext) => await explainPolicy(context));
+    registerCommand('azureApiManagement.draftPolicy', async (context: IActionContext) => await draftPolicy(context));
 }
 
 // tslint:disable-next-line: max-func-body-length

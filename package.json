@@ -462,6 +462,11 @@
                 "command": "azureApiManagement.explainPolicy",
                 "title": "%azureApiManagement.explainPolicy%",
                 "when": "never"
+            },
+            {
+                "command": "azureApiManagement.draftPolicy",
+                "title": "%azureApiManagement.draftPolicy%",
+                "category": "Azure API Management"
             }
         ],
         "viewsContainers": {
@@ -772,6 +777,11 @@
             "copilot": [
                 {
                     "command": "azureApiManagement.explainPolicy",
+                    "when": "github.copilot-chat.activated && resourceScheme == 'file'",
+                    "group": "apiManagement"
+                },
+                {
+                    "command": "azureApiManagement.draftPolicy",
                     "when": "github.copilot-chat.activated && resourceScheme == 'file'",
                     "group": "apiManagement"
                 }
