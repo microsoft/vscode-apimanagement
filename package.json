@@ -58,7 +58,6 @@
         "onCommand:azureApiManagement.removeApiFromGateway",
         "onCommand:azureApiManagement.showProductPolicy",
         "onCommand:azureApiManagement.openWorkingFolder",
-        "onCommand:azureApiManagement.setupWorkingFolder",
         "onCommand:azureApiManagement.extractService",
         "onCommand:azureApiManagement.extractApi",
         "onCommand:azureApiManagement.importFunctionApp",
@@ -310,11 +309,6 @@
             {
                 "command": "azureApiManagement.openExtensionWorkspaceFolder",
                 "title": "%azureApiManagement.openExtensionWorkspaceFolder%",
-                "category": "Azure API Management"
-            },
-            {
-                "command": "azureApiManagement.initializeExtensionWorkspaceFolder",
-                "title": "%azureApiManagement.initializeExtensionWorkspaceFolder%",
                 "category": "Azure API Management"
             },
             {
