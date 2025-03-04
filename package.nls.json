@@ -63,5 +63,6 @@
     "azureApiManagement.showArmAuthorizationAccessPolicy": "Edit Authorization Access Policy",
     "azureApiManagement.selectTenant": "Select Tenant...",
     "azureApiManagement.selectSubscriptions": "Select Subscription...",
-    "azureApiManagement.explainPolicy": "Explain APIM Policy"
+    "azureApiManagement.explainPolicy": "Explain APIM Policies",
+    "azureApiManagement.draftPolicy": "Draft APIM Policies"
 }
