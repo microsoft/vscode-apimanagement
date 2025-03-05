@@ -11,7 +11,7 @@ import { BaseArmResourceEditor } from "./BaseArmResourceEditor";
 
 // tslint:disable-next-line:no-any
 export class AuthorizationProviderResourceEditor extends BaseArmResourceEditor<IAuthorizationProviderTreeRoot>  {
-    public entityType: string = "AuthorizationProvider";
+    public entityType: string = "CredentialManager";
     constructor() {
         super();
     }

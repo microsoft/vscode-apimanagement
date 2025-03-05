@@ -133,7 +133,7 @@ function createAccessPolicy(
     window.withProgress(
         {
             location: ProgressLocation.Notification,
-            title: localize("creatingAuthorizationPermission", `Creating Access policy '${permissionName}' for Authorization ${node.root.authorizationName} ...`),
+            title: localize("creatingAuthorizationPermission", `Creating Access Policy '${permissionName}' for Credential ${node.root.authorizationName} ...`),
             cancellable: false
         },
         async () => {
@@ -143,7 +143,7 @@ function createAccessPolicy(
     ).then(async () => {
         // tslint:disable-next-line:no-non-null-assertion
         await node!.refresh(context);
-        window.showInformationMessage(localize("createdAuthorizationPermission", `Created Access policy '${permissionName}' successfully.`));
+        window.showInformationMessage(localize("createdAuthorizationPermission", `Created Access Policy '${permissionName}' successfully.`));
     });
 }
 

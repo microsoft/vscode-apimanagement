@@ -22,9 +22,9 @@ export class AuthorizationAccessPoliciesTreeItem extends AzExtParentTreeItem {
         return treeUtils.getThemedIconPath('list');
     }
     public static contextValue: string = 'azureApiManagementAuthorizationAccessPolicies';
-    public label: string = "Access policies";
+    public label: string = "Access Policies";
     public contextValue: string = AuthorizationAccessPoliciesTreeItem.contextValue;
-    public readonly childTypeLabel: string = localize('azureApiManagement.AuthorizationAccessPolicy', 'AuthorizationAccessPolicy');
+    public readonly childTypeLabel: string = localize('azureApiManagement.AuthorizationAccessPolicy', 'Credential Access Policy');
     private _nextLink: string | undefined;
     public readonly root: IAuthorizationTreeRoot;
 
@@ -82,7 +82,7 @@ export class AuthorizationAccessPoliciesTreeItem extends AzExtParentTreeItem {
                     throw new Error(localize("createAuthorizationAccessPolicy", `Access policy '${authorizationAccessPolicyName}' already exists.`));
                 }
             } catch (error) {
-                throw new Error(processError(error, localize("createAuthorizationAccessPolicy", `Failed to access policy '${authorizationAccessPolicyName}' to Authorization '${this.root.authorizationName}'.`)));
+                throw new Error(processError(error, localize("createAuthorizationAccessPolicy", `Failed to create access policy '${authorizationAccessPolicyName}' for Credential '${this.root.authorizationName}'.`)));
             }
         } else {
             throw Error("Expected Access Policy name.");
