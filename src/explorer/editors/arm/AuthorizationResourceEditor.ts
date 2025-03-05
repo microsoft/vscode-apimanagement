@@ -12,7 +12,7 @@ import { BaseArmResourceEditor } from "./BaseArmResourceEditor";
 
 // tslint:disable-next-line:no-any
 export class AuthorizationResourceEditor extends BaseArmResourceEditor<IAuthorizationTreeRoot>  {
-    public entityType: string = "Authorization";
+    public entityType: string = "Credential";
     constructor() {
         super();
     }

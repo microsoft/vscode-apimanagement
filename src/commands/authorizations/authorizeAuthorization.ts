@@ -51,7 +51,7 @@ export async function authorizeAuthorization(context: IActionContext, node?: Aut
         window.withProgress(
             {
                 location: vscode.ProgressLocation.Notification,
-                title: localize("authorizeAuthorization", `Updating Authorization '${authorization.name}' ...`),
+                title: localize("authorizeAuthorization", `Updating Credential '${authorization.name}' ...`),
                 cancellable: false
             },
             // tslint:disable-next-line:no-non-null-assertion
@@ -59,7 +59,7 @@ export async function authorizeAuthorization(context: IActionContext, node?: Aut
         ).then(async () => {
             // tslint:disable-next-line:no-non-null-assertion
             await node!.refresh(context);
-            window.showInformationMessage(localize("updatedAuthorization", `Updated Authorization '${authorization.name}' succesfully.`));
+            window.showInformationMessage(localize("updatedAuthorization", `Updated Credential '${authorization.name}' successfully.`));
         });
     }
 }

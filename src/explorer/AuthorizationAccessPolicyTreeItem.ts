@@ -52,19 +52,19 @@ export class AuthorizationAccessPolicyTreeItem extends AzExtTreeItem {
     }
 
     public async deleteTreeItemImpl(): Promise<void> {
-        const message: string = localize("confirmAccessPolicyRemove", `Are you sure you want to remove Access Policy '${this.authorizationAccessPolicyContract.name}' from Authorization '${this.root.authorizationName}'?`);
+        const message: string = localize("confirmAccessPolicyRemove", `Are you sure you want to remove Access Policy '${this.authorizationAccessPolicyContract.name}' from Credential '${this.root.authorizationName}'?`);
         const result = await window.showWarningMessage(message, { modal: true }, DialogResponses.deleteResponse, DialogResponses.cancel);
         if (result === DialogResponses.deleteResponse) {
-            const deletingMessage: string = localize("removingAuthorizationAccessPolicy", `Removing Access Policy "${this.authorizationAccessPolicyContract.name}" from Authorization '${this.root.authorizationName}.'`);
+            const deletingMessage: string = localize("removingAuthorizationAccessPolicy", `Removing Access Policy "${this.authorizationAccessPolicyContract.name}" from Credential '${this.root.authorizationName}'.'`);
             await window.withProgress({ location: ProgressLocation.Notification, title: deletingMessage }, async () => {
                 const apimService = new ApimService(this.root.credentials, this.root.environment.resourceManagerEndpointUrl, this.root.subscriptionId, this.root.resourceGroupName, this.root.serviceName);
                 await apimService.deleteAuthorizationAccessPolicy(
-                    this.root.authorizationProviderName,
-                    this.root.authorizationName,
+this.root.authorizationProviderName,
+this.root.authorizationName,
                     nonNullProp(this.authorizationAccessPolicyContract, "name"));
             });
             // don't wait
-            window.showInformationMessage(localize("removedAuthorizationAccessPolicy", `Successfully removed Access Policy "${this.authorizationAccessPolicyContract.name}" from Authorization '${this.root.authorizationName}'.`));
+            window.showInformationMessage(localize("removedAuthorizationAccessPolicy", `Successfully removed Access Policy "${this.authorizationAccessPolicyContract.name}" from Credential '${this.root.authorizationName}'.`));
 
         } else {
             throw new UserCancelledError();

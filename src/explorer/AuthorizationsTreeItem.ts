@@ -26,9 +26,9 @@ export class AuthorizationsTreeItem extends AzExtParentTreeItem {
         return treeUtils.getThemedIconPath('list');
     }
     public static contextValue: string = 'azureApiManagementAuthorizations';
-    public label: string = "Authorizations";
+    public label: string = "Credentials";
     public contextValue: string = AuthorizationsTreeItem.contextValue;
-    public readonly childTypeLabel: string = localize('azureApiManagement.Authorization', 'Authorization');
+    public readonly childTypeLabel: string = localize('azureApiManagement.Authorization', 'Credential');
     private _nextLink: string | undefined;
     private apimService: ApimService;
     public readonly root: IAuthorizationProviderTreeRoot;
@@ -72,7 +72,7 @@ export class AuthorizationsTreeItem extends AzExtParentTreeItem {
             return window.withProgress(
                 {
                     location: ProgressLocation.Notification,
-                    title: localize("creatingAuthorization", `Creating Authorization '${context.authorizationName}' under Authorization Provider ${this.root.authorizationProviderName} ...`),
+                    title: localize("creatingAuthorization", `Creating Credential '${context.authorizationName}' under Credential Manager ${this.root.authorizationProviderName} ...`),
                     cancellable: false
                 },
                 // tslint:disable-next-line:no-non-null-assertion
@@ -84,13 +84,13 @@ export class AuthorizationsTreeItem extends AzExtParentTreeItem {
                         let authorization = await apimService.getAuthorization(this.root.authorizationProviderName, authorizationName);
                         if (authorization === undefined) {
                             authorization = await apimService.createAuthorization(this.root.authorizationProviderName, authorizationName, context.authorization);
-                            window.showInformationMessage(localize("createdAuthorization", `Created Authorization '${authorizationName}' succesfully.`));
+                            window.showInformationMessage(localize("createdAuthorization", `Created Credential '${authorizationName}' successfully.`));
                             return new AuthorizationTreeItem(this, authorization, this.root);
                         } else {
-                            throw new Error(localize("createAuthorization", `Authorization '${authorizationName}' already exists.`));
+                            throw new Error(localize("createAuthorization", `Credential '${authorizationName}' already exists.`));
                         }
                     } catch (error) {
-                        throw new Error(processError(error, localize("createAuthorization", `Failed to add authorization '${authorizationName}' to Authorization provider '${this.root.authorizationProviderName}'.`)));
+                        throw new Error(processError(error, localize("createAuthorization", `Failed to add credential '${authorizationName}' to Credential Manager '${this.root.authorizationProviderName}'.`)));
                     }
                 }
             );
@@ -101,7 +101,7 @@ export class AuthorizationsTreeItem extends AzExtParentTreeItem {
 
     private async buildContext(context: IAuthorizationTreeItemContext): Promise<void> {
         const authorizationProvider: IAuthorizationProviderContract = (<AuthorizationProviderTreeItem>this.parent).authorizationProviderContract;
-        const authorizationName = await askId(context, 'Enter Authorization name ...', 'Invalid Authorization name ...');
+        const authorizationName = await askId(context, 'Enter Credential name ...', 'Invalid Credential name ...');
         context.authorizationName = authorizationName;
         let parameterValues: IParameterValues = {};
         let grantType = IGrantTypesContract.authorizationCode;
