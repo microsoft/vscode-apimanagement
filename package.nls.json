@@ -59,7 +59,7 @@
     "azureApiManagement.deleteAuthorizationAccessPolicy": "Delete Access Policy",
     "azureApiManagement.showArmAuthorizationProvider": "Edit Credential Manager",
     "azureApiManagement.showArmAuthorization": "Edit Credential",
-    "azureApiManagement.showArmAuthorizationAccessPolicy": "Edit Authorization Access Policy",
+    "azureApiManagement.showArmAuthorizationAccessPolicy": "Edit Credential Access Policy",
     "azureApiManagement.selectTenant": "Select Tenant...",
     "azureApiManagement.selectSubscriptions": "Select Subscription...",
     "azureApiManagement.explainPolicy": "Explain APIM Policies",
