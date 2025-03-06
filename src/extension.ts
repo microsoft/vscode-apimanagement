@@ -23,8 +23,6 @@ import { createService } from './commands/createService';
 import { debugPolicy } from './commands/debugPolicies/debugPolicy';
 import { deleteNode } from './commands/deleteNode';
 import { copyDockerRunCommand, generateKubernetesDeployment } from './commands/deployGateway';
-import { extractAPI, extractService } from './commands/extract';
-import { generateFunctions } from './commands/generateFunctions';
 import { generateNewGatewayToken } from './commands/generateNewGatewayToken';
 import { importFunctionApp } from './commands/importFunctionApp/importFunctionApp';
 import { importFunctionAppToApi } from './commands/importFunctionApp/importFunctionApp';
@@ -166,8 +164,6 @@ function registerCommands(tree: AzExtTreeDataProvider): void {
     registerCommand('azureApiManagement.addApiToProduct', async (context: IActionContext, node?: ProductApisTreeItem) => { await addApiToProduct(context, node); });
     registerCommand('azureApiManagement.removeApiFromGateway', async (context: IActionContext, node?: AzExtTreeItem) => await deleteNode(context, GatewayApiTreeItem.contextValue, node));
     registerCommand('azureApiManagement.addApiToGateway', async (context: IActionContext, node?: GatewayApisTreeItem) => { await addApiToGateway(context, node); });
-    registerCommand('azureApiManagement.extractService', async (context: IActionContext, node: ServiceTreeItem) => await extractService(context, node));
-    registerCommand('azureApiManagement.extractApi', async (context: IActionContext, node: ApiTreeItem) => await extractAPI(context, node));
     registerCommand('azureApiManagement.importFunctionApp', async (context: IActionContext, node: ApisTreeItem) => await importFunctionApp(context, node));
     registerCommand('azureApiManagement.importFunctionAppToApi', async (context: IActionContext, node: ApiTreeItem) => await importFunctionAppToApi(context, node));
     registerCommand('azureApiManagement.importWebApp', async (context: IActionContext, node: ApisTreeItem) => await importWebApp(context, node));
@@ -182,7 +178,6 @@ function registerCommands(tree: AzExtTreeDataProvider): void {
     registerCommand('azureApiManagement.openExtensionWorkspaceFolder', openWorkingFolder);
     registerCommand('azureApiManagement.openDiffEditor', async (context: IActionContext, uri: vscode.Uri) => await openDiffEditor(context, uri));
 
-    registerCommand('azureApiManagement.generateFunctions', generateFunctions);
     registerCommand('azureApiManagement.revisions', revisions);
     registerCommand('azureApiManagement.setCustomHostName', setCustomHostName);
     registerCommand('azureApiManagement.createSubscription', createSubscription);
