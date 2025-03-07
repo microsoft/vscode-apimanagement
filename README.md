@@ -20,7 +20,6 @@ All you need is an Azure Subscription to get started. If you don't have one, [cl
 -   Create, delete, and edit Named Values
 -   Test an API using [REST Client](https://marketplace.visualstudio.com/items?itemName=humao.rest-client)
 -   Command Palette support for most features
--   Extract API and service configurations into ARM templates
 -   Import Azure Functions - Transform HttpTriggers into APIs
 -   Import App Service WebApp
 -   Manage Self-Hosted Gateways
@@ -64,10 +63,6 @@ Please note: only JSON format is supported currently.
 ## Create and edit a Named Value
 
 ![Named-Values](resources/namedvalues.gif)
-
-## Extract Service or API
-
-![Extract](resources/extract.gif)
 
 ## Import Function App
 ![importFuncApp](resources/importFunc.gif)

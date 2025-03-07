@@ -58,8 +58,6 @@
         "onCommand:azureApiManagement.removeApiFromGateway",
         "onCommand:azureApiManagement.showProductPolicy",
         "onCommand:azureApiManagement.openWorkingFolder",
-        "onCommand:azureApiManagement.extractService",
-        "onCommand:azureApiManagement.extractApi",
         "onCommand:azureApiManagement.importFunctionApp",
         "onCommand:azureApiManagement.importFunctionAppToApi",
         "onCommand:azureApiManagement.importWebApp",
@@ -312,16 +310,6 @@
                 "category": "Azure API Management"
             },
             {
-                "command": "azureApiManagement.extractService",
-                "title": "%azureApiManagement.extractService%",
-                "category": "Azure API Management"
-            },
-            {
-                "command": "azureApiManagement.extractApi",
-                "title": "%azureApiManagement.extractApi%",
-                "category": "Azure API Management"
-            },
-            {
                 "command": "azureApiManagement.importFunctionApp",
                 "title": "%azureApiManagement.importFunctionApp%",
                 "category": "Azure API Management"
@@ -543,11 +531,6 @@
                     "group": "1@3"
                 },
                 {
-                    "command": "azureApiManagement.extractService",
-                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementService",
-                    "group": "2@1"
-                },
-                {
                     "command": "azureApiManagement.Refresh",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementService",
                     "group": "3@1"
@@ -606,11 +589,6 @@
                     "command": "azureApiManagement.importWebAppToApi",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApi",
                     "group": "2@2"
-                },
-                {
-                    "command": "azureApiManagement.extractApi",
-                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApi",
-                    "group": "4@1"
                 },
                 {
                     "command": "azureApiManagement.revisions",
