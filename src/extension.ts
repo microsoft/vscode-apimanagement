@@ -81,6 +81,8 @@ import { AzureAccount } from "./azure/azureLogin/azureAccount";
 import { openUrlFromTreeNode } from './commands/openUrl';
 import { explainPolicy } from './commands/explainPolicy';
 import { draftPolicy } from './commands/draftPolicy';
+import { showReleaseNotes } from './utils/extensionUtil';
+
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 // tslint:disable-next-line:typedef
@@ -91,6 +93,9 @@ export async function activateInternal(context: vscode.ExtensionContext) {
     ext.outputChannel = createAzExtOutputChannel("Azure API Management", ext.prefix);
     context.subscriptions.push(ext.outputChannel);
     vscode.commands.executeCommand('setContext', 'isEditorEnabled', false);
+
+    // Show release notes if version has changed
+    await showReleaseNotes(context);
 
     // Add XML schema association for policy files unless explicitly disabled by environment variable
     await associateXmlSchema(context);
