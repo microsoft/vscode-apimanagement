@@ -7,8 +7,7 @@
    - Skip explaining sections that are empty or only contain base policies with no customizations
 4. For any C# code blocks, summarize what functionality they implement rather than explaining line-by-line
 
-Use the MS Learn plugin if possible to get latest information for each policies during the explanation.
-
+Use the MS Learn plugin if possible to get latest information for each policy during the explanation.
 Please format your response with clear headings and bullet points for readability.
 
 ```
