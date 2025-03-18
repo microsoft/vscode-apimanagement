@@ -7,7 +7,7 @@ All notable changes to the "Azure Api Management VS Code" extension will be docu
 ### New features
 - Explain APIM policy using GitHub Copilot
 - Draft APIM policy using GitHub Copilot
-- Associate XML schema to opened APIM policy file for Intellisense and problem detection
+- Associate XML schema to opened APIM policy file for IntelliSense and problem detection
 - Allow tracing automatically before policy debugging
 
 ### Updates
