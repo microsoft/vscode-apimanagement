@@ -2,6 +2,21 @@
 
 All notable changes to the "Azure Api Management VS Code" extension will be documented in this file.
 
+## 1.1.0
+
+### New features
+- Explain APIM policy using GitHub Copilot
+- Draft APIM policy using GitHub Copilot
+- Associate XML schema to opened APIM policy file for Intellisense and problem detection
+- Allow tracing automatically before policy debugging
+
+### Updates
+- Renamed `Authorizations` to `Credential Managers`
+
+### Removals
+- Removed the `Extract Service` and `Extract API` functionality, as it depends on DevOps Resource Kit which is already deprecated
+- Removed the `Initialize workspace folder` command as it's no longer needed after we introduced new XML schema for policy files
+
 ## 1.0.10
 
 ### Updates
