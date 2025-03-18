@@ -3,41 +3,33 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-//import * as assert from 'assert';
-//import { ApiManagementClient, ApiManagementModels } from 'azure-arm-apimanagement';
-//import { ApiManagementClient } from 'azure-arm-apimanagement';
 import { ResourceManagementClient } from '@azure/arm-resources';
-import { Context, Suite } from 'mocha';
-import * as vscode from 'vscode';
-import { ISubscriptionContext, TestAzureAccount} from '@microsoft/vscode-azext-dev';
+import { TestAzureAccount } from '@microsoft/vscode-azext-dev';
 import { AzExtParentTreeItem } from '@microsoft/vscode-azext-utils';
-//import { ApiManagementProvider, AzureTreeDataProvider, ext, getRandomHexString, TestAzureAccount, TestUserInput, treeUtils } from '../extension.bundle';
 import { ext, treeUtils } from '../extension.bundle';
-import { longRunningTestsEnabled } from './global.test';
 import { HttpHeaders } from '@azure/ms-rest-js';
-//import { runWithApimSetting } from './runWithSetting';
+import * as vscode from 'vscode';
 
-// tslint:disable-next-line:max-func-body-length
-suite('Create Azure Resources', async function (this: Suite): Promise<void> {
+let longRunningTestsEnabled = !/^(false|0)?$/i.test(process.env.ENABLE_LONG_RUNNING_TESTS || '');
+
+describe('Create Azure Resources', function() {
     this.timeout(1200 * 1000);
     const resourceGroupsToDelete: string[] = [];
-    const testAccount: TestAzureAccount = new TestAzureAccount(vscode);
-    //let apiManagementClient: ApiManagementClient;
-    //const resourceName1: string = `vscode-${getRandomHexString().toLowerCase()}`;
+    let testAccount: TestAzureAccount;
 
-    suiteSetup(async function (this: Context): Promise<void> {
+    before(async function() {
         if (!longRunningTestsEnabled) {
             this.skip();
         }
 
         this.timeout(120 * 1000);
+        testAccount = new TestAzureAccount(vscode);
         await testAccount.signIn();
         const rootNode : AzExtParentTreeItem = await treeUtils.getRootNode(ext.tree);
         rootNode.subscription.userId = "vscodeapimtest@microsoft.com"; // userId doesnt exist for service principal.
-        //apiManagementClient = getApiManagementClient(testAccount);
     });
 
-    suiteTeardown(async function (this: Context): Promise<void> {
+    after(async function() {
         if (!longRunningTestsEnabled) {
             this.skip();
         }
@@ -56,25 +48,10 @@ suite('Create Azure Resources', async function (this: Suite): Promise<void> {
         }
         ext.azureAccountTreeItem.dispose();
     });
-
-    /*
-    test('createApiManagementService (Default)', async () => {
-        resourceGroupsToDelete.push(resourceName1);
-        await runWithApimSetting('advancedCreation', undefined, async () => {
-            ext.ui = new TestUserInput([resourceName1]);
-            await vscode.commands.executeCommand('azureApiManagement.createService');
-            const createdService: ApiManagementModels.ApiManagementServiceResource = await apiManagementClient.apiManagementService.get(resourceName1, resourceName1);
-            assert.ok(createdService);
-        });
-    });*/
 });
 
-// function getApiManagementClient(testAccount: TestAzureAccount): ApiManagementClient {
-//     return new ApiManagementClient(testAccount.getSubscriptionCredentials(), testAccount.getSubscriptionId());
-// }
-
 async function getResourceManagementClient(testAccount: TestAzureAccount): Promise<ResourceManagementClient> {
-    const subscriptionContext: ISubscriptionContext = testAccount.getSubscriptionContext();
+    const subscriptionContext = testAccount.getSubscriptionContext();
     const creds = getCredentialForToken(await subscriptionContext.credentials.getToken());
     return new ResourceManagementClient(creds, subscriptionContext.subscriptionId);
 }
