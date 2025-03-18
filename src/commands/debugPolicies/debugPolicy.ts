@@ -11,11 +11,17 @@ import { IOperationTreeRoot } from '../../explorer/IOperationTreeRoot';
 import { ext } from "../../extensionVariables";
 import { localize } from '../../localize';
 import { nameUtil } from '../../utils/nameUtil';
+import { IServiceTreeRoot } from '../../explorer/IServiceTreeRoot';
 
 export async function debugPolicy(context: IActionContext, node?: ApiOperationTreeItem): Promise<void> {
     if (!node) {
         // tslint:disable-next-line: no-unsafe-any
         node = <ApiOperationTreeItem>await ext.tree.showTreeItemPicker(ApiOperationTreeItem.contextValue, context);
+    }
+
+    if (!await isDebuggingSupported(node.root)) {
+        vscode.window.showInformationMessage(localize("onlyDevDebugging", "Debugging is only supported on Developer SKU of API Management services."));
+        return;
     }
 
     const operationData = await node.getOperationDebugInfo();
@@ -54,6 +60,11 @@ export async function debugPolicy(context: IActionContext, node?: ApiOperationTr
             });
         },                                      vscode.debug.activeDebugSession);
     }
+}
+
+async function isDebuggingSupported(service: IServiceTreeRoot): Promise<boolean> {
+    const svc = await service.client.apiManagementService.get(service.resourceGroupName, service.serviceName/*, { customHeaders: { Authorization: credentials.tokenCache._entries[0].accessToken } }*/);
+    return svc.sku.name === "Developer";
 }
 
 function getManagementUrl(root: IOperationTreeRoot): string {
