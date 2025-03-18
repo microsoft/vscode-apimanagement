@@ -6,11 +6,10 @@
 import * as assert from 'assert';
 import * as fs from 'fs';
 import * as path from 'path';
-import { suite, test, beforeEach, afterEach } from 'mocha';
 import { ext } from '../src/extensionVariables';
 import { loadPromptTemplate } from '../src/utils/promptUtils';
 
-suite('Prompt Utils', () => {
+describe('Prompt Utils', () => {
     const promptsDir = path.join(__dirname, 'resources', 'prompts');
     const resourcesDir = path.join(__dirname, 'resources');
 
@@ -42,7 +41,7 @@ suite('Prompt Utils', () => {
         }
     });
 
-    test('loadPromptTemplate replaces placeholders correctly', () => {
+    it('should replace placeholders correctly in template', () => {
         const promptContent = 'Hello ${name}, your age is ${age}';
         fs.writeFileSync(path.join(promptsDir, 'test.md'), promptContent);
 
@@ -54,7 +53,7 @@ suite('Prompt Utils', () => {
         assert.strictEqual(result, 'Hello John, your age is 30');
     });
 
-    test('loadPromptTemplate handles non-existent placeholders', () => {
+    it('should leave non-existent placeholders unchanged', () => {
         const promptContent = 'Hello ${name}, ${nonexistent}';
         fs.writeFileSync(path.join(promptsDir, 'test.md'), promptContent);
 
@@ -65,7 +64,7 @@ suite('Prompt Utils', () => {
         assert.strictEqual(result, 'Hello John, ${nonexistent}');
     });
 
-    test('loadPromptTemplate handles multiple occurrences of same placeholder', () => {
+    it('should replace multiple occurrences of same placeholder', () => {
         const promptContent = '${name} ${name} ${name}';
         fs.writeFileSync(path.join(promptsDir, 'test.md'), promptContent);
 
@@ -76,7 +75,7 @@ suite('Prompt Utils', () => {
         assert.strictEqual(result, 'John John John');
     });
 
-    test('loadPromptTemplate throws error for non-existent template', () => {
+    it('should throw error for non-existent template file', () => {
         const nonExistentFile = 'nonexistent.md';
         const expectedPath = path.join(__dirname, 'resources', 'prompts', nonExistentFile);
         

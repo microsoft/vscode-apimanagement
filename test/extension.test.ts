@@ -6,14 +6,14 @@
 import * as assert from 'assert';
 import * as vscode from 'vscode';
 import * as sinon from 'sinon';
-import mockEnv from 'mock-env';
+import mockedEnv from 'mocked-env';
 import { associateXmlSchema } from '../src/extension';
 
-describe('XML Schema Association Tests', () => {
+describe('XML Schema Association', () => {
     let xmlExtension: vscode.Extension<any>;
     let sandbox: sinon.SinonSandbox;
     let addXMLFileAssociationsStub: sinon.SinonStub;
-    let mockProcess: mockEnv.MockProcessEnv;
+    let restore: () => void;
 
     before(() => {
         sandbox = sinon.createSandbox();
@@ -50,46 +50,48 @@ describe('XML Schema Association Tests', () => {
         (xmlExtension.activate as sinon.SinonStub).reset();
     });
 
-    it('should associate schema by default when environment variable is not set', async () => {
-        mockProcess = mockEnv({});
-        await associateXmlSchema(mockExtensionContext());
-        
-        assert.strictEqual((xmlExtension.activate as sinon.SinonStub).called, true);
-        sinon.assert.calledOnce(addXMLFileAssociationsStub);
-        sinon.assert.calledWith(addXMLFileAssociationsStub, [{
-            pattern: '**/*.policy.xml',
-            systemId: 'resources/policySchemas/policies.xsd'
-        }]);
-        mockProcess.restore();
+    afterEach(() => {
+        restore();
     });
 
-    it('should not associate schema when environment variable is set to false', async () => {
-        mockProcess = mockEnv({ APIM_AUTO_ASSOCIATE_SCHEMA: 'false' });
-        await associateXmlSchema(mockExtensionContext());
-        
-        sinon.assert.notCalled(addXMLFileAssociationsStub);
-        mockProcess.restore();
-    });
+    describe('Schema association behavior', () => {
+        it('should associate schema by default when environment variable is not set', async () => {
+            restore = mockedEnv({});
+            await associateXmlSchema(mockExtensionContext());
+            
+            assert.strictEqual((xmlExtension.activate as sinon.SinonStub).called, true);
+            sinon.assert.calledOnce(addXMLFileAssociationsStub);
+            sinon.assert.calledWith(addXMLFileAssociationsStub, [{
+                pattern: '**/*.policy.xml',
+                systemId: 'resources/policySchemas/policies.xsd'
+            }]);
+        });
 
-    it('should associate schema when environment variable is set to true', async () => {
-        mockProcess = mockEnv({ APIM_AUTO_ASSOCIATE_SCHEMA: 'true' });
-        await associateXmlSchema(mockExtensionContext());
-        
-        assert.strictEqual((xmlExtension.activate as sinon.SinonStub).called, true);
-        sinon.assert.calledOnce(addXMLFileAssociationsStub);
-        sinon.assert.calledWith(addXMLFileAssociationsStub, [{
-            pattern: '**/*.policy.xml',
-            systemId: 'resources/policySchemas/policies.xsd'
-        }]);
-        mockProcess.restore();
-    });
+        it('should not associate schema when environment variable is set to false', async () => {
+            restore = mockedEnv({ APIM_AUTO_ASSOCIATE_SCHEMA: 'false' });
+            await associateXmlSchema(mockExtensionContext());
+            
+            sinon.assert.notCalled(addXMLFileAssociationsStub);
+        });
 
-    it('should be case insensitive when checking environment variable value', async () => {
-        mockProcess = mockEnv({ APIM_AUTO_ASSOCIATE_SCHEMA: 'FALSE' });
-        await associateXmlSchema(mockExtensionContext());
-        
-        sinon.assert.notCalled(addXMLFileAssociationsStub);
-        mockProcess.restore();
+        it('should associate schema when environment variable is set to true', async () => {
+            restore = mockedEnv({ APIM_AUTO_ASSOCIATE_SCHEMA: 'true' });
+            await associateXmlSchema(mockExtensionContext());
+            
+            assert.strictEqual((xmlExtension.activate as sinon.SinonStub).called, true);
+            sinon.assert.calledOnce(addXMLFileAssociationsStub);
+            sinon.assert.calledWith(addXMLFileAssociationsStub, [{
+                pattern: '**/*.policy.xml',
+                systemId: 'resources/policySchemas/policies.xsd'
+            }]);
+        });
+
+        it('should be case insensitive when checking environment variable value', async () => {
+            restore = mockedEnv({ APIM_AUTO_ASSOCIATE_SCHEMA: 'FALSE' });
+            await associateXmlSchema(mockExtensionContext());
+            
+            sinon.assert.notCalled(addXMLFileAssociationsStub);
+        });
     });
 });
 
