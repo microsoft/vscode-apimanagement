@@ -25,8 +25,8 @@ export class AuthorizationProvidersTreeItem extends AzExtParentTreeItem {
         return treeUtils.getThemedIconPath('list');
     }
     public static contextValue: string = 'azureApiManagementAuthorizationProviders';
-    public readonly childTypeLabel: string = localize('azureApiManagement.AuthorizationProvider', 'AuthorizationProvider');
-    public label: string = "Authorizations (preview)";
+    public readonly childTypeLabel: string = localize('azureApiManagement.AuthorizationProvider', 'Credential Manager');
+    public label: string = "Credential Managers (preview)";
     public contextValue: string = AuthorizationProvidersTreeItem.contextValue;
     private _nextLink: string | undefined;
     private apimService: ApimService;
@@ -71,7 +71,7 @@ export class AuthorizationProvidersTreeItem extends AzExtParentTreeItem {
             return window.withProgress(
                 {
                     location: ProgressLocation.Notification,
-                    title: localize("creatingAuthorizationProvider", `Creating Authorization provider '${context.name}' in service ${this.root.serviceName} ...`),
+                    title: localize("creatingAuthorizationProvider", `Creating Credential Manager '${context.name}' in service ${this.root.serviceName} ...`),
                     cancellable: false
                 },
                 // tslint:disable-next-line:no-non-null-assertion
@@ -86,13 +86,13 @@ export class AuthorizationProvidersTreeItem extends AzExtParentTreeItem {
                             ext.outputChannel.show();
                             ext.outputChannel.appendLine(message);
                             window.showWarningMessage(localize("redirectUrlMessage", message));
-                            window.showInformationMessage(localize("createdAuthorizationProvider", `Created Authorization provider '${context.name}'.`));
+                            window.showInformationMessage(localize("createdAuthorizationProvider", `Created Credential Manager '${context.name}'.`));
                             return new AuthorizationProviderTreeItem(this, authorizationProvider, this.root);
                         } else {
-                            throw new Error(localize("createAuthorizationProvider", `Authorization provider '${authorizationProviderName}' already exists.`));
+                            throw new Error(localize("createAuthorizationProvider", `Credential Manager '${authorizationProviderName}' already exists.`));
                         }
                     } catch (error) {
-                        throw new Error(processError(error, localize("createAuthorizationProvider", `Failed to create Authorization provider '${authorizationProviderName}'.`)));
+                        throw new Error(processError(error, localize("createAuthorizationProvider", `Failed to create Credential Manager '${authorizationProviderName}'.`)));
                     }
                 }
             );
@@ -136,8 +136,8 @@ export class AuthorizationProvidersTreeItem extends AzExtParentTreeItem {
         if (selectedIdentityProvider
             && selectedIdentityProvider.properties.oauth2.grantTypes !== null) {
             const authorizationProviderName = await askId(context,
-                'Enter Authorization provider name ...',
-                'Invalid Authorization provider name.');
+                'Enter Credential Manager name ...',
+                'Invalid Credential Manager name.');
 
             const grantTypes = Object.keys(selectedIdentityProvider.properties.oauth2.grantTypes);
             if (grantTypes.length > 1) {

@@ -11,7 +11,6 @@ import { ext } from "../../../extensionVariables";
 import { localize } from "../../../localize";
 import { errorUtil, processError } from "../../../utils/errorUtil";
 import { nameUtil } from "../../../utils/nameUtil";
-import { promptOpenWorkingFolder } from "../../../utils/vscodeUtils";
 import { IServiceTreeRoot } from "../../IServiceTreeRoot";
 import { Editor } from "../Editor";
 import { ITreeItemWithRoot } from "../../ITreeItemWithRoot";
@@ -47,11 +46,11 @@ export abstract class BasePolicyEditor<TRoot extends IServiceTreeRoot> extends E
     }
 
     public async getDiffFilename(context: ITreeItemWithRoot<TRoot>): Promise<string> {
-        return `${nameUtil(context.root)}.policy.cshtml`;
+        return `${nameUtil(context.root)}.policy.xml`;
     }
 
     public async getFilename(context: ITreeItemWithRoot<TRoot>): Promise<string> {
-        return `${nameUtil(context.root)}-tempFile.policy.cshtml`;
+        return `${nameUtil(context.root)}-tempFile.policy.xml`;
     }
 
     public async updateData(context: ITreeItemWithRoot<TRoot>, data: string): Promise<string> {
@@ -67,12 +66,12 @@ export abstract class BasePolicyEditor<TRoot extends IServiceTreeRoot> extends E
     public async getSize(): Promise<number> {
         throw new Error(localize("", "Method not implemented."));
     }
+
     public async getSaveConfirmationText(): Promise<string> {
         return localize("saveConfirmation", "Do you want to upload changes to cloud?");
     }
 
     public async showEditor(context: IActionContext, treeItem: ITreeItemWithRoot<TRoot>, sizeLimit?: number /* in Megabytes */): Promise<void> {
         await super.showEditor(context, treeItem, sizeLimit);
-        await promptOpenWorkingFolder(context);
     }
 }

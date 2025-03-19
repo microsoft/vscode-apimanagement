@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="return-response" type="ReturnResponsePolicyConfiguration" />
+    <xs:complexType name="ReturnResponsePolicyConfiguration">
+        <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="1" name="set-status" />
+            <xs:element minOccurs="0" maxOccurs="unbounded" name="set-header" />
+            <xs:element minOccurs="0" maxOccurs="1" name="set-body" />
+        </xs:sequence>
+        <xs:attribute name="id" use="optional" type="xs:string" />
+        <xs:attribute name="response-variable-name" use="optional" type="xs:string" />
+    </xs:complexType>
+</xs:schema>

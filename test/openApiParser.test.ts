@@ -4,28 +4,32 @@
  *--------------------------------------------------------------------------------------------*/
 
 import * as assert from 'assert';
-import { IOpenApiImportObject, OpenApiParser } from '../extension.bundle';
+import { IOpenApiImportObject, OpenApiParser, ext } from '../extension.bundle';
+import { TestOutputChannel } from '@microsoft/vscode-azext-dev';
 import { assertThrowsAsync } from './assertThrowsAsync';
 import {openApi2_0, openApi3_0} from './testData';
 
 // tslint:disable: no-unsafe-any
-suite("Open API Parser", () => {
-  test("Parse OpenAPI Json 2.0", async () => {
+describe('OpenAPI Parser', () => {
+  before(() => {
+    ext.outputChannel = new TestOutputChannel();
+  });
+
+  it('should parse OpenAPI Json 2.0 format correctly', async () => {
     const parsedOpenAPI: IOpenApiImportObject = await new OpenApiParser().parse(openApi2_0);
     assert.deepEqual(parsedOpenAPI.sourceDocument, openApi2_0);
     assert.equal(parsedOpenAPI.importFormat, "swagger-json");
     assert.equal(parsedOpenAPI.version, "2.0");
   });
 
-  test("Parse OpenAPI Json > 3.0", async () => {
+  it('should parse OpenAPI Json > 3.0 format correctly', async () => {
     const parsedOpenAPI: IOpenApiImportObject = await new OpenApiParser().parse(openApi3_0);
     assert.deepEqual(parsedOpenAPI.sourceDocument, openApi3_0);
     assert.equal(parsedOpenAPI.importFormat, "openapi+json");
     assert.equal(parsedOpenAPI.version, "3.0.0");
   });
 
-  test("Invalid OpenAPI input", async () => {
-    // tslint:disable-next-line:no-any
+  it('should throw error for invalid OpenAPI input', async () => {
     const invalidSwagger : any = {};
     await assertThrowsAsync(async () => new OpenApiParser().parse(invalidSwagger), /Could not parse the OpenAPI document./);
   });

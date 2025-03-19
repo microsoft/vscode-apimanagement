@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:element name="validate-odata-request" type="ValidateODataRequestPolicy" />
+	<xs:complexType name="ValidateODataRequestPolicy">
+        <xs:attribute name="id" type="xs:string" use="optional" />
+		<xs:attribute name = "error-variable-name" type ="xs:string" use ="optional" />
+		<xs:attribute name = "default-odata-version" type ="xs:string" use ="optional" />
+		<xs:attribute name = "min-odata-version" type ="xs:string" use ="optional" />
+		<xs:attribute name = "max-odata-version" type ="xs:string" use ="optional" />
+		<xs:attribute name = "max-size" type ="xs:string" use ="optional" />
+	</xs:complexType>
+</xs:schema>

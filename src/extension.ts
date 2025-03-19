@@ -23,8 +23,6 @@ import { createService } from './commands/createService';
 import { debugPolicy } from './commands/debugPolicies/debugPolicy';
 import { deleteNode } from './commands/deleteNode';
 import { copyDockerRunCommand, generateKubernetesDeployment } from './commands/deployGateway';
-import { extractAPI, extractService } from './commands/extract';
-import { generateFunctions } from './commands/generateFunctions';
 import { generateNewGatewayToken } from './commands/generateNewGatewayToken';
 import { importFunctionApp } from './commands/importFunctionApp/importFunctionApp';
 import { importFunctionAppToApi } from './commands/importFunctionApp/importFunctionApp';
@@ -37,9 +35,8 @@ import { openInPortal } from './commands/openInPortal';
 import { openWorkingFolder } from './commands/openWorkingFolder';
 import { revisions } from './commands/revisions';
 import { setCustomHostName } from './commands/setCustomHostName';
-import { setupWorkingFolder } from './commands/setupWorkingFolder';
 import { testOperation } from './commands/testOperation';
-import { doubleClickDebounceDelay } from './constants';
+import { doubleClickDebounceDelay, environmentVariables } from './constants';
 import { activate } from './debugger/extension';
 import { ApiOperationTreeItem } from './explorer/ApiOperationTreeItem';
 import { ApiPolicyTreeItem } from './explorer/ApiPolicyTreeItem';
@@ -82,6 +79,10 @@ import { registerAzureUtilsExtensionVariables } from '@microsoft/vscode-azext-az
 import { AzureSessionProviderHelper } from "./azure/azureLogin/azureSessionProvider";
 import { AzureAccount } from "./azure/azureLogin/azureAccount";
 import { openUrlFromTreeNode } from './commands/openUrl';
+import { explainPolicy } from './commands/explainPolicy';
+import { draftPolicy } from './commands/draftPolicy';
+import { showReleaseNotes } from './utils/extensionUtil';
+
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 // tslint:disable-next-line:typedef
@@ -92,6 +93,12 @@ export async function activateInternal(context: vscode.ExtensionContext) {
     ext.outputChannel = createAzExtOutputChannel("Azure API Management", ext.prefix);
     context.subscriptions.push(ext.outputChannel);
     vscode.commands.executeCommand('setContext', 'isEditorEnabled', false);
+
+    // Show release notes if version has changed
+    await showReleaseNotes(context);
+
+    // Add XML schema association for policy files unless explicitly disabled by environment variable
+    await associateXmlSchema(context);
 
     registerUIExtensionVariables(ext);
     registerAzureUtilsExtensionVariables(ext);
@@ -119,6 +126,26 @@ export async function activateInternal(context: vscode.ExtensionContext) {
     });
 }
 
+export async function associateXmlSchema(context: vscode.ExtensionContext): Promise<void> {
+    const shouldAssociateSchema = process.env[environmentVariables.autoAssociateSchema]?.toLowerCase() !== 'false';
+    if (shouldAssociateSchema) {
+        const xmlExtension = vscode.extensions.getExtension('redhat.vscode-xml');
+        if (xmlExtension) {
+            if (!xmlExtension.isActive) {
+                await xmlExtension.activate();
+            }
+            // Get the XML API
+            const xmlAPI = xmlExtension.exports;
+            if (xmlAPI && xmlAPI.addXMLFileAssociations) {
+                xmlAPI.addXMLFileAssociations([{
+                    pattern: "**/*.policy.xml",
+                    systemId: context.asAbsolutePath("resources/policySchemas/policies.xsd")
+                }]);
+            }
+        }
+    }
+}
+
 function registerCommands(tree: AzExtTreeDataProvider): void {
     registerCommand('azureApiManagement.signInToAzure', async () => { await AzureAccount.signInToAzure(); });
     registerCommand('azureApiManagement.openUrl', async(context: IActionContext, node?: AzExtTreeItem) => { await openUrlFromTreeNode(context, node); });
@@ -142,8 +169,6 @@ function registerCommands(tree: AzExtTreeDataProvider): void {
     registerCommand('azureApiManagement.addApiToProduct', async (context: IActionContext, node?: ProductApisTreeItem) => { await addApiToProduct(context, node); });
     registerCommand('azureApiManagement.removeApiFromGateway', async (context: IActionContext, node?: AzExtTreeItem) => await deleteNode(context, GatewayApiTreeItem.contextValue, node));
     registerCommand('azureApiManagement.addApiToGateway', async (context: IActionContext, node?: GatewayApisTreeItem) => { await addApiToGateway(context, node); });
-    registerCommand('azureApiManagement.extractService', async (context: IActionContext, node: ServiceTreeItem) => await extractService(context, node));
-    registerCommand('azureApiManagement.extractApi', async (context: IActionContext, node: ApiTreeItem) => await extractAPI(context, node));
     registerCommand('azureApiManagement.importFunctionApp', async (context: IActionContext, node: ApisTreeItem) => await importFunctionApp(context, node));
     registerCommand('azureApiManagement.importFunctionAppToApi', async (context: IActionContext, node: ApiTreeItem) => await importFunctionAppToApi(context, node));
     registerCommand('azureApiManagement.importWebApp', async (context: IActionContext, node: ApisTreeItem) => await importWebApp(context, node));
@@ -156,10 +181,8 @@ function registerCommands(tree: AzExtTreeDataProvider): void {
     registerCommand('azureApiManagement.debugPolicy', debugPolicy);
 
     registerCommand('azureApiManagement.openExtensionWorkspaceFolder', openWorkingFolder);
-    registerCommand('azureApiManagement.initializeExtensionWorkspaceFolder', setupWorkingFolder);
     registerCommand('azureApiManagement.openDiffEditor', async (context: IActionContext, uri: vscode.Uri) => await openDiffEditor(context, uri));
 
-    registerCommand('azureApiManagement.generateFunctions', generateFunctions);
     registerCommand('azureApiManagement.revisions', revisions);
     registerCommand('azureApiManagement.setCustomHostName', setCustomHostName);
     registerCommand('azureApiManagement.createSubscription', createSubscription);
@@ -174,6 +197,9 @@ function registerCommands(tree: AzExtTreeDataProvider): void {
     registerCommand('azureApiManagement.copyAuthorizationPolicy', async (context: IActionContext, node?: AuthorizationTreeItem) => { await copyAuthorizationPolicy(context, node); });
     registerCommand('azureApiManagement.deleteAuthorization', async (context: IActionContext, node?: AzExtTreeItem) => await deleteNode(context, AuthorizationTreeItem.contextValue, node));
     registerCommand('azureApiManagement.deleteAuthorizationAccessPolicy', async (context: IActionContext, node?: AzExtTreeItem) => await deleteNode(context, AuthorizationAccessPolicyTreeItem.contextValue, node));
+
+    registerCommand('azureApiManagement.explainPolicy', async (context: IActionContext) => await explainPolicy(context));
+    registerCommand('azureApiManagement.draftPolicy', async (context: IActionContext) => await draftPolicy(context));
 }
 
 // tslint:disable-next-line: max-func-body-length

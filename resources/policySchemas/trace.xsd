@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="trace" type="TracePolicyConfiguration" />
+  <xs:complexType name="TracePolicyConfiguration" mixed="true">
+    <xs:choice maxOccurs="unbounded">
+      <xs:element name="metadata" minOccurs="0" maxOccurs="unbounded">
+        <xs:complexType>
+          <xs:attribute type="xs:string" name="name" use="required" />
+          <xs:attribute type="xs:string" name="value" use="required" />
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="message" minOccurs="0" maxOccurs="1">
+        <xs:complexType>
+          <xs:simpleContent>
+            <xs:extension base="xs:string">
+            </xs:extension>
+          </xs:simpleContent>
+        </xs:complexType>
+      </xs:element>
+    </xs:choice>
+    <xs:attribute name="id" type="xs:string" use="optional" />
+    <xs:attribute name="source" type="xs:string" use="required"/>
+    <xs:attribute name="severity" use="optional">
+      <xs:simpleType>
+        <xs:union memberTypes="SeverityLevels" />
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:complexType>
+  <xs:simpleType name="SeverityLevels">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="verbose" />
+      <xs:enumeration value="information" />
+      <xs:enumeration value="error" />
+    </xs:restriction>
+  </xs:simpleType>
+</xs:schema>

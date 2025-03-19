@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="cache-store-value" type="CacheStoreValuePolicy" />
+  <xs:complexType name="CacheStoreValuePolicy">
+    <xs:attribute name="id" type="xs:string" use="optional" />
+    <xs:attribute name="duration" use="required">
+      <xs:simpleType>
+        <xs:union memberTypes="xs:int expression" />
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="key" use="required">
+      <xs:simpleType>
+        <xs:union memberTypes="xs:string expression" />
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="value" use="required">
+      <xs:simpleType>
+        <xs:union memberTypes="xs:string expression" />
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="caching-type" default="prefer-external" >
+      <xs:simpleType>
+        <xs:union memberTypes="CachingType" />
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:complexType>
+</xs:schema>

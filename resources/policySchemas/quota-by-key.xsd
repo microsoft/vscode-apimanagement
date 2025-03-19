@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="quota-by-key" type="PeriodicQuotaByKeyPolicyConfiguration" />
+  <xs:complexType name="PeriodicQuotaByKeyPolicyConfiguration">
+    <xs:complexContent mixed="false">
+      <xs:extension base="QuotaByKeyConfiguration">
+        <xs:attribute name="id" type="xs:string" use="optional" />
+        <xs:attribute name="renewal-period" type="xs:string" use="optional" />
+        <xs:attribute name="first-period-start" type="xs:dateTime" />
+        <xs:attribute name="counter-key" type="xs:string" use="required" />
+        <xs:attribute name="increment-condition" type="xs:string" />
+        <xs:attribute name="increment-count" type="xs:string" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="QuotaByKeyConfiguration" abstract="true">
+    <xs:attribute name="calls" type="xs:int" />
+    <xs:attribute name="bandwidth" type="xs:long" />
+  </xs:complexType>
+  </xs:schema>

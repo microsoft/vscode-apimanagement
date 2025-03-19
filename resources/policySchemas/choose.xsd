@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="choose">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="when" minOccurs="1" maxOccurs="unbounded">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip" />
+                        </xs:sequence>
+                        <xs:attribute name="condition" use="required">
+                            <xs:simpleType>
+                                <xs:union memberTypes="xs:boolean expression" />
+                            </xs:simpleType>
+                        </xs:attribute>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="otherwise" minOccurs="0" maxOccurs="1">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip" />
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+            <xs:attribute name="id" type="xs:string" use="optional" />
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

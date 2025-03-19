@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="graphql-data-source" type="GraphQLDataSourceConfiguration" />
+  <xs:complexType name="GraphQLDataSourceConfiguration">
+    <xs:sequence>
+      <xs:element minOccurs="1" maxOccurs="1" name="request" type="GraphQLRequest" />
+      <xs:element minOccurs="0" maxOccurs="1" name="response" type="GraphQLResponse" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name ="GraphQLRequest">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="authentication-basic" />
+      <xs:element minOccurs="0" maxOccurs="1" name="authentication-certificate" />
+      <xs:element minOccurs="0" maxOccurs="1" name="authentication-managed-identity" />
+      <xs:element minOccurs="0" maxOccurs="1" name="get-authorization-context" />
+      <xs:element minOccurs="0" maxOccurs="1" name="set-backend-service" />
+      <xs:element minOccurs="0" maxOccurs="1" name="set-url" />
+      <xs:element minOccurs="0" maxOccurs="1" name="set-header" />
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="include-fragment" />
+      <xs:element minOccurs="1" maxOccurs="1" name="document" type="GraphQLDocument" />
+      <xs:element minOccurs="0" maxOccurs="1" name="operationName" type="GraphQLOperation" />
+      <xs:element minOccurs="0" maxOccurs="1" name="variables" type="GraphQLVariables" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name ="GraphQLResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="set-body" />
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="include-fragment" />
+      <xs:element minOccurs="0" maxOccurs="1" name="publish-event" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name ="GraphQLDocument">
+    <xs:simpleContent>
+      <xs:extension base="xs:string"/>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name ="GraphQLOperation">
+    <xs:simpleContent>
+      <xs:extension base="xs:string"/>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name ="GraphQLVariables">
+    <xs:sequence>
+      <xs:element minOccurs="1" maxOccurs="unbounded" name="variable" type="GraphQLVariable"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name ="GraphQLVariable">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="name" use="required" type="xs:string"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+</xs:schema>

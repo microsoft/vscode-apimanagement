@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <!-- Common expression type used across many policies -->
+    <xs:simpleType name="expression">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="@[\(\{][\s\S]+"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- Common caching type used in caching policies -->
+    <xs:simpleType name="CachingType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="prefer-external"/>
+            <xs:enumeration value="internal"/>
+            <xs:enumeration value="external"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- Common validation mode used in validation policies -->
+    <xs:simpleType name="ValidationMode">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="ignore" />
+            <xs:enumeration value="prevent" />
+            <xs:enumeration value="detect" />
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- Common claim match type used in token validation policies -->
+    <xs:simpleType name="ClaimMatch">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="all"/>
+            <xs:enumeration value="any"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- Common request creation mode used in request sending policies -->
+    <xs:simpleType name="RequestCreationMode">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="new" />
+            <xs:enumeration value="copy" />
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- Common dimension type used in metric policies -->
+    <xs:complexType name="Dimension">
+        <xs:attribute name="name" type="xs:string" use="required" />
+        <xs:attribute name="value" use="optional">
+            <xs:simpleType>
+                <xs:union memberTypes="xs:string expression" />
+            </xs:simpleType>
+        </xs:attribute>
+    </xs:complexType>
+
+    <!-- Common exists action type used in header and query parameter policies -->
+    <xs:simpleType name="ExistsAction">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="override" />
+            <xs:enumeration value="append" />
+            <xs:enumeration value="skip" />
+            <xs:enumeration value="delete" />
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- Common claim type used in token validation policies -->
+    <xs:complexType name="Claim">
+        <xs:sequence>
+            <xs:element type="xs:string" name="value" maxOccurs="unbounded" minOccurs="0"/>
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:string"/>
+        <xs:attribute name="match" default="all">
+            <xs:simpleType>
+                <xs:union memberTypes="ClaimMatch expression"/>
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="separator" type="xs:string"/>
+    </xs:complexType>
+</xs:schema>
