@@ -2,6 +2,29 @@
 
 All notable changes to the "Azure Api Management VS Code" extension will be documented in this file.
 
+## 1.1.0
+
+### New features
+
+- **Explain APIM Policy Using GitHub Copilot**: This feature leverages the power of AI to provide clear and concise explanations of your policies, making it easier to understand and manage them.
+![ExplainAPIMPolicies](https://github.com/user-attachments/assets/32e4ab6c-002d-4e68-97fd-3ac6d4b35dfc)
+
+- **Draft APIM Policy Using GitHub Copilot**: This feature helps you create policies quickly and accurately, saving you time and effort.
+![DraftAPIMPolicies](https://github.com/user-attachments/assets/92faa63f-43b2-4926-9c97-aa5139b59847)
+
+- **Enhancing IntelliSense and Problem Detection in APIM Policy Files**: We've added the capability to associate an XML schema with any opened APIM policy files (ending with `.policy.xml`). This enhancement provides IntelliSense and problem detection, ensuring your policies are correctly formatted and error-free.
+![PolicyIntelliSense](https://github.com/user-attachments/assets/5d437894-4ea5-4bf2-961d-32019f73b796)
+
+- **Automatic Tracing Before Policy Debugging**: To streamline the debugging process, we enabled automatic tracing before policy debugging. This setup now allows you to trace and diagnose issues more efficiently, improving the overall workflow.
+![AutoEnableTracing](https://github.com/user-attachments/assets/2520b6b0-ed75-4d51-a88d-c5443baa3e4f)
+
+### Updates
+- Renamed `Authorizations` to `Credential Managers`
+
+### Removals
+- Removed the `Extract Service` and `Extract API` functionality, as it depends on DevOps Resource Kit which is deprecated
+- Removed the `Initialize workspace folder` command as it's no longer needed after we introduced new XML schema for policy files
+
 ## 1.0.10
 
 ### Updates
