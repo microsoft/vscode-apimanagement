@@ -33,6 +33,7 @@
         "onView:azureApiManagementExplorer",
         "onLanguage:policy",
         "onLanguage:apim-policy",
+        "onLanguage:xml",
         "onCommand:azureApiManagement.createService",
         "onCommand:azureApiManagement.deleteService",
         "onCommand:azureApiManagement.copySubscriptionKey",
