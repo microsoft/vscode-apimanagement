@@ -26,7 +26,7 @@ export class AuthorizationProvidersTreeItem extends AzExtParentTreeItem {
     }
     public static contextValue: string = 'azureApiManagementAuthorizationProviders';
     public readonly childTypeLabel: string = localize('azureApiManagement.AuthorizationProvider', 'Credential Manager');
-    public label: string = "Credential Managers (preview)";
+    public label: string = "Credential Managers";
     public contextValue: string = AuthorizationProvidersTreeItem.contextValue;
     private _nextLink: string | undefined;
     private apimService: ApimService;
