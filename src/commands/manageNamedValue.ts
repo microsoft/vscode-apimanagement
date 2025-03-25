@@ -99,7 +99,7 @@ async function askValue(context: IActionContext, initialValue?: string) : Promis
 function validateId(id: string): string | undefined {
     const test = "^[\w]+$)|(^[\w][\w\-]+[\w]$";
     if (id.match(test) === null) {
-        return localize("idInvalid", 'Invalid API Name.');
+        return localize("idInvalid", 'Invalid Named Value ID.');
     }
 
     return undefined;

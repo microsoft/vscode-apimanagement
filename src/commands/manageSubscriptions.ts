@@ -80,7 +80,7 @@ function validateSubscriptionName(subName: string, subNames: string[]): string |
         return localize("subNameMaxLength", `API name cannot be more than ${Constants.maxApiNameLength} characters long.`);
     }
     if (subName.match(/^[^*#&+:<>?]+$/) === null) {
-        return localize("subNameInvalid", 'Invalid API Name.');
+        return localize("subNameInvalid", 'Invalid Subscription Name.');
     }
     if (subNames.indexOf(subName) !== -1) {
         return localize("subNameInvalid", 'Subscription already exist.');
