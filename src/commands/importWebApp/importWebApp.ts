@@ -219,7 +219,7 @@ async function createApiWithWildCardOperations(context: IActionContext & Partial
     ).then(async () => {
         // tslint:disable-next-line:no-non-null-assertion
         await node!.refresh(context);
-        window.showInformationMessage(localize("importWebApp", `Imported Web App '${webAppName}' to API Management succesfully.`));
+        window.showInformationMessage(localize("importWebApp", `Imported Web App '${webAppName}' to API Management successfully.`));
     });
 }
 
@@ -304,7 +304,7 @@ async function importFromSwagger(context: IActionContext & Partial<IApiTreeItemC
         ).then(async () => {
             // tslint:disable-next-line:no-non-null-assertion
             await node!.refresh(context);
-            window.showInformationMessage(localize("importWebApp", `Imported Web App '${webAppName}' to API Management succesfully.`));
+            window.showInformationMessage(localize("importWebApp", `Imported Web App '${webAppName}' to API Management successfully.`));
         });
     }
 }
