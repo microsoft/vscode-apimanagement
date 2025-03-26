@@ -32,7 +32,7 @@ export async function createNamedValue(context: IActionContext & Partial<INamedV
     ).then(async () => {
         // tslint:disable-next-line:no-non-null-assertion
         await node!.refresh(context);
-        window.showInformationMessage(localize("creatededNamedValue", `Created named value '${context.key}' succesfully.`));
+        window.showInformationMessage(localize("creatededNamedValue", `Created named value '${context.key}' successfully.`));
     });
 }
 
@@ -57,7 +57,7 @@ export async function updateNamedValue(context: IActionContext, node?: NamedValu
     ).then(async () => {
         // tslint:disable-next-line:no-non-null-assertion
         await node!.refresh(context);
-        window.showInformationMessage(localize("updatedNamedValue", `Updated value for '${displayName}' succesfully.`));
+        window.showInformationMessage(localize("updatedNamedValue", `Updated value for '${displayName}' successfully.`));
     });
 }
 
@@ -99,7 +99,7 @@ async function askValue(context: IActionContext, initialValue?: string) : Promis
 function validateId(id: string): string | undefined {
     const test = "^[\w]+$)|(^[\w][\w\-]+[\w]$";
     if (id.match(test) === null) {
-        return localize("idInvalid", 'Invalid API Name.');
+        return localize("idInvalid", 'Invalid Named Value ID.');
     }
 
     return undefined;

@@ -61,7 +61,7 @@ export async function importFunctionAppToApi(context: IActionContext, node?: Api
     ).then(async () => {
         // tslint:disable-next-line:no-non-null-assertion
         await node!.refresh(context);
-        window.showInformationMessage(localize("importFunctionApp", `Imported Function App succesfully.`));
+        window.showInformationMessage(localize("importFunctionApp", `Imported Function App successfully.`));
     });
 }
 
@@ -192,7 +192,7 @@ async function importFromSwagger(funcAppService: FunctionAppService, context: IA
         ).then(async () => {
             // tslint:disable-next-line:no-non-null-assertion
             await node!.refresh(context);
-            window.showInformationMessage(localize("importFuncApp", `Imported Function App '${funcAppName}' to API Management succesfully.`));
+            window.showInformationMessage(localize("importFuncApp", `Imported Function App '${funcAppName}' to API Management successfully.`));
         });
     }
 }
