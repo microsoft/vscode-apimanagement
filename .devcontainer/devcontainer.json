@@ -1,0 +1,21 @@
+{
+	"name": "APIOps VS Code Extension",
+	"image": "mcr.microsoft.com/devcontainers/typescript-node:1-20-bullseye",
+	"features": {
+		"ghcr.io/devcontainers/features/azure-cli:1":{}
+	},
+
+	"postCreateCommand": "npm install -g yo generator-code",
+
+	// Configure tool-specific properties.
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"dbaeumer.vscode-eslint",
+				"amodio.tsl-problem-matcher",
+				"ms-vscode.azure-account",
+				"humao.rest-client"
+			]
+		}
+	}
+}
