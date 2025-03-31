@@ -155,6 +155,7 @@ function registerCommands(tree: AzExtTreeDataProvider): void {
     registerCommand('azureApiManagement.LoadMore', async (context: IActionContext, node: AzExtTreeItem) => await tree.loadMore(node, context)); // need to double check
     registerCommand('azureApiManagement.openInPortal', openInPortal);
     registerCommand('azureApiManagement.createService', createService);
+    registerCommand('azureApiManagement.showWalkthrough', async () => { await vscode.commands.executeCommand('workbench.action.openWalkthrough', 'ms-azuretools.vscode-apimanagement#apim-import-and-test-apis'); });
     registerCommand('azureApiManagement.copySubscriptionKey', copySubscriptionKey);
     registerCommand('azureApiManagement.deleteService', async (context: IActionContext, node?: AzExtParentTreeItem) => await deleteNode(context, ServiceTreeItem.contextValue, node));
     registerCommand('azureApiManagement.deleteApi', async (context: IActionContext, node?: AzExtTreeItem) => await deleteNode(context, ApiTreeItem.contextValue, node));
