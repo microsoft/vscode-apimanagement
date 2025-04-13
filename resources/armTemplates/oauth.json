@@ -1,0 +1,378 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "2.1-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+    "_EXPERIMENTAL_FEATURES_ENABLED": [
+      "Extensibility"
+    ],
+    "_generator": {
+      "name": "bicep",
+      "version": "0.34.44.8038",
+      "templateHash": "15317054048319407304"
+    }
+  },
+  "parameters": {
+    "apimServiceName": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the API Management service"
+      }
+    },
+    "entraAppClientId": {
+      "type": "string",
+      "metadata": {
+        "description": "The client ID of the Entra application"
+      }
+    },
+    "entraAppClientSecret": {
+      "type": "securestring",
+      "metadata": {
+        "description": "The client secret of the Entra application"
+      }
+    },
+    "entraAppTenantId": {
+      "type": "string",
+      "metadata": {
+        "description": "The tenant ID of the Entra application"
+      }
+    },
+    "oauthScopes": {
+      "type": "string",
+      "metadata": {
+        "description": "The required scopes for authorization"
+      }
+    },
+    "encryptionIV": {
+      "type": "securestring",
+      "metadata": {
+        "description": "The initialization vector for encryption"
+      }
+    },
+    "encryptionKey": {
+      "type": "securestring",
+      "metadata": {
+        "description": "The encryption key for securing data"
+      }
+    }
+  },
+  "variables": {
+    "$fxv#0": "<!--\r\n    AUTHORIZE POLICY\r\n    This policy implements the authorization endpoint for PKCE OAuth2 flow with Entra ID.\r\n    \r\n    Flow:\r\n    1. MCP client calls this endpoint with code_challenge and code_challenge_method\r\n    2. We generate a code verifier and challenge for Entra ID\r\n    3. We generate a confirmation code to return to the MCP client later\r\n    4. We redirect the user to Entra ID login page\r\n    5. After authentication, Entra ID will redirect back to the callback endpoint\r\n-->\r\n<policies>\r\n    <inbound>\r\n        <base />\r\n        <!-- STEP 1: Retrieve PKCE parameters from MCP Client request -->\r\n        <set-variable name=\"mcpClientCodeChallenge\" value=\"@((string)context.Request.Url.Query.GetValueOrDefault(\"code_challenge\", \"\"))\" />\r\n        <set-variable name=\"mcpClientCodeChallengeMethod\" value=\"@((string)context.Request.Url.Query.GetValueOrDefault(\"code_challenge_method\", \"\"))\" />\r\n        <!-- STEP 2: Generate PKCE parameters for Entra ID authentication -->\r\n        <!-- Generate a random code verifier for Entra ID -->\r\n        <set-variable name=\"codeVerifier\" value=\"@((string)Guid.NewGuid().ToString().Replace(\"-\", \"\"))\" />\r\n        <!-- Set the code challenge method for Entra ID -->\r\n        <set-variable name=\"codeChallengeMethod\" value=\"S256\" />\r\n        <!-- Generate a code challenge using SHA-256 for Entra ID -->\r\n        <set-variable name=\"codeChallenge\" value=\"@{\r\n            using (var sha256 = System.Security.Cryptography.SHA256.Create())\r\n            {\r\n                var bytes = System.Text.Encoding.UTF8.GetBytes((string)context.Variables.GetValueOrDefault(\"codeVerifier\", \"\"));\r\n                var hash = sha256.ComputeHash(bytes);\r\n                return System.Convert.ToBase64String(hash).TrimEnd('=').Replace('+', '-').Replace('/', '_');\r\n            }\r\n            }\" />\r\n        <!-- STEP 3: Extract client information and create state parameter -->\r\n        <set-variable name=\"clientId\" value=\"@((string)context.Request.Url.Query.GetValueOrDefault(\"client_id\", \"\"))\" />\r\n        <set-variable name=\"state\" value=\"@((string)Guid.NewGuid().ToString())\" />\r\n        <!-- STEP 4: Construct the Entra ID authorization URL -->\r\n        <!-- Base URL for Entra ID authorization endpoint -->\r\n        <set-variable name=\"baseAuthUrl\" value=\"https://login.microsoftonline.com/{{EntraIDTenantId}}/oauth2/v2.0/authorize?response_type=code\" />\r\n        <!-- Add client ID parameter -->\r\n        <set-variable name=\"clientIdParam\" value=\"@(string.Concat(\"&client_id=\", context.Variables.GetValueOrDefault(\"clientId\", \"\")))\" />        \r\n        <!-- Add PKCE parameters -->\r\n        <set-variable name=\"codeChallengeParam\" value=\"@(string.Concat(\"&code_challenge=\", context.Variables.GetValueOrDefault(\"codeChallenge\", \"\")))\" />\r\n        <set-variable name=\"codeChallengeMethodParam\" value=\"@(string.Concat(\"&code_challenge_method=\", context.Variables.GetValueOrDefault(\"codeChallengeMethod\", \"\")))\" />\r\n        <!-- Add OAuth callback parameter -->\r\n        <set-variable name=\"redirectUriParam\" value=\"@(string.Concat(\"&redirect_uri=\", \"{{OAuthCallbackUri}}\" ))\" />        \r\n        <!-- Add required scope parameter -->\r\n        <set-variable name=\"scopeParam\" value=\"@(string.Concat(\"&scope={{OAuthScopes}}\"))\" />\r\n        <!-- Add state parameter for security -->\r\n        <set-variable name=\"stateParam\" value=\"@(string.Concat(\"&state=\", context.Variables.GetValueOrDefault(\"state\", \"\")))\" />\r\n          <!-- Combine all parts to form the complete authorization URL with PKCE params -->\r\n        <set-variable name=\"authUrl\" value=\"@(string.Concat(\r\n            context.Variables.GetValueOrDefault(\"baseAuthUrl\", \"\"), \r\n            context.Variables.GetValueOrDefault(\"clientIdParam\", \"\"), \r\n            context.Variables.GetValueOrDefault(\"codeChallengeParam\", \"\"), \r\n            context.Variables.GetValueOrDefault(\"codeChallengeMethodParam\", \"\"), \r\n            context.Variables.GetValueOrDefault(\"redirectUriParam\", \"\"), \r\n            context.Variables.GetValueOrDefault(\"scopeParam\", \"\"), \r\n            context.Variables.GetValueOrDefault(\"stateParam\", \"\")))\" />        \r\n        <!-- STEP 5: Store authentication data in cache for use in callback -->\r\n        <!-- Generate a confirmation code to return to the MCP client -->\r\n        <set-variable name=\"mcpConfirmConsentCode\" value=\"@((string)Guid.NewGuid().ToString())\" />\r\n        \r\n        <!-- Store code verifier for token exchange -->\r\n        <cache-store-value duration=\"3600\" \r\n            key=\"@(\"CodeVerifier-\"+context.Variables.GetValueOrDefault(\"state\", \"\"))\" \r\n            value=\"@(context.Variables.GetValueOrDefault(\"codeVerifier\", \"\"))\" />\r\n        \r\n        <!-- Map state to MCP confirmation code for callback -->\r\n        <cache-store-value duration=\"3600\" \r\n            key=\"@((string)context.Variables.GetValueOrDefault(\"state\"))\" \r\n            value=\"@(context.Variables.GetValueOrDefault(\"mcpConfirmConsentCode\", \"\"))\" />\r\n        \r\n        <!-- Store MCP client PKCE data for verification during token exchange -->\r\n        <cache-store-value duration=\"3600\" \r\n            key=\"@($\"McpClientAuthData-{context.Variables.GetValueOrDefault(\"mcpConfirmConsentCode\")}\")\" \r\n            value=\"@{\r\n                // Create a JObject and populate it with values\r\n                return new JObject{\r\n                    [\"mcpClientCodeChallenge\"] = (string)context.Variables.GetValueOrDefault(\"mcpClientCodeChallenge\", \"\"),\r\n                    [\"mcpClientCodeChallengeMethod\"] = (string)context.Variables.GetValueOrDefault(\"mcpClientCodeChallengeMethod\", \"\")\r\n                }.ToString();\r\n            }\" />\r\n    </inbound>\r\n    <backend>\r\n        <base />\r\n    </backend>\r\n    <outbound>\r\n        <base />        \r\n        <!-- Return the response with a 302 status code for redirect -->\r\n        <return-response>\r\n            <set-status code=\"302\" reason=\"Found\" />\r\n            <set-header name=\"Location\" exists-action=\"override\">\r\n                <value>@(context.Variables.GetValueOrDefault(\"authUrl\", \"\"))</value>\r\n            </set-header>\r\n        </return-response>\r\n    </outbound>\r\n    <on-error>\r\n        <base />\r\n    </on-error>\r\n</policies>",
+    "$fxv#1": "<!--\r\n    TOKEN POLICY\r\n    This policy implements the token endpoint for PKCE OAuth2 flow.\r\n    \r\n    Flow:\r\n    1. MCP client sends token request with code and code_verifier\r\n    2. We validate the code_verifier against the stored code_challenge\r\n    3. We retrieve the cached access token and return it to the client\r\n-->\r\n<policies>\r\n    <inbound>\r\n        <base />\r\n        <!-- STEP 1: Extract parameters from token request -->\r\n        <!-- Read the request body as a string while preserving it for later processing -->\r\n        <set-variable name=\"tokenRequestBody\" value=\"@((string)context.Request.Body.As<string>(preserveContent: true))\" />\r\n        \r\n        <!-- Extract the confirmation code from the request -->\r\n        <set-variable name=\"mcpConfirmConsentCode\" value=\"@{\r\n            // Retrieve the raw body string\r\n            var body = context.Variables.GetValueOrDefault<string>(\"tokenRequestBody\");\r\n            if (!string.IsNullOrEmpty(body))\r\n            {\r\n                // Split the body into name/value pairs\r\n                var pairs = body.Split('&');\r\n                foreach (var pair in pairs)\r\n                {\r\n                    var keyValue = pair.Split('=');\r\n                    if (keyValue.Length == 2)\r\n                    {\r\n                        if(keyValue[0] == \"code\")\r\n                        {\r\n                            return keyValue[1];\r\n                        }\r\n                    }\r\n                }\r\n            }\r\n            return \"\";\r\n        }\" />              \r\n        <!-- Extract the code_verifier from the request and URL-decode it -->        \r\n        <set-variable name=\"mcpClientCodeVerifier\" value=\"@{\r\n            // Retrieve the raw body string\r\n            var body = context.Variables.GetValueOrDefault<string>(\"tokenRequestBody\");\r\n            if (!string.IsNullOrEmpty(body))\r\n            {\r\n                // Split the body into name/value pairs\r\n                var pairs = body.Split('&');\r\n                foreach (var pair in pairs)\r\n                {\r\n                    var keyValue = pair.Split('=');\r\n                    if (keyValue.Length == 2)\r\n                    {\r\n                        if(keyValue[0] == \"code_verifier\")\r\n                        {\r\n                            // URL-decode the code_verifier if needed\r\n                            return System.Net.WebUtility.UrlDecode(keyValue[1]);\r\n                        }\r\n                    }\r\n                }\r\n            }\r\n            return \"\";\r\n        }\" />\r\n            \r\n        <!-- STEP 2: Extract state parameters -->\r\n        <set-variable name=\"mcpState\" value=\"@((string)context.Request.Url.Query.GetValueOrDefault(\"state\", \"\"))\" />\r\n        <set-variable name=\"stateSession\" value=\"@((string)context.Request.Url.Query.GetValueOrDefault(\"state_session\", \"\"))\" />        \r\n    </inbound>\r\n    <backend />\r\n    <outbound>\r\n        <base />\r\n        <!-- STEP 3: Retrieve stored MCP client data -->\r\n        <!-- Lookup the stored MCP client code challenge and challenge method from the cache -->\r\n        <cache-lookup-value key=\"@($\"McpClientAuthData-{context.Variables.GetValueOrDefault(\"mcpConfirmConsentCode\")}\")\" variable-name=\"mcpClientAuthData\" />\r\n        \r\n        <!-- Extract the stored code challenge from the cached data -->\r\n        <set-variable name=\"storedMcpClientCodeChallenge\" value=\"@{\r\n            var mcpAuthDataAsJObject = JObject.Parse((string)context.Variables[\"mcpClientAuthData\"]);\r\n            return (string)mcpAuthDataAsJObject[\"mcpClientCodeChallenge\"];\r\n        }\" />            \r\n        <!-- STEP 4: Compute and validate the code challenge -->\r\n        <!-- Generate a challenge from the incoming code_verifier using the stored challenge method -->\r\n        <set-variable name=\"mcpServerComputedCodeChallenge\" value=\"@{\r\n            var mcpAuthDataAsJObject = JObject.Parse((string)context.Variables[\"mcpClientAuthData\"]);\r\n            string codeVerifier = (string)context.Variables.GetValueOrDefault(\"mcpClientCodeVerifier\", \"\");\r\n            string codeChallengeMethod = ((string)mcpAuthDataAsJObject[\"mcpClientCodeChallengeMethod\"]).ToLower();\r\n            \r\n            if(string.IsNullOrEmpty(codeVerifier)){\r\n                return string.Empty;\r\n            }\r\n            \r\n            if(codeChallengeMethod == \"plain\"){\r\n                // For \"plain\", no transformation is applied\r\n                return codeVerifier;\r\n            } else if(codeChallengeMethod == \"s256\"){\r\n                // For S256, compute the SHA256 hash, Base64 encode it, and convert to URL-safe format\r\n                using (var sha256 = System.Security.Cryptography.SHA256.Create())\r\n                {\r\n                    var bytes = System.Text.Encoding.UTF8.GetBytes(codeVerifier);\r\n                    var hash = sha256.ComputeHash(bytes);\r\n                    \r\n                    // Convert the hash to a Base64 string\r\n                    string base64 = Convert.ToBase64String(hash);\r\n\r\n                    // Convert Base64 string into a URL-safe variant\r\n                    // Replace '+' with '-', '/' with '_', and remove any '=' padding\r\n                    return base64.Replace(\"+\", \"-\").Replace(\"/\", \"_\").Replace(\"=\", \"\");\r\n                }\r\n            } else {\r\n                // Unsupported method\r\n                return string.Empty;\r\n            }\r\n        }\" />            \r\n        <!-- STEP 5: Verify code challenge matches -->\r\n        <choose>\r\n            <when condition=\"@(string.Compare((string)context.Variables.GetValueOrDefault(\"mcpServerComputedCodeChallenge\", \"\"), (string)context.Variables.GetValueOrDefault(\"storedMcpClientCodeChallenge\", \"\")) != 0)\">\r\n                <!-- If they don't match, return an error -->\r\n                <return-response>\r\n                    <set-status code=\"400\" reason=\"Bad Request\" />\r\n                    <set-body>@(\"{\\\"error\\\": \\\"code_verifier does not match.\\\"}\")</set-body>\r\n                </return-response>\r\n            </when>\r\n        </choose>\r\n        \r\n        <!-- STEP 6: Retrieve cached tokens -->\r\n        <!-- Get the access token stored during the authorization process -->\r\n        <cache-lookup-value key=\"@($\"AccessToken-{context.Variables.GetValueOrDefault(\"mcpConfirmConsentCode\")}\")\" variable-name=\"cachedSessionToken\" />\r\n        \r\n        <!-- STEP 7: Generate token response -->\r\n        <set-variable name=\"jsonPayload\" value=\"@{\r\n            var accessToken = context.Variables.GetValueOrDefault<string>(\"cachedSessionToken\");\r\n            var payloadObject = new\r\n            {\r\n                access_token = accessToken,\r\n                token_type = \"Bearer\",\r\n                expires_in = 3600,\r\n                refresh_token = \"\",\r\n                scope = \"openid profile email\"\r\n            };\r\n\r\n            // Serialize the object to a JSON string.\r\n            return Newtonsoft.Json.JsonConvert.SerializeObject(payloadObject);\r\n        }\" />\r\n        <set-body template=\"none\">@{\r\n            return (string)context.Variables.GetValueOrDefault(\"jsonPayload\", \"\");\r\n        }</set-body>\r\n        <set-header name=\"access-control-allow-origin\" exists-action=\"override\">\r\n            <value>*</value>\r\n        </set-header>\r\n    </outbound>\r\n    <on-error>\r\n        <base />\r\n    </on-error>\r\n</policies>",
+    "$fxv#2": "<!--\r\n    OAUTH CALLBACK POLICY\r\n    This policy implements the callback endpoint for PKCE OAuth2 flow with Entra ID.\r\n    \r\n    Flow:\r\n    1. Entra ID redirects to this endpoint with authorization code after user login\r\n    2. We exchange the authorization code for an access token\r\n    3. We retrieve the stored MCP client data and generate a session key\r\n    4. We redirect back to the MCP client with a confirmation code\r\n-->\r\n<policies>\r\n    <inbound>\r\n        <base />\r\n        <!-- STEP 1: Extract the authorization code and state from Entra ID callback -->\r\n        <set-variable name=\"authCode\" value=\"@((string)context.Request.Url.Query.GetValueOrDefault(\"code\", \"\"))\" />\r\n        <set-variable name=\"entraState\" value=\"@((string)context.Request.Url.Query.GetValueOrDefault(\"state\", \"\"))\" />\r\n        <set-variable name=\"sessionState\" value=\"@((string)context.Request.Url.Query.GetValueOrDefault(\"session_state\", \"\"))\" />\r\n        \r\n        <!-- STEP 2: Retrieve stored PKCE code verifier using the state parameter -->\r\n        <cache-lookup-value key=\"@(\"CodeVerifier-\"+context.Variables.GetValueOrDefault(\"entraState\", \"\"))\" variable-name=\"codeVerifier\" />\r\n        <!-- STEP 3: Set token request parameters -->\r\n        <set-variable name=\"codeChallengeMethod\" value=\"S256\" />\r\n        <set-variable name=\"redirectUri\" value=\"{{OAuthCallbackUri}}\" />\r\n        <set-variable name=\"clientId\" value=\"{{EntraIDClientId}}\" />\r\n        <set-variable name=\"clientSecret\" value=\"{{EntraIDClientSecret}}\" />\r\n         \r\n        <!-- STEP 4: Configure token request to Entra ID -->\r\n        <set-method>POST</set-method>\r\n        <set-header name=\"Content-Type\" exists-action=\"override\">\r\n            <value>application/x-www-form-urlencoded</value>\r\n        </set-header>\r\n        <set-body>@{\r\n            return $\"client_id={context.Variables.GetValueOrDefault(\"clientId\")}&grant_type=authorization_code&code={context.Variables.GetValueOrDefault(\"authCode\")}&redirect_uri={context.Variables.GetValueOrDefault(\"redirectUri\")}&scope=https://graph.microsoft.com/.default&code_verifier={context.Variables.GetValueOrDefault(\"codeVerifier\")}&client_secret={context.Variables.GetValueOrDefault(\"clientSecret\")}\";\r\n        }</set-body>\r\n        <rewrite-uri template=\"/token\" />\r\n    </inbound>\r\n\r\n    <backend>\r\n        <base />\r\n    </backend>\r\n\r\n    <outbound>\r\n        <base />\r\n        <!-- STEP 5: Process the token response from Entra ID -->\r\n        <trace source=\"apim-policy\">\r\n            <message>@(\"Token response received: \" + context.Response.Body.As<string>(preserveContent: true))</message>\r\n        </trace>        \r\n        <!-- STEP 6: Lookup MCP client redirect URI stored during authorization -->\r\n        <cache-lookup-value key=\"@($\"McpClientAuthData-{context.Variables.GetValueOrDefault(\"mcpConfirmConsentCode\")}\")\" variable-name=\"mcpClientData\" />\r\n          <!-- Retrieve the client's redirect URI from cache -->\r\n        <cache-lookup-value key=\"ClientRedirectUri\" variable-name=\"callbackRedirectUri\" />\r\n          <!-- STEP 7: Generate secure session token for MCP client -->\r\n        <set-variable name=\"IV\" value=\"{{EncryptionIV}}\" />\r\n        <set-variable name=\"key\" value=\"{{EncryptionKey}}\" />\r\n        <set-variable name=\"sessionId\" value=\"@((string)Guid.NewGuid().ToString().Replace(\"-\", \"\"))\" />\r\n        <set-variable name=\"encryptedSessionKey\" value=\"@{\r\n            // Generate a unique session ID\r\n            string sessionId = (string)context.Variables.GetValueOrDefault(\"sessionId\");\r\n            byte[] sessionIdBytes = Encoding.UTF8.GetBytes(sessionId);\r\n            \r\n            // Encrypt the session ID using AES\r\n            byte[] IV = Convert.FromBase64String((string)context.Variables[\"IV\"]);\r\n            byte[] key = Convert.FromBase64String((string)context.Variables[\"key\"]);\r\n            \r\n            byte[] encryptedBytes = sessionIdBytes.Encrypt(\"Aes\", key, IV);\r\n            \r\n            return Convert.ToBase64String(encryptedBytes);\r\n        }\" />\r\n\r\n        <!-- STEP 8: Generate new state for MCP client -->\r\n        <set-variable name=\"mcpState\" value=\"@((string)Guid.NewGuid().ToString())\" />\r\n        <cache-lookup-value key=\"@((string)context.Variables.GetValueOrDefault(\"entraState\"))\" variable-name=\"mcpConfirmConsentCode\" />\r\n        \r\n        <!-- STEP 9: Store the encrypted session key and Entra token in cache -->\r\n        <!-- Store the encrypted session key with the MCP confirmation code as key -->\r\n        <cache-store-value duration=\"3600\" \r\n            key=\"@($\"AccessToken-{context.Variables.GetValueOrDefault(\"mcpConfirmConsentCode\")}\")\" \r\n            value=\"@($\"{context.Variables.GetValueOrDefault(\"encryptedSessionKey\")}\")\" />\r\n        \r\n        <!-- Store the Entra token for later use -->\r\n        <cache-store-value duration=\"3600\" \r\n            key=\"@($\"EntraToken-{context.Variables.GetValueOrDefault(\"sessionId\")}\")\"\r\n            value=\"@(context.Response.Body.As<JObject>(preserveContent: true).ToString())\" />\r\n        \r\n        <!-- STEP 10: Redirect back to MCP client with confirmation code -->\r\n        <return-response>\r\n            <set-status code=\"302\" reason=\"Found\" />\r\n            <set-header name=\"Location\" exists-action=\"override\">\r\n                <value>@($\"{context.Variables.GetValueOrDefault(\"callbackRedirectUri\")}?code={context.Variables.GetValueOrDefault(\"mcpConfirmConsentCode\")}&state={context.Variables.GetValueOrDefault(\"mcpState\")}&state_session=statesession123\")</value>\r\n            </set-header>\r\n            <set-body />\r\n        </return-response>\r\n    </outbound>\r\n    <on-error>\r\n        <base />\r\n    </on-error>\r\n</policies>",
+    "$fxv#3": "<!--\r\n    REGISTER POLICY\r\n    This policy implements the dynamic client registration endpoint for OAuth2 flow.\r\n    \r\n    Flow:\r\n    1. MCP client sends a registration request with redirect URIs\r\n    2. We store the registration information in cache for later verification\r\n    3. We generate and return client credentials with the provided redirect URIs\r\n-->\r\n<policies>\r\n    <inbound>\r\n        <base />\r\n        <!-- STEP 1: Extract client registration data from request -->\r\n        <set-variable name=\"requestBody\" value=\"@(context.Request.Body.As<JObject>(preserveContent: true))\" />\r\n          <!-- STEP 2: Store registration information in cache -->\r\n        <cache-store-value duration=\"3600\" \r\n            key=\"DynamicClientRegistration\" \r\n            value=\"@(context.Variables.GetValueOrDefault<JObject>(\"requestBody\").ToString())\" />\r\n        \r\n        <!-- Store the redirect URI -->\r\n        <cache-store-value duration=\"3600\" \r\n            key=\"ClientRedirectUri\" \r\n            value=\"@(context.Variables.GetValueOrDefault<JObject>(\"requestBody\")[\"redirect_uris\"][0].ToString())\" />\r\n        \r\n        <!-- STEP 3: Set response content type -->\r\n        <set-header name=\"Content-Type\" exists-action=\"override\">\r\n            <value>application/json</value>\r\n        </set-header>\r\n        \r\n        <!-- STEP 4: Return client credentials response -->\r\n        <return-response>\r\n            <set-status code=\"200\" reason=\"OK\" />\r\n            <set-header name=\"access-control-allow-origin\" exists-action=\"override\">\r\n                <value>*</value>\r\n            </set-header>\r\n            <set-body template=\"none\">@{\r\n                var requestBody = context.Variables.GetValueOrDefault<JObject>(\"requestBody\");\r\n                \r\n                // Generate timestamps dynamically\r\n                // Current time in seconds since epoch (Unix timestamp)\r\n                long currentTimeSeconds = DateTimeOffset.UtcNow.ToUnixTimeSeconds();\r\n                \r\n                // Client ID issued at current time\r\n                long clientIdIssuedAt = currentTimeSeconds;\r\n                \r\n                // Client secret expires in 1 year (31536000 seconds = 365 days)\r\n                long clientSecretExpiresAt = currentTimeSeconds + 31536000;\r\n                \r\n                return new JObject\r\n                {\r\n                    [\"client_id\"] = \"{{McpClientId}}\",\r\n                    [\"client_id_issued_at\"] = clientIdIssuedAt,\r\n                    [\"client_secret_expires_at\"] = clientSecretExpiresAt,\r\n                    [\"redirect_uris\"] = requestBody[\"redirect_uris\"]?.ToObject<JArray>()\r\n                }.ToString();\r\n            }</set-body>\r\n        </return-response>\r\n    </inbound>\r\n    <backend />\r\n    <outbound>\r\n        <base />\r\n    </outbound>\r\n    <on-error>\r\n        <base />\r\n    </on-error>\r\n</policies>",
+    "$fxv#4": "<!--\r\n    REGISTER OPTIONS POLICY\r\n    This policy handles the OPTIONS pre-flight requests for the OAuth client registration endpoint.\r\n    It returns the appropriate CORS headers to allow cross-origin requests.\r\n-->\r\n<policies>\r\n    <inbound>\r\n        <!-- Return a 200 OK response with appropriate CORS headers -->\r\n        <return-response>\r\n            <set-status code=\"200\" reason=\"OK\" />\r\n            <set-header name=\"Access-Control-Allow-Origin\" exists-action=\"override\">\r\n                <value>*</value>\r\n            </set-header>\r\n            <set-header name=\"Access-Control-Allow-Methods\" exists-action=\"override\">\r\n                <value>GET, OPTIONS</value>\r\n            </set-header>\r\n            <set-header name=\"Access-Control-Allow-Headers\" exists-action=\"override\">\r\n                <value>Content-Type, Authorization</value>\r\n            </set-header>\r\n            <set-header name=\"Access-Control-Max-Age\" exists-action=\"override\">\r\n                <value>86400</value>\r\n            </set-header>\r\n            <set-body />\r\n        </return-response>\r\n        <base />\r\n    </inbound>\r\n    <backend>\r\n        <base />\r\n    </backend>\r\n    <outbound>\r\n        <base />\r\n    </outbound>\r\n    <on-error>\r\n        <base />\r\n    </on-error>\r\n</policies>\r\n",
+    "$fxv#5": "<!--\r\n    OAUTH METADATA OPTIONS POLICY\r\n    This policy handles OPTIONS requests to the OAuth metadata endpoint, implementing CORS support\r\n    for cross-origin requests to the OAuth authorization server.\r\n-->\r\n<policies>\r\n    <inbound>\r\n        <!-- Return CORS headers for OPTIONS requests -->\r\n        <return-response>\r\n            <set-status code=\"200\" reason=\"OK\" />\r\n            <set-header name=\"Access-Control-Allow-Origin\" exists-action=\"override\">\r\n                <value>*</value>\r\n            </set-header>\r\n            <set-header name=\"Access-Control-Allow-Methods\" exists-action=\"override\">\r\n                <value>GET, OPTIONS</value>\r\n            </set-header>\r\n            <set-header name=\"Access-Control-Allow-Headers\" exists-action=\"override\">\r\n                <value>Content-Type, Authorization</value>\r\n            </set-header>\r\n            <set-header name=\"Access-Control-Max-Age\" exists-action=\"override\">\r\n                <value>86400</value>\r\n            </set-header>\r\n            <set-body />\r\n        </return-response>\r\n        <base />\r\n    </inbound>\r\n    <backend>\r\n        <base />\r\n    </backend>\r\n    <outbound>\r\n        <base />\r\n    </outbound>\r\n    <on-error>\r\n        <base />\r\n    </on-error>\r\n</policies>",
+    "$fxv#6": "<!--\r\n    OAUTH METADATA POLICY\r\n    This policy implements the OpenID Connect and OAuth 2.0 discovery endpoint (.well-known/oauth-authorization-server).\r\n-->\r\n<policies>\r\n    <inbound>\r\n        <!-- Return the OAuth metadata in JSON format -->\r\n        <return-response>\r\n            <set-status code=\"200\" reason=\"OK\" />\r\n            <set-header name=\"Content-Type\" exists-action=\"override\">\r\n                <value>application/json; charset=utf-8</value>\r\n            </set-header>\r\n            <set-header name=\"access-control-allow-origin\" exists-action=\"override\">\r\n                <value>*</value>\r\n            </set-header>                \r\n            <set-body>\r\n                {\r\n                    \"issuer\": \"{{APIMGatewayURL}}\",\r\n                    \"service_documentation\": \"https://microsoft.com/\",\r\n                    \"authorization_endpoint\": \"{{APIMGatewayURL}}/authorize\",\r\n                    \"token_endpoint\": \"{{APIMGatewayURL}}/token\",\r\n                    \"revocation_endpoint\": \"{{APIMGatewayURL}}/revoke\",\r\n                    \"registration_endpoint\": \"{{APIMGatewayURL}}/register\",\r\n                    \"response_types_supported\": [\r\n                        \"code\"\r\n                    ],\r\n                    \"code_challenge_methods_supported\": [\r\n                        \"S256\"\r\n                    ],\r\n                    \"token_endpoint_auth_methods_supported\": [\r\n                        \"none\"\r\n                    ],\r\n                    \"grant_types_supported\": [\r\n                        \"authorization_code\",\r\n                        \"refresh_token\"\r\n                    ],\r\n                    \"revocation_endpoint_auth_methods_supported\": [\r\n                        \"client_secret_post\"\r\n                    ]\r\n                }\r\n            </set-body>\r\n        </return-response>\r\n        <base />\r\n    </inbound>\r\n    <backend>\r\n        <base />\r\n    </backend>\r\n    <outbound>\r\n        <base />\r\n    </outbound>\r\n    <on-error>\r\n        <base />\r\n    </on-error>\r\n</policies>"
+  },
+  "resources": {
+    "apimService": {
+      "existing": true,
+      "type": "Microsoft.ApiManagement/service",
+      "apiVersion": "2021-08-01",
+      "name": "[parameters('apimServiceName')]"
+    },
+    "EntraIDTenantIdNamedValue": {
+      "type": "Microsoft.ApiManagement/service/namedValues",
+      "apiVersion": "2021-08-01",
+      "name": "[format('{0}/{1}', parameters('apimServiceName'), 'EntraIDTenantId')]",
+      "properties": {
+        "displayName": "EntraIDTenantId",
+        "value": "[parameters('entraAppTenantId')]",
+        "secret": false
+      }
+    },
+    "EntraIDClientIdNamedValue": {
+      "type": "Microsoft.ApiManagement/service/namedValues",
+      "apiVersion": "2021-08-01",
+      "name": "[format('{0}/{1}', parameters('apimServiceName'), 'EntraIDClientId')]",
+      "properties": {
+        "displayName": "EntraIDClientId",
+        "value": "[parameters('entraAppClientId')]",
+        "secret": false
+      }
+    },
+    "EntraIdClientSecretNamedValue": {
+      "type": "Microsoft.ApiManagement/service/namedValues",
+      "apiVersion": "2021-08-01",
+      "name": "[format('{0}/{1}', parameters('apimServiceName'), 'EntraIDClientSecret')]",
+      "properties": {
+        "displayName": "EntraIDClientSecret",
+        "value": "[parameters('entraAppClientSecret')]",
+        "secret": true
+      }
+    },
+    "OAuthCallbackUriNamedValue": {
+      "type": "Microsoft.ApiManagement/service/namedValues",
+      "apiVersion": "2021-08-01",
+      "name": "[format('{0}/{1}', parameters('apimServiceName'), 'OAuthCallbackUri')]",
+      "properties": {
+        "displayName": "OAuthCallbackUri",
+        "value": "[format('{0}/oauth-callback', reference('apimService').gatewayUrl)]",
+        "secret": false
+      },
+      "dependsOn": [
+        "apimService"
+      ]
+    },
+    "OAuthScopesNamedValue": {
+      "type": "Microsoft.ApiManagement/service/namedValues",
+      "apiVersion": "2021-08-01",
+      "name": "[format('{0}/{1}', parameters('apimServiceName'), 'OAuthScopes')]",
+      "properties": {
+        "displayName": "OAuthScopes",
+        "value": "[parameters('oauthScopes')]",
+        "secret": false
+      }
+    },
+    "EncryptionIVNamedValue": {
+      "type": "Microsoft.ApiManagement/service/namedValues",
+      "apiVersion": "2021-08-01",
+      "name": "[format('{0}/{1}', parameters('apimServiceName'), 'EncryptionIV')]",
+      "properties": {
+        "displayName": "EncryptionIV",
+        "value": "[parameters('encryptionIV')]",
+        "secret": true
+      }
+    },
+    "EncryptionKeyNamedValue": {
+      "type": "Microsoft.ApiManagement/service/namedValues",
+      "apiVersion": "2021-08-01",
+      "name": "[format('{0}/{1}', parameters('apimServiceName'), 'EncryptionKey')]",
+      "properties": {
+        "displayName": "EncryptionKey",
+        "value": "[parameters('encryptionKey')]",
+        "secret": true
+      }
+    },
+    "McpClientIdNamedValue": {
+      "type": "Microsoft.ApiManagement/service/namedValues",
+      "apiVersion": "2021-08-01",
+      "name": "[format('{0}/{1}', parameters('apimServiceName'), 'McpClientId')]",
+      "properties": {
+        "displayName": "McpClientId",
+        "value": "[parameters('entraAppClientId')]",
+        "secret": false
+      }
+    },
+    "APIMGatewayURLNamedValue": {
+      "type": "Microsoft.ApiManagement/service/namedValues",
+      "apiVersion": "2021-08-01",
+      "name": "[format('{0}/{1}', parameters('apimServiceName'), 'APIMGatewayURL')]",
+      "properties": {
+        "displayName": "APIMGatewayURL",
+        "value": "[reference('apimService').gatewayUrl]",
+        "secret": false
+      },
+      "dependsOn": [
+        "apimService"
+      ]
+    },
+    "oauthApi": {
+      "type": "Microsoft.ApiManagement/service/apis",
+      "apiVersion": "2021-08-01",
+      "name": "[format('{0}/{1}', parameters('apimServiceName'), 'oauth')]",
+      "properties": {
+        "displayName": "OAuth",
+        "description": "OAuth 2.0 Authentication API",
+        "subscriptionRequired": false,
+        "path": "",
+        "protocols": [
+          "https"
+        ],
+        "serviceUrl": "[format('https://login.microsoftonline.com/{0}/oauth2/v2.0', parameters('entraAppTenantId'))]"
+      }
+    },
+    "oauthAuthorizeOperation": {
+      "type": "Microsoft.ApiManagement/service/apis/operations",
+      "apiVersion": "2021-08-01",
+      "name": "[format('{0}/{1}/{2}', parameters('apimServiceName'), 'oauth', 'authorize')]",
+      "properties": {
+        "displayName": "Authorize",
+        "method": "GET",
+        "urlTemplate": "/authorize",
+        "description": "OAuth 2.0 authorization endpoint"
+      },
+      "dependsOn": [
+        "oauthApi"
+      ]
+    },
+    "oauthAuthorizePolicy": {
+      "type": "Microsoft.ApiManagement/service/apis/operations/policies",
+      "apiVersion": "2021-08-01",
+      "name": "[format('{0}/{1}/{2}/{3}', parameters('apimServiceName'), 'oauth', 'authorize', 'policy')]",
+      "properties": {
+        "format": "rawxml",
+        "value": "[variables('$fxv#0')]"
+      },
+      "dependsOn": [
+        "oauthAuthorizeOperation"
+      ]
+    },
+    "oauthTokenOperation": {
+      "type": "Microsoft.ApiManagement/service/apis/operations",
+      "apiVersion": "2021-08-01",
+      "name": "[format('{0}/{1}/{2}', parameters('apimServiceName'), 'oauth', 'token')]",
+      "properties": {
+        "displayName": "Token",
+        "method": "POST",
+        "urlTemplate": "/token",
+        "description": "OAuth 2.0 token endpoint"
+      },
+      "dependsOn": [
+        "oauthApi"
+      ]
+    },
+    "oauthTokenPolicy": {
+      "type": "Microsoft.ApiManagement/service/apis/operations/policies",
+      "apiVersion": "2021-08-01",
+      "name": "[format('{0}/{1}/{2}/{3}', parameters('apimServiceName'), 'oauth', 'token', 'policy')]",
+      "properties": {
+        "format": "rawxml",
+        "value": "[variables('$fxv#1')]"
+      },
+      "dependsOn": [
+        "oauthTokenOperation"
+      ]
+    },
+    "oauthCallbackOperation": {
+      "type": "Microsoft.ApiManagement/service/apis/operations",
+      "apiVersion": "2021-08-01",
+      "name": "[format('{0}/{1}/{2}', parameters('apimServiceName'), 'oauth', 'oauth-callback')]",
+      "properties": {
+        "displayName": "OAuth Callback",
+        "method": "GET",
+        "urlTemplate": "/oauth-callback",
+        "description": "OAuth 2.0 callback endpoint to handle authorization code flow"
+      },
+      "dependsOn": [
+        "oauthApi"
+      ]
+    },
+    "oauthCallbackPolicy": {
+      "type": "Microsoft.ApiManagement/service/apis/operations/policies",
+      "apiVersion": "2021-08-01",
+      "name": "[format('{0}/{1}/{2}/{3}', parameters('apimServiceName'), 'oauth', 'oauth-callback', 'policy')]",
+      "properties": {
+        "format": "rawxml",
+        "value": "[variables('$fxv#2')]"
+      },
+      "dependsOn": [
+        "EncryptionIVNamedValue",
+        "EncryptionKeyNamedValue",
+        "oauthCallbackOperation"
+      ]
+    },
+    "oauthRegisterOperation": {
+      "type": "Microsoft.ApiManagement/service/apis/operations",
+      "apiVersion": "2021-08-01",
+      "name": "[format('{0}/{1}/{2}', parameters('apimServiceName'), 'oauth', 'register')]",
+      "properties": {
+        "displayName": "Register",
+        "method": "POST",
+        "urlTemplate": "/register",
+        "description": "OAuth 2.0 client registration endpoint"
+      },
+      "dependsOn": [
+        "oauthApi"
+      ]
+    },
+    "oauthRegisterPolicy": {
+      "type": "Microsoft.ApiManagement/service/apis/operations/policies",
+      "apiVersion": "2021-08-01",
+      "name": "[format('{0}/{1}/{2}/{3}', parameters('apimServiceName'), 'oauth', 'register', 'policy')]",
+      "properties": {
+        "format": "rawxml",
+        "value": "[variables('$fxv#3')]"
+      },
+      "dependsOn": [
+        "oauthRegisterOperation"
+      ]
+    },
+    "oauthRegisterOptionsOperation": {
+      "type": "Microsoft.ApiManagement/service/apis/operations",
+      "apiVersion": "2021-08-01",
+      "name": "[format('{0}/{1}/{2}', parameters('apimServiceName'), 'oauth', 'register-options')]",
+      "properties": {
+        "displayName": "Register Options",
+        "method": "OPTIONS",
+        "urlTemplate": "/register",
+        "description": "CORS preflight request handler for register endpoint"
+      },
+      "dependsOn": [
+        "oauthApi"
+      ]
+    },
+    "oauthRegisterOptionsPolicy": {
+      "type": "Microsoft.ApiManagement/service/apis/operations/policies",
+      "apiVersion": "2021-08-01",
+      "name": "[format('{0}/{1}/{2}/{3}', parameters('apimServiceName'), 'oauth', 'register-options', 'policy')]",
+      "properties": {
+        "format": "rawxml",
+        "value": "[variables('$fxv#4')]"
+      },
+      "dependsOn": [
+        "oauthRegisterOptionsOperation"
+      ]
+    },
+    "oauthMetadataOptionsOperation": {
+      "type": "Microsoft.ApiManagement/service/apis/operations",
+      "apiVersion": "2021-08-01",
+      "name": "[format('{0}/{1}/{2}', parameters('apimServiceName'), 'oauth', 'oauthmetadata-options')]",
+      "properties": {
+        "displayName": "OAuth Metadata Options",
+        "method": "OPTIONS",
+        "urlTemplate": "/.well-known/oauth-authorization-server",
+        "description": "CORS preflight request handler for OAuth metadata endpoint"
+      },
+      "dependsOn": [
+        "oauthApi"
+      ]
+    },
+    "oauthMetadataOptionsPolicy": {
+      "type": "Microsoft.ApiManagement/service/apis/operations/policies",
+      "apiVersion": "2021-08-01",
+      "name": "[format('{0}/{1}/{2}/{3}', parameters('apimServiceName'), 'oauth', 'oauthmetadata-options', 'policy')]",
+      "properties": {
+        "format": "rawxml",
+        "value": "[variables('$fxv#5')]"
+      },
+      "dependsOn": [
+        "oauthMetadataOptionsOperation"
+      ]
+    },
+    "oauthMetadataGetOperation": {
+      "type": "Microsoft.ApiManagement/service/apis/operations",
+      "apiVersion": "2021-08-01",
+      "name": "[format('{0}/{1}/{2}', parameters('apimServiceName'), 'oauth', 'oauthmetadata-get')]",
+      "properties": {
+        "displayName": "OAuth Metadata Get",
+        "method": "GET",
+        "urlTemplate": "/.well-known/oauth-authorization-server",
+        "description": "OAuth 2.0 metadata endpoint"
+      },
+      "dependsOn": [
+        "oauthApi"
+      ]
+    },
+    "oauthMetadataGetPolicy": {
+      "type": "Microsoft.ApiManagement/service/apis/operations/policies",
+      "apiVersion": "2021-08-01",
+      "name": "[format('{0}/{1}/{2}/{3}', parameters('apimServiceName'), 'oauth', 'oauthmetadata-get', 'policy')]",
+      "properties": {
+        "format": "rawxml",
+        "value": "[variables('$fxv#6')]"
+      },
+      "dependsOn": [
+        "oauthMetadataGetOperation"
+      ]
+    }
+  },
+  "outputs": {
+    "apimOauthCallback": {
+      "type": "string",
+      "value": "[format('{0}/oauth-callback', reference('apimService').gatewayUrl)]"
+    }
+  }
+}

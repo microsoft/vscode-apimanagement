@@ -1,0 +1,130 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "2.1-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+    "_EXPERIMENTAL_FEATURES_ENABLED": [
+      "Extensibility"
+    ],
+    "_generator": {
+      "name": "bicep",
+      "version": "0.34.44.8038",
+      "templateHash": "6882749066478396450"
+    }
+  },
+  "parameters": {
+    "apimServiceName": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the API Management service"
+      }
+    },
+    "mcpEndpoint": {
+      "type": "string",
+      "metadata": {
+        "description": "The endpoint of MCP Server"
+      }
+    },
+    "mcpApiName": {
+      "type": "string",
+      "defaultValue": "mcp",
+      "metadata": {
+        "description": "The name of the MCP API"
+      }
+    },
+    "apiUrlSuffix": {
+      "type": "string",
+      "defaultValue": "mcp",
+      "metadata": {
+        "description": "The suffix for the API URL path"
+      }
+    },
+    "messageUrl": {
+      "type": "string",
+      "defaultValue": "messages",
+      "metadata": {
+        "description": "The URL of the message endpoint"
+      }
+    },
+    "sseUrl": {
+      "type": "string",
+      "defaultValue": "sse",
+      "metadata": {
+        "description": "The URL of the SSE endpoint"
+      }
+    }
+  },
+  "variables": {
+    "$fxv#0": "<!--\r\n    MCP API POLICY\r\n    This policy applies to all operations in the MCP API.\r\n    It adds authorization header check for security.\r\n-->\r\n<policies>\r\n    <inbound>\r\n        <base />\r\n        <check-header name=\"Authorization\" failed-check-httpcode=\"401\" failed-check-error-message=\"Not authorized\" ignore-case=\"false\" />\r\n    </inbound>\r\n    <backend>\r\n        <base />\r\n    </backend>\r\n    <outbound>\r\n        <base />\r\n    </outbound>\r\n    <on-error>\r\n        <base />\r\n    </on-error>\r\n</policies>\r\n"
+  },
+  "resources": {
+    "apimService": {
+      "existing": true,
+      "type": "Microsoft.ApiManagement/service",
+      "apiVersion": "2023-05-01-preview",
+      "name": "[parameters('apimServiceName')]"
+    },
+    "mcpApi": {
+      "type": "Microsoft.ApiManagement/service/apis",
+      "apiVersion": "2023-05-01-preview",
+      "name": "[format('{0}/{1}', parameters('apimServiceName'), parameters('mcpApiName'))]",
+      "properties": {
+        "displayName": "[parameters('mcpApiName')]",
+        "description": "Model Context Protocol API endpoints",
+        "subscriptionRequired": false,
+        "path": "[parameters('apiUrlSuffix')]",
+        "protocols": [
+          "https"
+        ],
+        "serviceUrl": "[parameters('mcpEndpoint')]"
+      }
+    },
+    "mcpApiPolicy": {
+      "type": "Microsoft.ApiManagement/service/apis/policies",
+      "apiVersion": "2023-05-01-preview",
+      "name": "[format('{0}/{1}/{2}', parameters('apimServiceName'), parameters('mcpApiName'), 'policy')]",
+      "properties": {
+        "format": "rawxml",
+        "value": "[variables('$fxv#0')]"
+      },
+      "dependsOn": [
+        "mcpApi"
+      ]
+    },
+    "mcpSseOperation": {
+      "type": "Microsoft.ApiManagement/service/apis/operations",
+      "apiVersion": "2023-05-01-preview",
+      "name": "[format('{0}/{1}/{2}', parameters('apimServiceName'), parameters('mcpApiName'), 'mcp-sse')]",
+      "properties": {
+        "displayName": "MCP SSE Endpoint",
+        "method": "GET",
+        "urlTemplate": "[parameters('sseUrl')]",
+        "description": "Server-Sent Events endpoint for MCP Server"
+      },
+      "dependsOn": [
+        "mcpApi"
+      ]
+    },
+    "mcpMessageOperation": {
+      "type": "Microsoft.ApiManagement/service/apis/operations",
+      "apiVersion": "2023-05-01-preview",
+      "name": "[format('{0}/{1}/{2}', parameters('apimServiceName'), parameters('mcpApiName'), 'mcp-message')]",
+      "properties": {
+        "displayName": "MCP Message Endpoint",
+        "method": "POST",
+        "urlTemplate": "[parameters('messageUrl')]",
+        "description": "Message endpoint for MCP Server"
+      },
+      "dependsOn": [
+        "mcpApi"
+      ]
+    }
+  },
+  "outputs": {
+    "apimMcpApiEndpoint": {
+      "type": "string",
+      "value": "[format('{0}/{1}/sse', reference('apimService').gatewayUrl, parameters('apiUrlSuffix'))]"
+    }
+  }
+}

@@ -82,6 +82,8 @@ import { openUrlFromTreeNode } from './commands/openUrl';
 import { explainPolicy } from './commands/explainPolicy';
 import { draftPolicy } from './commands/draftPolicy';
 import { showReleaseNotes } from './utils/extensionUtil';
+import { importMcpServer } from './commands/importMcpServer';
+import { addMcpOauthEndpoints } from './commands/addMcpOauthEndpoints';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -198,6 +200,8 @@ function registerCommands(tree: AzExtTreeDataProvider): void {
     registerCommand('azureApiManagement.copyAuthorizationPolicy', async (context: IActionContext, node?: AuthorizationTreeItem) => { await copyAuthorizationPolicy(context, node); });
     registerCommand('azureApiManagement.deleteAuthorization', async (context: IActionContext, node?: AzExtTreeItem) => await deleteNode(context, AuthorizationTreeItem.contextValue, node));
     registerCommand('azureApiManagement.deleteAuthorizationAccessPolicy', async (context: IActionContext, node?: AzExtTreeItem) => await deleteNode(context, AuthorizationAccessPolicyTreeItem.contextValue, node));
+    registerCommand('azureApiManagement.addMcpOauthEndpoints', async (context: IActionContext, node?: ApisTreeItem) => await addMcpOauthEndpoints(context, node));
+    registerCommand('azureApiManagement.importMcpServer', async (context: IActionContext, node?: ApisTreeItem) => await importMcpServer(context, node));
 
     registerCommand('azureApiManagement.explainPolicy', async (context: IActionContext) => await explainPolicy(context));
     registerCommand('azureApiManagement.draftPolicy', async (context: IActionContext) => await draftPolicy(context));

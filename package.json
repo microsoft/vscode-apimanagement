@@ -31,6 +31,7 @@
         "onCommand:azureApiManagement.Refresh",
         "onCommand:azureApiManagement.selectSubscriptions",
         "onView:azureApiManagementExplorer",
+        "onCommand:azureApiManagement.importMcpServer",
         "onLanguage:policy",
         "onLanguage:apim-policy",
         "onLanguage:xml",
@@ -67,6 +68,7 @@
         "onCommand:azureApiManagement.copyDockerRunCommand",
         "onCommand:azureApiManagement.generateKubernetesDeployment",
         "onCommand:azureApiManagement.generateNewGatewayToken",
+        "onCommand:azureApiManagement.addMcpOauthEndpoints",
         "onCommand:azureApiManagement.debugPolicy",
         "onCommand:azureApiManagement.revisions",
         "onCommand:azureApiManagement.setCustomHostName",
@@ -123,7 +125,10 @@
                             "image": "resources/walkthrough/import-an-api-spec.svg",
                             "altText": "Import an OpenAPI spec"
                         },
-                        "completionEvents": ["onCommand:azureApiManagement.importOpenApiByLink", "onCommand:azureApiManagement.importOpenApiByFile"]
+                        "completionEvents": [
+                            "onCommand:azureApiManagement.importOpenApiByLink",
+                            "onCommand:azureApiManagement.importOpenApiByFile"
+                        ]
                     },
                     {
                         "id": "get-subscription-key",
@@ -133,7 +138,9 @@
                             "image": "resources/walkthrough/get-subscription-key.svg",
                             "altText": "Getting a subscription key"
                         },
-                        "completionEvents": ["onCommand:azureApiManagement.copySubscriptionKey"]
+                        "completionEvents": [
+                            "onCommand:azureApiManagement.copySubscriptionKey"
+                        ]
                     },
                     {
                         "id": "test-operation",
@@ -143,7 +150,9 @@
                             "image": "resources/walkthrough/test-operation.svg",
                             "altText": "Testing an API operation"
                         },
-                        "completionEvents": ["onCommand:azureApiManagement.testOperation"],
+                        "completionEvents": [
+                            "onCommand:azureApiManagement.testOperation"
+                        ],
                         "doneButtonLabel": "Test operation",
                         "doneButton": {
                             "command": "azureApiManagement.testOperation"
@@ -401,6 +410,11 @@
                 "category": "Azure API Management"
             },
             {
+                "command": "azureApiManagement.importMcpServer",
+                "title": "%azureApiManagement.importMcpServer%",
+                "category": "Azure API Management"
+            },
+            {
                 "command": "azureApiManagement.addApiFilter",
                 "title": "%azureApiManagement.addApiFilter%",
                 "category": "Azure API Management"
@@ -432,6 +446,11 @@
                 "command": "azureApiManagement.generateNewGatewayToken",
                 "title": "%azureApiManagement.generateNewGatewayToken%",
                 "category": "Azure API Management"
+            },
+            {
+                "command": "azureApiManagement.addMcpOauthEndpoints",
+                "title": "%azureApiManagement.addMcpOauthEndpoints%",
+                "category": "Azure API Management" 
             },
             {
                 "command": "azureApiManagement.setCustomHostName",
@@ -640,10 +659,20 @@
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApis",
                     "group": "2@1"
                 },
-                {
+                {                    
                     "command": "azureApiManagement.importWebApp",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApis",
                     "group": "2@2"
+                },
+                {
+                    "command": "azureApiManagement.importMcpServer",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApis",
+                    "group": "2@3"
+                },
+                {
+                    "command": "azureApiManagement.addMcpOauthEndpoints",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApis",
+                    "group": "2@4"
                 },
                 {
                     "command": "azureApiManagement.Refresh",
@@ -895,7 +924,7 @@
     },
     "scripts": {
         "vscode:prepublish": "npm run webpack-prod",
-        "build": "tsc -p ./ && gulp webpack-prod",
+        "build": "tsc -p ./",
         "compile": "tsc -watch -p ./",
         "package": "vsce package",
         "lint": "tslint --project tsconfig.json -e src/*.d.ts -t verbose",
@@ -943,7 +972,7 @@
     "dependencies": {
         "@azure/arm-apimanagement": "^9.2.0",
         "@azure/arm-appservice": "^15.0.0",
-        "@azure/arm-resources": "^4.0.0",
+        "@azure/arm-resources": "^5.2.0",
         "@azure/arm-resources-subscriptions": "^2.1.0",
         "@azure/ms-rest-nodeauth": "^3.1.1",
         "@microsoft/vscode-azext-azureutils": "^3.1.2",
