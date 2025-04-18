@@ -82,7 +82,7 @@ export async function importMcpServer(context: IActionContext, node?: ApisTreeIt
     await vscode.window.withProgress(
         {
             location: vscode.ProgressLocation.Notification,
-            title: localize('importingMcpApi', `Importing MCP API "${apiName}" to "${root.serviceName}"...`),
+            title: localize('importingMcpApi', `Importing MCP Server "${apiName}" to "${root.serviceName}"...`),
             cancellable: false
         },
         async () => {
@@ -104,8 +104,17 @@ export async function importMcpServer(context: IActionContext, node?: ApisTreeIt
                 const outputs = deployment.properties?.outputs as { apimMcpApiEndpoint: { value: string } };
                 if (outputs?.apimMcpApiEndpoint?.value) {
                     const endpoint = outputs.apimMcpApiEndpoint.value;
-                    const successMsg = localize('mcpApiDeploymentSucceeded', `Successfully deployed MCP API. Endpoint: ${endpoint}`);
-                    await vscode.window.showInformationMessage(successMsg);
+                    
+                    // Show a notification with a button to add MCP to VS Code settings
+                    const addToSettingsBtn = localize('mcpAddToSettings', 'Try MCP Server in VS Code');
+                    vscode.window.showInformationMessage(
+                        localize('mcpApiDeploymentSucceeded', `Successfully imported MCP Server to APIM. Endpoint: ${endpoint}. You can try it using VS Code.`),
+                        addToSettingsBtn
+                    ).then(async selection => {
+                        if (selection === addToSettingsBtn && endpoint) {
+                            await addMcpServerToVsCodeSettings(endpoint);
+                        }
+                    });
                 }
 
                 // Refresh the tree view
@@ -115,4 +124,74 @@ export async function importMcpServer(context: IActionContext, node?: ApisTreeIt
             }
         }
     );
+}
+
+/**
+ * Adds the MCP server to VS Code settings.json
+ * @param endpoint The APIM MCP API endpoint
+ */
+async function addMcpServerToVsCodeSettings(endpoint: string): Promise<void> {
+    try {
+        // Get the current workspace configuration
+        const config = vscode.workspace.getConfiguration();
+        
+        // Prepare the MCP server configuration
+        const mcpInputId = "api-management-subscription-key";
+        const mcpInputConfig = {
+            type: "promptString",
+            id: mcpInputId,
+            description: `Please provide API Management Subscription Key in order to access ${endpoint}`,
+            password: true
+        };
+        
+        const mcpServerConfig = {
+            type: "sse",
+            url: endpoint,
+            headers: {
+                "Ocp-Apim-Subscription-Key": `\${input:${mcpInputId}}`
+            }
+        };
+          // Get existing MCP configuration if it exists
+        const existingMcpConfig = config.get<Record<string, any>>("mcp") || {};
+        
+        // Create a copy of the existing servers without mcp-server-time
+        const existingServers = existingMcpConfig.servers || {};
+        const filteredServers = Object.keys(existingServers)
+            .filter(key => key !== "mcp-server-time")
+            .reduce((obj, key) => {
+                obj[key] = existingServers[key];
+                return obj;
+            }, {} as Record<string, any>);
+
+        // Merge with existing configuration if any
+        const updatedMcpConfig = {
+            inputs: [...(existingMcpConfig.inputs || []), mcpInputConfig],
+            servers: {
+                ...filteredServers,
+                "remote-mcp-function": mcpServerConfig
+            }
+        };
+        
+        // Update the configuration
+        await config.update("mcp", updatedMcpConfig, vscode.ConfigurationTarget.Global);
+        
+        // Show success message with a button to open Copilot chat
+        const openCopilotChatBtn = localize('mcpOpenCopilotChat', 'Open GitHub Copilot');
+        vscode.window.showInformationMessage(
+            localize('mcpAddedToSettings', 'MCP server successfully added to VS Code.'),
+            openCopilotChatBtn
+        ).then(selection => {
+            if (selection === openCopilotChatBtn) {
+                // Execute the command to open GitHub Copilot chat
+                vscode.commands.executeCommand("workbench.action.chat.open", {
+                    query: "",
+                    mode: "agent"
+                });
+            }
+        });
+    } catch (error) {
+        vscode.window.showErrorMessage(
+            localize('mcpAddToSettingsFailed', `Failed to add MCP server to VS Code settings: ${error instanceof Error ? error.message : String(error)}`)
+        );
+    }
 }

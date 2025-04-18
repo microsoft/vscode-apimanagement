@@ -68,7 +68,6 @@
         "onCommand:azureApiManagement.copyDockerRunCommand",
         "onCommand:azureApiManagement.generateKubernetesDeployment",
         "onCommand:azureApiManagement.generateNewGatewayToken",
-        "onCommand:azureApiManagement.addMcpOauthEndpoints",
         "onCommand:azureApiManagement.debugPolicy",
         "onCommand:azureApiManagement.revisions",
         "onCommand:azureApiManagement.setCustomHostName",
@@ -448,11 +447,6 @@
                 "category": "Azure API Management"
             },
             {
-                "command": "azureApiManagement.addMcpOauthEndpoints",
-                "title": "%azureApiManagement.addMcpOauthEndpoints%",
-                "category": "Azure API Management" 
-            },
-            {
                 "command": "azureApiManagement.setCustomHostName",
                 "title": "%azureApiManagement.setCustomHostName%",
                 "category": "Azure API Management"
@@ -659,7 +653,7 @@
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApis",
                     "group": "2@1"
                 },
-                {                    
+                {
                     "command": "azureApiManagement.importWebApp",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApis",
                     "group": "2@2"
@@ -668,11 +662,6 @@
                     "command": "azureApiManagement.importMcpServer",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApis",
                     "group": "2@3"
-                },
-                {
-                    "command": "azureApiManagement.addMcpOauthEndpoints",
-                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApis",
-                    "group": "2@4"
                 },
                 {
                     "command": "azureApiManagement.Refresh",
