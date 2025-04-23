@@ -1,13 +1,13 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
+import { ext } from '../extensionVariables';
 
 export class AvailablePoliciesTool implements vscode.LanguageModelTool<{}> {
     async prepareInvocation(
         _options: vscode.LanguageModelToolInvocationPrepareOptions<{}>,
         _token: vscode.CancellationToken
     ) {
-
         return {
             invocationMessage: 'Getting available APIM policies'
         };
@@ -18,7 +18,7 @@ export class AvailablePoliciesTool implements vscode.LanguageModelTool<{}> {
         _token: vscode.CancellationToken
     ): Promise<vscode.LanguageModelToolResult> {
         try {
-            const policiesPath = path.join(__dirname, '..', '..', 'resources', 'knowledgeBase', 'policies.json');
+            const policiesPath = ext.context.asAbsolutePath(path.join('resources', 'knowledgeBase', 'policies.json'));
             const policiesContent = fs.readFileSync(policiesPath, 'utf8');
             const policies = JSON.parse(policiesContent);
 

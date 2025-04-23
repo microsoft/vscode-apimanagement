@@ -81,6 +81,7 @@ import { AzureAccount } from "./azure/azureLogin/azureAccount";
 import { openUrlFromTreeNode } from './commands/openUrl';
 import { explainPolicy } from './commands/explainPolicy';
 import { draftPolicy } from './commands/draftPolicy';
+import { AvailablePoliciesTool } from './tools/availablePoliciesTool';
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 // tslint:disable-next-line:typedef
@@ -115,6 +116,9 @@ export async function activateInternal(context: vscode.ExtensionContext) {
         const handler = new UriEventHandler();
         context.subscriptions.push(
             vscode.window.registerUriHandler(handler)
+        );
+        context.subscriptions.push(
+            vscode.lm.registerTool('get-available-apim-policies', new AvailablePoliciesTool())
         );
 
         activate(context); // activeta debug context
