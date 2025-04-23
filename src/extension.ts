@@ -81,6 +81,7 @@ import { AzureAccount } from "./azure/azureLogin/azureAccount";
 import { openUrlFromTreeNode } from './commands/openUrl';
 import { explainPolicy } from './commands/explainPolicy';
 import { draftPolicy } from './commands/draftPolicy';
+import { AvailablePoliciesTool } from './tools/availablePoliciesTool';
 import { showReleaseNotes } from './utils/extensionUtil';
 import { importMcpServer } from './commands/importMcpServer';
 import { addMcpOauthEndpoints } from './commands/addMcpOauthEndpoints';
@@ -122,6 +123,9 @@ export async function activateInternal(context: vscode.ExtensionContext) {
         const handler = new UriEventHandler();
         context.subscriptions.push(
             vscode.window.registerUriHandler(handler)
+        );
+        context.subscriptions.push(
+            vscode.lm.registerTool('get-available-apim-policies', new AvailablePoliciesTool())
         );
 
         activate(context); // activeta debug context

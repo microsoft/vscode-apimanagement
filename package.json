@@ -102,6 +102,22 @@
                 ]
             }
         ],
+        "languageModelTools": [
+            {
+                "name": "get-available-apim-policies",
+                "tags": [
+                    "editors",
+                    "apim"
+                ],
+                "toolReferenceName": "get-available-apim-policies",
+                "displayName": "Get Available APIM Policies",
+                "modelDescription": "Retrieve available APIM policies.",
+                "userDescription": "Fetch the list of available policies in Azure API Management.",
+                "canBeReferencedInPrompt": true,
+                "icon": "$(files)",
+                "inputSchema": { }
+            }
+        ],
         "walkthroughs": [
             {
                 "id": "apim-import-and-test-apis",
