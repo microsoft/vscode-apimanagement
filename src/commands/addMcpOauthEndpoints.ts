@@ -153,7 +153,7 @@ export async function addMcpOauthEndpoints(context: IActionContext, node?: ApisT
             }
         });
     } catch (error) {
-        vscode.window.showErrorMessage(localize('azureApiManagement.addMcpOauthEndpointsFailed', 'Failed to add MCP OAuth endpoints: {0}', error instanceof Error ? error.message : String(error)));
+        vscode.window.showErrorMessage(localize('azureApiManagement.addMcpOauthEndpointsFailed', 'Failed to enable MCP OAuth endpoints: {0}', error instanceof Error ? error.message : String(error)));
         throw error;
     }
 }
