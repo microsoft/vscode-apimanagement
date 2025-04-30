@@ -49,6 +49,39 @@ export interface IGatewayPropertyContract {
     heartbeat: string;
 }
 
+export interface IMcpToolContract {
+    name: string;
+    description: string;
+    operationId: string;
+}
+
+export interface IMcpServerApiContract {
+    id: string;
+    name: string;
+    type: string;
+    properties: IMcpServerApiProperties;
+}
+
+export interface IMcpServerApiProperties {
+    displayName: string;
+    apiRevision: string;
+    description?: string;
+    subscriptionRequired: boolean;
+    serviceUrl?: string;
+    backendId?: string;
+    path: string;
+    protocols: string[];
+    subscriptionKeyParameterNames: IMcpServerApiSubscriptionKeyParameterNames;
+    type: string;
+    isCurrent: boolean;
+    mcpTools?: IMcpToolContract[];
+}
+
+export interface IMcpServerApiSubscriptionKeyParameterNames {
+    header: string;
+    query: string;
+}
+
 export interface IGatewayApiContract {
     id: string;
     name: string;
