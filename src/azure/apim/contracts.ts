@@ -49,6 +49,28 @@ export interface IGatewayPropertyContract {
     heartbeat: string;
 }
 
+export interface IMcpToolContract {
+    name: string;
+    description: string;
+    operationId: string;
+}
+
+export interface IMcpServerApiContract {
+    id: string;
+    name: string;
+    // tslint:disable-next-line: no-reserved-keywords
+    type: string;
+    properties: {
+        displayName: string;
+        type: string;
+        path?: string;
+        protocols?: string[];
+        description?: string;
+        subscriptionRequired?: boolean;
+        mcpTools?: IMcpToolContract[];
+    };
+}
+
 export interface IGatewayApiContract {
     id: string;
     name: string;
