@@ -82,6 +82,7 @@ import { openUrlFromTreeNode } from './commands/openUrl';
 import { explainPolicy } from './commands/explainPolicy';
 import { draftPolicy } from './commands/draftPolicy';
 import { showReleaseNotes } from './utils/extensionUtil';
+import { testMcpInVSCode } from './commands/testMcpInVSCode';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -149,6 +150,7 @@ export async function associateXmlSchema(context: vscode.ExtensionContext): Prom
 function registerCommands(tree: AzExtTreeDataProvider): void {
     registerCommand('azureApiManagement.signInToAzure', async () => { await AzureAccount.signInToAzure(); });
     registerCommand('azureApiManagement.openUrl', async(context: IActionContext, node?: AzExtTreeItem) => { await openUrlFromTreeNode(context, node); });
+    registerCommand('azureApiManagement.testInVSCode', testMcpInVSCode);
     registerCommand('azureApiManagement.Refresh', async (context: IActionContext) => await ext.azureAccountTreeItem.refresh(context)); // need to double check
     registerCommand('azureApiManagement.selectSubscriptions', async() => { await AzureAccount.selectSubscriptions();});
     registerCommand('azureApiManagement.selectTenant', async() => { await AzureAccount.selectTenant();});

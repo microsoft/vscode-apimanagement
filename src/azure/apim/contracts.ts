@@ -58,17 +58,28 @@ export interface IMcpToolContract {
 export interface IMcpServerApiContract {
     id: string;
     name: string;
-    // tslint:disable-next-line: no-reserved-keywords
     type: string;
-    properties: {
-        displayName: string;
-        type: string;
-        path?: string;
-        protocols?: string[];
-        description?: string;
-        subscriptionRequired?: boolean;
-        mcpTools?: IMcpToolContract[];
-    };
+    properties: IMcpServerApiProperties;
+}
+
+export interface IMcpServerApiProperties {
+    displayName: string;
+    apiRevision: string;
+    description?: string;
+    subscriptionRequired: boolean;
+    serviceUrl?: string;
+    backendId?: string;
+    path: string;
+    protocols: string[];
+    subscriptionKeyParameterNames: IMcpServerApiSubscriptionKeyParameterNames;
+    type: string;
+    isCurrent: boolean;
+    mcpTools?: IMcpToolContract[];
+}
+
+export interface IMcpServerApiSubscriptionKeyParameterNames {
+    header: string;
+    query: string;
 }
 
 export interface IGatewayApiContract {
