@@ -28,6 +28,7 @@
         "swagger"
     ],
     "activationEvents": [
+        "onCommand:azureApiManagement.testInVSCode",
         "onCommand:azureApiManagement.Refresh",
         "onCommand:azureApiManagement.selectSubscriptions",
         "onView:azureApiManagementExplorer",
@@ -213,6 +214,11 @@
             }
         ],
         "commands": [
+            {
+                "command": "azureApiManagement.testInVSCode",
+                "title": "Test in VS Code", 
+                "category": "Azure API Management"
+            },
             {
                 "command": "azureApiManagement.createService",
                 "title": "%azureApiManagement.createService%",
@@ -829,6 +835,11 @@
                     "command": "azureApiManagement.deleteAuthorizationAccessPolicy",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementAuthorizationAccessPolicy",
                     "group": "3@1"
+                },
+                {
+                    "command": "azureApiManagement.testInVSCode",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementMcpServer",
+                    "group": "1@1"
                 }
             ],
             "copilot": [
@@ -895,7 +906,7 @@
     },
     "scripts": {
         "vscode:prepublish": "npm run webpack-prod",
-        "build": "tsc -p ./ && gulp webpack-prod",
+        "build": "tsc -p ./",
         "compile": "tsc -watch -p ./",
         "package": "vsce package",
         "lint": "tslint --project tsconfig.json -e src/*.d.ts -t verbose",
