@@ -19,6 +19,7 @@ import { createAuthorization } from './commands/authorizations/createAuthorizati
 import { createAuthorizationAccessPolicy } from './commands/authorizations/createAuthorizationAccessPolicy';
 import { createAuthorizationProvider } from './commands/authorizations/createAuthorizationProvider';
 import { copySubscriptionKey } from './commands/copySubscriptionKey';
+import { copySubscriptionKeyValue } from './commands/copySubscriptionKeyValue';
 import { createService } from './commands/createService';
 import { debugPolicy } from './commands/debugPolicies/debugPolicy';
 import { deleteNode } from './commands/deleteNode';
@@ -157,6 +158,7 @@ function registerCommands(tree: AzExtTreeDataProvider): void {
     registerCommand('azureApiManagement.createService', createService);
     registerCommand('azureApiManagement.showWalkthrough', async () => { await vscode.commands.executeCommand('workbench.action.openWalkthrough', 'ms-azuretools.vscode-apimanagement#apim-import-and-test-apis'); });
     registerCommand('azureApiManagement.copySubscriptionKey', copySubscriptionKey);
+    registerCommand('azureApiManagement.copySubscriptionKeyValue', copySubscriptionKeyValue);
     registerCommand('azureApiManagement.deleteService', async (context: IActionContext, node?: AzExtParentTreeItem) => await deleteNode(context, ServiceTreeItem.contextValue, node));
     registerCommand('azureApiManagement.deleteApi', async (context: IActionContext, node?: AzExtTreeItem) => await deleteNode(context, ApiTreeItem.contextValue, node));
     registerCommand('azureApiManagement.deleteOperation', async (context: IActionContext, node?: AzExtTreeItem) => await deleteNode(context, ApiOperationTreeItem.contextValue, node));

@@ -7,6 +7,7 @@
     "azureApiManagement.createService": "Create API Management in Azure",
     "azureApiManagement.deleteService": "Delete API Management",
     "azureApiManagement.copySubscriptionKey" : "Copy Subscription Key",
+    "azureApiManagement.copySubscriptionKeyValue" : "Copy Subscription Key",
     "azureApiManagement.showApi": "Edit OpenAPI",
     "azureApiManagement.showArmApi": "Edit API",
     "azureApiManagement.showArmApiOperation": "Edit Operation",
