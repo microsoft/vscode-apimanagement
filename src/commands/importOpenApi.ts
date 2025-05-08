@@ -64,7 +64,7 @@ export async function importOpenApi(context: IActionContext & Partial<IApiTreeIt
         ).then(async () => {
             // tslint:disable-next-line:no-non-null-assertion
             await node!.refresh(context);
-            window.showInformationMessage(localize("importedApi", `Imported API '${apiName}' to API Management succesfully.`));
+            window.showInformationMessage(localize("importedApi", `Imported API '${apiName}' to API Management successfully.`));
         });
     }
 }

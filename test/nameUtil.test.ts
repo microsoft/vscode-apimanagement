@@ -10,18 +10,18 @@ import { IOperationTreeRoot } from '../src/explorer/IOperationTreeRoot';
 import { IServiceTreeRoot } from '../src/explorer/IServiceTreeRoot';
 
 // tslint:disable: no-unsafe-any
-suite("Name Util", () => {
-    test("ServiceRoot", async () => {
+describe('Name Util', () => {
+    it('should correctly format service root name', async () => {
         const name : string = nameUtil(<IServiceTreeRoot>{ serviceName : "apim-service"  });
         assert.equal(name, "apim-service");
     });
 
-    test("OperationRoot", async () => {
+    it('should correctly format operation root name', async () => {
         const name : string = nameUtil(<IOperationTreeRoot>{ serviceName : "apim-service", apiName: "apim-api", opName: "apim-op" });
         assert.equal(name, "apim-service-apim-api-apim-op");
     });
 
-    test("ApiRoot", async () => {
+    it('should correctly format API root name', async () => {
         const name : string = nameUtil(<IApiTreeRoot>{ serviceName : "apim-service", apiName: "apim-api"});
         assert.equal(name, "apim-service-apim-api");
     });

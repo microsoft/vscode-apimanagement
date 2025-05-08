@@ -2,7 +2,7 @@
     "name": "vscode-apimanagement",
     "displayName": "Azure API Management",
     "description": "An Azure API Management extension for Visual Studio Code.",
-    "version": "1.0.10",
+    "version": "1.1.0",
     "publisher": "ms-azuretools",
     "icon": "resources/apim-icon-newone.png",
     "aiKey": "cbd849ca-06a5-4aef-bc27-08e37b251d1b",
@@ -33,6 +33,7 @@
         "onView:azureApiManagementExplorer",
         "onLanguage:policy",
         "onLanguage:apim-policy",
+        "onLanguage:xml",
         "onCommand:azureApiManagement.createService",
         "onCommand:azureApiManagement.deleteService",
         "onCommand:azureApiManagement.copySubscriptionKey",
@@ -113,6 +114,76 @@
                 "canBeReferencedInPrompt": true,
                 "icon": "$(files)",
                 "inputSchema": { }
+            }
+        ],
+        "walkthroughs": [
+            {
+                "id": "apim-import-and-test-apis",
+                "title": "Azure API Management: Import and test your APIs",
+                "description": "Get started with the API Management extension by importing and testing an example OpenAPI Petstore API.",
+                "steps": [
+                    {
+                        "id": "introduction",
+                        "title": "Introduction",
+                        "description": "You can view your API Management services and resources in the Explorer view on the left. Follow the steps to import and test an OpenAPI spec.",
+                        "media": {
+                            "image": "resources/walkthrough/APIManagement.svg",
+                            "altText": "Azure API Management"
+                        }
+                    },
+                    {
+                        "id": "import-openapi-spec",
+                        "title": "Import an OpenAPI spec",
+                        "description": "You can import an OpenAPI spec from a link or a from a file.\n\n1. To import from a link, in the Command Palette, type \">Azure API Management: Import from OpenAPI link\". To import from a file. In the Command Palette, type \">Azure API Management: import from OpenAPI file\".\n2. If you are importing from a link, enter the API link: https://petstore3.swagger.io/api/v3/openapi.json\nEnter an API name. Example: petstore\n\n[Import from link](command:azureApiManagement.importOpenApiByLink)\n\n[Import from file](command:azureApiManagement.importOpenApiByFile)\n\nTip: Open command palette by pressing Ctrl+Shift+P (Windows/Linux) or Cmd+Shift+P (macOS)",
+                        "media": {
+                            "image": "resources/walkthrough/import-an-api-spec.svg",
+                            "altText": "Import an OpenAPI spec"
+                        },
+                        "completionEvents": ["onCommand:azureApiManagement.importOpenApiByLink", "onCommand:azureApiManagement.importOpenApiByFile"]
+                    },
+                    {
+                        "id": "get-subscription-key",
+                        "title": "Get Subscription Key",
+                        "description": "A subscription key is required to call this API.\nTo get the all-access subscription key \n\n1. Open the command palette\n2. Type \">Azure API Management: Copy Subscription Key\"\n3. Select your API Management service from the list\n\n[Copy subscription key](command:azureApiManagement.copySubscriptionKey)\n\nTip: To copy a subscription key from the left panel, right-click on your API Management Service and select \"Copy Subscription Key\"",
+                        "media": {
+                            "image": "resources/walkthrough/get-subscription-key.svg",
+                            "altText": "Getting a subscription key"
+                        },
+                        "completionEvents": ["onCommand:azureApiManagement.copySubscriptionKey"]
+                    },
+                    {
+                        "id": "test-operation",
+                        "title": "Test operation",
+                        "description": "You can call API operations directly from the VS Code extension. \n\n1. In the command palette type \">Azure API Management: Test Operation\"\n2. Select your service from the list.\n3. Select the API named \"petstore\"\n4. Select the operation \"[GET] Find Pet by status\" and press enter. You'll see a .http file in the editor.\n\n[Test operation](command:azureApiManagement.testOperation)\n\n Tip: To test an operation from the left panel, right-click on an operation and select \"Test Operation\".",
+                        "media": {
+                            "image": "resources/walkthrough/test-operation.svg",
+                            "altText": "Testing an API operation"
+                        },
+                        "completionEvents": ["onCommand:azureApiManagement.testOperation"],
+                        "doneButtonLabel": "Test operation",
+                        "doneButton": {
+                            "command": "azureApiManagement.testOperation"
+                        }
+                    },
+                    {
+                        "id": "send-api-request",
+                        "title": "Send an API Request",
+                        "description": "Now send a request.\n\n1. In the .http file, paste the subscription key you copied earlier in place of \"{{azure-api-management-subscription-key}}\"\n2. Select \"Send Request\" which will test your API operation. If the request succeeds you will see a 200 OK in the response tab.",
+                        "media": {
+                            "image": "resources/walkthrough/send-an-api-request.svg",
+                            "altText": "Sending an API request"
+                        }
+                    },
+                    {
+                        "id": "resources",
+                        "title": "Resources",
+                        "description": "To learn more about API Management and how to publish APIs to external, partner, and employee developers securely and at scale, check out our [documentation](https://learn.microsoft.com/en-us/azure/api-management/import-and-publish).",
+                        "media": {
+                            "image": "resources/walkthrough/APIManagement.svg",
+                            "altText": "Azure API Management"
+                        }
+                    }
+                ]
             }
         ],
         "debuggers": [
@@ -465,6 +536,15 @@
                 "command": "azureApiManagement.draftPolicy",
                 "title": "%azureApiManagement.draftPolicy%",
                 "category": "Azure API Management"
+            },
+            {
+                "command": "azureApiManagement.showWalkthrough",
+                "title": "Show Walkthrough",
+                "category": "Azure Api Management",
+                "icon": {
+                    "light": "resources/light/walkthrough.svg",
+                    "dark": "resources/dark/walkthrough.svg"
+                }
             }
         ],
         "viewsContainers": {
@@ -506,6 +586,11 @@
             "view/title": [
                 {
                     "command": "azureApiManagement.Refresh",
+                    "when": "view == azureApiManagementExplorer",
+                    "group": "navigation@1"
+                },
+                {
+                    "command": "azureApiManagement.showWalkthrough",
                     "when": "view == azureApiManagementExplorer",
                     "group": "navigation@1"
                 }
@@ -859,7 +944,7 @@
         "mocha": "^10.0.0",
         "mocha-junit-reporter": "^1.23.3",
         "mocha-multi-reporters": "^1.1.7",
-        "mock-env": "^0.2.0",
+        "mocked-env": "^1.3.5",
         "sinon": "^19.0.2",
         "ts-node": "^7.0.1",
         "tslint": "^5.20.1",

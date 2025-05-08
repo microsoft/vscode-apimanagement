@@ -82,6 +82,8 @@ import { openUrlFromTreeNode } from './commands/openUrl';
 import { explainPolicy } from './commands/explainPolicy';
 import { draftPolicy } from './commands/draftPolicy';
 import { AvailablePoliciesTool } from './tools/availablePoliciesTool';
+import { showReleaseNotes } from './utils/extensionUtil';
+
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 // tslint:disable-next-line:typedef
@@ -92,6 +94,9 @@ export async function activateInternal(context: vscode.ExtensionContext) {
     ext.outputChannel = createAzExtOutputChannel("Azure API Management", ext.prefix);
     context.subscriptions.push(ext.outputChannel);
     vscode.commands.executeCommand('setContext', 'isEditorEnabled', false);
+
+    // Show release notes if version has changed
+    await showReleaseNotes(context);
 
     // Add XML schema association for policy files unless explicitly disabled by environment variable
     await associateXmlSchema(context);
@@ -154,6 +159,7 @@ function registerCommands(tree: AzExtTreeDataProvider): void {
     registerCommand('azureApiManagement.LoadMore', async (context: IActionContext, node: AzExtTreeItem) => await tree.loadMore(node, context)); // need to double check
     registerCommand('azureApiManagement.openInPortal', openInPortal);
     registerCommand('azureApiManagement.createService', createService);
+    registerCommand('azureApiManagement.showWalkthrough', async () => { await vscode.commands.executeCommand('workbench.action.openWalkthrough', 'ms-azuretools.vscode-apimanagement#apim-import-and-test-apis'); });
     registerCommand('azureApiManagement.copySubscriptionKey', copySubscriptionKey);
     registerCommand('azureApiManagement.deleteService', async (context: IActionContext, node?: AzExtParentTreeItem) => await deleteNode(context, ServiceTreeItem.contextValue, node));
     registerCommand('azureApiManagement.deleteApi', async (context: IActionContext, node?: AzExtTreeItem) => await deleteNode(context, ApiTreeItem.contextValue, node));
