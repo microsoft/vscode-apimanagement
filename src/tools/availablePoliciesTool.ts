@@ -24,9 +24,7 @@ export class AvailablePoliciesTool implements vscode.LanguageModelTool<{}> {
 
             const policyList = Object.entries(policies)
                 .map(([name, description]) => `${name}: ${description}`)
-                .join('\n\n');
-
-            console.log(policyList)
+                .join('\n');
 
             return new vscode.LanguageModelToolResult([
                 new vscode.LanguageModelTextPart('Here are all available APIM policies:\n\n' + policyList)
