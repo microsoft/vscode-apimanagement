@@ -4,7 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import * as vscode from 'vscode';
-import { IActionContext } from '@microsoft/vscode-azext-utils';
+import { IActionContext, isUserCancelledError } from '@microsoft/vscode-azext-utils';
 import { SubscriptionTreeItem } from '../explorer/SubscriptionTreeItem';
 import { ext } from '../extensionVariables';
 import { localize } from '../localize';
@@ -41,10 +41,6 @@ export async function copySubscriptionKeyValue(context: IActionContext, node?: S
                 ],
                 { placeHolder: 'Select which subscription key to copy' }
             );
-            if (!selection) {
-                // User canceled the QuickPick
-                return;
-            }
             keyToCopy = selection.key;
         } else {
             // Use whichever key is available
@@ -59,6 +55,10 @@ export async function copySubscriptionKeyValue(context: IActionContext, node?: S
         await vscode.env.clipboard.writeText(keyToCopy);
         vscode.window.showInformationMessage(localize("SubscriptionKeyCopied", "Subscription key has been copied to clipboard."));
     } catch (error) {
+        if (isUserCancelledError(error)) {
+            // User cancelled the operation, do nothing
+            return;
+        }
         vscode.window.showErrorMessage(localize("ErrorCopyingSubscriptionKey", `Error copying subscription key: ${error instanceof Error ? error.message : String(error)}`));
         throw error;
     }
