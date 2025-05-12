@@ -37,6 +37,7 @@
         "onCommand:azureApiManagement.createService",
         "onCommand:azureApiManagement.deleteService",
         "onCommand:azureApiManagement.copySubscriptionKey",
+        "onCommand:azureApiManagement.copySubscriptionKeyValue",
         "onCommand:azureApiManagement.deleteApi",
         "onCommand:azureApiManagement.deleteOperation",
         "onCommand:azureApiManagement.importOpenApiByFile",
@@ -242,6 +243,11 @@
             {
                 "command": "azureApiManagement.copySubscriptionKey",
                 "title": "%azureApiManagement.copySubscriptionKey%",
+                "category": "Azure API Management"
+            },
+            {   
+                "command": "azureApiManagement.copySubscriptionKeyValue",
+                "title": "%azureApiManagement.copySubscriptionKeyValue%",
                 "category": "Azure API Management"
             },
             {
@@ -581,6 +587,10 @@
                 {
                     "command": "azureApiManagement.LoadMore",
                     "when": "never"
+                },
+                {
+                    "command": "azureApiManagement.copySubscriptionKeyValue",
+                    "when": "never"
                 }
             ],
             "view/title": [
@@ -785,6 +795,11 @@
                     "command": "azureApiManagement.deleteSubscription",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementSubscriptionTreeItem",
                     "group": "1@1"
+                },
+                {
+                    "command": "azureApiManagement.copySubscriptionKeyValue",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementSubscriptionTreeItem",
+                    "group": "1@0"
                 },
                 {
                     "command": "azureApiManagement.createAuthorizationProvider",
