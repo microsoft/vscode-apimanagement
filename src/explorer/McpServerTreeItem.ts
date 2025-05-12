@@ -37,7 +37,7 @@ export class McpServerTreeItem extends AzExtParentTreeItem {
     }
 
     public get iconPath(): { light: string, dark: string } {
-        return treeUtils.getThemedIconPath('mcp');
+        return treeUtils.getThemedIconPath('mcp', 'png');
     }
     public get id(): string {
         return this._name;
