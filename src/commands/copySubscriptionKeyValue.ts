@@ -41,6 +41,10 @@ export async function copySubscriptionKeyValue(context: IActionContext, node?: S
                 ],
                 { placeHolder: 'Select which subscription key to copy' }
             );
+            if (!selection) {
+                // User canceled the QuickPick
+                return;
+            }
             keyToCopy = selection.key;
         } else {
             // Use whichever key is available
