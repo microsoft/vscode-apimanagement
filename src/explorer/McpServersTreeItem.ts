@@ -18,10 +18,10 @@ export class McpServersTreeItem extends AzExtParentTreeItem {
     }
 
     public get iconPath(): { light: string, dark: string } {
-        return treeUtils.getThemedIconPath('list');
+        return treeUtils.getThemedIconPath('mcp');
     }
     public static contextValue: string = 'azureApiManagementMcpServers';
-    public label: string = "MCP Servers (Preview)";
+    public label: string = "MCPs (Preview)";
     public contextValue: string = McpServersTreeItem.contextValue;
     private _nextLink: string | undefined;
 
