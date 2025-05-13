@@ -9,7 +9,8 @@ import { treeUtils } from "../utils/treeUtils";
 
 export class McpServerToolTreeItem extends AzExtTreeItem {
     public static contextValue: string = 'azureApiManagementMcpServerTool';
-    public contextValue: string = McpServerToolTreeItem.contextValue; public readonly label: string;
+    public contextValue: string = McpServerToolTreeItem.contextValue;
+    public readonly label: string;
 
     constructor(
         parent: AzExtParentTreeItem,
