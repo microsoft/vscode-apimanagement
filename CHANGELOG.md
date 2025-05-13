@@ -2,6 +2,22 @@
 
 All notable changes to the "Azure Api Management VS Code" extension will be documented in this file.
 
+## 1.2.0
+
+### New features
+
+- **MCP servers support**: This feature allows you view MCP servers in APIM and modify policies for the MCP servers.
+![ViewMCPServers](https://github.com/user-attachments/assets/4efdbd9f-66a8-42a0-89a7-69917df1d58a)
+
+- **Copy Subscription Key**: This feature enables you to copy the primary and secondary key for any APIM subscription.
+![CopySubscriptionKey](https://github.com/user-attachments/assets/7454be8c-b98f-4237-858e-d04aa3dee0e3) 
+
+- **Add language model tool for GitHub Copilot**: This feature provides language model tool `Get available APIM policies` to help GitHub Copilot draft APIM policies better.
+![LanguageModelTool](https://github.com/user-attachments/assets/79f0d220-6565-4897-80c2-01ea53154752)
+
+- **Walkthrough to guide you in importing and testing an API**: This walkthrough helps you quickly get started with APIM by importing and testing an API.
+![Walkthrough](https://github.com/user-attachments/assets/edb6ec05-13d7-4782-a07f-b968002e77cc)
+
 ## 1.1.0
 
 ### New features
