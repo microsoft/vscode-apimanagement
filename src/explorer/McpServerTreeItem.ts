@@ -32,7 +32,7 @@ export class McpServerTreeItem extends AzExtParentTreeItem {
         this._root = this.createRoot(root, this._name);
 
         this.toolsTreeItem = new McpServerToolsTreeItem(this, this.mcpServerContract);
-        this.policyTreeItem = this.policyTreeItem = new ApiPolicyTreeItem(this, this._root);
+        this.policyTreeItem = new ApiPolicyTreeItem(this, this._root);
     }
 
     public get iconPath(): { light: string, dark: string } {
