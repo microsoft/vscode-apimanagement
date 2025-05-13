@@ -28,6 +28,7 @@ import { ProductsTreeItem } from "./ProductsTreeItem";
 import { ProductTreeItem } from "./ProductTreeItem";
 import { ServicePolicyTreeItem } from "./ServicePolicyTreeItem";
 import { SubscriptionsTreeItem } from "./SubscriptionsTreeItem";
+import { McpServersTreeItem } from "./McpServersTreeItem";
 
 export class ServiceTreeItem extends AzExtParentTreeItem {
 
@@ -51,6 +52,7 @@ export class ServiceTreeItem extends AzExtParentTreeItem {
     public readonly productsTreeItem: ProductsTreeItem;
     public readonly gatewaysTreeItem: GatewaysTreeItem;
     public readonly subscriptionsTreeItem: SubscriptionsTreeItem;
+    public readonly mcpServersTreeItem: McpServersTreeItem;
     public readonly authorizationProvidersTreeItem: AuthorizationProvidersTreeItem;
 
     private _root: IServiceTreeRoot;
@@ -74,6 +76,7 @@ export class ServiceTreeItem extends AzExtParentTreeItem {
             this.gatewaysTreeItem = new GatewaysTreeItem(this, this.root);
         }
 
+        this.mcpServersTreeItem = new McpServersTreeItem(this, this.root);
         this.authorizationProvidersTreeItem = new AuthorizationProvidersTreeItem(this, this.root);
     }
 
@@ -83,9 +86,9 @@ export class ServiceTreeItem extends AzExtParentTreeItem {
 
     public async loadMoreChildrenImpl(): Promise<AzExtTreeItem[]> {
         if (this.gatewaysTreeItem === undefined) {
-            return [this.apisTreeItem, this.namedValuesTreeItem, this.productsTreeItem, this.servicePolicyTreeItem, this.subscriptionsTreeItem, this.authorizationProvidersTreeItem];
+            return [this.apisTreeItem, this.namedValuesTreeItem, this.productsTreeItem, this.servicePolicyTreeItem, this.subscriptionsTreeItem, this.authorizationProvidersTreeItem, this.mcpServersTreeItem];
         }
-        return [this.apisTreeItem, this.namedValuesTreeItem, this.productsTreeItem, this.servicePolicyTreeItem, this.gatewaysTreeItem, this.subscriptionsTreeItem, this.authorizationProvidersTreeItem];
+        return [this.apisTreeItem, this.namedValuesTreeItem, this.productsTreeItem, this.servicePolicyTreeItem, this.gatewaysTreeItem, this.subscriptionsTreeItem, this.authorizationProvidersTreeItem, this.mcpServersTreeItem];
     }
 
     public hasMoreChildrenImpl(): boolean {
