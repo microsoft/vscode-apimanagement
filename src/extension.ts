@@ -19,6 +19,7 @@ import { createAuthorization } from './commands/authorizations/createAuthorizati
 import { createAuthorizationAccessPolicy } from './commands/authorizations/createAuthorizationAccessPolicy';
 import { createAuthorizationProvider } from './commands/authorizations/createAuthorizationProvider';
 import { copySubscriptionKey } from './commands/copySubscriptionKey';
+import { copySubscriptionKeyValue } from './commands/copySubscriptionKeyValue';
 import { createService } from './commands/createService';
 import { debugPolicy } from './commands/debugPolicies/debugPolicy';
 import { deleteNode } from './commands/deleteNode';
@@ -81,6 +82,7 @@ import { AzureAccount } from "./azure/azureLogin/azureAccount";
 import { openUrlFromTreeNode } from './commands/openUrl';
 import { explainPolicy } from './commands/explainPolicy';
 import { draftPolicy } from './commands/draftPolicy';
+import { AvailablePoliciesTool } from './tools/availablePoliciesTool';
 import { showReleaseNotes } from './utils/extensionUtil';
 import { copyMcpServerUrl } from './commands/copyMcpServerUrl';
 
@@ -122,6 +124,9 @@ export async function activateInternal(context: vscode.ExtensionContext) {
         context.subscriptions.push(
             vscode.window.registerUriHandler(handler)
         );
+        context.subscriptions.push(
+            vscode.lm.registerTool('get-available-apim-policies', new AvailablePoliciesTool())
+        );
 
         activate(context); // activeta debug context
     });
@@ -158,6 +163,7 @@ function registerCommands(tree: AzExtTreeDataProvider): void {
     registerCommand('azureApiManagement.createService', createService);
     registerCommand('azureApiManagement.showWalkthrough', async () => { await vscode.commands.executeCommand('workbench.action.openWalkthrough', 'ms-azuretools.vscode-apimanagement#apim-import-and-test-apis'); });
     registerCommand('azureApiManagement.copySubscriptionKey', copySubscriptionKey);
+    registerCommand('azureApiManagement.copySubscriptionKeyValue', copySubscriptionKeyValue);
     registerCommand('azureApiManagement.deleteService', async (context: IActionContext, node?: AzExtParentTreeItem) => await deleteNode(context, ServiceTreeItem.contextValue, node));
     registerCommand('azureApiManagement.deleteApi', async (context: IActionContext, node?: AzExtTreeItem) => await deleteNode(context, ApiTreeItem.contextValue, node));
     registerCommand('azureApiManagement.deleteOperation', async (context: IActionContext, node?: AzExtTreeItem) => await deleteNode(context, ApiOperationTreeItem.contextValue, node));
