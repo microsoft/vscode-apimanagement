@@ -8,6 +8,26 @@ import { treeUtils } from "../utils/treeUtils";
 import { ApimService } from "../azure/apim/ApimService";
 import { IServiceTreeRoot } from "./IServiceTreeRoot";
 import { McpServerTreeItem } from "./McpServerTreeItem";
+import * as vscode from 'vscode';
+import { mcpLearnMoreUrl } from "../constants";
+
+export class LearnMoreMcpTreeItem extends AzExtTreeItem {
+    public static contextValue: string = 'azureApiManagementMcpLearnMore';
+    public contextValue: string = LearnMoreMcpTreeItem.contextValue;
+    public label: string = 'Learn how to add MCP server';
+    
+    constructor(parent: AzExtParentTreeItem) {
+        super(parent);
+    }
+
+    public get commandId(): string {
+        return `azureApiManagement.openMcpLearnMore`;
+    }
+
+    public async openPage(): Promise<void> {
+        await vscode.env.openExternal(vscode.Uri.parse(mcpLearnMoreUrl));
+    }
+}
 
 export class McpServersTreeItem extends AzExtParentTreeItem {
     public static contextValue: string = 'azureApiManagementMcpServers';
@@ -27,7 +47,6 @@ export class McpServersTreeItem extends AzExtParentTreeItem {
         return treeUtils.getThemedIconPath('list');
     }
 
-
     public hasMoreChildrenImpl(): boolean {
         return this._nextLink !== undefined;
     }
@@ -45,6 +64,10 @@ export class McpServersTreeItem extends AzExtParentTreeItem {
         );
 
         const mcpServers = await apimService.listMcpServers();
+
+        if (!mcpServers || mcpServers.length === 0) {
+            return [new LearnMoreMcpTreeItem(this)];
+        }
 
         return this.createTreeItemsWithErrorHandling(
             mcpServers,

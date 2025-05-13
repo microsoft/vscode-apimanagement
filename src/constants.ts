@@ -22,6 +22,8 @@ export const openApiExport = "openapi%2Bjson";
 export const openApiAcceptHeader = "application/vnd.oai.openapi+json";
 export const swaggerAcceptHeader = "application/vnd.swagger.doc+json";
 
+export const mcpLearnMoreUrl = "https://aka.ms/apimdocs/exportmcp";
+
 export const functionAppApiVersion = "2019-08-01";
 // this api version for function app support creating function key
 export const functionAppCreateKeyApiVersion = "2018-11-01";
