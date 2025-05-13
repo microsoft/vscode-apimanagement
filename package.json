@@ -28,7 +28,6 @@
         "swagger"
     ],
     "activationEvents": [
-        "onCommand:azureApiManagement.testInVSCode",
         "onCommand:azureApiManagement.Refresh",
         "onCommand:azureApiManagement.selectSubscriptions",
         "onView:azureApiManagementExplorer",
@@ -214,11 +213,6 @@
             }
         ],
         "commands": [
-            {
-                "command": "azureApiManagement.testInVSCode",
-                "title": "Test in VS Code", 
-                "category": "Azure API Management"
-            },
             {
                 "command": "azureApiManagement.copyMcpServerUrl",
                 "title": "%azureApiManagement.copyMcpServerUrl%",
@@ -844,11 +838,6 @@
                     "command": "azureApiManagement.deleteAuthorizationAccessPolicy",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementAuthorizationAccessPolicy",
                     "group": "3@1"
-                },
-                {
-                    "command": "azureApiManagement.testInVSCode",
-                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementMcpServer",
-                    "group": "1@1"
                 },
                 {
                     "command": "azureApiManagement.copyMcpServerUrl",
