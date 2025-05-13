@@ -84,6 +84,7 @@ import { explainPolicy } from './commands/explainPolicy';
 import { draftPolicy } from './commands/draftPolicy';
 import { AvailablePoliciesTool } from './tools/availablePoliciesTool';
 import { showReleaseNotes } from './utils/extensionUtil';
+import { copyMcpServerUrl } from './commands/copyMcpServerUrl';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -207,6 +208,7 @@ function registerCommands(tree: AzExtTreeDataProvider): void {
 
     registerCommand('azureApiManagement.explainPolicy', async (context: IActionContext) => await explainPolicy(context));
     registerCommand('azureApiManagement.draftPolicy', async (context: IActionContext) => await draftPolicy(context));
+    registerCommand('azureApiManagement.copyMcpServerUrl', copyMcpServerUrl);
 }
 
 // tslint:disable-next-line: max-func-body-length

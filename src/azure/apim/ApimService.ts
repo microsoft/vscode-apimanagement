@@ -19,6 +19,7 @@ import {
     IGatewayApiContract,
     IGatewayContract,
     IMasterSubscriptionsSecrets,
+    IMcpServerApiContract,
     ITokenStoreIdentityProviderContract
 } from "./contracts";
 import { AzExtServiceClientCredentials } from "@microsoft/vscode-azext-utils";
@@ -290,6 +291,16 @@ export class ApimService {
         });
         // tslint:disable-next-line:no-any
         return <IApimServiceContract>(result.parsedBody);
+    }
+
+    public async listMcpServers(): Promise<IMcpServerApiContract[]> {
+        const client: ServiceClient = new ServiceClient(this.credentials, clientOptions);
+        const result: HttpOperationResponse = await client.sendRequest({
+            method: "GET",
+            url: `${this.baseUrl}/apis?api-version=2025-03-01-preview&$filter=properties/type eq 'mcp'`
+        });
+        // tslint:disable-next-line: no-unsafe-any
+        return <IMcpServerApiContract[]>(result.parsedBody.value);
     }
 
     private genSiteUrl(endPointUrl: string, subscriptionId: string, resourceGroup: string, serviceName: string): string {

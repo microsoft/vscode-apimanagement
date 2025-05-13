@@ -231,6 +231,11 @@
         ],
         "commands": [
             {
+                "command": "azureApiManagement.copyMcpServerUrl",
+                "title": "%azureApiManagement.copyMcpServerUrl%",
+                "category": "Azure API Management"
+            },
+            {
                 "command": "azureApiManagement.createService",
                 "title": "%azureApiManagement.createService%",
                 "category": "Azure API Management"
@@ -591,6 +596,10 @@
                 {
                     "command": "azureApiManagement.copySubscriptionKeyValue",
                     "when": "never"
+                },
+                {
+                    "command": "azureApiManagement.copyMcpServerUrl",
+                    "when": "never"
                 }
             ],
             "view/title": [
@@ -860,6 +869,11 @@
                     "command": "azureApiManagement.deleteAuthorizationAccessPolicy",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementAuthorizationAccessPolicy",
                     "group": "3@1"
+                },
+                {
+                    "command": "azureApiManagement.copyMcpServerUrl",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementMcpServer",
+                    "group": "1@2"
                 }
             ],
             "copilot": [

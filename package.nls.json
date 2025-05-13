@@ -50,6 +50,7 @@
     "azureApiManagement.createAuthorizationProvider": "Create Credential Manager",
     "azureApiManagement.deleteAuthorizationProvider": "Delete Credential Manager",
     "azureApiManagement.copyAuthorizationProviderRedirectUrl": "Copy RedirectUrl",
+    "azureApiManagement.copyMcpServerUrl": "Copy Server URL",
     "azureApiManagement.createAuthorization": "Create Credential",
     "azureApiManagement.authorizeAuthorization": "Login",
     "azureApiManagement.deleteAuthorization": "Delete Credential",
