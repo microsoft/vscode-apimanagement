@@ -15,7 +15,7 @@ All notable changes to the "Azure Api Management VS Code" extension will be docu
 - **Add language model tool for GitHub Copilot**: This feature provides language model tool `Get available APIM policies` to help GitHub Copilot draft APIM policies better.
 ![LanguageModelTool](https://github.com/user-attachments/assets/79f0d220-6565-4897-80c2-01ea53154752)
 
-- **Walkthrough to guide you import and test API**: This walkthrough helps you quickly getting started with APIM by importing an API to APIM and test it.
+- **Walkthrough to guide you in importing and testing an API**: This walkthrough helps you quickly get started with APIM by importing and testing an API.
 ![Walkthrough](https://github.com/user-attachments/assets/edb6ec05-13d7-4782-a07f-b968002e77cc)
 
 ## 1.1.0
