@@ -82,7 +82,6 @@ import { openUrlFromTreeNode } from './commands/openUrl';
 import { explainPolicy } from './commands/explainPolicy';
 import { draftPolicy } from './commands/draftPolicy';
 import { showReleaseNotes } from './utils/extensionUtil';
-import { testMcpInVSCode } from './commands/testMcpInVSCode';
 import { copyMcpServerUrl } from './commands/copyMcpServerUrl';
 
 // this method is called when your extension is activated

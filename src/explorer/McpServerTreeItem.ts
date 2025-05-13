@@ -1,5 +1,4 @@
-/*--------------------        this._name = nonNullProp(this.mcpServerContract, 'name');
-        this.label = this.mcpServerContract.properties.displayName || this._name;-----------------------------------------------------------------------
+/*---------------------------------------------------------------------------------------------
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
@@ -39,6 +38,7 @@ export class McpServerTreeItem extends AzExtParentTreeItem {
     public get iconPath(): { light: string, dark: string } {
         return treeUtils.getThemedIconPath('mcp', 'png');
     }
+    
     public get id(): string {
         return this._name;
     }

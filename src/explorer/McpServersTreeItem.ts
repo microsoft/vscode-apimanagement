@@ -10,7 +10,13 @@ import { IServiceTreeRoot } from "./IServiceTreeRoot";
 import { McpServerTreeItem } from "./McpServerTreeItem";
 
 export class McpServersTreeItem extends AzExtParentTreeItem {
+    public static contextValue: string = 'azureApiManagementMcpServers';
+
     public readonly root: IServiceTreeRoot;
+    public label: string = "MCPs (Preview)";
+    public contextValue: string = McpServersTreeItem.contextValue;
+    
+    private _nextLink: string | undefined;
 
     constructor(parent: AzExtParentTreeItem, root: IServiceTreeRoot) {
         super(parent);
@@ -20,10 +26,7 @@ export class McpServersTreeItem extends AzExtParentTreeItem {
     public get iconPath(): { light: string, dark: string } {
         return treeUtils.getThemedIconPath('list');
     }
-    public static contextValue: string = 'azureApiManagementMcpServers';
-    public label: string = "MCPs (Preview)";
-    public contextValue: string = McpServersTreeItem.contextValue;
-    private _nextLink: string | undefined;
+
 
     public hasMoreChildrenImpl(): boolean {
         return this._nextLink !== undefined;
