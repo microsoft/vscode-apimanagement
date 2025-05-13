@@ -4,6 +4,8 @@ All notable changes to the "Azure Api Management VS Code" extension will be docu
 
 ## 1.2.0
 
+### New features
+
 - **MCP servers support**: This feature allows you view MCP servers in APIM and modify policies for the MCP servers.
 ![ViewMCPServers](https://github.com/user-attachments/assets/4efdbd9f-66a8-42a0-89a7-69917df1d58a)
 
