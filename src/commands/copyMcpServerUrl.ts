@@ -8,7 +8,7 @@ import * as vscode from 'vscode';
 import { McpServerTreeItem } from '../explorer/McpServerTreeItem';
 import { localize } from '../localize';
 
-export async function copyMcpServerUrl(_context: IActionContext, node?: McpServerTreeItem): Promise<void> {
+export async function copyMcpServerUrl(context: IActionContext, node?: McpServerTreeItem): Promise<void> {
     try {
         if (!node) {
             return;
@@ -21,19 +21,21 @@ export async function copyMcpServerUrl(_context: IActionContext, node?: McpServe
         );
 
         // Show a quick pick to let user choose the endpoint type
-        const endpoints = ['SSE', 'Streamable HTTP'];
-        const endpointType = await vscode.window.showQuickPick(endpoints, {
-            placeHolder: 'Select endpoint type',
-            canPickMany: false
-        });
+        const endpointType = await context.ui.showQuickPick(
+            [
+                { label: 'SSE' },
+                { label: 'Streamable HTTP' }
+            ],
+            { placeHolder: 'Select endpoint type' }
+        );
 
         // Generate the URL based on selected endpoint type
         const baseUrl = `${apimService.gatewayUrl}/${node.mcpServerContract.properties.path}`;
-        const url = endpointType === 'SSE' ? `${baseUrl}/sse` : `${baseUrl}/mcp`;
+        const url = endpointType.label === 'SSE' ? `${baseUrl}/sse` : `${baseUrl}/mcp`;
 
         // Copy to clipboard
         await vscode.env.clipboard.writeText(url);
-        vscode.window.showInformationMessage(localize('mcpServerUrl.copied', `${endpointType} endpoint URL has been copied to clipboard.`));
+        vscode.window.showInformationMessage(localize('mcpServerUrl.copied', `${endpointType.label} endpoint URL has been copied to clipboard.`));
 
     } catch (error) {
         if (isUserCancelledError(error)) {
