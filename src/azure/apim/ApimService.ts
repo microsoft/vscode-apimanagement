@@ -297,8 +297,11 @@ export class ApimService {
         const client: ServiceClient = new ServiceClient(this.credentials, clientOptions);
         const result: HttpOperationResponse = await client.sendRequest({
             method: "GET",
-            url: `${this.baseUrl}/apis?api-version=2025-03-01-preview&$filter=properties/type eq 'mcp'`
+            url: `${this.baseUrl}/apis?api-version=2024-06-01-preview&$filter=properties/type eq 'mcp'`
         });
+        if (result.status !== 200) {
+            return []; // Users haven't enable MCP feature
+        }
         // tslint:disable-next-line: no-unsafe-any
         return <IMcpServerApiContract[]>(result.parsedBody.value);
     }
