@@ -300,7 +300,7 @@ export class ApimService {
             url: `${this.baseUrl}/apis?api-version=2024-06-01-preview&$filter=properties/type eq 'mcp'`
         });
         if (result.status !== 200) {
-            return []; // Users haven't enable MCP feature
+            return []; // Users haven't enabled MCP feature
         }
         // tslint:disable-next-line: no-unsafe-any
         return <IMcpServerApiContract[]>(result.parsedBody.value);
