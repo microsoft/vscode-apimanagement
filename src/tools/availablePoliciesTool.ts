@@ -7,6 +7,7 @@ import * as vscode from 'vscode';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import { ext } from '../extensionVariables';
+import { callWithTelemetryAndErrorHandling, IActionContext } from '@microsoft/vscode-azext-utils';
 
 export class AvailablePoliciesTool implements vscode.LanguageModelTool<{}> {
     private static cachedPolicyList: string;
@@ -24,23 +25,28 @@ export class AvailablePoliciesTool implements vscode.LanguageModelTool<{}> {
         _options: vscode.LanguageModelToolInvocationOptions<{}>,
         _token: vscode.CancellationToken
     ): Promise<vscode.LanguageModelToolResult> {
-        try {
-            if (!AvailablePoliciesTool.cachedPolicyList) {
-                const policiesPath = ext.context.asAbsolutePath(path.join('resources', 'knowledgeBase', 'policies.json'));
-                const policiesContent = await fs.readFile(policiesPath, 'utf8');
-                const policies = JSON.parse(policiesContent);
-                AvailablePoliciesTool.cachedPolicyList = Object.entries(policies)
-                    .map(([name, description]) => `${name}: ${description}`)
-                    .join('\n');
-            }
+        const result = await callWithTelemetryAndErrorHandling<vscode.LanguageModelToolResult>("lmtool.get-available-apim-policies.invoke", async (_context: IActionContext) => {
+            try {
+                if (!AvailablePoliciesTool.cachedPolicyList) {
+                    const policiesPath = ext.context.asAbsolutePath(path.join('resources', 'knowledgeBase', 'policies.json'));
+                    const policiesContent = await fs.readFile(policiesPath, 'utf8');
+                    const policies = JSON.parse(policiesContent);
+                    AvailablePoliciesTool.cachedPolicyList = Object.entries(policies)
+                        .map(([name, description]) => `${name}: ${description}`)
+                        .join('\n');
+                }
 
-            return new vscode.LanguageModelToolResult([
-                new vscode.LanguageModelTextPart('Here are all available APIM policies:\n\n' + AvailablePoliciesTool.cachedPolicyList)
-            ]);
-        } catch (error) {
-            return new vscode.LanguageModelToolResult([
-                new vscode.LanguageModelTextPart(`Error retrieving policies: ${error.message}`)
-            ]);
-        }
+                return new vscode.LanguageModelToolResult([
+                    new vscode.LanguageModelTextPart('Here are all available APIM policies:\n\n' + AvailablePoliciesTool.cachedPolicyList)
+                ]);
+            } catch (error) {
+                return new vscode.LanguageModelToolResult([
+                    new vscode.LanguageModelTextPart(`Error retrieving policies: ${error.message}`)
+                ]);
+            }
+        });
+        return result ?? new vscode.LanguageModelToolResult([
+            new vscode.LanguageModelTextPart('Error: Unable to retrieve APIM policies.')
+        ]);
     }
 }
