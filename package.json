@@ -114,7 +114,7 @@
                 "userDescription": "Fetch the list of available policies in Azure API Management.",
                 "canBeReferencedInPrompt": true,
                 "icon": "$(files)",
-                "inputSchema": { }
+                "inputSchema": {}
             }
         ],
         "walkthroughs": [
@@ -140,7 +140,10 @@
                             "image": "resources/walkthrough/import-an-api-spec.svg",
                             "altText": "Import an OpenAPI spec"
                         },
-                        "completionEvents": ["onCommand:azureApiManagement.importOpenApiByLink", "onCommand:azureApiManagement.importOpenApiByFile"]
+                        "completionEvents": [
+                            "onCommand:azureApiManagement.importOpenApiByLink",
+                            "onCommand:azureApiManagement.importOpenApiByFile"
+                        ]
                     },
                     {
                         "id": "get-subscription-key",
@@ -150,7 +153,9 @@
                             "image": "resources/walkthrough/get-subscription-key.svg",
                             "altText": "Getting a subscription key"
                         },
-                        "completionEvents": ["onCommand:azureApiManagement.copySubscriptionKey"]
+                        "completionEvents": [
+                            "onCommand:azureApiManagement.copySubscriptionKey"
+                        ]
                     },
                     {
                         "id": "test-operation",
@@ -160,7 +165,9 @@
                             "image": "resources/walkthrough/test-operation.svg",
                             "altText": "Testing an API operation"
                         },
-                        "completionEvents": ["onCommand:azureApiManagement.testOperation"],
+                        "completionEvents": [
+                            "onCommand:azureApiManagement.testOperation"
+                        ],
                         "doneButtonLabel": "Test operation",
                         "doneButton": {
                             "command": "azureApiManagement.testOperation"
@@ -250,7 +257,7 @@
                 "title": "%azureApiManagement.copySubscriptionKey%",
                 "category": "Azure API Management"
             },
-            {   
+            {
                 "command": "azureApiManagement.copySubscriptionKeyValue",
                 "title": "%azureApiManagement.copySubscriptionKeyValue%",
                 "category": "Azure API Management"
@@ -945,6 +952,7 @@
         "package": "vsce package",
         "lint": "tslint --project tsconfig.json -e src/*.d.ts -t verbose",
         "lint-fix": "tslint --project tsconfig.json -t verbose --fix",
+        "pretest": "npm run build",
         "test": "vscode-test",
         "watch": "tsc -watch -p ./",
         "all": "npm i && npm run lint && npm test",
@@ -955,6 +963,7 @@
     "devDependencies": {
         "@azure/ms-rest-js": "^2.7.0",
         "@microsoft/vscode-azext-dev": "^2.1.0",
+        "@types/chai": "^5.2.2",
         "@types/fs-extra": "^4.0.3",
         "@types/gulp": "^4.0.6",
         "@types/jsonwebtoken": "^9.0.8",
@@ -969,6 +978,7 @@
         "@types/ws": "^6.0.4",
         "@vscode/test-cli": "^0.0.10",
         "@vscode/test-electron": "^2.4.1",
+        "chai": "^5.2.0",
         "gulp": "^4.0.0",
         "mocha": "^10.0.0",
         "mocha-junit-reporter": "^1.23.3",
