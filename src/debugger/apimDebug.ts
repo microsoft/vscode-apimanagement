@@ -2,7 +2,7 @@
  * Copyright (C) Microsoft Corporation. All rights reserved.
  *--------------------------------------------------------*/
 
-import * as request from 'request-promise-native';
+import axios from 'axios';
 import * as vscode from 'vscode';
 import { Breakpoint, Handles, InitializedEvent, Logger, logger, LoggingDebugSession, OutputEvent, Scope, StackFrame, StoppedEvent, TerminatedEvent, Thread, ThreadEvent, Variable } from 'vscode-debugadapter';
 import { DebugProtocol } from 'vscode-debugprotocol';
@@ -111,43 +111,39 @@ export class ApimDebugSession extends LoggingDebugSession {
 
 	protected async getMasterSubscriptionTracing(managementAddress: string, authToken: string): Promise<any> {
 		const resourceUrl = `${managementAddress}/subscriptions/master?api-version=${Constants.apimApiVersion}`;
-		return await request.get(resourceUrl, {
-			headers: {
-				Authorization: authToken
-			},
-			json: true,
-			strictSSL: false
-		}).on('error', _e => {
-			this.sendEvent(new TerminatedEvent());
-		}).on('response', e => {
-			if (e.statusCode !== 200) {
-				this.sendEvent(new OutputEvent(localize("", `Error checking subscription tracing status: ${e.statusCode} ${e.statusMessage}`, 'stderr')));
-				this.sendEvent(new TerminatedEvent());
+		try {
+			const response = await axios.get(resourceUrl, {
+				headers: {
+					Authorization: authToken
+				}
+			});
+			return response.data;
+		} catch (error: any) {
+			if (error.response && error.response.status !== 200) {
+				this.sendEvent(new OutputEvent(localize("", `Error checking subscription tracing status: ${error.response.status} ${error.response.statusText}`, 'stderr')));
 			}
-		});
+			this.sendEvent(new TerminatedEvent());
+		}
 	}
 
 	protected async updateMasterSubscriptionTracing(managementAddress: string, authToken: string): Promise<void> {
 		const resourceUrl = `${managementAddress}/subscriptions/master?api-version=${Constants.apimApiVersion}`;
-		await request.patch(resourceUrl, {
-			headers: {
-				Authorization: authToken
-			},
-			body: {
+		try {
+			await axios.patch(resourceUrl, {
 				properties: {
 					allowTracing: true
 				}
-			},
-			json: true,
-			strictSSL: false
-		}).on('error', _e => {
-			this.sendEvent(new TerminatedEvent());
-		}).on('response', e => {
-			if (e.statusCode !== 200 && e.statusCode !== 202) {
-				this.sendEvent(new OutputEvent(localize("", `Error enabling subscription tracing: ${e.statusCode} ${e.statusMessage}`, 'stderr')));
-				this.sendEvent(new TerminatedEvent());
+			}, {
+				headers: {
+					Authorization: authToken
+				}
+			});
+		} catch (error: any) {
+			if (error.response && error.response.status !== 200 && error.response.status !== 202) {
+				this.sendEvent(new OutputEvent(localize("", `Error enabling subscription tracing: ${error.response.status} ${error.response.statusText}`, 'stderr')));
 			}
-		});
+			this.sendEvent(new TerminatedEvent());
+		}
 	}
 
 	protected async showTracingEnablePrompt(managementAddress: string): Promise<boolean> {
@@ -471,43 +467,41 @@ export class ApimDebugSession extends LoggingDebugSession {
 	private async getMasterSubscriptionKey(managementAddress: string, credential?: TokenCredential, managementAuth?: string) {
 		const resourceUrl = `${managementAddress}/subscriptions/master/listSecrets?api-version=${Constants.apimApiVersion}`;
 		const authToken = managementAuth ? managementAuth : await getBearerToken(resourceUrl, "GET", credential!);
-		const subscription: IMasterSubscriptionsSecrets = await request.post(resourceUrl, {
-			headers: {
-				Authorization: authToken
-			},
-			strictSSL: false,
-			json: true
-		}).on('error', _e => {
-			this.sendEvent(new TerminatedEvent());
-		}).on('response', e => {
-			if (e.statusCode !== 200) {
-				this.sendEvent(new OutputEvent(localize("", `Error fetching master subscription: ${e.statusCode} ${e.statusMessage}`, 'stderr')));
-				this.sendEvent(new TerminatedEvent());
-			}
-		});
+		try {
+			const subscription: IMasterSubscriptionsSecrets = (await axios.post(resourceUrl, {}, {
+				headers: {
+					Authorization: authToken
+				}
+			})).data;
 
-		return subscription.primaryKey;
+			return subscription.primaryKey;
+		} catch (error: any) {
+			if (error.response && error.response.status !== 200) {
+				this.sendEvent(new OutputEvent(localize("", `Error fetching master subscription: ${error.response.status} ${error.response.statusText}`, 'stderr')));
+			}
+			this.sendEvent(new TerminatedEvent());
+			throw error;
+		}
 	}
 
 	private async getAvailablePolicies(managementAddress: string, credential?: TokenCredential, managementAuth?: string) {
 		const resourceUrl = `${managementAddress}/policyDescriptions?api-version=${Constants.apimApiVersion}`;
 		const authToken = managementAuth ? managementAuth : await getBearerToken(resourceUrl, "GET", credential!);
-		const policyDescriptions: IPaged<IArmResource> = await request.get(resourceUrl, {
-			headers: {
-				Authorization: authToken
-			},
-			strictSSL: false,
-			json: true
-		}).on('error', _e => {
-			this.sendEvent(new TerminatedEvent());
-		}).on('response', e => {
-			if (e.statusCode !== 200) {
-				this.sendEvent(new OutputEvent(localize("", `Error fetching policy definitions: ${e.statusCode} ${e.statusMessage}`, 'stderr')));
-				this.sendEvent(new TerminatedEvent());
-			}
-		});
+		try {
+			const policyDescriptions: IPaged<IArmResource> = (await axios.get(resourceUrl, {
+				headers: {
+					Authorization: authToken
+				}
+			})).data
 
-		return policyDescriptions.value.map(p => p.name);
+			return policyDescriptions.value.map(p => p.name);
+		} catch (error: any) {
+			if (error.response && error.response.status !== 200) {
+				this.sendEvent(new OutputEvent(localize("", `Error fetching policy definitions: ${error.response.status} ${error.response.statusText}`, 'stderr')));
+			}
+			this.sendEvent(new TerminatedEvent());
+			throw error;
+		}
 	}
 
 	private findThreadByUiId(id: number): [UiRequest, UiThread] | null {

@@ -5,13 +5,13 @@
 
 import { HttpMethods, HttpOperationResponse, ParameterValue, ServiceClient, WebResource, Constants as MSRestConstants } from "@azure/ms-rest-js";
 import { AccessToken, TokenCredential } from "@azure/core-auth";
-import requestPromise from 'request-promise';
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { appendExtensionUserAgent } from '@microsoft/vscode-azext-utils';
 import { AzExtServiceClientCredentials } from "@microsoft/vscode-azext-utils";
 import { clientOptions } from "../azure/clientOptions";
 import { Environment } from "@azure/ms-rest-azure-env";
 import { AzureAuth } from "../azure/azureLogin/azureAuth";
-export type nRequest = WebResource & requestPromise.RequestPromiseOptions;
+export type nRequest = WebResource;
 
 // tslint:disable-next-line: no-any
 export async function request(credentials: AzExtServiceClientCredentials, url: string, method: HttpMethods, queryParameters?: { [key: string]: any | ParameterValue }, body?: any): Promise<HttpOperationResponse> {
@@ -25,7 +25,18 @@ export async function request(credentials: AzExtServiceClientCredentials, url: s
 }
 
 export async function sendRequest<T>(httpReq: nRequest): Promise<T> {
-    return await <Thenable<T>>requestPromise(httpReq).promise();
+    // Convert WebResource to AxiosRequestConfig
+    const config: AxiosRequestConfig = {
+        url: httpReq.url,
+        method: httpReq.method as any,
+        headers: httpReq.headers ? httpReq.headers.toJson() : undefined,
+        data: httpReq.body,
+        params: (httpReq as any).queryParameters,
+        responseType: 'text'
+    };
+    
+    const response: AxiosResponse<T> = await axios(config);
+    return response.data;
 }
 
 // tslint:disable: no-unsafe-any
