@@ -30,7 +30,7 @@
     "azureApiManagement.selectAzureSubscriptions": "Selected Azure subscriptions",
     "azureApiManagement.selectAzureTenant": "Selected Azure Tenant",
     "azureApiManagement.selectAzureTenant.tenantName": "tenant name",
-    "azureApiManagement.selectAzureTenant.tennatId": "tenant id",
+    "azureApiManagement.selectAzureTenant.tenantId": "tenant id",
     "azureApiManagement.importFunctionApp": "Import from Azure Functions",
     "azureApiManagement.importFunctionAppToApi": "Import Azure Functions",
     "azureApiManagement.addApiFilter": "Filter APIs",
