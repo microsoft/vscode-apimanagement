@@ -305,6 +305,23 @@ export class ApimService {
         // tslint:disable-next-line: no-unsafe-any
         return <IMcpServerApiContract[]>(result.parsedBody.value);
     }
+    
+    public async createMcpServer(mcpApiName: string, mcpServerPayload: any): Promise<IMcpServerApiContract> {
+        const client: ServiceClient = new ServiceClient(this.credentials, clientOptions);
+        const result: HttpOperationResponse = await client.sendRequest({
+            method: "PUT",
+            url: `${this.baseUrl}/apis/${mcpApiName}?api-version=2024-06-01-preview`,
+            body: mcpServerPayload
+        });
+        
+        if (result.status >= 400) {
+            const errorMessage = result.parsedBody?.error?.message || `Failed to create MCP server. Status: ${result.status}`;
+            throw new Error(errorMessage);
+        }
+        
+        // tslint:disable-next-line: no-unsafe-any
+        return <IMcpServerApiContract>(result.parsedBody);
+    }
 
     private genSiteUrl(endPointUrl: string, subscriptionId: string, resourceGroup: string, serviceName: string): string {
         return `${endPointUrl}/subscriptions/${subscriptionId}/resourceGroups/${resourceGroup}/providers/Microsoft.ApiManagement/service/${serviceName}`;

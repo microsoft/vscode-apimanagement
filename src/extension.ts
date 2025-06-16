@@ -85,7 +85,8 @@ import { draftPolicy } from './commands/draftPolicy';
 import { AvailablePoliciesTool } from './tools/availablePoliciesTool';
 import { showReleaseNotes } from './utils/extensionUtil';
 import { copyMcpServerUrl } from './commands/copyMcpServerUrl';
-import { LearnMoreMcpTreeItem } from './explorer/McpServersTreeItem';
+import { transformApiToMcpServer } from './commands/transformApiToMcpServer';
+import { LearnMoreMcpTreeItem, McpServersTreeItem } from './explorer/McpServersTreeItem';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -210,6 +211,7 @@ function registerCommands(tree: AzExtTreeDataProvider): void {
     registerCommand('azureApiManagement.explainPolicy', async (context: IActionContext) => await explainPolicy(context));
     registerCommand('azureApiManagement.draftPolicy', async (context: IActionContext) => await draftPolicy(context));
     registerCommand('azureApiManagement.copyMcpServerUrl', copyMcpServerUrl);
+    registerCommand('azureApiManagement.transformApiToMcpServer', async (context: IActionContext, node?: McpServersTreeItem) => { await transformApiToMcpServer(context, node); });
     registerCommand('azureApiManagement.openMcpLearnMore', async (_context: IActionContext, node: LearnMoreMcpTreeItem) => {
         if (node) {
             await node.openPage();
