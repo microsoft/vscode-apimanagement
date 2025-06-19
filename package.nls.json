@@ -52,6 +52,7 @@
     "azureApiManagement.copyAuthorizationProviderRedirectUrl": "Copy RedirectUrl",
     "azureApiManagement.copyMcpServerUrl": "Copy Server URL",
     "azureApiManagement.transformApiToMcpServer": "Transform existing API to MCP server",
+    "azureApiManagement.passthroughMcpServer": "Passthrough an existing MCP server",
     "azureApiManagement.createAuthorization": "Create Credential",
     "azureApiManagement.authorizeAuthorization": "Login",
     "azureApiManagement.deleteAuthorization": "Delete Credential",

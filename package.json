@@ -248,6 +248,11 @@
                 "category": "Azure API Management"
             },
             {
+                "command": "azureApiManagement.passthroughMcpServer",
+                "title": "%azureApiManagement.passthroughMcpServer%",
+                "category": "Azure API Management"
+            },
+            {
                 "command": "azureApiManagement.createService",
                 "title": "%azureApiManagement.createService%",
                 "category": "Azure API Management"
@@ -616,6 +621,10 @@
                 {
                     "command": "azureApiManagement.transformApiToMcpServer",
                     "when": "never"
+                },
+                {
+                    "command": "azureApiManagement.passthroughMcpServer",
+                    "when": "never"
                 }
             ],
             "view/title": [
@@ -895,6 +904,11 @@
                     "command": "azureApiManagement.transformApiToMcpServer",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementMcpServers",
                     "group": "1@1"
+                },
+                {
+                    "command": "azureApiManagement.passthroughMcpServer",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementMcpServers",
+                    "group": "1@2"
                 }
             ],
             "copilot": [
