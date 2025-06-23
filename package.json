@@ -84,7 +84,8 @@
         "onCommand:azureApiManagement.copyAuthorizationPolicy",
         "onCommand:azureApiManagement.showArmAuthorizationProvider",
         "onCommand:azureApiManagement.showArmAuthorization",
-        "onCommand:azureApiManagement.showArmAuthorizationAccessPolicy"
+        "onCommand:azureApiManagement.showArmAuthorizationAccessPolicy",
+        "onCommand:azureApiManagement.addPolicyFromGallery"
     ],
     "main": "main",
     "contributes": {
@@ -563,6 +564,11 @@
                     "light": "resources/light/walkthrough.svg",
                     "dark": "resources/dark/walkthrough.svg"
                 }
+            },
+            {
+                "command": "azureApiManagement.addPolicyFromGallery",
+                "title": "%azureApiManagement.addPolicyFromGallery%",
+                "category": "Azure API Management"
             }
         ],
         "viewsContainers": {
@@ -606,6 +612,10 @@
                 },
                 {
                     "command": "azureApiManagement.copyMcpServerUrl",
+                    "when": "never"
+                },
+                {
+                    "command": "azureApiManagement.addPolicyFromGallery",
                     "when": "never"
                 }
             ],
@@ -881,6 +891,26 @@
                     "command": "azureApiManagement.copyMcpServerUrl",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementMcpServer",
                     "group": "1@2"
+                },
+                {
+                    "command": "azureApiManagement.addPolicyFromGallery",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementServicePolicy",
+                    "group": "1@1"
+                },
+                {
+                    "command": "azureApiManagement.addPolicyFromGallery",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementApiPolicy",
+                    "group": "1@1"
+                },
+                {
+                    "command": "azureApiManagement.addPolicyFromGallery",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementOperationPolicy",
+                    "group": "1@1"
+                },
+                {
+                    "command": "azureApiManagement.addPolicyFromGallery",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementProductPolicy",
+                    "group": "1@1"
                 }
             ],
             "copilot": [

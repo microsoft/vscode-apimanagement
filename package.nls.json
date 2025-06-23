@@ -63,5 +63,6 @@
     "azureApiManagement.selectTenant": "Select Tenant...",
     "azureApiManagement.selectSubscriptions": "Select Subscription...",
     "azureApiManagement.explainPolicy": "Explain APIM Policies",
-    "azureApiManagement.draftPolicy": "Draft APIM Policies"
+    "azureApiManagement.draftPolicy": "Draft APIM Policies",
+    "azureApiManagement.addPolicyFromGallery": "Add Policy"
 }
