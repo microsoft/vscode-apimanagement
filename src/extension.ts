@@ -82,6 +82,7 @@ import { AzureAccount } from "./azure/azureLogin/azureAccount";
 import { openUrlFromTreeNode } from './commands/openUrl';
 import { explainPolicy } from './commands/explainPolicy';
 import { draftPolicy } from './commands/draftPolicy';
+import { addPolicyFromGallery } from './commands/addPolicyFromGallery';
 import { AvailablePoliciesTool } from './tools/availablePoliciesTool';
 import { showReleaseNotes } from './utils/extensionUtil';
 import { copyMcpServerUrl } from './commands/copyMcpServerUrl';
@@ -211,6 +212,7 @@ function registerCommands(tree: AzExtTreeDataProvider): void {
 
     registerCommand('azureApiManagement.explainPolicy', async (context: IActionContext) => await explainPolicy(context));
     registerCommand('azureApiManagement.draftPolicy', async (context: IActionContext) => await draftPolicy(context));
+    registerCommand('azureApiManagement.addPolicyFromGallery', async (context: IActionContext, node?: any) => await addPolicyFromGallery(context, node));
     registerCommand('azureApiManagement.copyMcpServerUrl', copyMcpServerUrl);
     registerCommand('azureApiManagement.transformApiToMcpServer', async (context: IActionContext, node?: McpServersTreeItem) => { await transformApiToMcpServer(context, node); });
     registerCommand('azureApiManagement.passthroughMcpServer', async (context: IActionContext, node?: McpServersTreeItem) => { await passthroughMcpServer(context, node); });

@@ -1,0 +1,8 @@
+[
+  {
+    "name": "MCP Authorization",
+    "description": "Add authorization to MCP APIs using Protected Resource Metadata",
+    "category": "Authorization",
+    "content": "mcp-authorization.xml"
+  }
+]
