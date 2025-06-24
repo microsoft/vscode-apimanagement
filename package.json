@@ -1008,7 +1008,7 @@
         "gulp-decompress": "^3.0.0",
         "jsonwebtoken": "^9.0.2",
         "opn": "^5.3.0",
-        "swagger-parser": "^6.0.5",
+        "swagger-parser": "^10.0.3",
         "vscode-debugadapter": "^1.39.1",
         "vscode-debugprotocol": "^1.39.0",
         "vscode-nls": "^4.1.2",
