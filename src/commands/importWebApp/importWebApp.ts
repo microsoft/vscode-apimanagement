@@ -240,7 +240,7 @@ async function importFromSwagger(context: IActionContext & Partial<IApiTreeItemC
     const docStr : string = await sendRequest(webResource);
     if (docStr !== undefined && docStr.trim() !== "") {
         const documentJson = JSON.parse(docStr);
-        const document = await parseDocument(documentJson);
+        const document = parseDocument(documentJson);
         await window.withProgress(
             {
                 location: ProgressLocation.Notification,
@@ -397,10 +397,10 @@ function getRandomHex(): string {
 }
 
 // tslint:disable: no-any
-async function parseDocument(documentJson: any): Promise<IOpenApiImportObject> {
+function parseDocument(documentJson: any): IOpenApiImportObject {
     try {
         // tslint:disable-next-line: no-unsafe-any
-        return await new OpenApiParser().parse(documentJson);
+        return new OpenApiParser().parse(documentJson);
     } catch (error) {
         throw new Error(processError(error, localize("openApiJsonParseError", "Could not parse the provided OpenAPI document.")));
     }

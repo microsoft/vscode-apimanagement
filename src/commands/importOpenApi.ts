@@ -48,7 +48,7 @@ export async function importOpenApi(context: IActionContext & Partial<IApiTreeIt
 
     if (documentString !== undefined && documentString.trim() !== "") {
         const documentJson = JSON.parse(documentString);
-        const document = await parseDocument(documentJson);
+        const document = parseDocument(documentJson);
         const apiName = await apiUtil.askApiName(context);
         context.apiName = apiName;
         context.document = document;
@@ -105,9 +105,9 @@ async function askLink(context: IActionContext) : Promise<string> {
 }
 
 // tslint:disable: no-unsafe-any
-async function parseDocument(documentJson: any): Promise<IOpenApiImportObject> {
+function parseDocument(documentJson: any): IOpenApiImportObject {
     try {
-        return await new OpenApiParser().parse(documentJson);
+        return new OpenApiParser().parse(documentJson);
     } catch (error) {
        throw new Error(processError(error, localize("openApiJsonParseError", "Could not parse the provided OpenAPI document.")));
     }
