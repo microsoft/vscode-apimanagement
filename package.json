@@ -996,7 +996,7 @@
         "@types/gulp": "^4.0.6",
         "@types/jsonwebtoken": "^9.0.8",
         "@types/mocha": "^10.0.0",
-        "@types/node": "^8.10.59",
+        "@types/node": "^18.0.0",
         "@types/sinon": "^17.0.4",
         "@types/swagger-parser": "^4.0.3",
         "@types/vscode": "^1.50.1",

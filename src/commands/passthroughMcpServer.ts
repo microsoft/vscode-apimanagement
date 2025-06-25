@@ -5,6 +5,7 @@
 
 import { IActionContext } from '@microsoft/vscode-azext-utils';
 import * as vscode from 'vscode';
+import * as crypto from 'crypto';
 import { BackendContract } from '@azure/arm-apimanagement';
 import { McpServersTreeItem } from '../explorer/McpServersTreeItem';
 import { ApimService } from '../azure/apim/ApimService';
@@ -38,7 +39,17 @@ export async function passthroughMcpServer(context: IActionContext, node?: McpSe
             }
         })).trim();
 
-        // Step 2: Ask user for MCP server URL
+        // Step 2: Ask user to select transport protocol
+        const protocolChoice = await context.ui.showQuickPick([
+            { label: 'SSE', description: 'Server-Sent Events' },
+            { label: 'Streamable HTTP', description: 'Streamable HTTP protocol' }
+        ], {
+            placeHolder: localize('selectProtocol', 'Select the transport protocol for the MCP server')
+        });
+
+        const transportType = protocolChoice.label === 'SSE' ? 'sse' : 'streamable-http';
+
+        // Step 3: Ask user for MCP server URL
         const mcpServerUrl = (await context.ui.showInputBox({
             prompt: localize('enterMcpServerUrl', 'Enter the URL of the MCP server'),
             validateInput: (value: string): string | undefined => {
@@ -52,32 +63,48 @@ export async function passthroughMcpServer(context: IActionContext, node?: McpSe
             }
         })).trim();
 
-        // Step 3: Ask user for SSE endpoint (relative URL)
-        const sseEndpoint = (await context.ui.showInputBox({
-            prompt: localize('enterSseEndpoint', 'Enter the SSE endpoint path (relative to the MCP server URL)'),
-            value: '/sse', // Default value
+        // Step 4: Ask user for APIM API URL suffix
+        const apiUrlSuffix = (await context.ui.showInputBox({
+            prompt: localize('enterApiUrlSuffix', 'Enter the APIM API URL suffix'),
+            value: mcpServerName, // Default to the server name
             validateInput: (value: string): string | undefined => {
                 if (!value || value.trim().length === 0) {
-                    return localize('sseEndpointRequired', 'SSE endpoint is required');
+                    return localize('apiUrlSuffixRequired', 'API URL suffix is required');
                 }
                 return undefined;
             }
         })).trim();
 
-        // Step 4: Ask user for Messages endpoint (relative URL)
-        const messagesEndpoint = (await context.ui.showInputBox({
-            prompt: localize('enterMessagesEndpoint', 'Enter the Messages endpoint path (relative to the MCP server URL)'),
-            value: '/messages', // Default value
-            validateInput: (value: string): string | undefined => {
-                if (!value || value.trim().length === 0) {
-                    return localize('messagesEndpointRequired', 'Messages endpoint is required');
+        // Step 5: For SSE protocol, ask for SSE and Messages endpoints
+        let sseEndpoint = '';
+        let messagesEndpoint = '';
+        
+        if (transportType === 'sse') {
+            sseEndpoint = (await context.ui.showInputBox({
+                prompt: localize('enterSseEndpoint', 'Enter the SSE endpoint path (relative to the MCP server URL)'),
+                value: '/sse', // Default value
+                validateInput: (value: string): string | undefined => {
+                    if (!value || value.trim().length === 0) {
+                        return localize('sseEndpointRequired', 'SSE endpoint is required');
+                    }
+                    return undefined;
                 }
-                return undefined;
-            }
-        })).trim();
+            })).trim();
 
-        // Step 5: Create backend for the MCP server
-        const backendName = `${mcpServerName}-backend`;
+            messagesEndpoint = (await context.ui.showInputBox({
+                prompt: localize('enterMessagesEndpoint', 'Enter the Messages endpoint path (relative to the MCP server URL)'),
+                value: '/messages', // Default value
+                validateInput: (value: string): string | undefined => {
+                    if (!value || value.trim().length === 0) {
+                        return localize('messagesEndpointRequired', 'Messages endpoint is required');
+                    }
+                    return undefined;
+                }
+            })).trim();
+        }
+
+        // Step 6: Create backend for the MCP server with random GUID name
+        const backendName = crypto.randomUUID();
         
         const backendContract: BackendContract = {
             url: mcpServerUrl,
@@ -98,33 +125,37 @@ export async function passthroughMcpServer(context: IActionContext, node?: McpSe
             );
         });
 
-        // Step 6: Create MCP server
-        const mcpServerPayload = {
+        // Step 7: Create MCP server payload based on transport type
+        let mcpServerPayload: any = {
             properties: {
                 displayName: displayName,
                 protocols: ["http", "https"],
                 description: "This API is used to passthrough existing MCP server.",
                 subscriptionRequired: false,
-                path: mcpServerName,
+                path: apiUrlSuffix,
                 type: "mcp",
                 backendId: backendName,
                 mcpProperties: {
-                    transportType: "sse",
-                    endpoints: {
-                        sse: {
-                            method: "GET",
-                            uriTemplate: sseEndpoint
-                        },
-                        messages: {
-                            method: "POST",
-                            uriTemplate: messagesEndpoint
-                        }
-                    }
+                    transportType: transportType
                 }
             }
         };
 
-        // Step 6: Create MCP server using ApimService
+        // Add endpoints for SSE protocol
+        if (transportType === 'sse') {
+            mcpServerPayload.properties.mcpProperties.endpoints = {
+                sse: {
+                    method: "GET",
+                    uriTemplate: sseEndpoint
+                },
+                messages: {
+                    method: "POST",
+                    uriTemplate: messagesEndpoint
+                }
+            };
+        }
+
+        // Step 8: Create MCP server using ApimService
         const apimService = new ApimService(
             node.root.credentials,
             node.root.environment.resourceManagerEndpointUrl,
@@ -145,14 +176,14 @@ export async function passthroughMcpServer(context: IActionContext, node?: McpSe
         await node.refresh(context);
 
         vscode.window.showInformationMessage(
-            localize('mcpServerPassthroughCreated', `Successfully created passthrough MCP server "${displayName}".`)
+            localize('mcpServerPassthroughCreated', `Successfully proxied MCP server "${displayName}" with ${transportType.toUpperCase()} protocol.`)
         );
 
     } catch (error) {
         if (error.message && error.message.includes('UserCancelledError')) {
             return;
         }
-        vscode.window.showErrorMessage(`Failed to create passthrough MCP server: ${error.message}`);
+        vscode.window.showErrorMessage(`Failed to proxy MCP server: ${error.message}`);
         throw error;
     }
 }

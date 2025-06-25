@@ -52,7 +52,16 @@ export class McpServerTreeItem extends AzExtParentTreeItem {
     }
 
     public async loadMoreChildrenImpl(): Promise<any[]> {
-        return [this.toolsTreeItem, this.policyTreeItem];
+        const children: any[] = [];
+        
+        // Only include tools tree item if there are actually tools
+        const tools = this.mcpServerContract.properties.mcpTools || [];
+        if (tools.length > 0) {
+            children.push(this.toolsTreeItem);
+        }
+        
+        children.push(this.policyTreeItem);
+        return children;
     }
 
     private createRoot(subRoot: IServiceTreeRoot, apiName: string): IApiTreeRoot {
