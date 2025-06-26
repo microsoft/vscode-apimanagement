@@ -315,8 +315,7 @@ export class ApimService {
         });
         
         if (result.status >= 400) {
-            const errorMessage = result.parsedBody?.error?.message || `Failed to create MCP server. Status: ${result.status}`;
-            throw new Error(errorMessage);
+            throw new Error(result.bodyAsText ?? `Failed to create MCP Server. Status code: ${result.status}`);
         }
         // tslint:disable-next-line: no-unsafe-any
         return <IMcpServerApiContract>(result.parsedBody);
