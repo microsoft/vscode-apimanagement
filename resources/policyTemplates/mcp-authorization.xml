@@ -1,16 +1,44 @@
 <!--
-    Azure API Management Policy for AAD Token Validation
+    Azure API Management Policy for AAD Token Validation and OAuth Discovery
     This policy validates Azure Active Directory (AAD) access tokens from incoming requests.
+    For requests to /.well-known/oauth-protected-resource, it returns OAuth discovery metadata.
     If validation fails, it returns HTTP 401 with proper WWW-Authenticate header.
 -->
 <policies>
     <inbound>
         <base />
-        <validate-azure-ad-token tenant-id="{{McpTenantId}}" failed-validation-httpcode="401" failed-validation-error-message="Unauthorized">
-            <audiences>
-                <audience>{{McpClientId}}</audience>
-            </audiences>
-        </validate-azure-ad-token>
+        <choose>
+            <when condition='@(context.Request.Url.Path.Equals("/.well-known/oauth-protected-resource", StringComparison.OrdinalIgnoreCase))'>
+                <return-response>
+                    <set-status code="200" reason="OK" />
+                    <set-header name="Content-Type" exists-action="override">
+                        <value>application/json</value>
+                    </set-header>
+                    <set-body>@{
+                        var response = new {
+                            resource = "{{McpClientId}}",
+                            authorization_servers = new[] {
+                                $"https://login.microsoftonline.com/{{McpTenantId}}/v2.0"
+                            },
+                            bearer_methods_supported = new[] {
+                                "header"
+                            },
+                            scopes_supported = new[] {
+                                "{{McpClientId}}/user_impersonate"
+                            }
+                        };
+                        return JsonConvert.SerializeObject(response);
+                    }</set-body>
+                </return-response>
+            </when>
+            <otherwise>
+                <validate-azure-ad-token tenant-id="{{McpTenantId}}" failed-validation-httpcode="401" failed-validation-error-message="Unauthorized">
+                    <audiences>
+                        <audience>{{McpClientId}}</audience>
+                    </audiences>
+                </validate-azure-ad-token>
+            </otherwise>
+        </choose>
     </inbound>
     <backend>
         <base />
@@ -25,7 +53,7 @@
                 <return-response>
                     <set-status code="401" reason="Unauthorized" />
                     <set-header name="WWW-Authenticate" exists-action="override">
-                        <value>Bearer error="invalid_token", resource_metadata="{{McpPrmEndpoint}}"</value>
+                        <value>@($"Bearer error=\"invalid_token\", resource_metadata=\"{context.Request.OriginalUrl.Scheme}://{context.Request.OriginalUrl.Host}/{context.Api.Path}/.well-known/oauth-protected-resource\"")</value>
                     </set-header>
                 </return-response>
             </when>
