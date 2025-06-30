@@ -243,6 +243,16 @@
                 "category": "Azure API Management"
             },
             {
+                "command": "azureApiManagement.transformApiToMcpServer",
+                "title": "%azureApiManagement.transformApiToMcpServer%",
+                "category": "Azure API Management"
+            },
+            {
+                "command": "azureApiManagement.passthroughMcpServer",
+                "title": "%azureApiManagement.passthroughMcpServer%",
+                "category": "Azure API Management"
+            },
+            {
                 "command": "azureApiManagement.createService",
                 "title": "%azureApiManagement.createService%",
                 "category": "Azure API Management"
@@ -607,6 +617,14 @@
                 {
                     "command": "azureApiManagement.copyMcpServerUrl",
                     "when": "never"
+                },
+                {
+                    "command": "azureApiManagement.transformApiToMcpServer",
+                    "when": "never"
+                },
+                {
+                    "command": "azureApiManagement.passthroughMcpServer",
+                    "when": "never"
                 }
             ],
             "view/title": [
@@ -881,6 +899,16 @@
                     "command": "azureApiManagement.copyMcpServerUrl",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementMcpServer",
                     "group": "1@2"
+                },
+                {
+                    "command": "azureApiManagement.transformApiToMcpServer",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementMcpServers",
+                    "group": "1@1"
+                },
+                {
+                    "command": "azureApiManagement.passthroughMcpServer",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementMcpServers",
+                    "group": "1@2"
                 }
             ],
             "copilot": [
@@ -947,7 +975,7 @@
     },
     "scripts": {
         "vscode:prepublish": "npm run webpack-prod",
-        "build": "tsc -p ./ && gulp webpack-prod",
+        "build": "tsc -p ./",
         "compile": "tsc -watch -p ./",
         "package": "vsce package",
         "lint": "tslint --project tsconfig.json -e src/*.d.ts -t verbose",
@@ -968,7 +996,7 @@
         "@types/gulp": "^4.0.6",
         "@types/jsonwebtoken": "^9.0.8",
         "@types/mocha": "^10.0.0",
-        "@types/node": "^8.10.59",
+        "@types/node": "^18.0.0",
         "@types/sinon": "^17.0.4",
         "@types/vscode": "^1.50.1",
         "@types/ws": "^6.0.4",

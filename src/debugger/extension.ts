@@ -55,7 +55,13 @@ class ApimPolicyDebugAdapterDescriptorFactory implements vscode.DebugAdapterDesc
         }
 
         // make VS Code connect to debug server
-        return new vscode.DebugAdapterServer(this.server.address().port);
+        const address = this.server.address();
+        if (address && typeof address === 'object') {
+            return new vscode.DebugAdapterServer(address.port);
+        }
+        // Newer nodejs version may return non-object address for certain server type
+        // This won't happen for current implementation, but we need to handle this case to avoid build failure
+        throw new Error('Failed to get server port');
     }
 
     public dispose() {
