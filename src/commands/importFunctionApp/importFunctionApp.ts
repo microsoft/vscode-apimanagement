@@ -129,7 +129,7 @@ async function importFromSwagger(funcAppService: FunctionAppService, context: IA
     if (docStr !== undefined && docStr.trim() !== "") {
         const documentJson = JSON.parse(docStr);
         // tslint:disable-next-line: no-unsafe-any
-        const document = await parseDocument(documentJson);
+        const document = parseDocument(documentJson);
         await window.withProgress(
             {
                 location: ProgressLocation.Notification,
@@ -198,10 +198,10 @@ async function importFromSwagger(funcAppService: FunctionAppService, context: IA
 }
 
 // tslint:disable: no-any
-async function parseDocument(documentJson: any): Promise<IOpenApiImportObject> {
+function parseDocument(documentJson: any): IOpenApiImportObject {
     try {
         // tslint:disable-next-line: no-unsafe-any
-        return await new OpenApiParser().parse(documentJson);
+        return new OpenApiParser().parse(documentJson);
     } catch (error) {
         throw new Error(processError(error, localize("openApiJsonParseError", "Could not parse the provided OpenAPI document.")));
     }

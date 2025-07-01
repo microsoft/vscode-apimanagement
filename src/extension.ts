@@ -86,6 +86,8 @@ import { addPolicyFromGallery } from './commands/addPolicyFromGallery';
 import { AvailablePoliciesTool } from './tools/availablePoliciesTool';
 import { showReleaseNotes } from './utils/extensionUtil';
 import { copyMcpServerUrl } from './commands/copyMcpServerUrl';
+import { transformApiToMcpServer } from './commands/transformApiToMcpServer';
+import { passthroughMcpServer } from './commands/passthroughMcpServer';
 import { LearnMoreMcpTreeItem } from './explorer/McpServersTreeItem';
 
 // this method is called when your extension is activated
@@ -212,6 +214,8 @@ function registerCommands(tree: AzExtTreeDataProvider): void {
     registerCommand('azureApiManagement.draftPolicy', async (context: IActionContext) => await draftPolicy(context));
     registerCommand('azureApiManagement.addPolicyFromGallery', async (context: IActionContext, node?: any) => await addPolicyFromGallery(context, node));
     registerCommand('azureApiManagement.copyMcpServerUrl', copyMcpServerUrl);
+    registerCommand('azureApiManagement.transformApiToMcpServer', transformApiToMcpServer );
+    registerCommand('azureApiManagement.passthroughMcpServer', passthroughMcpServer );
     registerCommand('azureApiManagement.openMcpLearnMore', async (_context: IActionContext, node: LearnMoreMcpTreeItem) => {
         if (node) {
             await node.openPage();
