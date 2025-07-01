@@ -113,7 +113,7 @@ configuration:
       - addReply:
           reply: >
             This issue has been automatically marked as stale because it has been marked as requiring author feedback but has not had any activity for **7 days**. As it is labeled with bug, it will be manually handled
-    - description: "[Idle Issue Management] Add no recent activity label to issues with feature-request lable"
+    - description: "[Idle Issue Management] Add no recent activity label to issues with feature-request label"
       frequencies:
       - weekday:
           day: Monday
