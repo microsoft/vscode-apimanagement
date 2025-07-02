@@ -9,14 +9,14 @@ import * as vscode from 'vscode';
 import { IActionContext, UserCancelledError } from '@microsoft/vscode-azext-utils';
 import { BackendContract } from '@azure/arm-apimanagement';
 import { passthroughMcpServer } from '../src/commands/passthroughMcpServer';
-import { McpServersTreeItem } from '../src/explorer/McpServersTreeItem';
+import { McpPassthroughTreeItem } from '../src/explorer/McpPassthroughTreeItem';
 import { ApimService } from '../src/azure/apim/ApimService';
 import { IServiceTreeRoot } from '../src/explorer/IServiceTreeRoot';
 
 describe('passthroughMcpServer', () => {
     let sandbox: sinon.SinonSandbox;
     let mockContext: IActionContext;
-    let mockNode: McpServersTreeItem;
+    let mockNode: McpPassthroughTreeItem;
     let mockRoot: IServiceTreeRoot;
     let mockApimService: sinon.SinonStubbedInstance<ApimService>;
     let mockVscodeWindow: sinon.SinonStub;
@@ -53,7 +53,7 @@ describe('passthroughMcpServer', () => {
             serviceName: 'test-service'
         } as any;
 
-        // Mock McpServersTreeItem
+        // Mock McpPassthroughTreeItem
         mockNode = {
             root: mockRoot,
             refresh: sandbox.stub().resolves()

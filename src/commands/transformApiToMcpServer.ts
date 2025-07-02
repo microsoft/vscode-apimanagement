@@ -10,7 +10,7 @@ import {
 import { uiUtils } from "@microsoft/vscode-azext-azureutils";
 import { ApiContract, OperationContract } from "@azure/arm-apimanagement";
 import * as vscode from "vscode";
-import { McpServersTreeItem } from "../explorer/McpServersTreeItem";
+import { McpTransformativeTreeItem } from "../explorer/McpTransformativeTreeItem";
 import { ApimService } from "../azure/apim/ApimService";
 import { localize } from "../localize";
 import { IMcpToolContract } from "../azure/apim/contracts";
@@ -28,7 +28,7 @@ interface IOperationQuickPickItem {
 
 export async function transformApiToMcpServer(
   context: IActionContext,
-  node?: McpServersTreeItem
+  node?: McpTransformativeTreeItem
 ): Promise<void> {
   try {
     if (!node) {
@@ -93,7 +93,7 @@ export async function transformApiToMcpServer(
 
 async function selectApi(
   context: IActionContext,
-  node: McpServersTreeItem
+  node: McpTransformativeTreeItem
 ): Promise<ApiContract | undefined> {
   const apis: ApiContract[] = await uiUtils.listAllIterator(
     node.root.client.api.listByService(
@@ -131,7 +131,7 @@ async function selectApi(
 
 async function selectOperations(
   context: IActionContext,
-  node: McpServersTreeItem,
+  node: McpTransformativeTreeItem,
   api: ApiContract
 ): Promise<OperationContract[] | undefined> {
   const operations: OperationContract[] = await uiUtils.listAllIterator(
@@ -174,7 +174,7 @@ async function selectOperations(
 }
 
 async function createMcpServer(
-  node: McpServersTreeItem,
+  node: McpTransformativeTreeItem,
   api: ApiContract,
   operations: OperationContract[],
   apiUrlSuffix: string

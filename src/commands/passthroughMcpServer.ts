@@ -10,7 +10,7 @@ import {
 import * as vscode from "vscode";
 import * as crypto from "crypto";
 import { BackendContract } from "@azure/arm-apimanagement";
-import { McpServersTreeItem } from "../explorer/McpServersTreeItem";
+import { McpPassthroughTreeItem } from "../explorer/McpPassthroughTreeItem";
 import { ApimService } from "../azure/apim/ApimService";
 import { localize } from "../localize";
 
@@ -26,7 +26,7 @@ interface McpServerConfig {
 
 export async function passthroughMcpServer(
   context: IActionContext,
-  node?: McpServersTreeItem
+  node?: McpPassthroughTreeItem
 ): Promise<void> {
   try {
     if (!node) {
@@ -193,7 +193,7 @@ export async function passthroughMcpServer(
 }
 
 async function createMcpServer(
-  node: McpServersTreeItem,
+  node: McpPassthroughTreeItem,
   config: McpServerConfig
 ): Promise<void> {
   const backendName = crypto.randomUUID(); // Use guid as name to avoid conflict

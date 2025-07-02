@@ -10,14 +10,14 @@ import { IActionContext, UserCancelledError } from '@microsoft/vscode-azext-util
 import { uiUtils } from '@microsoft/vscode-azext-azureutils';
 import { ApiContract, OperationContract } from '@azure/arm-apimanagement';
 import { transformApiToMcpServer } from '../src/commands/transformApiToMcpServer';
-import { McpServersTreeItem } from '../src/explorer/McpServersTreeItem';
+import { McpTransformativeTreeItem } from '../src/explorer/McpTransformativeTreeItem';
 import { ApimService } from '../src/azure/apim/ApimService';
 import { IServiceTreeRoot } from '../src/explorer/IServiceTreeRoot';
 
 describe('transformApiToMcpServer', () => {
     let sandbox: sinon.SinonSandbox;
     let mockContext: IActionContext;
-    let mockNode: McpServersTreeItem;
+    let mockNode: McpTransformativeTreeItem;
     let mockRoot: IServiceTreeRoot;
     let mockUiUtils: sinon.SinonStub;
     let mockApimService: sinon.SinonStubbedInstance<ApimService>;
@@ -58,7 +58,7 @@ describe('transformApiToMcpServer', () => {
             serviceName: 'test-service'
         } as any;
 
-        // Mock McpServersTreeItem
+        // Mock McpTransformativeTreeItem
         mockNode = {
             root: mockRoot,
             refresh: sandbox.stub().resolves()

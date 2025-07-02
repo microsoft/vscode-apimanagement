@@ -17,7 +17,7 @@ export class McpTransformativeTreeItem extends AzExtParentTreeItem {
     constructor(
         parent: AzExtParentTreeItem,
         private readonly mcpServers: IMcpServerApiContract[],
-        private readonly root: IServiceTreeRoot) {
+        public readonly root: IServiceTreeRoot) {
         super(parent);
     }
 
