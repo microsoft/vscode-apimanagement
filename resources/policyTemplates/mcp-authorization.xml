@@ -8,7 +8,7 @@
     <inbound>
         <base />
         <choose>
-            <when condition='@(context.Request.Url.Path.Equals("/.well-known/oauth-protected-resource", StringComparison.OrdinalIgnoreCase))'>
+            <when condition='@(context.Request.Url.Path != null && context.Request.Url.Path.Equals(".well-known/oauth-protected-resource", StringComparison.OrdinalIgnoreCase))'>
                 <return-response>
                     <set-status code="200" reason="OK" />
                     <set-header name="Content-Type" exists-action="override">
