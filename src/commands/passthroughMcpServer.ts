@@ -13,10 +13,10 @@ import { BackendContract } from "@azure/arm-apimanagement";
 import { McpPassthroughTreeItem } from "../explorer/McpPassthroughTreeItem";
 import { ApimService } from "../azure/apim/ApimService";
 import { localize } from "../localize";
+import { validateMcpServerName } from "../utils/mcpValidationUtil";
 
 interface McpServerConfig {
   mcpServerName: string;
-  displayName: string;
   mcpServerUrl: string;
   apiUrlSuffix: string;
   protocolType: string;
@@ -39,28 +39,7 @@ export async function passthroughMcpServer(
           "enterMcpServerName",
           "Enter the name for the MCP server"
         ),
-        validateInput: (value: string): string | undefined => {
-          if (!value || value.trim().length === 0) {
-            return localize("nameRequired", "Name is required");
-          }
-          return undefined;
-        },
-      })
-    ).trim();
-
-    const displayName = (
-      await context.ui.showInputBox({
-        prompt: localize(
-          "enterMcpServerDisplayName",
-          "Enter the display name for the MCP server"
-        ),
-        value: mcpServerName, // Default to the name
-        validateInput: (value: string): string | undefined => {
-          if (!value || value.trim().length === 0) {
-            return localize("displayNameRequired", "Display name is required");
-          }
-          return undefined;
-        },
+        validateInput: validateMcpServerName,
       })
     ).trim();
 
@@ -161,7 +140,6 @@ export async function passthroughMcpServer(
     // Create MCP server resources
     const config: McpServerConfig = {
       mcpServerName,
-      displayName,
       mcpServerUrl,
       apiUrlSuffix,
       protocolType: protocolChoice.label,
@@ -177,7 +155,7 @@ export async function passthroughMcpServer(
     vscode.window.showInformationMessage(
       localize(
         "mcpServerPassthroughCreated",
-        `Successfully proxied MCP server "${displayName}" with ${protocolChoice.label} protocol.`
+        `Successfully proxied MCP server "${mcpServerName}" with ${protocolChoice.label} protocol.`
       )
     );
   } catch (error) {
@@ -222,7 +200,7 @@ async function createMcpServer(
   // Create the MCP server payload
   let mcpServerPayload: any = {
     properties: {
-      displayName: config.displayName,
+      displayName: config.mcpServerName, // Use mcpServerName as displayName by default
       protocols: ["http", "https"],
       description: "This API is used to passthrough existing MCP server.",
       subscriptionRequired: false,
