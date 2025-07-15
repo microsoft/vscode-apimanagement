@@ -20,22 +20,49 @@ export async function copyMcpServerUrl(context: IActionContext, node?: McpServer
             node.root.serviceName
         );
 
-        // Show a quick pick to let user choose the endpoint type
-        const endpointType = await context.ui.showQuickPick(
-            [
-                { label: 'SSE' },
-                { label: 'Streamable HTTP' }
-            ],
-            { placeHolder: 'Select endpoint type' }
-        );
+        // Check the type of MCP server
+        const mcpTools = node.mcpServerContract.properties.mcpTools;
+        const isTransformative = mcpTools && mcpTools.length > 0;
 
-        // Generate the URL based on selected endpoint type
+        let url: string;
         const baseUrl = `${apimService.gatewayUrl}/${node.mcpServerContract.properties.path}`;
-        const url = endpointType.label === 'SSE' ? `${baseUrl}/sse` : `${baseUrl}/mcp`;
 
-        // Copy to clipboard
-        await vscode.env.clipboard.writeText(url);
-        vscode.window.showInformationMessage(localize('mcpServerUrl.copied', `${endpointType.label} endpoint URL has been copied to clipboard.`));
+        if (isTransformative) {
+            // For transformative MCP servers, use current logic
+            const endpointType = await context.ui.showQuickPick(
+                [
+                    { label: 'SSE' },
+                    { label: 'Streamable HTTP' }
+                ],
+                { placeHolder: 'Select endpoint type' }
+            );
+
+            url = endpointType.label === 'SSE' ? `${baseUrl}/sse` : `${baseUrl}/mcp`;
+            
+            // Copy to clipboard
+            await vscode.env.clipboard.writeText(url);
+            vscode.window.showInformationMessage(localize('mcpServerUrl.copied', `MCP server URL has been copied to clipboard.`));
+        } else {
+            // For passthrough MCP servers, check if it contains SSE endpoint
+            const mcpProperties = (node.mcpServerContract.properties as any).mcpProperties;
+            
+            // Check if transport type is SSE but no SSE endpoint exists
+            if (mcpProperties && mcpProperties.transportType === 'sse') {
+                if (!mcpProperties.endpoints || !mcpProperties.endpoints.sse) {
+                    throw new Error('SSE transport type is configured but no SSE endpoint is defined for this passthrough MCP server.');
+                }
+                // Use SSE endpoint URL
+                const sseEndpoint = mcpProperties.endpoints.sse.uriTemplate;
+                url = `${baseUrl}${sseEndpoint}`;
+            } else {
+                // Use MCP endpoint URL
+                url = `${baseUrl}`;
+            }
+
+            // Copy to clipboard
+            await vscode.env.clipboard.writeText(url);
+            vscode.window.showInformationMessage(localize('mcpServerUrl.copied', `MCP server URL has been copied to clipboard.`));
+        }
 
     } catch (error) {
         if (isUserCancelledError(error)) {
