@@ -10,10 +10,11 @@ import {
 import { uiUtils } from "@microsoft/vscode-azext-azureutils";
 import { ApiContract, OperationContract } from "@azure/arm-apimanagement";
 import * as vscode from "vscode";
-import { McpServersTreeItem } from "../explorer/McpServersTreeItem";
+import { McpTransformativeTreeItem } from "../explorer/McpTransformativeTreeItem";
 import { ApimService } from "../azure/apim/ApimService";
 import { localize } from "../localize";
 import { IMcpToolContract } from "../azure/apim/contracts";
+import { validateMcpServerName } from "../utils/mcpValidationUtil";
 
 interface IApiQuickPickItem {
   label: string;
@@ -28,7 +29,7 @@ interface IOperationQuickPickItem {
 
 export async function transformApiToMcpServer(
   context: IActionContext,
-  node?: McpServersTreeItem
+  node?: McpTransformativeTreeItem
 ): Promise<void> {
   try {
     if (!node) {
@@ -48,6 +49,16 @@ export async function transformApiToMcpServer(
     if (!selectedOperations || selectedOperations.length === 0) {
       return;
     }
+
+    const mcpServerName = (
+      await context.ui.showInputBox({
+        prompt: localize(
+          "enterMcpServerName",
+          "Enter the name for the MCP server"
+        ),
+        validateInput: validateMcpServerName,
+      })
+    ).trim();
 
     const defaultApiUrlSuffix = `${selectedApi.path || selectedApi.name}-mcp`;
     const apiUrlSuffix = (
@@ -69,14 +80,14 @@ export async function transformApiToMcpServer(
       })
     ).trim();
 
-    await createMcpServer(node, selectedApi, selectedOperations, apiUrlSuffix);
+    await createMcpServer(node, selectedApi, selectedOperations, apiUrlSuffix, mcpServerName);
 
     await node.refresh(context);
 
     vscode.window.showInformationMessage(
       localize(
         "mcpServerCreated",
-        `Successfully created MCP server from API "${selectedApi.displayName}".`
+        `Successfully created MCP server "${mcpServerName}" from API "${selectedApi.displayName}".`
       )
     );
   } catch (error) {
@@ -93,7 +104,7 @@ export async function transformApiToMcpServer(
 
 async function selectApi(
   context: IActionContext,
-  node: McpServersTreeItem
+  node: McpTransformativeTreeItem
 ): Promise<ApiContract | undefined> {
   const apis: ApiContract[] = await uiUtils.listAllIterator(
     node.root.client.api.listByService(
@@ -131,7 +142,7 @@ async function selectApi(
 
 async function selectOperations(
   context: IActionContext,
-  node: McpServersTreeItem,
+  node: McpTransformativeTreeItem,
   api: ApiContract
 ): Promise<OperationContract[] | undefined> {
   const operations: OperationContract[] = await uiUtils.listAllIterator(
@@ -174,10 +185,11 @@ async function selectOperations(
 }
 
 async function createMcpServer(
-  node: McpServersTreeItem,
+  node: McpTransformativeTreeItem,
   api: ApiContract,
   operations: OperationContract[],
-  apiUrlSuffix: string
+  apiUrlSuffix: string,
+  mcpServerName: string
 ): Promise<void> {
   const apimService = new ApimService(
     node.root.credentials,
@@ -188,8 +200,8 @@ async function createMcpServer(
   );
 
   const originalApiName = api.name!;
-  const mcpApiName = `${originalApiName}-mcp`;
-  const mcpApiDisplayName = `${api.displayName || originalApiName} MCP`;
+  const mcpApiName = mcpServerName;
+  const mcpApiDisplayName = mcpServerName; // Use mcpServerName as display name by default
   const mcpApiPath = apiUrlSuffix;
 
   const mcpTools: IMcpToolContract[] = operations.map((operation) => ({

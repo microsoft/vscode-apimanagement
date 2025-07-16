@@ -212,8 +212,8 @@ function registerCommands(tree: AzExtTreeDataProvider): void {
     registerCommand('azureApiManagement.explainPolicy', async (context: IActionContext) => await explainPolicy(context));
     registerCommand('azureApiManagement.draftPolicy', async (context: IActionContext) => await draftPolicy(context));
     registerCommand('azureApiManagement.copyMcpServerUrl', copyMcpServerUrl);
-    registerCommand('azureApiManagement.transformApiToMcpServer', transformApiToMcpServer );
-    registerCommand('azureApiManagement.passthroughMcpServer', passthroughMcpServer );
+    registerCommand('azureApiManagement.transformApiToMcpServer', transformApiToMcpServer);
+    registerCommand('azureApiManagement.passthroughMcpServer', passthroughMcpServer);
     registerCommand('azureApiManagement.openMcpLearnMore', async (_context: IActionContext, node: LearnMoreMcpTreeItem) => {
         if (node) {
             await node.openPage();

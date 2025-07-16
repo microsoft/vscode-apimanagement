@@ -10,14 +10,14 @@ import { IActionContext, UserCancelledError } from '@microsoft/vscode-azext-util
 import { uiUtils } from '@microsoft/vscode-azext-azureutils';
 import { ApiContract, OperationContract } from '@azure/arm-apimanagement';
 import { transformApiToMcpServer } from '../src/commands/transformApiToMcpServer';
-import { McpServersTreeItem } from '../src/explorer/McpServersTreeItem';
+import { McpTransformativeTreeItem } from '../src/explorer/McpTransformativeTreeItem';
 import { ApimService } from '../src/azure/apim/ApimService';
 import { IServiceTreeRoot } from '../src/explorer/IServiceTreeRoot';
 
 describe('transformApiToMcpServer', () => {
     let sandbox: sinon.SinonSandbox;
     let mockContext: IActionContext;
-    let mockNode: McpServersTreeItem;
+    let mockNode: McpTransformativeTreeItem;
     let mockRoot: IServiceTreeRoot;
     let mockUiUtils: sinon.SinonStub;
     let mockApimService: sinon.SinonStubbedInstance<ApimService>;
@@ -58,7 +58,7 @@ describe('transformApiToMcpServer', () => {
             serviceName: 'test-service'
         } as any;
 
-        // Mock McpServersTreeItem
+        // Mock McpTransformativeTreeItem
         mockNode = {
             root: mockRoot,
             refresh: sandbox.stub().resolves()
@@ -118,8 +118,11 @@ describe('transformApiToMcpServer', () => {
                     { label: 'Operation 2', operation: mockOperations[1] }
                 ]);
 
-            // Mock user input for API URL suffix
+            // Mock user input for MCP server name and API URL suffix
             (mockContext.ui.showInputBox as sinon.SinonStub)
+                .onFirstCall()
+                .resolves('my-custom-mcp')
+                .onSecondCall()
                 .resolves('test-path-mcp');
 
             // Mock progress dialog
@@ -134,18 +137,18 @@ describe('transformApiToMcpServer', () => {
             // Assert
             expect(mockUiUtils.calledTwice).to.be.true;
             expect((mockContext.ui.showQuickPick as sinon.SinonStub).calledTwice).to.be.true;
-            expect((mockContext.ui.showInputBox as sinon.SinonStub).calledOnce).to.be.true;
+            expect((mockContext.ui.showInputBox as sinon.SinonStub).calledTwice).to.be.true;
             expect(mockApimService.createMcpServer.calledOnce).to.be.true;
             expect(mockVscodeWindow.calledOnce).to.be.true;
-            expect(mockVscodeWindow.calledWith('Successfully created MCP server from API "Test API".')).to.be.true;
+            expect(mockVscodeWindow.calledWith('Successfully created MCP server "my-custom-mcp" from API "Test API".')).to.be.true;
 
             // Verify the MCP server payload
             const createMcpServerCall = mockApimService.createMcpServer.getCall(0);
             const mcpApiName = createMcpServerCall.args[0];
             const mcpServerPayload = createMcpServerCall.args[1];
 
-            expect(mcpApiName).to.equal('test-api-mcp');
-            expect(mcpServerPayload.properties.displayName).to.equal('Test API MCP');
+            expect(mcpApiName).to.equal('my-custom-mcp');
+            expect(mcpServerPayload.properties.displayName).to.equal('my-custom-mcp');
             expect(mcpServerPayload.properties.path).to.equal('test-path-mcp');
             expect(mcpServerPayload.properties.mcpTools).to.have.length(2);
             expect(mcpServerPayload.properties.mcpTools[0].name).to.equal('operation1');
@@ -181,6 +184,9 @@ describe('transformApiToMcpServer', () => {
                 .resolves([{ label: 'Operation 1', operation: mockOperations[0] }]);
 
             (mockContext.ui.showInputBox as sinon.SinonStub)
+                .onFirstCall()
+                .resolves('my-custom-mcp')
+                .onSecondCall()
                 .resolves('test-api-mcp');
 
             mockVscodeWindowProgress.callsFake((_options, callback) => callback({}));
@@ -190,7 +196,7 @@ describe('transformApiToMcpServer', () => {
             await transformApiToMcpServer(mockContext, mockNode);
 
             // Assert
-            const showInputBoxCall = (mockContext.ui.showInputBox as sinon.SinonStub).getCall(0);
+            const showInputBoxCall = (mockContext.ui.showInputBox as sinon.SinonStub).getCall(1);
             const inputBoxOptions = showInputBoxCall.args[0];
             expect(inputBoxOptions.value).to.equal('test-api-mcp');
         });
@@ -362,6 +368,9 @@ describe('transformApiToMcpServer', () => {
                 .resolves([{ label: 'Operation 1', operation: mockOperations[0] }]);
 
             (mockContext.ui.showInputBox as sinon.SinonStub)
+                .onFirstCall()
+                .resolves('my-mcp-server')
+                .onSecondCall()
                 .resolves('valid-suffix');
 
             mockVscodeWindowProgress.callsFake((_options, callback) => callback({}));
@@ -371,7 +380,7 @@ describe('transformApiToMcpServer', () => {
             await transformApiToMcpServer(mockContext, mockNode);
 
             // Assert
-            const showInputBoxCall = (mockContext.ui.showInputBox as sinon.SinonStub).getCall(0);
+            const showInputBoxCall = (mockContext.ui.showInputBox as sinon.SinonStub).getCall(1);
             const inputBoxOptions = showInputBoxCall.args[0];
             
             // Test validation function
@@ -570,6 +579,9 @@ describe('transformApiToMcpServer', () => {
                 ]);
 
             (mockContext.ui.showInputBox as sinon.SinonStub)
+                .onFirstCall()
+                .resolves('my-custom-mcp-server')
+                .onSecondCall()
                 .resolves('my-custom-mcp-suffix');
 
             mockVscodeWindowProgress.callsFake((_options, callback) => callback({}));
@@ -583,14 +595,14 @@ describe('transformApiToMcpServer', () => {
             const mcpApiName = createMcpServerCall.args[0];
             const mcpServerPayload = createMcpServerCall.args[1];
 
-            expect(mcpApiName).to.equal('my-test-api-mcp');
+            expect(mcpApiName).to.equal('my-custom-mcp-server');
             
             const expectedPayload = {
-                id: `/subscriptions/test-subscription-id/resourceGroups/test-resource-group/providers/Microsoft.ApiManagement/service/test-service/apis/my-test-api-mcp`,
-                name: 'my-test-api-mcp',
+                id: `/subscriptions/test-subscription-id/resourceGroups/test-resource-group/providers/Microsoft.ApiManagement/service/test-service/apis/my-custom-mcp-server`,
+                name: 'my-custom-mcp-server',
                 properties: {
                     type: 'mcp',
-                    displayName: 'My Test API MCP',
+                    displayName: 'my-custom-mcp-server',
                     subscriptionRequired: false,
                     path: 'my-custom-mcp-suffix',
                     protocols: ['http', 'https'],

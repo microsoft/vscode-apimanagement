@@ -9,14 +9,14 @@ import * as vscode from 'vscode';
 import { IActionContext, UserCancelledError } from '@microsoft/vscode-azext-utils';
 import { BackendContract } from '@azure/arm-apimanagement';
 import { passthroughMcpServer } from '../src/commands/passthroughMcpServer';
-import { McpServersTreeItem } from '../src/explorer/McpServersTreeItem';
+import { McpPassthroughTreeItem } from '../src/explorer/McpPassthroughTreeItem';
 import { ApimService } from '../src/azure/apim/ApimService';
 import { IServiceTreeRoot } from '../src/explorer/IServiceTreeRoot';
 
 describe('passthroughMcpServer', () => {
     let sandbox: sinon.SinonSandbox;
     let mockContext: IActionContext;
-    let mockNode: McpServersTreeItem;
+    let mockNode: McpPassthroughTreeItem;
     let mockRoot: IServiceTreeRoot;
     let mockApimService: sinon.SinonStubbedInstance<ApimService>;
     let mockVscodeWindow: sinon.SinonStub;
@@ -53,7 +53,7 @@ describe('passthroughMcpServer', () => {
             serviceName: 'test-service'
         } as any;
 
-        // Mock McpServersTreeItem
+        // Mock McpPassthroughTreeItem
         mockNode = {
             root: mockRoot,
             refresh: sandbox.stub().resolves()
@@ -165,7 +165,7 @@ describe('passthroughMcpServer', () => {
             expect(validateInput('valid-name')).to.be.undefined;
         });
 
-        it('should validate display name input', async () => {
+        it('should validate server URL input', async () => {
             // Arrange
             setupInputBoxForValidation(1);
 
@@ -174,22 +174,6 @@ describe('passthroughMcpServer', () => {
 
             // Assert
             const inputBoxCall = (mockContext.ui.showInputBox as sinon.SinonStub).getCall(1);
-            const validateInput = inputBoxCall.args[0].validateInput;
-            
-            expect(validateInput('')).to.equal('Display name is required');
-            expect(validateInput('   ')).to.equal('Display name is required');
-            expect(validateInput('valid-display-name')).to.be.undefined;
-        });
-
-        it('should validate server URL input', async () => {
-            // Arrange
-            setupInputBoxForValidation(2);
-
-            // Act
-            await passthroughMcpServer(mockContext, mockNode);
-
-            // Assert
-            const inputBoxCall = (mockContext.ui.showInputBox as sinon.SinonStub).getCall(2);
             const validateInput = inputBoxCall.args[0].validateInput;
             
             expect(validateInput('')).to.equal('URL is required');
@@ -202,13 +186,13 @@ describe('passthroughMcpServer', () => {
 
         it('should validate API URL suffix input', async () => {
             // Arrange
-            setupInputBoxForValidation(3);
+            setupInputBoxForValidation(2);
 
             // Act
             await passthroughMcpServer(mockContext, mockNode);
 
             // Assert
-            const inputBoxCall = (mockContext.ui.showInputBox as sinon.SinonStub).getCall(3);
+            const inputBoxCall = (mockContext.ui.showInputBox as sinon.SinonStub).getCall(2);
             const validateInput = inputBoxCall.args[0].validateInput;
             
             expect(validateInput('')).to.equal('API URL suffix is required');
@@ -221,11 +205,10 @@ describe('passthroughMcpServer', () => {
             const inputBoxStub = mockContext.ui.showInputBox as sinon.SinonStub;
             inputBoxStub
                 .onCall(0).resolves('test-server') // Server name
-                .onCall(1).resolves('Test Server') // Display name
-                .onCall(2).resolves('https://example.com/mcp') // Server URL
-                .onCall(3).resolves('test-api-suffix') // API URL suffix
-                .onCall(4).resolves('/sse') // SSE endpoint
-                .onCall(5).resolves('/messages'); // Messages endpoint
+                .onCall(1).resolves('https://example.com/mcp') // Server URL
+                .onCall(2).resolves('test-api-suffix') // API URL suffix
+                .onCall(3).resolves('/sse') // SSE endpoint
+                .onCall(4).resolves('/messages'); // Messages endpoint
 
             (mockContext.ui.showQuickPick as sinon.SinonStub)
                 .resolves({ label: 'SSE', description: 'Server-Sent Events' });
@@ -237,7 +220,7 @@ describe('passthroughMcpServer', () => {
             await passthroughMcpServer(mockContext, mockNode);
 
             // Assert
-            const inputBoxCall = inputBoxStub.getCall(4);
+            const inputBoxCall = inputBoxStub.getCall(3);
             const validateInput = inputBoxCall.args[0].validateInput;
             
             expect(validateInput('')).to.equal('SSE endpoint is required');
@@ -253,7 +236,7 @@ describe('passthroughMcpServer', () => {
             await passthroughMcpServer(mockContext, mockNode);
 
             // Assert
-            const inputBoxCall = (mockContext.ui.showInputBox as sinon.SinonStub).getCall(5);
+            const inputBoxCall = (mockContext.ui.showInputBox as sinon.SinonStub).getCall(4);
             const validateInput = inputBoxCall.args[0].validateInput;
             
             expect(validateInput('')).to.equal('Messages endpoint is required');
@@ -356,14 +339,13 @@ describe('passthroughMcpServer', () => {
         
         inputBoxStub
             .onCall(0).resolves('test-server') // Server name
-            .onCall(1).resolves('Test Server') // Display name
-            .onCall(2).resolves('https://example.com/mcp') // Server URL
-            .onCall(3).resolves('test-api-suffix'); // API URL suffix
+            .onCall(1).resolves('https://example.com/mcp') // Server URL
+            .onCall(2).resolves('test-api-suffix'); // API URL suffix
 
         if (protocol === 'SSE') {
             inputBoxStub
-                .onCall(4).resolves('/sse') // SSE endpoint
-                .onCall(5).resolves('/messages'); // Messages endpoint
+                .onCall(3).resolves('/sse') // SSE endpoint
+                .onCall(4).resolves('/messages'); // Messages endpoint
         }
 
         (mockContext.ui.showQuickPick as sinon.SinonStub)
@@ -378,11 +360,10 @@ describe('passthroughMcpServer', () => {
         
         // Set up other calls to return valid values
         inputBoxStub.onCall(0).resolves('test-server');
-        inputBoxStub.onCall(1).resolves('Test Server');
-        inputBoxStub.onCall(2).resolves('https://example.com/mcp');
-        inputBoxStub.onCall(3).resolves('test-api-suffix');
-        inputBoxStub.onCall(4).resolves('/sse');
-        inputBoxStub.onCall(5).resolves('/messages');
+        inputBoxStub.onCall(1).resolves('https://example.com/mcp');
+        inputBoxStub.onCall(2).resolves('test-api-suffix');
+        inputBoxStub.onCall(3).resolves('/sse');
+        inputBoxStub.onCall(4).resolves('/messages');
 
         // The specific call we want to test validation for
         inputBoxStub.onCall(callIndex).callThrough();
@@ -398,7 +379,7 @@ describe('passthroughMcpServer', () => {
         const inputBoxStub = mockContext.ui.showInputBox as sinon.SinonStub;
         const quickPickStub = mockContext.ui.showQuickPick as sinon.SinonStub;
         
-        const expectedCalls = includeSSEEndpoints ? 6 : 4;
+        const expectedCalls = includeSSEEndpoints ? 5 : 3;
         expect(inputBoxStub.callCount).to.equal(expectedCalls);
         expect(quickPickStub.calledOnce).to.be.true;
     }
@@ -417,7 +398,7 @@ describe('passthroughMcpServer', () => {
         
         const [mcpServerName, mcpServerPayload] = mockApimService.createMcpServer.getCall(0).args;
         expect(mcpServerName).to.equal('test-server');
-        expect(mcpServerPayload.properties.displayName).to.equal('Test Server');
+        expect(mcpServerPayload.properties.displayName).to.equal('test-server');
         expect(mcpServerPayload.properties.path).to.equal('test-api-suffix');
         expect(mcpServerPayload.properties.type).to.equal('mcp');
         expect(mcpServerPayload.properties.backendId).to.be.a('string');
@@ -441,7 +422,7 @@ describe('passthroughMcpServer', () => {
         
         const [mcpServerName, mcpServerPayload] = mockApimService.createMcpServer.getCall(0).args;
         expect(mcpServerName).to.equal('test-server');
-        expect(mcpServerPayload.properties.displayName).to.equal('Test Server');
+        expect(mcpServerPayload.properties.displayName).to.equal('test-server');
         expect(mcpServerPayload.properties.path).to.equal('test-api-suffix');
         expect(mcpServerPayload.properties.type).to.equal('mcp');
         expect(mcpServerPayload.properties.backendId).to.be.a('string');
@@ -451,7 +432,7 @@ describe('passthroughMcpServer', () => {
     function verifySuccessMessage(protocol: string): void {
         expect(mockVscodeWindow.calledOnce).to.be.true;
         expect(mockVscodeWindow.calledWith(
-            `Successfully proxied MCP server "Test Server" with ${protocol} protocol.`
+            `Successfully proxied MCP server "test-server" with ${protocol} protocol.`
         )).to.be.true;
         expect((mockNode.refresh as sinon.SinonStub).calledOnce).to.be.true;
     }

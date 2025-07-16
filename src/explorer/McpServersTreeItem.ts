@@ -7,7 +7,8 @@ import { AzExtParentTreeItem, AzExtTreeItem } from "@microsoft/vscode-azext-util
 import { treeUtils } from "../utils/treeUtils";
 import { ApimService } from "../azure/apim/ApimService";
 import { IServiceTreeRoot } from "./IServiceTreeRoot";
-import { McpServerTreeItem } from "./McpServerTreeItem";
+import { McpPassthroughTreeItem } from "./McpPassthroughTreeItem";
+import { McpTransformativeTreeItem } from "./McpTransformativeTreeItem";
 import * as vscode from 'vscode';
 import { mcpLearnMoreUrl } from "../constants";
 
@@ -69,11 +70,10 @@ export class McpServersTreeItem extends AzExtParentTreeItem {
             return [new LearnMoreMcpTreeItem(this)];
         }
 
-        return this.createTreeItemsWithErrorHandling(
-            mcpServers,
-            "invalidApiManagementMcpServer",
-            async (server) => new McpServerTreeItem(this, server, this.root),
-            (server) => server.name
-        );
+        // Return the two category tree items that will contain the filtered servers
+        return [
+            new McpPassthroughTreeItem(this, mcpServers, this.root),
+            new McpTransformativeTreeItem(this, mcpServers, this.root)
+        ];
     }
 }
