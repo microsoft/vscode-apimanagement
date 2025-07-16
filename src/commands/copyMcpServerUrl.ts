@@ -38,10 +38,6 @@ export async function copyMcpServerUrl(context: IActionContext, node?: McpServer
             );
 
             url = endpointType.label === 'SSE' ? `${baseUrl}/sse` : `${baseUrl}/mcp`;
-            
-            // Copy to clipboard
-            await vscode.env.clipboard.writeText(url);
-            vscode.window.showInformationMessage(localize('mcpServerUrl.copied', `MCP server URL has been copied to clipboard.`));
         } else {
             // For passthrough MCP servers, check if it contains SSE endpoint
             const mcpProperties = (node.mcpServerContract.properties as any).mcpProperties;
@@ -57,13 +53,12 @@ export async function copyMcpServerUrl(context: IActionContext, node?: McpServer
             } else {
                 // Use MCP endpoint URL
                 url = `${baseUrl}`;
-            }
-
-            // Copy to clipboard
-            await vscode.env.clipboard.writeText(url);
-            vscode.window.showInformationMessage(localize('mcpServerUrl.copied', `MCP server URL has been copied to clipboard.`));
+            }            
         }
 
+        // Copy to clipboard
+        await vscode.env.clipboard.writeText(url);
+        vscode.window.showInformationMessage(localize('mcpServerUrl.copied', `MCP server URL has been copied to clipboard.`));
     } catch (error) {
         if (isUserCancelledError(error)) {
             return;
