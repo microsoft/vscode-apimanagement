@@ -69,7 +69,7 @@ describe('transformApiToMcpServer', () => {
 
         // Mock ApimService
         mockApimService = sandbox.createStubInstance(ApimService);
-        sandbox.stub(ApimService.prototype, 'createMcpServer').callsFake(mockApimService.createMcpServer);
+        sandbox.stub(ApimService.prototype, 'createOrUpdateMcpServer').callsFake(mockApimService.createOrUpdateMcpServer);
     });
 
     afterEach(() => {
@@ -129,7 +129,7 @@ describe('transformApiToMcpServer', () => {
             mockVscodeWindowProgress.callsFake((_options, callback) => callback({}));
 
             // Mock ApimService.createMcpServer
-            mockApimService.createMcpServer.resolves({} as any);
+            mockApimService.createOrUpdateMcpServer.resolves({} as any);
 
             // Act
             await transformApiToMcpServer(mockContext, mockNode);
@@ -138,12 +138,12 @@ describe('transformApiToMcpServer', () => {
             expect(mockUiUtils.calledTwice).to.be.true;
             expect((mockContext.ui.showQuickPick as sinon.SinonStub).calledTwice).to.be.true;
             expect((mockContext.ui.showInputBox as sinon.SinonStub).calledTwice).to.be.true;
-            expect(mockApimService.createMcpServer.calledOnce).to.be.true;
+            expect(mockApimService.createOrUpdateMcpServer.calledOnce).to.be.true;
             expect(mockVscodeWindow.calledOnce).to.be.true;
             expect(mockVscodeWindow.calledWith('Successfully created MCP server "my-custom-mcp" from API "Test API".')).to.be.true;
 
             // Verify the MCP server payload
-            const createMcpServerCall = mockApimService.createMcpServer.getCall(0);
+            const createMcpServerCall = mockApimService.createOrUpdateMcpServer.getCall(0);
             const mcpApiName = createMcpServerCall.args[0];
             const mcpServerPayload = createMcpServerCall.args[1];
 
@@ -190,7 +190,7 @@ describe('transformApiToMcpServer', () => {
                 .resolves('test-api-mcp');
 
             mockVscodeWindowProgress.callsFake((_options, callback) => callback({}));
-            mockApimService.createMcpServer.resolves({} as any);
+            mockApimService.createOrUpdateMcpServer.resolves({} as any);
 
             // Act
             await transformApiToMcpServer(mockContext, mockNode);
@@ -374,7 +374,7 @@ describe('transformApiToMcpServer', () => {
                 .resolves('valid-suffix');
 
             mockVscodeWindowProgress.callsFake((_options, callback) => callback({}));
-            mockApimService.createMcpServer.resolves({} as any);
+            mockApimService.createOrUpdateMcpServer.resolves({} as any);
 
             // Act
             await transformApiToMcpServer(mockContext, mockNode);
@@ -438,7 +438,7 @@ describe('transformApiToMcpServer', () => {
             mockVscodeWindowProgress.callsFake((_options, callback) => callback({}));
             
             const createError = new Error('Create MCP server failed');
-            mockApimService.createMcpServer.rejects(createError);
+            mockApimService.createOrUpdateMcpServer.rejects(createError);
 
             // Act & Assert
             try {
@@ -486,7 +486,7 @@ describe('transformApiToMcpServer', () => {
                 .resolves('test-suffix');
 
             mockVscodeWindowProgress.callsFake((_options, callback) => callback({}));
-            mockApimService.createMcpServer.resolves({} as any);
+            mockApimService.createOrUpdateMcpServer.resolves({} as any);
 
             // Act
             await transformApiToMcpServer(mockContext, mockNode);
@@ -530,7 +530,7 @@ describe('transformApiToMcpServer', () => {
                 .resolves('test-suffix');
 
             mockVscodeWindowProgress.callsFake((_options, callback) => callback({}));
-            mockApimService.createMcpServer.resolves({} as any);
+            mockApimService.createOrUpdateMcpServer.resolves({} as any);
 
             // Act
             await transformApiToMcpServer(mockContext, mockNode);
@@ -585,13 +585,13 @@ describe('transformApiToMcpServer', () => {
                 .resolves('my-custom-mcp-suffix');
 
             mockVscodeWindowProgress.callsFake((_options, callback) => callback({}));
-            mockApimService.createMcpServer.resolves({} as any);
+            mockApimService.createOrUpdateMcpServer.resolves({} as any);
 
             // Act
             await transformApiToMcpServer(mockContext, mockNode);
 
             // Assert
-            const createMcpServerCall = mockApimService.createMcpServer.getCall(0);
+            const createMcpServerCall = mockApimService.createOrUpdateMcpServer.getCall(0);
             const mcpApiName = createMcpServerCall.args[0];
             const mcpServerPayload = createMcpServerCall.args[1];
 
@@ -655,13 +655,13 @@ describe('transformApiToMcpServer', () => {
                 .resolves('test-suffix');
 
             mockVscodeWindowProgress.callsFake((_options, callback) => callback({}));
-            mockApimService.createMcpServer.resolves({} as any);
+            mockApimService.createOrUpdateMcpServer.resolves({} as any);
 
             // Act
             await transformApiToMcpServer(mockContext, mockNode);
 
             // Assert
-            const createMcpServerCall = mockApimService.createMcpServer.getCall(0);
+            const createMcpServerCall = mockApimService.createOrUpdateMcpServer.getCall(0);
             const mcpServerPayload = createMcpServerCall.args[1];
             
             expect(mcpServerPayload.properties.mcpTools[0].description).to.equal('');

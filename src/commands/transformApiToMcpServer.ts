@@ -230,7 +230,7 @@ async function createMcpServer(
       cancellable: false,
     },
     async (_progress) => {
-      await apimService.createMcpServer(mcpApiName, mcpServerPayload);
+      await apimService.createOrUpdateMcpServer(mcpApiName, mcpServerPayload);
     }
   );
 }

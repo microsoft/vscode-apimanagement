@@ -306,7 +306,21 @@ export class ApimService {
         return <IMcpServerApiContract[]>(result.parsedBody.value);
     }
 
-    public async createMcpServer(mcpApiName: string, mcpServerPayload: any): Promise<IMcpServerApiContract> {
+    public async getMcpServer(mcpApiName: string): Promise<IMcpServerApiContract> {
+        const client: ServiceClient = new ServiceClient(this.credentials, clientOptions);
+        const result: HttpOperationResponse = await client.sendRequest({
+            method: "GET",
+            url: `${this.baseUrl}/apis/${mcpApiName}?api-version=2024-10-01-preview`
+        });
+        
+        if (result.status >= 400) {
+            throw new Error(result.bodyAsText ?? `Failed to get MCP Server. Status code: ${result.status}`);
+        }
+        // tslint:disable-next-line: no-unsafe-any
+        return <IMcpServerApiContract>(result.parsedBody);
+    }
+
+    public async createOrUpdateMcpServer(mcpApiName: string, mcpServerPayload: any): Promise<IMcpServerApiContract> {
         const client: ServiceClient = new ServiceClient(this.credentials, clientOptions);
         const result: HttpOperationResponse = await client.sendRequest({
             method: "PUT",
@@ -315,7 +329,7 @@ export class ApimService {
         });
         
         if (result.status >= 400) {
-            throw new Error(result.bodyAsText ?? `Failed to create MCP Server. Status code: ${result.status}`);
+            throw new Error(result.bodyAsText ?? `Failed to create or update MCP Server. Status code: ${result.status}`);
         }
         // tslint:disable-next-line: no-unsafe-any
         return <IMcpServerApiContract>(result.parsedBody);

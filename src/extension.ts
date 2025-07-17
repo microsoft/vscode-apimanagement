@@ -56,6 +56,7 @@ import { AuthorizationProviderResourceEditor } from './explorer/editors/arm/Auth
 import { AuthorizationResourceEditor } from './explorer/editors/arm/AuthorizationResourceEditor';
 import { OperationResourceEditor } from './explorer/editors/arm/OperationResourceEditor';
 import { ProductResourceEditor } from './explorer/editors/arm/ProductResourceEditor';
+import { McpServerResourceEditor } from './explorer/editors/arm/McpServerResourceEditor';
 import { OpenApiEditor } from './explorer/editors/openApi/OpenApiEditor';
 import { ApiPolicyEditor } from './explorer/editors/policy/ApiPolicyEditor';
 import { OperationPolicyEditor } from './explorer/editors/policy/OperationPolicyEditor';
@@ -88,6 +89,7 @@ import { copyMcpServerUrl } from './commands/copyMcpServerUrl';
 import { transformApiToMcpServer } from './commands/transformApiToMcpServer';
 import { passthroughMcpServer } from './commands/passthroughMcpServer';
 import { LearnMoreMcpTreeItem } from './explorer/McpServersTreeItem';
+import { McpServerTreeItem } from './explorer/McpServerTreeItem';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -374,6 +376,21 @@ function registerEditors(context: vscode.ExtensionContext) : void {
             node = <AuthorizationAccessPolicyTreeItem>await ext.tree.showTreeItemPicker(AuthorizationAccessPolicyTreeItem.contextValue, actionContext);
         }
         await authorizationAccessPolicyResourceEditor.showEditor(actionContext, node);
+        vscode.commands.executeCommand('setContext', 'isEditorEnabled', true);
+    },              doubleClickDebounceDelay);
+
+    // MCP ARM Resource Editor
+    const mcpServerResourceEditor: McpServerResourceEditor = new McpServerResourceEditor();
+    context.subscriptions.push(mcpServerResourceEditor);
+    registerEvent('azureApiManagement.McpServerResourceEditor.onDidSaveTextDocument',
+                  vscode.workspace.onDidSaveTextDocument, async (actionContext: IActionContext, doc: vscode.TextDocument) => {
+                       await mcpServerResourceEditor.onDidSaveTextDocument(actionContext, context.globalState, doc); });
+
+    registerCommand('azureApiManagement.showArmMcpServer', async (actionContext: IActionContext, node?: McpServerTreeItem) => {
+        if (!node) {
+            node = <McpServerTreeItem>await ext.tree.showTreeItemPicker(McpServerTreeItem.contextValue, actionContext);
+        }
+        await mcpServerResourceEditor.showEditor(actionContext, node);
         vscode.commands.executeCommand('setContext', 'isEditorEnabled', true);
     },              doubleClickDebounceDelay);
 }

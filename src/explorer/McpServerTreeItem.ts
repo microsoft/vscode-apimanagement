@@ -11,8 +11,9 @@ import { IServiceTreeRoot } from "./IServiceTreeRoot";
 import { McpServerToolsTreeItem } from "./McpServerToolsTreeItem";
 import { ApiPolicyTreeItem } from "./ApiPolicyTreeItem";
 import { IApiTreeRoot } from "./IApiTreeRoot";
+import { ITreeItemWithRoot } from "./ITreeItemWithRoot";
 
-export class McpServerTreeItem extends AzExtParentTreeItem {
+export class McpServerTreeItem extends AzExtParentTreeItem implements ITreeItemWithRoot<IApiTreeRoot> {
     public static contextValue: string = 'azureApiManagementMcpServer';
     public contextValue: string = McpServerTreeItem.contextValue;
     public label: string;
@@ -45,6 +46,10 @@ export class McpServerTreeItem extends AzExtParentTreeItem {
 
     public get root(): IApiTreeRoot {
         return this._root;
+    }
+
+    public get commandId(): string {
+        return 'azureApiManagement.showArmMcpServer';
     }
 
     public hasMoreChildrenImpl(): boolean {
