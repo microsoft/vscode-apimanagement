@@ -7,20 +7,27 @@ import { AzExtParentTreeItem, AzExtTreeItem } from "@microsoft/vscode-azext-util
 import { treeUtils } from "../utils/treeUtils";
 import { IMcpServerApiContract } from "../azure/apim/contracts";
 import { McpServerToolTreeItem } from "./McpServerToolTreeItem";
+import { IApiTreeRoot } from "./IApiTreeRoot";
+import { ITreeItemWithRoot } from "./ITreeItemWithRoot";
 
-export class McpServerToolsTreeItem extends AzExtParentTreeItem {
+export class McpServerToolsTreeItem extends AzExtParentTreeItem implements ITreeItemWithRoot<IApiTreeRoot> {
     public static contextValue: string = 'azureApiManagementMcpServerTools';
     public contextValue: string = McpServerToolsTreeItem.contextValue;
     public readonly label: string = "Tools";
 
     constructor(
         parent: AzExtParentTreeItem,
-        public readonly mcpServer: IMcpServerApiContract) {
+        public readonly mcpServer: IMcpServerApiContract,
+        public readonly root: IApiTreeRoot) {
         super(parent);
     }
 
     public get iconPath(): { light: string, dark: string } {
         return treeUtils.getThemedIconPath('list');
+    }
+
+    public get commandId(): string {
+        return 'azureApiManagement.showArmMcpServerTools';
     }
 
     public hasMoreChildrenImpl(): boolean {

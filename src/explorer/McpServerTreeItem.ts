@@ -32,7 +32,7 @@ export class McpServerTreeItem extends AzExtParentTreeItem implements ITreeItemW
         this._name = nonNullProp(this.mcpServerContract, 'name');
         this._root = this.createRoot(root, this._name);
 
-        this.toolsTreeItem = new McpServerToolsTreeItem(this, this.mcpServerContract);
+        this.toolsTreeItem = new McpServerToolsTreeItem(this, this.mcpServerContract, this._root);
         this.policyTreeItem = new ApiPolicyTreeItem(this, this._root);
     }
 
