@@ -28,7 +28,7 @@ describe('McpServerResourceEditor', () => {
             environment: {
                 resourceManagerEndpointUrl: 'https://management.azure.com/'
             } as any,
-            subscriptionId: 'test-subscription-id',
+            subscriptionId: '00000000-0000-0000-0000-000000000000',
             resourceGroupName: 'test-resource-group',
             serviceName: 'test-service',
             apiName: 'test-api'
@@ -75,12 +75,12 @@ describe('McpServerResourceEditor', () => {
                     {
                         name: "remove-resource",
                         description: "A demonstration of a DELETE call which traditionally deletes the resource.",
-                        operationId: "/subscriptions/4f5285a3-9fd7-40ad-91b1-d8fc3823983d/resourceGroups/kimjihoon-mcp-passthrough-testing-apim/providers/Microsoft.ApiManagement/service/mcp-passthrough-testing-skuv1-003/apis/echo-api/operations/remove-resource"
+                        operationId: "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-resource-group/providers/Microsoft.ApiManagement/service/test-service/apis/echo-api/operations/remove-resource"
                     },
                     {
                         name: "retrieve-resource",
                         description: "A demonstration of a GET call on a sample resource.",
-                        operationId: "/subscriptions/4f5285a3-9fd7-40ad-91b1-d8fc3823983d/resourceGroups/kimjihoon-mcp-passthrough-testing-apim/providers/Microsoft.ApiManagement/service/mcp-passthrough-testing-skuv1-003/apis/echo-api/operations/retrieve-resource"
+                        operationId: "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-resource-group/providers/Microsoft.ApiManagement/service/test-service/apis/echo-api/operations/retrieve-resource"
                     }
                 ]
             }
@@ -157,7 +157,7 @@ describe('McpServerResourceEditor', () => {
 
     describe('updateDataInternal', () => {
         const sampleMcpServerContract: IMcpServerApiContract = {
-            id: "/subscriptions/4f5285a3-9fd7-40ad-91b1-d8fc3823983d/resourceGroups/kimjihoon-mcp-passthrough-testing-apim/providers/Microsoft.ApiManagement/service/mcp-passthrough-testing-skuv1-003/apis/echo-api-mcp",
+            id: "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-resource-group/providers/Microsoft.ApiManagement/service/test-service/apis/echo-api-mcp",
             type: "Microsoft.ApiManagement/service/apis",
             name: "echo-api-mcp",
             properties: {
@@ -179,7 +179,7 @@ describe('McpServerResourceEditor', () => {
                     {
                         name: "remove-resource",
                         description: "A demonstration of a DELETE call which traditionally deletes the resource.",
-                        operationId: "/subscriptions/4f5285a3-9fd7-40ad-91b1-d8fc3823983d/resourceGroups/kimjihoon-mcp-passthrough-testing-apim/providers/Microsoft.ApiManagement/service/mcp-passthrough-testing-skuv1-003/apis/echo-api/operations/remove-resource"
+                        operationId: "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-resource-group/providers/Microsoft.ApiManagement/service/test-service/apis/echo-api/operations/remove-resource"
                     }
                 ]
             }
