@@ -84,8 +84,7 @@
         "onCommand:azureApiManagement.copyAuthorizationPolicy",
         "onCommand:azureApiManagement.showArmAuthorizationProvider",
         "onCommand:azureApiManagement.showArmAuthorization",
-        "onCommand:azureApiManagement.showArmAuthorizationAccessPolicy",
-        "onCommand:azureApiManagement.showArmMcpServer"
+        "onCommand:azureApiManagement.showArmAuthorizationAccessPolicy"
     ],
     "main": "main",
     "contributes": {
@@ -557,11 +556,6 @@
                 "category": "Azure API Management"
             },
             {
-                "command": "azureApiManagement.showArmMcpServer",
-                "title": "%azureApiManagement.showArmMcpServer%",
-                "category": "Azure API Management"
-            },
-            {
                 "command": "azureApiManagement.explainPolicy",
                 "title": "%azureApiManagement.explainPolicy%",
                 "when": "never"
@@ -905,11 +899,6 @@
                     "command": "azureApiManagement.copyMcpServerUrl",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementMcpServer",
                     "group": "1@2"
-                },
-                {
-                    "command": "azureApiManagement.showArmMcpServer",
-                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementMcpServer",
-                    "group": "2@1"
                 },
                 {
                     "command": "azureApiManagement.transformApiToMcpServer",

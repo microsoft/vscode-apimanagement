@@ -61,7 +61,6 @@
     "azureApiManagement.showArmAuthorizationProvider": "Edit Credential Manager",
     "azureApiManagement.showArmAuthorization": "Edit Credential",
     "azureApiManagement.showArmAuthorizationAccessPolicy": "Edit Credential Access Policy",
-    "azureApiManagement.showArmMcpServer": "Edit MCP Server",
     "azureApiManagement.selectTenant": "Select Tenant...",
     "azureApiManagement.selectSubscriptions": "Select Subscription...",
     "azureApiManagement.explainPolicy": "Explain APIM Policies",
