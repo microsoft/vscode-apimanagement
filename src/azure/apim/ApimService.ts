@@ -310,7 +310,7 @@ export class ApimService {
         const client: ServiceClient = new ServiceClient(this.credentials, clientOptions);
         const result: HttpOperationResponse = await client.sendRequest({
             method: "GET",
-            url: `${this.baseUrl}/apis/${mcpApiName}?api-version=2024-10-01-preview`
+            url: `${this.baseUrl}/apis/${mcpApiName}?api-version=2024-06-01-preview`
         });
         
         if (result.status >= 400) {
@@ -324,7 +324,7 @@ export class ApimService {
         const client: ServiceClient = new ServiceClient(this.credentials, clientOptions);
         const result: HttpOperationResponse = await client.sendRequest({
             method: "PUT",
-            url: `${this.baseUrl}/apis/${mcpApiName}?api-version=2024-10-01-preview`,
+            url: `${this.baseUrl}/apis/${mcpApiName}?api-version=2024-06-01-preview`,
             body: mcpServerPayload
         });
         

@@ -910,6 +910,16 @@
                     "command": "azureApiManagement.showArmMcpServer",
                     "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementMcpServer",
                     "group": "2@1"
+                },
+                {
+                    "command": "azureApiManagement.transformApiToMcpServer",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementMcpTransformative",
+                    "group": "1@1"
+                },
+                {
+                    "command": "azureApiManagement.passthroughMcpServer",
+                    "when": "view == azureApiManagementExplorer && viewItem == azureApiManagementMcpPassthrough",
+                    "group": "1@1"
                 }
             ],
             "copilot": [
