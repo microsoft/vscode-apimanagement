@@ -66,14 +66,16 @@ export class McpServersTreeItem extends AzExtParentTreeItem {
 
         const mcpServers = await apimService.listMcpServers();
 
+        const children: AzExtTreeItem[] = [
+            new McpPassthroughTreeItem(this, mcpServers || [], this.root),
+            new McpTransformativeTreeItem(this, mcpServers || [], this.root)
+        ];
+
+        // Only show the "Learn More" item when there are no MCP servers
         if (!mcpServers || mcpServers.length === 0) {
-            return [new LearnMoreMcpTreeItem(this)];
+            children.push(new LearnMoreMcpTreeItem(this));
         }
 
-        // Return the two category tree items that will contain the filtered servers
-        return [
-            new McpPassthroughTreeItem(this, mcpServers, this.root),
-            new McpTransformativeTreeItem(this, mcpServers, this.root)
-        ];
+        return children;
     }
 }

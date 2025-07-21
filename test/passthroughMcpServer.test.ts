@@ -61,7 +61,7 @@ describe('passthroughMcpServer', () => {
 
         // Mock ApimService
         mockApimService = sandbox.createStubInstance(ApimService);
-        sandbox.stub(ApimService.prototype, 'createMcpServer').callsFake(mockApimService.createMcpServer);
+        sandbox.stub(ApimService.prototype, 'createOrUpdateMcpServer').callsFake(mockApimService.createOrUpdateMcpServer);
     });
 
     afterEach(() => {
@@ -73,7 +73,7 @@ describe('passthroughMcpServer', () => {
             // Arrange
             setupSuccessfulUserInputs('SSE');
             mockVscodeWindowProgress.callsFake((_options, callback) => callback({}));
-            mockApimService.createMcpServer.resolves({} as any);
+            mockApimService.createOrUpdateMcpServer.resolves({} as any);
 
             // Act
             await passthroughMcpServer(mockContext, mockNode);
@@ -89,7 +89,7 @@ describe('passthroughMcpServer', () => {
             // Arrange
             setupSuccessfulUserInputs('Streamable HTTP');
             mockVscodeWindowProgress.callsFake((_options, callback) => callback({}));
-            mockApimService.createMcpServer.resolves({} as any);
+            mockApimService.createOrUpdateMcpServer.resolves({} as any);
 
             // Act
             await passthroughMcpServer(mockContext, mockNode);
@@ -214,7 +214,7 @@ describe('passthroughMcpServer', () => {
                 .resolves({ label: 'SSE', description: 'Server-Sent Events' });
 
             mockVscodeWindowProgress.callsFake((_options, callback) => callback({}));
-            mockApimService.createMcpServer.resolves({} as any);
+            mockApimService.createOrUpdateMcpServer.resolves({} as any);
 
             // Act
             await passthroughMcpServer(mockContext, mockNode);
@@ -310,7 +310,7 @@ describe('passthroughMcpServer', () => {
             // Arrange
             setupSuccessfulUserInputs('SSE');
             mockVscodeWindowProgress.callsFake((_options, callback) => callback({}));
-            mockApimService.createMcpServer.resolves({} as any);
+            mockApimService.createOrUpdateMcpServer.resolves({} as any);
 
             // Act
             await passthroughMcpServer(mockContext, mockNode);
@@ -372,7 +372,7 @@ describe('passthroughMcpServer', () => {
             .resolves({ label: 'Streamable HTTP', description: 'Streamable HTTP protocol' });
 
         mockVscodeWindowProgress.callsFake((_options, callback) => callback({}));
-        mockApimService.createMcpServer.resolves({} as any);
+        mockApimService.createOrUpdateMcpServer.resolves({} as any);
     }
 
     function verifyUserInputSequence(includeSSEEndpoints = true): void {
@@ -394,9 +394,9 @@ describe('passthroughMcpServer', () => {
     }
 
     function verifyMcpServerCreationWithSSE(): void {
-        expect(mockApimService.createMcpServer.calledOnce).to.be.true;
+        expect(mockApimService.createOrUpdateMcpServer.calledOnce).to.be.true;
         
-        const [mcpServerName, mcpServerPayload] = mockApimService.createMcpServer.getCall(0).args;
+        const [mcpServerName, mcpServerPayload] = mockApimService.createOrUpdateMcpServer.getCall(0).args;
         expect(mcpServerName).to.equal('test-server');
         expect(mcpServerPayload.properties.displayName).to.equal('test-server');
         expect(mcpServerPayload.properties.path).to.equal('test-api-suffix');
@@ -418,9 +418,9 @@ describe('passthroughMcpServer', () => {
     }
 
     function verifyMcpServerCreationWithoutSSE(): void {
-        expect(mockApimService.createMcpServer.calledOnce).to.be.true;
+        expect(mockApimService.createOrUpdateMcpServer.calledOnce).to.be.true;
         
-        const [mcpServerName, mcpServerPayload] = mockApimService.createMcpServer.getCall(0).args;
+        const [mcpServerName, mcpServerPayload] = mockApimService.createOrUpdateMcpServer.getCall(0).args;
         expect(mcpServerName).to.equal('test-server');
         expect(mcpServerPayload.properties.displayName).to.equal('test-server');
         expect(mcpServerPayload.properties.path).to.equal('test-api-suffix');
