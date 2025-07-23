@@ -6,34 +6,14 @@ All notable changes to the "Azure Api Management VS Code" extension will be docu
 
 ### New features
 
-- **Edit MCP server properties and tools**: Users can now click on MCP server tree items or MCP tools tree items to open JSON representations in VS Code for editing. Saving the file triggers update logic with a confirmation window.
-![EditMCPServer](https://github.com/user-attachments/assets/99eb48c2-fd75-475c-a708-bd6ff883a641)
-![EditMCPTools](https://github.com/user-attachments/assets/ca74706f-757f-480b-a5f3-fd39e473d496)
+- **Edit MCP server properties**: You can now click on the MCP server treeview node to edit MCP server properties like display name, description and API URL suffix. Saving the file will trigger update logic.
+![EditMCPProperties](https://github.com/user-attachments/assets/0a770359-7d84-41ea-b92d-a3463bba5b62)
 
-- **Enhanced MCP server experience**: MCP servers are now grouped into passthrough and transformative categories for better organization. The create MCP menu has been moved to corresponding MCP type tree items for improved workflow.
-![GroupMCPServers](https://github.com/user-attachments/assets/82659471-dc39-4b7c-97af-68773d80e774)
+- **Edit MCP tools**: You can now click on the Tools treeview node under MCP server to edit tool properties like display name and description. Saving the file will trigger update logic.
+![EditMCPTools](https://github.com/user-attachments/assets/3f540275-4570-43cf-a4d8-1cb6bd00592f)
 
-- **MCP server creation with validation**: Added name validation when creating MCP servers to ensure proper naming conventions.
-![ValidateMCPName](https://github.com/user-attachments/assets/10f4308f-823e-4884-90de-49c2c061fd5e)
-
-- **Copy passthrough MCP server URL**: Added ability to copy the URL for passthrough MCP servers for easy sharing and integration.
-![CopyMCPServerURL](https://github.com/user-attachments/assets/870bc991-9568-4b0f-a746-51986f798eee)
-
-- **Create transformative and passthrough MCP servers**: 
-  - Create transformative MCP servers that transform operations of existing APIs in APIM to MCP servers
-  - Create passthrough MCP servers that proxy existing MCP servers through APIM, allowing developers to add policies for the MCP server (supports both SSE and Streamable HTTP protocols)
-
-### Updates
-
-- Replaced deprecated swagger parser with improved OpenAPI document parsing for better reliability and maintenance
-- Updated package dependencies to address security vulnerabilities and improve stability
-- Replaced deprecated `request` library with `axios` for HTTP requests
-- Added comprehensive unit tests for language model tools
-- Enhanced telemetry for language model tools to improve user experience insights
-
-### Removals
-
-- Removed dependency on deprecated swagger parser package
+- **Create MCP server**: You can now create `transformative` and `passthrough` MCP server in APIM. `transformative` transforms an existing API in APIM to MCP server by selecting a series of operations to be exposed by the MCP server. `passthrough`exposes your existing MCP server through APIM, allowing you to add additional capabilities provided by APIM to your MCP server.
+![CreateMCP](https://github.com/user-attachments/assets/973c4194-e40b-49b4-921b-42eaf2c7a6ec)
 
 ## 1.2.0
 
