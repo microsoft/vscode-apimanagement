@@ -65,16 +65,11 @@ export async function transformApiToMcpServer(
       await context.ui.showInputBox({
         prompt: localize(
           "enterApiUrlSuffix",
-          "Enter the API URL suffix for the MCP server"
+          "Enter the API URL suffix for the MCP server (leave empty for root path)"
         ),
         value: defaultApiUrlSuffix,
-        validateInput: (value: string) => {
-          if (!value || value.trim().length === 0) {
-            return localize(
-              "apiUrlSuffixRequired",
-              "API URL suffix is required"
-            );
-          }
+        validateInput: (_value: string) => {
+          // Allow empty value for root path deployment
           return undefined;
         },
       })
