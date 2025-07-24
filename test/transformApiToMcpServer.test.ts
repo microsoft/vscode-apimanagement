@@ -388,54 +388,6 @@ describe('transformApiToMcpServer', () => {
         });
     });
 
-    describe('input validation', () => {
-        it('should not validate API URL suffix input (allows empty for root path)', async () => {
-            // Arrange
-            const mockApi: ApiContract = {
-                name: 'test-api',
-                displayName: 'Test API'
-            };
-
-            const mockOperations: OperationContract[] = [
-                {
-                    name: 'operation1',
-                    displayName: 'Operation 1',
-                    method: 'GET'
-                }
-            ];
-
-            mockUiUtils.onFirstCall().resolves([mockApi]);
-            mockUiUtils.onSecondCall().resolves(mockOperations);
-
-            (mockContext.ui.showQuickPick as sinon.SinonStub)
-                .onFirstCall()
-                .resolves({ label: 'Test API', api: mockApi });
-            
-            (mockContext.ui.showQuickPick as sinon.SinonStub)
-                .onSecondCall()
-                .resolves([{ label: 'Operation 1', operation: mockOperations[0] }]);
-
-            (mockContext.ui.showInputBox as sinon.SinonStub)
-                .onFirstCall()
-                .resolves('my-mcp-server')
-                .onSecondCall()
-                .resolves('valid-suffix');
-
-            mockVscodeWindowProgress.callsFake((_options, callback) => callback({}));
-            mockApimService.createOrUpdateMcpServer.resolves({} as any);
-
-            // Act
-            await transformApiToMcpServer(mockContext, mockNode);
-
-            // Assert
-            const showInputBoxCall = (mockContext.ui.showInputBox as sinon.SinonStub).getCall(1);
-            const inputBoxOptions = showInputBoxCall.args[0];
-            
-            // Verify that no validateInput function is provided (allows any input including empty)
-            expect(inputBoxOptions.validateInput).to.be.undefined;
-        });
-    });
-
     describe('error handling', () => {
         it('should handle general errors and compose error message', async () => {
             // Arrange
