@@ -389,7 +389,7 @@ describe('transformApiToMcpServer', () => {
     });
 
     describe('input validation', () => {
-        it('should validate API URL suffix input', async () => {
+        it('should not validate API URL suffix input (allows empty for root path)', async () => {
             // Arrange
             const mockApi: ApiContract = {
                 name: 'test-api',
@@ -431,11 +431,8 @@ describe('transformApiToMcpServer', () => {
             const showInputBoxCall = (mockContext.ui.showInputBox as sinon.SinonStub).getCall(1);
             const inputBoxOptions = showInputBoxCall.args[0];
             
-            // Test validation function - all inputs should be valid now, including empty ones for root path
-            const validateInput = inputBoxOptions.validateInput;
-            expect(validateInput('')).to.be.undefined;
-            expect(validateInput('   ')).to.be.undefined;
-            expect(validateInput('valid-input')).to.be.undefined;
+            // Verify that no validateInput function is provided (allows any input including empty)
+            expect(inputBoxOptions.validateInput).to.be.undefined;
         });
     });
 

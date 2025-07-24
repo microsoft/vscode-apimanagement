@@ -68,10 +68,6 @@ export async function transformApiToMcpServer(
           "Enter the API URL suffix for the MCP server (leave empty for root path)"
         ),
         value: defaultApiUrlSuffix,
-        validateInput: (_value: string) => {
-          // Allow empty value for root path deployment
-          return undefined;
-        },
       })
     ).trim();
 

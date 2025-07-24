@@ -209,7 +209,7 @@ describe('passthroughMcpServer', () => {
             expect(validateInput('https://example.com')).to.be.undefined;
         });
 
-        it('should validate API URL suffix input', async () => {
+        it('should not validate API URL suffix input (allows empty for root path)', async () => {
             // Arrange
             setupInputBoxForValidation(2);
 
@@ -218,12 +218,9 @@ describe('passthroughMcpServer', () => {
 
             // Assert
             const inputBoxCall = (mockContext.ui.showInputBox as sinon.SinonStub).getCall(2);
-            const validateInput = inputBoxCall.args[0].validateInput;
             
-            // All inputs should be valid now, including empty ones for root path
-            expect(validateInput('')).to.be.undefined;
-            expect(validateInput('   ')).to.be.undefined;
-            expect(validateInput('valid-suffix')).to.be.undefined;
+            // Verify that no validateInput function is provided (allows any input including empty)
+            expect(inputBoxCall.args[0].validateInput).to.be.undefined;
         });
 
         it('should validate SSE endpoint input for SSE protocol', async () => {

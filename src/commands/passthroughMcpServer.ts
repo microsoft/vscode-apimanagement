@@ -81,10 +81,6 @@ export async function passthroughMcpServer(
       await context.ui.showInputBox({
         prompt: localize("enterApiUrlSuffix", "Enter the APIM API URL suffix (leave empty for root path)"),
         value: mcpServerName, // Default to the server name
-        validateInput: (_value: string): string | undefined => {
-          // Allow empty value for root path deployment
-          return undefined;
-        },
       })
     ).trim();
 
