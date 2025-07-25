@@ -100,6 +100,31 @@ describe('passthroughMcpServer', () => {
             verifyMcpServerCreationWithoutSSE();
             verifySuccessMessage('Streamable HTTP');
         });
+
+        it('should successfully create passthrough MCP server with empty API URL suffix for root path', async () => {
+            // Arrange
+            const inputBoxStub = mockContext.ui.showInputBox as sinon.SinonStub;
+            inputBoxStub
+                .onCall(0).resolves('test-server') // Server name
+                .onCall(1).resolves('https://example.com/mcp') // Server URL
+                .onCall(2).resolves(''); // Empty API URL suffix for root path
+
+            (mockContext.ui.showQuickPick as sinon.SinonStub)
+                .resolves({ label: 'Streamable HTTP', description: 'Streamable HTTP protocol' });
+
+            mockVscodeWindowProgress.callsFake((_options, callback) => callback({}));
+            mockApimService.createOrUpdateMcpServer.resolves({} as any);
+
+            // Act
+            await passthroughMcpServer(mockContext, mockNode);
+
+            // Assert
+            expect(mockApimService.createOrUpdateMcpServer.calledOnce).to.be.true;
+            const [mcpServerName, mcpServerPayload] = mockApimService.createOrUpdateMcpServer.getCall(0).args;
+            expect(mcpServerName).to.equal('test-server');
+            expect(mcpServerPayload.properties.path).to.equal(''); // Empty path for root
+            verifySuccessMessage('Streamable HTTP');
+        });
     });
 
     describe('early return scenarios', () => {
@@ -182,22 +207,6 @@ describe('passthroughMcpServer', () => {
             expect(validateInput('ftp://example.com')).to.equal('Please enter a valid URL starting with http:// or https://');
             expect(validateInput('http://example.com')).to.be.undefined;
             expect(validateInput('https://example.com')).to.be.undefined;
-        });
-
-        it('should validate API URL suffix input', async () => {
-            // Arrange
-            setupInputBoxForValidation(2);
-
-            // Act
-            await passthroughMcpServer(mockContext, mockNode);
-
-            // Assert
-            const inputBoxCall = (mockContext.ui.showInputBox as sinon.SinonStub).getCall(2);
-            const validateInput = inputBoxCall.args[0].validateInput;
-            
-            expect(validateInput('')).to.equal('API URL suffix is required');
-            expect(validateInput('   ')).to.equal('API URL suffix is required');
-            expect(validateInput('valid-suffix')).to.be.undefined;
         });
 
         it('should validate SSE endpoint input for SSE protocol', async () => {

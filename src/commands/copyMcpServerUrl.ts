@@ -25,7 +25,8 @@ export async function copyMcpServerUrl(context: IActionContext, node?: McpServer
         const isTransformative = mcpTools && mcpTools.length > 0;
 
         let url: string;
-        const baseUrl = `${apimService.gatewayUrl}/${node.mcpServerContract.properties.path}`;
+        const path = node.mcpServerContract.properties.path;
+        const baseUrl = path ? `${apimService.gatewayUrl}/${path}` : apimService.gatewayUrl;
 
         if (isTransformative) {
             // For transformative MCP servers, use current logic

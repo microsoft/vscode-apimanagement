@@ -200,6 +200,54 @@ describe('transformApiToMcpServer', () => {
             const inputBoxOptions = showInputBoxCall.args[0];
             expect(inputBoxOptions.value).to.equal('test-api-mcp');
         });
+
+        it('should successfully create MCP server with empty API URL suffix for root path', async () => {
+            // Arrange
+            const mockApi: ApiContract = {
+                name: 'test-api',
+                displayName: 'Test API',
+                path: 'test-path'
+            };
+
+            const mockOperations: OperationContract[] = [
+                {
+                    name: 'operation1',
+                    displayName: 'Operation 1',
+                    description: 'Test operation 1',
+                    method: 'GET'
+                }
+            ];
+
+            mockUiUtils.onFirstCall().resolves([mockApi]);
+            mockUiUtils.onSecondCall().resolves(mockOperations);
+
+            (mockContext.ui.showQuickPick as sinon.SinonStub)
+                .onFirstCall()
+                .resolves({ label: 'Test API', api: mockApi });
+            
+            (mockContext.ui.showQuickPick as sinon.SinonStub)
+                .onSecondCall()
+                .resolves([{ label: 'Operation 1', operation: mockOperations[0] }]);
+
+            (mockContext.ui.showInputBox as sinon.SinonStub)
+                .onFirstCall()
+                .resolves('my-custom-mcp')
+                .onSecondCall()
+                .resolves(''); // Empty API URL suffix for root path
+
+            mockVscodeWindowProgress.callsFake((_options, callback) => callback({}));
+            mockApimService.createOrUpdateMcpServer.resolves({} as any);
+
+            // Act
+            await transformApiToMcpServer(mockContext, mockNode);
+
+            // Assert
+            expect(mockApimService.createOrUpdateMcpServer.calledOnce).to.be.true;
+            const createMcpServerCall = mockApimService.createOrUpdateMcpServer.getCall(0);
+            const mcpServerPayload = createMcpServerCall.args[1];
+            expect(mcpServerPayload.properties.path).to.equal(''); // Empty path for root
+            expect(mockVscodeWindow.calledWith('Successfully created MCP server "my-custom-mcp" from API "Test API".')).to.be.true;
+        });
     });
 
     describe('early return scenarios', () => {
@@ -337,57 +385,6 @@ describe('transformApiToMcpServer', () => {
             expect(mockUiUtils.calledTwice).to.be.true;
             expect((mockContext.ui.showQuickPick as sinon.SinonStub).calledTwice).to.be.true;
             expect((mockContext.ui.showInputBox as sinon.SinonStub).notCalled).to.be.true;
-        });
-    });
-
-    describe('input validation', () => {
-        it('should validate API URL suffix input', async () => {
-            // Arrange
-            const mockApi: ApiContract = {
-                name: 'test-api',
-                displayName: 'Test API'
-            };
-
-            const mockOperations: OperationContract[] = [
-                {
-                    name: 'operation1',
-                    displayName: 'Operation 1',
-                    method: 'GET'
-                }
-            ];
-
-            mockUiUtils.onFirstCall().resolves([mockApi]);
-            mockUiUtils.onSecondCall().resolves(mockOperations);
-
-            (mockContext.ui.showQuickPick as sinon.SinonStub)
-                .onFirstCall()
-                .resolves({ label: 'Test API', api: mockApi });
-            
-            (mockContext.ui.showQuickPick as sinon.SinonStub)
-                .onSecondCall()
-                .resolves([{ label: 'Operation 1', operation: mockOperations[0] }]);
-
-            (mockContext.ui.showInputBox as sinon.SinonStub)
-                .onFirstCall()
-                .resolves('my-mcp-server')
-                .onSecondCall()
-                .resolves('valid-suffix');
-
-            mockVscodeWindowProgress.callsFake((_options, callback) => callback({}));
-            mockApimService.createOrUpdateMcpServer.resolves({} as any);
-
-            // Act
-            await transformApiToMcpServer(mockContext, mockNode);
-
-            // Assert
-            const showInputBoxCall = (mockContext.ui.showInputBox as sinon.SinonStub).getCall(1);
-            const inputBoxOptions = showInputBoxCall.args[0];
-            
-            // Test validation function
-            const validateInput = inputBoxOptions.validateInput;
-            expect(validateInput('')).to.equal('API URL suffix is required');
-            expect(validateInput('   ')).to.equal('API URL suffix is required');
-            expect(validateInput('valid-input')).to.be.undefined;
         });
     });
 
