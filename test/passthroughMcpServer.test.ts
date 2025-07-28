@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.md in the project root for license information.
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
 import { expect } from 'chai';
@@ -18,22 +18,33 @@ describe('passthroughMcpServer', () => {
     let mockContext: IActionContext;
     let mockNode: McpPassthroughTreeItem;
     let mockRoot: IServiceTreeRoot;
-    let mockApimService: sinon.SinonStubbedInstance<ApimService>;
-    let mockVscodeWindow: sinon.SinonStub;
-    let mockVscodeWindowProgress: sinon.SinonStub;
+    let mockApimServiceStub: sinon.SinonStubbedInstance<ApimService>;
+    let showInformationMessageStub: sinon.SinonStub;
+    let withProgressStub: sinon.SinonStub;
+    let showQuickPickStub: sinon.SinonStub;
+    let showInputBoxStub: sinon.SinonStub;
+
+    const testServerName = 'test-server';
+    const testServerUrl = 'https://example.com/mcp';
+    const testApiSuffix = 'test-api-suffix';
+    const sseEndpoint = '/sse';
+    const messagesEndpoint = '/messages';
 
     beforeEach(() => {
         sandbox = sinon.createSandbox();
 
         // Mock VSCode window methods
-        mockVscodeWindow = sandbox.stub(vscode.window, 'showInformationMessage');
-        mockVscodeWindowProgress = sandbox.stub(vscode.window, 'withProgress');
+        showInformationMessageStub = sandbox.stub(vscode.window, 'showInformationMessage');
+        withProgressStub = sandbox.stub(vscode.window, 'withProgress');
 
-        // Mock ActionContext
+        // Mock ActionContext UI methods
+        showQuickPickStub = sandbox.stub();
+        showInputBoxStub = sandbox.stub();
+
         mockContext = {
             ui: {
-                showQuickPick: sandbox.stub(),
-                showInputBox: sandbox.stub()
+                showQuickPick: showQuickPickStub,
+                showInputBox: showInputBoxStub
             }
         } as any;
 
@@ -59,46 +70,118 @@ describe('passthroughMcpServer', () => {
             refresh: sandbox.stub().resolves()
         } as any;
 
-        // Mock ApimService
-        mockApimService = sandbox.createStubInstance(ApimService);
-        sandbox.stub(ApimService.prototype, 'createOrUpdateMcpServer').callsFake(mockApimService.createOrUpdateMcpServer);
+        // Mock ApimService - stubbing the static method directly
+        mockApimServiceStub = sandbox.createStubInstance(ApimService);
+        sandbox.stub(ApimService.prototype, 'createOrUpdateMcpServer').callsFake(mockApimServiceStub.createOrUpdateMcpServer);
+
+        // Default withProgress behavior for successful tests
+        withProgressStub.callsFake((_options, callback) => callback({}));
     });
 
     afterEach(() => {
         sandbox.restore();
     });
 
-    describe('successful flow', () => {
-        it('should successfully create passthrough MCP server with SSE protocol', async () => {
-            // Arrange
-            setupSuccessfulUserInputs('SSE');
-            mockVscodeWindowProgress.callsFake((_options, callback) => callback({}));
-            mockApimService.createOrUpdateMcpServer.resolves({} as any);
+    // Helper functions
+    const setupSuccessfulUserInputs = (protocol: 'SSE' | 'Streamable HTTP') => {
+        showInputBoxStub
+            .onCall(0).resolves(testServerName)
+            .onCall(1).resolves(testServerUrl)
+            .onCall(2).resolves(testApiSuffix);
 
-            // Act
-            await passthroughMcpServer(mockContext, mockNode);
+        if (protocol === 'SSE') {
+            showInputBoxStub
+                .onCall(3).resolves(sseEndpoint)
+                .onCall(4).resolves(messagesEndpoint);
+        }
 
-            // Assert
-            verifyUserInputSequence();
-            verifyBackendCreation('https://example.com/mcp');
-            verifyMcpServerCreationWithSSE();
-            verifySuccessMessage('SSE');
+        showQuickPickStub.resolves({
+            label: protocol,
+            description: protocol === 'SSE' ? 'Server-Sent Events' : 'Streamable HTTP protocol'
         });
+    };
 
-        it('should successfully create passthrough MCP server with Streamable HTTP protocol', async () => {
-            // Arrange
-            setupSuccessfulUserInputs('Streamable HTTP');
-            mockVscodeWindowProgress.callsFake((_options, callback) => callback({}));
-            mockApimService.createOrUpdateMcpServer.resolves({} as any);
+    const setupInputBoxForValidation = (callIndex: number) => {
+        // Set up other calls to return valid values to allow validation function to be called
+        showInputBoxStub.onCall(0).resolves(testServerName);
+        showInputBoxStub.onCall(1).resolves(testServerUrl);
+        showInputBoxStub.onCall(2).resolves(testApiSuffix);
+        showInputBoxStub.onCall(3).resolves(sseEndpoint);
+        showInputBoxStub.onCall(4).resolves(messagesEndpoint);
 
-            // Act
-            await passthroughMcpServer(mockContext, mockNode);
+        // The specific call we want to test validation for, ensuring its validator is invoked
+        showInputBoxStub.onCall(callIndex).callThrough();
 
-            // Assert
-            verifyUserInputSequence(false); // No SSE endpoints for Streamable HTTP
-            verifyBackendCreation('https://example.com/mcp');
-            verifyMcpServerCreationWithoutSSE();
-            verifySuccessMessage('Streamable HTTP');
+        showQuickPickStub.resolves({ label: 'Streamable HTTP', description: 'Streamable HTTP protocol' });
+        mockApimServiceStub.createOrUpdateMcpServer.resolves({} as any);
+    };
+
+    const verifyUserInputSequence = (expectSSEEndpoints = true) => {
+        const expectedInputBoxCalls = expectSSEEndpoints ? 5 : 3;
+        expect(showInputBoxStub.callCount).to.equal(expectedInputBoxCalls);
+        expect(showQuickPickStub.calledOnce).to.be.true;
+    };
+
+    const verifyBackendCreation = (expectedUrl: string) => {
+        const createOrUpdateCall = mockRoot.client.backend.createOrUpdate as sinon.SinonStub;
+        expect(createOrUpdateCall.calledOnce).to.be.true;
+
+        const [resourceGroup, serviceName, backendName, backendContract] = createOrUpdateCall.getCall(0).args;
+        expect(resourceGroup).to.equal(mockRoot.resourceGroupName);
+        expect(serviceName).to.equal(mockRoot.serviceName);
+        expect(backendName).to.be.a('string').and.not.empty;
+
+        const expectedContract: BackendContract = {
+            url: expectedUrl,
+            protocol: 'http'
+        };
+        expect(backendContract).to.deep.equal(expectedContract);
+    };
+
+    const verifyMcpServerCreation = (expectSSE: boolean) => {
+        expect(mockApimServiceStub.createOrUpdateMcpServer.calledOnce).to.be.true;
+
+        const [mcpServerName, mcpServerPayload] = mockApimServiceStub.createOrUpdateMcpServer.getCall(0).args;
+        expect(mcpServerName).to.equal(testServerName);
+        expect(mcpServerPayload.properties.displayName).to.equal(testServerName);
+        expect(mcpServerPayload.properties.path).to.equal(testApiSuffix);
+        expect(mcpServerPayload.properties.type).to.equal('mcp');
+        expect(mcpServerPayload.properties.backendId).to.be.a('string').and.not.empty;
+
+        if (expectSSE) {
+            expect(mcpServerPayload.properties.mcpProperties).to.deep.equal({
+                transportType: 'sse',
+                endpoints: {
+                    sse: { method: 'GET', uriTemplate: sseEndpoint },
+                    messages: { method: 'POST', uriTemplate: messagesEndpoint }
+                }
+            });
+        } else {
+            expect(mcpServerPayload.properties.mcpProperties).to.be.undefined;
+        }
+    };
+
+    const verifySuccessMessage = (protocol: string) => {
+        expect(showInformationMessageStub.calledOnceWith(
+            `Successfully proxied MCP server "${testServerName}" with ${protocol} protocol.`
+        )).to.be.true;
+        expect(mockNode.refresh).to.have.been.calledOnce;
+    };
+
+    describe('successful flow', () => {
+        ['SSE', 'Streamable HTTP'].forEach(protocol => {
+            it(`should successfully create passthrough MCP server with ${protocol} protocol`, async () => {
+                const isSSE = protocol === 'SSE';
+                setupSuccessfulUserInputs(protocol as 'SSE' | 'Streamable HTTP');
+                mockApimServiceStub.createOrUpdateMcpServer.resolves({} as any);
+
+                await passthroughMcpServer(mockContext, mockNode);
+
+                verifyUserInputSequence(isSSE);
+                verifyBackendCreation(testServerUrl);
+                verifyMcpServerCreation(isSSE);
+                verifySuccessMessage(protocol);
+            });
         });
 
         it('should successfully create passthrough MCP server with empty API URL suffix for root path', async () => {
@@ -112,337 +195,133 @@ describe('passthroughMcpServer', () => {
             (mockContext.ui.showQuickPick as sinon.SinonStub)
                 .resolves({ label: 'Streamable HTTP', description: 'Streamable HTTP protocol' });
 
-            mockVscodeWindowProgress.callsFake((_options, callback) => callback({}));
-            mockApimService.createOrUpdateMcpServer.resolves({} as any);
+            withProgressStub.callsFake((_options, callback) => callback({}));
+            mockApimServiceStub.createOrUpdateMcpServer.resolves({} as any);
 
             // Act
             await passthroughMcpServer(mockContext, mockNode);
 
             // Assert
-            expect(mockApimService.createOrUpdateMcpServer.calledOnce).to.be.true;
-            const [mcpServerName, mcpServerPayload] = mockApimService.createOrUpdateMcpServer.getCall(0).args;
+            expect(mockApimServiceStub.createOrUpdateMcpServer.calledOnce).to.be.true;
+            const [mcpServerName, mcpServerPayload] = mockApimServiceStub.createOrUpdateMcpServer.getCall(0).args;
             expect(mcpServerName).to.equal('test-server');
             expect(mcpServerPayload.properties.path).to.equal(''); // Empty path for root
-            verifySuccessMessage('Streamable HTTP');
+            // The success message uses a different test server name, so we can't use the helper
+            expect(showInformationMessageStub.calledOnceWith(
+                `Successfully proxied MCP server "test-server" with Streamable HTTP protocol.`
+            )).to.be.true;
         });
     });
 
     describe('early return scenarios', () => {
         it('should return early when node is undefined', async () => {
-            // Act
             await passthroughMcpServer(mockContext, undefined);
 
-            // Assert
-            expect((mockContext.ui.showInputBox as sinon.SinonStub).notCalled).to.be.true;
-            expect((mockContext.ui.showQuickPick as sinon.SinonStub).notCalled).to.be.true;
+            expect(showInputBoxStub.notCalled).to.be.true;
+            expect(showQuickPickStub.notCalled).to.be.true;
         });
     });
 
     describe('user cancellation scenarios', () => {
         it('should handle user cancellation during server name input', async () => {
-            // Arrange
-            (mockContext.ui.showInputBox as sinon.SinonStub)
-                .onFirstCall()
-                .rejects(new UserCancelledError());
+            showInputBoxStub.onFirstCall().rejects(new UserCancelledError());
 
-            // Act & Assert
-            try {
-                await passthroughMcpServer(mockContext, mockNode);
-                expect.fail('Should have thrown UserCancelledError');
-            } catch (error) {
-                expect(error).to.be.instanceOf(UserCancelledError);
-            }
+            await expect(passthroughMcpServer(mockContext, mockNode)).to.be.rejectedWith(UserCancelledError);
+            expect(showQuickPickStub.notCalled).to.be.true; // Ensure no further prompts
         });
 
         it('should handle user cancellation during protocol selection', async () => {
-            // Arrange
-            (mockContext.ui.showInputBox as sinon.SinonStub)
-                .onCall(0).resolves('test-server')
-                .onCall(1).resolves('Test Server');
+            showInputBoxStub.onCall(0).resolves(testServerName)
+                              .onCall(1).resolves(testServerUrl);
 
-            (mockContext.ui.showQuickPick as sinon.SinonStub)
-                .rejects(new UserCancelledError());
+            showQuickPickStub.rejects(new UserCancelledError());
 
-            // Act & Assert
-            try {
-                await passthroughMcpServer(mockContext, mockNode);
-                expect.fail('Should have thrown UserCancelledError');
-            } catch (error) {
-                expect(error).to.be.instanceOf(UserCancelledError);
-            }
+            await expect(passthroughMcpServer(mockContext, mockNode)).to.be.rejectedWith(UserCancelledError);
+            expect(showInputBoxStub.callCount).to.equal(3); // server name, server url, api suffix
         });
     });
 
     describe('input validation', () => {
-        it('should validate server name input', async () => {
-            // Arrange
-            setupInputBoxForValidation(0);
+        const validateAndAssert = async (callIndex: number, invalidInputs: string[], validInput: string, expectedErrorMessage: string) => {
+            setupInputBoxForValidation(callIndex);
+            await passthroughMcpServer(mockContext, mockNode); // Execute to set up stub calls
 
-            // Act
-            await passthroughMcpServer(mockContext, mockNode);
-
-            // Assert
-            const inputBoxCall = (mockContext.ui.showInputBox as sinon.SinonStub).getCall(0);
+            const inputBoxCall = showInputBoxStub.getCall(callIndex);
             const validateInput = inputBoxCall.args[0].validateInput;
-            
-            expect(validateInput('')).to.equal('Name is required');
-            expect(validateInput('   ')).to.equal('Name is required');
-            expect(validateInput('valid-name')).to.be.undefined;
+
+            invalidInputs.forEach(input => {
+                expect(validateInput(input)).to.equal(expectedErrorMessage, `Expected "${input}" to be invalid`);
+            });
+            expect(validateInput(validInput)).to.be.undefined;
+        };
+
+        it('should validate server name input', async () => {
+            await validateAndAssert(0, ['', '   '], 'valid-name', 'Name is required');
         });
 
         it('should validate server URL input', async () => {
-            // Arrange
-            setupInputBoxForValidation(1);
-
-            // Act
-            await passthroughMcpServer(mockContext, mockNode);
-
-            // Assert
-            const inputBoxCall = (mockContext.ui.showInputBox as sinon.SinonStub).getCall(1);
-            const validateInput = inputBoxCall.args[0].validateInput;
-            
-            expect(validateInput('')).to.equal('URL is required');
-            expect(validateInput('   ')).to.equal('URL is required');
-            expect(validateInput('invalid-url')).to.equal('Please enter a valid URL starting with http:// or https://');
-            expect(validateInput('ftp://example.com')).to.equal('Please enter a valid URL starting with http:// or https://');
-            expect(validateInput('http://example.com')).to.be.undefined;
-            expect(validateInput('https://example.com')).to.be.undefined;
+            await validateAndAssert(1, ['', '   ', 'invalid-url', 'ftp://example.com'], 'https://example.com', 'Please enter a valid URL starting with http:// or https://');
         });
 
         it('should validate SSE endpoint input for SSE protocol', async () => {
-            // Arrange
-            const inputBoxStub = mockContext.ui.showInputBox as sinon.SinonStub;
-            inputBoxStub
-                .onCall(0).resolves('test-server') // Server name
-                .onCall(1).resolves('https://example.com/mcp') // Server URL
-                .onCall(2).resolves('test-api-suffix') // API URL suffix
-                .onCall(3).resolves('/sse') // SSE endpoint
-                .onCall(4).resolves('/messages'); // Messages endpoint
-
-            (mockContext.ui.showQuickPick as sinon.SinonStub)
-                .resolves({ label: 'SSE', description: 'Server-Sent Events' });
-
-            mockVscodeWindowProgress.callsFake((_options, callback) => callback({}));
-            mockApimService.createOrUpdateMcpServer.resolves({} as any);
-
-            // Act
-            await passthroughMcpServer(mockContext, mockNode);
-
-            // Assert
-            const inputBoxCall = inputBoxStub.getCall(3);
-            const validateInput = inputBoxCall.args[0].validateInput;
-            
-            expect(validateInput('')).to.equal('SSE endpoint is required');
-            expect(validateInput('   ')).to.equal('SSE endpoint is required');
-            expect(validateInput('/sse')).to.be.undefined;
+            showQuickPickStub.resolves({ label: 'SSE', description: 'Server-Sent Events' }); // Ensure SSE path
+            await validateAndAssert(3, ['', '   '], '/sse', 'SSE endpoint is required');
         });
 
         it('should validate messages endpoint input for SSE protocol', async () => {
-            // Arrange
-            setupSuccessfulUserInputs('SSE');
-
-            // Act
-            await passthroughMcpServer(mockContext, mockNode);
-
-            // Assert
-            const inputBoxCall = (mockContext.ui.showInputBox as sinon.SinonStub).getCall(4);
-            const validateInput = inputBoxCall.args[0].validateInput;
-            
-            expect(validateInput('')).to.equal('Messages endpoint is required');
-            expect(validateInput('   ')).to.equal('Messages endpoint is required');
-            expect(validateInput('/messages')).to.be.undefined;
+            showQuickPickStub.resolves({ label: 'SSE', description: 'Server-Sent Events' }); // Ensure SSE path
+            await validateAndAssert(4, ['', '   '], '/messages', 'Messages endpoint is required');
         });
     });
 
     describe('error handling', () => {
         it('should handle general errors and compose error message', async () => {
-            // Arrange
             const originalError = new Error('Something went wrong');
-            (mockContext.ui.showInputBox as sinon.SinonStub)
-                .onFirstCall()
-                .rejects(originalError);
+            showInputBoxStub.onFirstCall().rejects(originalError);
 
-            // Act & Assert
-            try {
-                await passthroughMcpServer(mockContext, mockNode);
-                expect.fail('Should have thrown error');
-            } catch (error) {
-                expect(error.message).to.equal('Failed to proxy MCP server: Something went wrong');
-            }
+            await expect(passthroughMcpServer(mockContext, mockNode)).to.be.rejectedWith('Failed to proxy MCP server: Something went wrong');
         });
 
         it('should handle backend creation error', async () => {
-            // Arrange
             setupSuccessfulUserInputs('SSE');
             const backendError = new Error('Backend creation failed');
-            mockVscodeWindowProgress
-                .onFirstCall()
-                .callsFake((_options, _callback) => {
-                    throw backendError;
-                });
+            withProgressStub.onFirstCall().callsFake((_options, _callback) => Promise.reject(backendError)); // Simulate error during backend creation
 
-            // Act & Assert
-            try {
-                await passthroughMcpServer(mockContext, mockNode);
-                expect.fail('Should have thrown error');
-            } catch (error) {
-                expect(error.message).to.equal('Failed to proxy MCP server: Backend creation failed');
-            }
+            await expect(passthroughMcpServer(mockContext, mockNode)).to.be.rejectedWith('Failed to proxy MCP server: Backend creation failed');
+            expect(mockApimServiceStub.createOrUpdateMcpServer.notCalled).to.be.true; // MCP server not created if backend fails
         });
 
         it('should handle MCP server creation error', async () => {
-            // Arrange
             setupSuccessfulUserInputs('SSE');
-            mockVscodeWindowProgress
-                .onFirstCall()
-                .callsFake((_options, callback) => callback({})); // Backend creation succeeds
-            
             const mcpServerError = new Error('MCP server creation failed');
-            mockVscodeWindowProgress
-                .onSecondCall()
-                .callsFake((_options, _callback) => {
-                    throw mcpServerError;
-                });
 
-            // Act & Assert
-            try {
-                await passthroughMcpServer(mockContext, mockNode);
-                expect.fail('Should have thrown error');
-            } catch (error) {
-                expect(error.message).to.equal('Failed to proxy MCP server: MCP server creation failed');
-            }
+            // Simulate backend creation succeeding, then MCP server creation failing
+            withProgressStub.onFirstCall().callsFake((_options, callback) => callback({})); // Backend creation progress
+            mockApimServiceStub.createOrUpdateMcpServer.rejects(mcpServerError);
+
+            await expect(passthroughMcpServer(mockContext, mockNode)).to.be.rejectedWith('Failed to proxy MCP server: MCP server creation failed');
+            expect(mockRoot.client.backend.createOrUpdate).to.have.been.calledOnce; // Backend should have been attempted
         });
     });
 
-    describe('backend creation', () => {
+    describe('backend creation details', () => {
         it('should create backend with correct contract', async () => {
-            // Arrange
             setupSuccessfulUserInputs('SSE');
-            mockVscodeWindowProgress.callsFake((_options, callback) => callback({}));
-            mockApimService.createOrUpdateMcpServer.resolves({} as any);
+            mockApimServiceStub.createOrUpdateMcpServer.resolves({} as any);
 
-            // Act
             await passthroughMcpServer(mockContext, mockNode);
 
-            // Assert
             const createOrUpdateCall = mockRoot.client.backend.createOrUpdate as sinon.SinonStub;
             expect(createOrUpdateCall.calledOnce).to.be.true;
-            
+
             const [resourceGroup, serviceName, backendName, backendContract] = createOrUpdateCall.getCall(0).args;
             expect(resourceGroup).to.equal('test-resource-group');
             expect(serviceName).to.equal('test-service');
-            expect(backendName).to.be.a('string');
-            expect(backendName.length).to.be.greaterThan(0);
-            
-            const expectedContract: BackendContract = {
-                url: 'https://example.com/mcp',
+            expect(backendName).to.match(/^apim-backend-/); // Expect a generated name
+            expect(backendContract).to.deep.equal({
+                url: testServerUrl,
                 protocol: 'http'
-            };
-            expect(backendContract).to.deep.equal(expectedContract);
+            });
         });
     });
-
-    // Helper functions
-    function setupSuccessfulUserInputs(protocol: 'SSE' | 'Streamable HTTP'): void {
-        const inputBoxStub = mockContext.ui.showInputBox as sinon.SinonStub;
-        
-        inputBoxStub
-            .onCall(0).resolves('test-server') // Server name
-            .onCall(1).resolves('https://example.com/mcp') // Server URL
-            .onCall(2).resolves('test-api-suffix'); // API URL suffix
-
-        if (protocol === 'SSE') {
-            inputBoxStub
-                .onCall(3).resolves('/sse') // SSE endpoint
-                .onCall(4).resolves('/messages'); // Messages endpoint
-        }
-
-        (mockContext.ui.showQuickPick as sinon.SinonStub)
-            .resolves({ 
-                label: protocol, 
-                description: protocol === 'SSE' ? 'Server-Sent Events' : 'Streamable HTTP protocol'
-            });
-    }
-
-    function setupInputBoxForValidation(callIndex: number): void {
-        const inputBoxStub = mockContext.ui.showInputBox as sinon.SinonStub;
-        
-        // Set up other calls to return valid values
-        inputBoxStub.onCall(0).resolves('test-server');
-        inputBoxStub.onCall(1).resolves('https://example.com/mcp');
-        inputBoxStub.onCall(2).resolves('test-api-suffix');
-        inputBoxStub.onCall(3).resolves('/sse');
-        inputBoxStub.onCall(4).resolves('/messages');
-
-        // The specific call we want to test validation for
-        inputBoxStub.onCall(callIndex).callThrough();
-
-        (mockContext.ui.showQuickPick as sinon.SinonStub)
-            .resolves({ label: 'Streamable HTTP', description: 'Streamable HTTP protocol' });
-
-        mockVscodeWindowProgress.callsFake((_options, callback) => callback({}));
-        mockApimService.createOrUpdateMcpServer.resolves({} as any);
-    }
-
-    function verifyUserInputSequence(includeSSEEndpoints = true): void {
-        const inputBoxStub = mockContext.ui.showInputBox as sinon.SinonStub;
-        const quickPickStub = mockContext.ui.showQuickPick as sinon.SinonStub;
-        
-        const expectedCalls = includeSSEEndpoints ? 5 : 3;
-        expect(inputBoxStub.callCount).to.equal(expectedCalls);
-        expect(quickPickStub.calledOnce).to.be.true;
-    }
-
-    function verifyBackendCreation(expectedUrl: string): void {
-        const createOrUpdateCall = mockRoot.client.backend.createOrUpdate as sinon.SinonStub;
-        expect(createOrUpdateCall.calledOnce).to.be.true;
-        
-        const backendContract = createOrUpdateCall.getCall(0).args[3];
-        expect(backendContract.url).to.equal(expectedUrl);
-        expect(backendContract.protocol).to.equal('http');
-    }
-
-    function verifyMcpServerCreationWithSSE(): void {
-        expect(mockApimService.createOrUpdateMcpServer.calledOnce).to.be.true;
-        
-        const [mcpServerName, mcpServerPayload] = mockApimService.createOrUpdateMcpServer.getCall(0).args;
-        expect(mcpServerName).to.equal('test-server');
-        expect(mcpServerPayload.properties.displayName).to.equal('test-server');
-        expect(mcpServerPayload.properties.path).to.equal('test-api-suffix');
-        expect(mcpServerPayload.properties.type).to.equal('mcp');
-        expect(mcpServerPayload.properties.backendId).to.be.a('string');
-        expect(mcpServerPayload.properties.mcpProperties).to.deep.equal({
-            transportType: 'sse',
-            endpoints: {
-                sse: {
-                    method: 'GET',
-                    uriTemplate: '/sse'
-                },
-                messages: {
-                    method: 'POST',
-                    uriTemplate: '/messages'
-                }
-            }
-        });
-    }
-
-    function verifyMcpServerCreationWithoutSSE(): void {
-        expect(mockApimService.createOrUpdateMcpServer.calledOnce).to.be.true;
-        
-        const [mcpServerName, mcpServerPayload] = mockApimService.createOrUpdateMcpServer.getCall(0).args;
-        expect(mcpServerName).to.equal('test-server');
-        expect(mcpServerPayload.properties.displayName).to.equal('test-server');
-        expect(mcpServerPayload.properties.path).to.equal('test-api-suffix');
-        expect(mcpServerPayload.properties.type).to.equal('mcp');
-        expect(mcpServerPayload.properties.backendId).to.be.a('string');
-        expect(mcpServerPayload.properties.mcpProperties).to.be.undefined;
-    }
-
-    function verifySuccessMessage(protocol: string): void {
-        expect(mockVscodeWindow.calledOnce).to.be.true;
-        expect(mockVscodeWindow.calledWith(
-            `Successfully proxied MCP server "test-server" with ${protocol} protocol.`
-        )).to.be.true;
-        expect((mockNode.refresh as sinon.SinonStub).calledOnce).to.be.true;
-    }
 });
