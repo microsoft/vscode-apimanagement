@@ -183,6 +183,34 @@ describe('passthroughMcpServer', () => {
                 verifySuccessMessage(protocol);
             });
         });
+
+        it('should successfully create passthrough MCP server with empty API URL suffix for root path', async () => {
+            // Arrange
+            const inputBoxStub = mockContext.ui.showInputBox as sinon.SinonStub;
+            inputBoxStub
+                .onCall(0).resolves('test-server') // Server name
+                .onCall(1).resolves('https://example.com/mcp') // Server URL
+                .onCall(2).resolves(''); // Empty API URL suffix for root path
+
+            (mockContext.ui.showQuickPick as sinon.SinonStub)
+                .resolves({ label: 'Streamable HTTP', description: 'Streamable HTTP protocol' });
+
+            withProgressStub.callsFake((_options, callback) => callback({}));
+            mockApimServiceStub.createOrUpdateMcpServer.resolves({} as any);
+
+            // Act
+            await passthroughMcpServer(mockContext, mockNode);
+
+            // Assert
+            expect(mockApimServiceStub.createOrUpdateMcpServer.calledOnce).to.be.true;
+            const [mcpServerName, mcpServerPayload] = mockApimServiceStub.createOrUpdateMcpServer.getCall(0).args;
+            expect(mcpServerName).to.equal('test-server');
+            expect(mcpServerPayload.properties.path).to.equal(''); // Empty path for root
+            // The success message uses a different test server name, so we can't use the helper
+            expect(showInformationMessageStub.calledOnceWith(
+                `Successfully proxied MCP server "test-server" with Streamable HTTP protocol.`
+            )).to.be.true;
+        });
     });
 
     describe('early return scenarios', () => {
@@ -204,12 +232,12 @@ describe('passthroughMcpServer', () => {
 
         it('should handle user cancellation during protocol selection', async () => {
             showInputBoxStub.onCall(0).resolves(testServerName)
-                            .onCall(1).resolves('Test Server'); // Stub display name input
+                              .onCall(1).resolves(testServerUrl);
 
             showQuickPickStub.rejects(new UserCancelledError());
 
             await expect(passthroughMcpServer(mockContext, mockNode)).to.be.rejectedWith(UserCancelledError);
-            expect(showInputBoxStub.callCount).to.equal(2); // Only server name and display name are asked
+            expect(showInputBoxStub.callCount).to.equal(3); // server name, server url, api suffix
         });
     });
 
@@ -233,10 +261,6 @@ describe('passthroughMcpServer', () => {
 
         it('should validate server URL input', async () => {
             await validateAndAssert(1, ['', '   ', 'invalid-url', 'ftp://example.com'], 'https://example.com', 'Please enter a valid URL starting with http:// or https://');
-        });
-
-        it('should validate API URL suffix input', async () => {
-            await validateAndAssert(2, ['', '   '], 'valid-suffix', 'API URL suffix is required');
         });
 
         it('should validate SSE endpoint input for SSE protocol', async () => {

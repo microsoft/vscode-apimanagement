@@ -135,6 +135,71 @@ describe('copyMcpServerUrl', () => {
             expect(mockVscodeWindow.calledOnce).to.be.true;
             expect(mockShowErrorMessage.notCalled).to.be.true;
         });
+    });
+
+    describe('transformative MCP servers with empty path', () => {
+        beforeEach(() => {
+            const mcpServerContract: IMcpServerApiContract = {
+                id: '/apis/test-server-root',
+                name: 'test-server-root',
+                type: 'Microsoft.ApiManagement/service/apis',
+                properties: {
+                    displayName: 'Test Server Root',
+                    apiRevision: '1',
+                    subscriptionRequired: false,
+                    path: '', // Empty path for root deployment
+                    protocols: ['https'],
+                    subscriptionKeyParameterNames: {
+                        header: 'Ocp-Apim-Subscription-Key',
+                        query: 'subscription-key'
+                    },
+                    type: 'mcp',
+                    isCurrent: true,
+                    mcpTools: [
+                        {
+                            name: 'testTool',
+                            description: 'Test tool',
+                            operationId: 'test-operation'
+                        }
+                    ]
+                }
+            };
+
+            mockNode = {
+                mcpServerContract,
+                root: mockRoot
+            } as any;
+        });
+
+        it('should generate SSE URL for transformative server with empty path when SSE is selected', async () => {
+            // Arrange
+            (mockContext.ui.showQuickPick as sinon.SinonStub)
+                .resolves({ label: 'SSE' });
+
+            // Act
+            await copyMcpServerUrl(mockContext, mockNode);
+
+            // Assert
+            expect(mockVscodeEnv.calledOnce).to.be.true;
+            expect(mockVscodeEnv.calledWith('https://test-apim.azure-api.net/sse')).to.be.true;
+            expect(mockVscodeWindow.calledOnce).to.be.true;
+            expect(mockShowErrorMessage.notCalled).to.be.true;
+        });
+
+        it('should generate MCP URL for transformative server with empty path when Streamable HTTP is selected', async () => {
+            // Arrange
+            (mockContext.ui.showQuickPick as sinon.SinonStub)
+                .resolves({ label: 'Streamable HTTP' });
+
+            // Act
+            await copyMcpServerUrl(mockContext, mockNode);
+
+            // Assert
+            expect(mockVscodeEnv.calledOnce).to.be.true;
+            expect(mockVscodeEnv.calledWith('https://test-apim.azure-api.net/mcp')).to.be.true;
+            expect(mockVscodeWindow.calledOnce).to.be.true;
+            expect(mockShowErrorMessage.notCalled).to.be.true;
+        });
 
         it('should handle user cancellation during endpoint selection', async () => {
             // Arrange
@@ -345,6 +410,104 @@ describe('copyMcpServerUrl', () => {
                 expect(mockVscodeWindow.calledOnce).to.be.true;
                 expect((mockContext.ui.showQuickPick as sinon.SinonStub).notCalled).to.be.true;
                 expect(mockShowErrorMessage.notCalled).to.be.true;
+            });
+        });
+
+        describe('passthrough MCP servers with empty path', () => {
+            describe('with SSE transport and valid SSE endpoint', () => {
+                beforeEach(() => {
+                    const mcpServerContract: IMcpServerApiContract = {
+                        id: '/apis/test-passthrough-root',
+                        name: 'test-passthrough-root',
+                        type: 'Microsoft.ApiManagement/service/apis',
+                        properties: {
+                            displayName: 'Test Passthrough Server Root',
+                            apiRevision: '1',
+                            subscriptionRequired: false,
+                            path: '', // Empty path for root deployment
+                            protocols: ['https'],
+                            subscriptionKeyParameterNames: {
+                                header: 'Ocp-Apim-Subscription-Key',
+                                query: 'subscription-key'
+                            },
+                            type: 'mcp',
+                            isCurrent: true,
+                            mcpTools: [], // Empty tools array makes it passthrough
+                            mcpProperties: {
+                                transportType: 'sse',
+                                endpoints: {
+                                    sse: {
+                                        method: 'GET',
+                                        uriTemplate: '/sse'
+                                    },
+                                    messages: {
+                                        method: 'POST',
+                                        uriTemplate: '/messages'
+                                    }
+                                }
+                            }
+                        }
+                    } as any;
+
+                    mockNode = {
+                        mcpServerContract,
+                        root: mockRoot
+                    } as any;
+                });
+
+                it('should generate SSE endpoint URL for passthrough server with empty path and SSE', async () => {
+                    // Act
+                    await copyMcpServerUrl(mockContext, mockNode);
+
+                    // Assert
+                    expect(mockVscodeEnv.calledOnce).to.be.true;
+                    expect(mockVscodeEnv.calledWith('https://test-apim.azure-api.net/sse')).to.be.true;
+                    expect(mockVscodeWindow.calledOnce).to.be.true;
+                    expect((mockContext.ui.showQuickPick as sinon.SinonStub).notCalled).to.be.true;
+                    expect(mockShowErrorMessage.notCalled).to.be.true;
+                });
+            });
+
+            describe('without SSE transport', () => {
+                beforeEach(() => {
+                    const mcpServerContract: IMcpServerApiContract = {
+                        id: '/apis/test-passthrough-no-sse-root',
+                        name: 'test-passthrough-no-sse-root',
+                        type: 'Microsoft.ApiManagement/service/apis',
+                        properties: {
+                            displayName: 'Test No SSE Passthrough Server Root',
+                            apiRevision: '1',
+                            subscriptionRequired: false,
+                            path: '', // Empty path for root deployment
+                            protocols: ['https'],
+                            subscriptionKeyParameterNames: {
+                                header: 'Ocp-Apim-Subscription-Key',
+                                query: 'subscription-key'
+                            },
+                            type: 'mcp',
+                            isCurrent: true,
+                            mcpTools: [] // Empty tools array makes it passthrough
+                            // No mcpProperties means no SSE
+                        }
+                    };
+
+                    mockNode = {
+                        mcpServerContract,
+                        root: mockRoot
+                    } as any;
+                });
+
+                it('should generate base URL for passthrough server with empty path and without SSE', async () => {
+                    // Act
+                    await copyMcpServerUrl(mockContext, mockNode);
+
+                    // Assert
+                    expect(mockVscodeEnv.calledOnce).to.be.true;
+                    expect(mockVscodeEnv.calledWith('https://test-apim.azure-api.net')).to.be.true;
+                    expect(mockVscodeWindow.calledOnce).to.be.true;
+                    expect((mockContext.ui.showQuickPick as sinon.SinonStub).notCalled).to.be.true;
+                    expect(mockShowErrorMessage.notCalled).to.be.true;
+                });
             });
         });
 

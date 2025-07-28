@@ -79,17 +79,8 @@ export async function passthroughMcpServer(
 
     const apiUrlSuffix = (
       await context.ui.showInputBox({
-        prompt: localize("enterApiUrlSuffix", "Enter the APIM API URL suffix"),
+        prompt: localize("enterApiUrlSuffix", "Enter the APIM API URL suffix (leave empty for root path)"),
         value: mcpServerName, // Default to the server name
-        validateInput: (value: string): string | undefined => {
-          if (!value || value.trim().length === 0) {
-            return localize(
-              "apiUrlSuffixRequired",
-              "API URL suffix is required"
-            );
-          }
-          return undefined;
-        },
       })
     ).trim();
 

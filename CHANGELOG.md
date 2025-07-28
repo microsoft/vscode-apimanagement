@@ -2,6 +2,19 @@
 
 All notable changes to the "Azure Api Management VS Code" extension will be documented in this file.
 
+## 1.3.0
+
+### New features
+
+- **Edit MCP server properties**: You can now click on the MCP server treeview node to edit MCP server properties like display name, description and API URL suffix. Saving the file will trigger update logic.
+![EditMCPProperties](https://github.com/user-attachments/assets/0a770359-7d84-41ea-b92d-a3463bba5b62)
+
+- **Edit MCP tools**: You can now click on the Tools treeview node under MCP server to edit tool properties like display name and description. Saving the file will trigger update logic.
+![EditMCPTools](https://github.com/user-attachments/assets/3f540275-4570-43cf-a4d8-1cb6bd00592f)
+
+- **Create MCP server**: You can now create `transformative` and `passthrough` MCP server in APIM. `transformative` transforms an existing API in APIM to MCP server by selecting a series of operations to be exposed by the MCP server. `passthrough` exposes your existing MCP server through APIM, allowing you to add additional capabilities provided by APIM to your MCP server.
+![CreateMCP](https://github.com/user-attachments/assets/973c4194-e40b-49b4-921b-42eaf2c7a6ec)
+
 ## 1.2.0
 
 ### New features
