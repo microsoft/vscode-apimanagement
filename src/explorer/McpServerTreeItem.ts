@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { AzExtParentTreeItem } from "@microsoft/vscode-azext-utils";
+import { AzExtParentTreeItem, AzExtTreeItem } from "@microsoft/vscode-azext-utils";
 import { nonNullProp } from "../utils/nonNull";
 import { treeUtils } from "../utils/treeUtils";
 import { IMcpServerApiContract } from "../azure/apim/contracts";
@@ -11,8 +11,9 @@ import { IServiceTreeRoot } from "./IServiceTreeRoot";
 import { McpServerToolsTreeItem } from "./McpServerToolsTreeItem";
 import { ApiPolicyTreeItem } from "./ApiPolicyTreeItem";
 import { IApiTreeRoot } from "./IApiTreeRoot";
+import { ITreeItemWithRoot } from "./ITreeItemWithRoot";
 
-export class McpServerTreeItem extends AzExtParentTreeItem {
+export class McpServerTreeItem extends AzExtParentTreeItem implements ITreeItemWithRoot<IApiTreeRoot> {
     public static contextValue: string = 'azureApiManagementMcpServer';
     public contextValue: string = McpServerTreeItem.contextValue;
     public label: string;
@@ -31,7 +32,7 @@ export class McpServerTreeItem extends AzExtParentTreeItem {
         this._name = nonNullProp(this.mcpServerContract, 'name');
         this._root = this.createRoot(root, this._name);
 
-        this.toolsTreeItem = new McpServerToolsTreeItem(this, this.mcpServerContract);
+        this.toolsTreeItem = new McpServerToolsTreeItem(this, this.mcpServerContract, this._root);
         this.policyTreeItem = new ApiPolicyTreeItem(this, this._root);
     }
 
@@ -47,12 +48,25 @@ export class McpServerTreeItem extends AzExtParentTreeItem {
         return this._root;
     }
 
+    public get commandId(): string {
+        return 'azureApiManagement.showArmMcpServer';
+    }
+
     public hasMoreChildrenImpl(): boolean {
         return false;
     }
 
-    public async loadMoreChildrenImpl(): Promise<any[]> {
-        return [this.toolsTreeItem, this.policyTreeItem];
+    public async loadMoreChildrenImpl(): Promise<AzExtTreeItem[]> {
+        const children: AzExtTreeItem[] = [];
+
+        // Only include tools tree item if there are actually tools
+        const tools = this.mcpServerContract.properties.mcpTools || [];
+        if (tools.length > 0) {
+            children.push(this.toolsTreeItem);
+        }
+        
+        children.push(this.policyTreeItem);
+        return children;
     }
 
     private createRoot(subRoot: IServiceTreeRoot, apiName: string): IApiTreeRoot {

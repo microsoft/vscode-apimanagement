@@ -3,7 +3,7 @@
  *--------------------------------------------------------*/
 import { TokenCredential } from "@azure/core-auth";
 import * as path from 'path';
-import * as request from 'request-promise-native';
+import axios from 'axios';
 import { Source } from 'vscode-debugadapter';
 import * as Constants from "../constants";
 import { getBearerToken } from '../utils/requestUtil';
@@ -104,17 +104,11 @@ export class PolicySource {
 		} else {
 			authToken = await getBearerToken(policyUrl, "GET", this.credential!);
 		}
-		const policyContract: PolicyContract = await request.get(policyUrl, {
+		const policyContract: PolicyContract = (await axios.get(policyUrl, {
 			headers: {
 				Authorization: authToken
-			},
-			strictSSL: false,
-			json: true
-		}).on('error', _e => {
-			//const a = 5;
-		}).on('response', _e => {
-			//const a = 5;
-		});
+			}
+		})).data;
 
 		const policy = this.policies[scopeId] || (this.policies[scopeId] = {
 			scopeId: scopeId,

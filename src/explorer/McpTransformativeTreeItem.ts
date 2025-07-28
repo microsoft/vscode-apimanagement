@@ -6,19 +6,18 @@
 import { AzExtParentTreeItem, AzExtTreeItem } from "@microsoft/vscode-azext-utils";
 import { treeUtils } from "../utils/treeUtils";
 import { IMcpServerApiContract } from "../azure/apim/contracts";
-import { McpServerToolTreeItem } from "./McpServerToolTreeItem";
-import { IApiTreeRoot } from "./IApiTreeRoot";
-import { ITreeItemWithRoot } from "./ITreeItemWithRoot";
+import { IServiceTreeRoot } from "./IServiceTreeRoot";
+import { McpServerTreeItem } from "./McpServerTreeItem";
 
-export class McpServerToolsTreeItem extends AzExtParentTreeItem implements ITreeItemWithRoot<IApiTreeRoot> {
-    public static contextValue: string = 'azureApiManagementMcpServerTools';
-    public contextValue: string = McpServerToolsTreeItem.contextValue;
-    public readonly label: string = "Tools";
+export class McpTransformativeTreeItem extends AzExtParentTreeItem {
+    public static contextValue: string = 'azureApiManagementMcpTransformative';
+    public contextValue: string = McpTransformativeTreeItem.contextValue;
+    public readonly label: string = "Transformative";
 
     constructor(
         parent: AzExtParentTreeItem,
-        public readonly mcpServer: IMcpServerApiContract,
-        public readonly root: IApiTreeRoot) {
+        private readonly mcpServers: IMcpServerApiContract[],
+        public readonly root: IServiceTreeRoot) {
         super(parent);
     }
 
@@ -26,21 +25,21 @@ export class McpServerToolsTreeItem extends AzExtParentTreeItem implements ITree
         return treeUtils.getThemedIconPath('list');
     }
 
-    public get commandId(): string {
-        return 'azureApiManagement.showArmMcpServerTools';
-    }
-
     public hasMoreChildrenImpl(): boolean {
         return false;
     }
 
     public async loadMoreChildrenImpl(): Promise<AzExtTreeItem[]> {
-        const tools = this.mcpServer.properties.mcpTools || [];
+        // Filter MCP servers that have mcpTools with at least one tool
+        const transformativeServers = this.mcpServers.filter(server => 
+            server.properties.mcpTools && server.properties.mcpTools.length > 0
+        );
+
         return this.createTreeItemsWithErrorHandling(
-            tools,
-            "invalidApiManagementMcpServerTool",
-            async (tool) => new McpServerToolTreeItem(this, tool),
-            (tool) => tool.name
+            transformativeServers,
+            "invalidApiManagementMcpServer",
+            async (server) => new McpServerTreeItem(this, server, this.root),
+            (server) => server.name
         );
     }
 }

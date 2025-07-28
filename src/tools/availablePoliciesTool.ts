@@ -4,10 +4,10 @@
  *--------------------------------------------------------------------------------------------*/
 
 import * as vscode from 'vscode';
-import * as fs from 'fs-extra';
 import * as path from 'path';
 import { ext } from '../extensionVariables';
 import { callWithTelemetryAndErrorHandling, IActionContext } from '@microsoft/vscode-azext-utils';
+import { readFileAsync } from '../utils/fileUtils';
 
 export class AvailablePoliciesTool implements vscode.LanguageModelTool<{}> {
     private static cachedPolicyList: string;
@@ -25,11 +25,12 @@ export class AvailablePoliciesTool implements vscode.LanguageModelTool<{}> {
         _options: vscode.LanguageModelToolInvocationOptions<{}>,
         _token: vscode.CancellationToken
     ): Promise<vscode.LanguageModelToolResult> {
+        let err: Error | undefined = undefined;
         const result = await callWithTelemetryAndErrorHandling<vscode.LanguageModelToolResult>("lmtool.get-available-apim-policies.invoke", async (_context: IActionContext) => {
             try {
                 if (!AvailablePoliciesTool.cachedPolicyList) {
                     const policiesPath = ext.context.asAbsolutePath(path.join('resources', 'knowledgeBase', 'policies.json'));
-                    const policiesContent = await fs.readFile(policiesPath, 'utf8');
+                    const policiesContent = await readFileAsync(policiesPath, 'utf8');
                     const policies = JSON.parse(policiesContent);
                     AvailablePoliciesTool.cachedPolicyList = Object.entries(policies)
                         .map(([name, description]) => `${name}: ${description}`)
@@ -40,13 +41,15 @@ export class AvailablePoliciesTool implements vscode.LanguageModelTool<{}> {
                     new vscode.LanguageModelTextPart('Here are all available APIM policies:\n\n' + AvailablePoliciesTool.cachedPolicyList)
                 ]);
             } catch (error) {
-                return new vscode.LanguageModelToolResult([
-                    new vscode.LanguageModelTextPart(`Error retrieving policies: ${error.message}`)
-                ]);
+                err = error;
+                throw error; // throw the error to be caught by the telemetry handler
             }
         });
-        return result ?? new vscode.LanguageModelToolResult([
-            new vscode.LanguageModelTextPart('Error: Unable to retrieve APIM policies.')
-        ]);
+
+        if (result === undefined) {
+            throw err; // throw the error when tool invoke failed
+        }
+
+        return result;
     }
 }

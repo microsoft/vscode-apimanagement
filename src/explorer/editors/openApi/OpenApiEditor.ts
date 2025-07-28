@@ -57,7 +57,7 @@ export class OpenApiEditor extends Editor<ApiTreeItem> {
         try {
             const documentJson = JSON.parse(data);
             const openApiparser = new OpenApiParser();
-            openApiDocument = await openApiparser.parse(documentJson);
+            openApiDocument = openApiparser.parse(documentJson);
 
             if (context.apiContract.serviceUrl !== null && context.apiContract.serviceUrl !== undefined) {
                 openApiparser.updateBackend(openApiDocument.sourceDocument, nonNullProp(context.apiContract, 'serviceUrl'));
@@ -129,7 +129,7 @@ export class OpenApiEditor extends Editor<ApiTreeItem> {
         const openApiparser = new OpenApiParser();
         const swagger = JSON.parse(swaggerDocument);
         // tslint:disable-next-line: no-unsafe-any
-        const importDocument = await openApiparser.parse(swagger);
+        const importDocument = openApiparser.parse(swagger);
         const sourceDocument = importDocument.sourceDocument;
         let basePath: string = importDocument.basePath !== undefined ? importDocument.basePath : "";
         if (context.apiContract.apiVersionSet && context.apiContract.apiVersionSet.versioningScheme === "Segment" && sourceDocument.basePath !== undefined) {
