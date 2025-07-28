@@ -92,6 +92,7 @@ import { passthroughMcpServer } from './commands/passthroughMcpServer';
 import { LearnMoreMcpTreeItem } from './explorer/McpServersTreeItem';
 import { McpServerTreeItem } from './explorer/McpServerTreeItem';
 import { McpServerToolsTreeItem } from './explorer/McpServerToolsTreeItem';
+import { JumpNodeProvider } from './explorer/jumpNode';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -123,6 +124,8 @@ export async function activateInternal(context: vscode.ExtensionContext) {
         
         ext.tree = new AzExtTreeDataProvider(azureAccountTreeItem, 'azureApiManagement.LoadMore');
         context.subscriptions.push(vscode.window.registerTreeDataProvider('azureApiManagementExplorer', ext.tree));
+
+        vscode.window.registerTreeDataProvider('jumpToAzureApiManagement', new AzExtTreeDataProvider(new JumpNodeProvider(), 'jumpNodeView'));
 
         registerCommands(ext.tree);
         registerEditors(context);
@@ -194,6 +197,9 @@ function registerCommands(tree: AzExtTreeDataProvider): void {
     registerCommand('azureApiManagement.generateKubernetesDeployment', generateKubernetesDeployment);
     registerCommand('azureApiManagement.generateNewGatewayToken', generateNewGatewayToken);
     registerCommand('azureApiManagement.debugPolicy', debugPolicy);
+    registerCommand('azureApiManagement.jumpToApiCatalog', async () => {
+        await vscode.commands.executeCommand('workbench.view.extension.apiCatalog');
+    });
 
     registerCommand('azureApiManagement.openExtensionWorkspaceFolder', openWorkingFolder);
     registerCommand('azureApiManagement.openDiffEditor', async (context: IActionContext, uri: vscode.Uri) => await openDiffEditor(context, uri));

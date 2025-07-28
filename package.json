@@ -238,6 +238,11 @@
         ],
         "commands": [
             {
+                "command": "azureApiManagement.jumpToApiCatalog",
+                "title": "Jump to API Catalog",
+                "category": "Azure API Management"  
+            },
+            {
                 "command": "azureApiManagement.copyMcpServerUrl",
                 "title": "%azureApiManagement.copyMcpServerUrl%",
                 "category": "Azure API Management"
@@ -581,14 +586,26 @@
                     "id": "azure",
                     "title": "Azure",
                     "icon": "resources/azure.svg"
+                },
+                {
+                    "id": "apiCatalog",
+                    "title": "API Management & API Center",
+                    "icon": "resources/APICatalog.svg"
                 }
             ]
         },
         "views": {
-            "azure": [
+            "apiCatalog": [
                 {
                     "id": "azureApiManagementExplorer",
                     "name": "Api Management",
+                    "when": "config.azureApiManagement.showExplorer == true"
+                }
+            ],
+            "azure": [
+                {
+                    "id": "jumpToAzureApiManagement",
+                    "name": "API Management",
                     "when": "config.azureApiManagement.showExplorer == true"
                 }
             ]
@@ -624,6 +641,10 @@
                 },
                 {
                     "command": "azureApiManagement.passthroughMcpServer",
+                    "when": "never"
+                },
+                {
+                    "command": "azureApiManagement.jumpToApiCatalog",
                     "when": "never"
                 }
             ],
