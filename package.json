@@ -637,7 +637,7 @@
                 {
                     "submenu": "azureApiManagement.submenu",
                     "when": "resourceExtname == '.xml'",
-                    "group": "apiManagement"
+                    "group": "azureApiManagement"
                 }
             ],
             "view/title": [
