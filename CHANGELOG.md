@@ -15,6 +15,10 @@ All notable changes to the "Azure Api Management VS Code" extension will be docu
 - **Create MCP server**: You can now create `transformative` and `passthrough` MCP server in APIM. `transformative` transforms an existing API in APIM to MCP server by selecting a series of operations to be exposed by the MCP server. `passthrough` exposes your existing MCP server through APIM, allowing you to add additional capabilities provided by APIM to your MCP server.
 ![CreateMCP](https://github.com/user-attachments/assets/973c4194-e40b-49b4-921b-42eaf2c7a6ec)
 
+### Updates
+
+- Moved `Explain APIM Policies` and `Draft APIM Policies` context menu from `Copilot` group to `Azure API Management` group
+
 ## 1.2.0
 
 ### New features

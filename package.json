@@ -593,6 +593,12 @@
                 }
             ]
         },
+        "submenus": [
+            {
+                "id": "azureApiManagement.submenu",
+                "label": "Azure API Management"
+            }
+        ],
         "menus": {
             "editor/title": [
                 {
@@ -625,6 +631,13 @@
                 {
                     "command": "azureApiManagement.passthroughMcpServer",
                     "when": "never"
+                }
+            ],
+            "editor/context": [
+                {
+                    "submenu": "azureApiManagement.submenu",
+                    "when": "resourceExtname == '.xml'",
+                    "group": "apiManagement"
                 }
             ],
             "view/title": [
@@ -911,16 +924,14 @@
                     "group": "1@1"
                 }
             ],
-            "copilot": [
+            "azureApiManagement.submenu": [
                 {
                     "command": "azureApiManagement.explainPolicy",
-                    "when": "github.copilot-chat.activated && resourceExtname == '.xml'",
-                    "group": "apiManagement"
+                    "when": "github.copilot-chat.activated && resourceExtname == '.xml'"
                 },
                 {
                     "command": "azureApiManagement.draftPolicy",
-                    "when": "github.copilot-chat.activated && resourceExtname == '.xml'",
-                    "group": "apiManagement"
+                    "when": "github.copilot-chat.activated && resourceExtname == '.xml'"
                 }
             ]
         },
