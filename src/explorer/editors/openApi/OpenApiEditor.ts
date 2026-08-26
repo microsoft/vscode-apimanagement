@@ -4,7 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { ApiCreateOrUpdateParameter } from "@azure/arm-apimanagement";
-import { HttpOperationResponse, RequestPrepareOptions, ServiceClient } from "@azure/ms-rest-js";
+import { AzureServiceClient as ServiceClient, IHttpResponse as HttpOperationResponse, IRequestOptions as RequestPrepareOptions } from "../../../azure/azureServiceClient";
 import { ProgressLocation, window } from "vscode";
 import { appendExtensionUserAgent } from "@microsoft/vscode-azext-utils";
 import { openApiAcceptHeader, openApiExport, openApiSchema, showSavePromptConfigKey, swaggerAcceptHeader, swaggerExport, swaggerSchema } from "../../../constants";

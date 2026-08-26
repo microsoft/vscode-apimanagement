@@ -16,7 +16,7 @@ export class ProductPolicyTreeItem extends AzExtTreeItem {
         this.root = root;
     }
 
-    public get iconPath(): { light: string, dark: string } {
+    public get iconPath(): treeUtils.IThemedIconPath {
         return treeUtils.getThemedIconPath('policy');
     }
     public static contextValue: string = 'azureApiManagementProductPolicy';

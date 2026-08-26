@@ -184,7 +184,7 @@ export class DebuggerConnection extends EventEmitter {
 	}
 
 	private sendEvent(event: string, ...args: any[]) {
-		setImmediate(_ => {
+		setImmediate(() => {
 			this.emit(event, ...args);
 		});
 	}

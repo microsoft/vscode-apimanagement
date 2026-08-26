@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { HttpMethods, HttpOperationResponse, ParameterValue, ServiceClient } from "@azure/ms-rest-js";
+import { AzureServiceClient as ServiceClient, HttpMethods, IHttpResponse as HttpOperationResponse } from "../azureServiceClient";
 import { clientOptions } from "../clientOptions";
 import * as Constants from "../../constants";
 import { nonNullOrEmptyValue } from "../../utils/nonNull";
@@ -87,7 +87,7 @@ export class FunctionAppService {
     }
 
     // tslint:disable-next-line: no-any
-    private async request(url: string, method: HttpMethods, queryParameters?: { [key: string]: any | ParameterValue }, body?: any): Promise<HttpOperationResponse> {
+    private async request(url: string, method: HttpMethods, queryParameters?: { [key: string]: any }, body?: any): Promise<HttpOperationResponse> {
         const client: ServiceClient = new ServiceClient(this.credentials, clientOptions);
         return await client.sendRequest({
             method: method,

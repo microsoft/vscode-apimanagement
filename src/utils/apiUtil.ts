@@ -109,7 +109,7 @@ export namespace apiUtil {
     }
 
     export async function getAllOperationsForApi(root: IServiceTreeRoot, apiId: string): Promise<OperationContract[]> {
-        let operations: OperationContract[] = await uiUtils.listAllIterator(root.client.apiOperation.listByApi(root.resourceGroupName, root.serviceName, apiId));
+        const operations: OperationContract[] = await uiUtils.listAllIterator(root.client.apiOperation.listByApi(root.resourceGroupName, root.serviceName, apiId));
         return operations;
     }
 

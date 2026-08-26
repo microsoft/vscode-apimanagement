@@ -1,5 +1,5 @@
-import { StackFrame } from 'vscode-debugadapter';
-import { DebugProtocol } from 'vscode-debugprotocol';
+import { StackFrame } from '@vscode/debugadapter';
+import { DebugProtocol } from '@vscode/debugprotocol';
 import { StackFrameContract, StackFrameScopeContract } from './debuggerConnection';
 import { PolicySource } from './policySource';
 

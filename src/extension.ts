@@ -424,7 +424,7 @@ class UriEventHandler extends vscode.EventEmitter<vscode.Uri> implements vscode.
                 const queryParams = <Record<string, string>>query.parse(uri.query);
                 // tslint:disable-next-line:no-string-literal
                 const errorValue = queryParams['error'];
-                const errorDecoded = new Buffer(errorValue, 'base64');
+                const errorDecoded = Buffer.from(errorValue, 'base64');
                 ext.outputChannel.appendLine(localize('authFailed', `Authorization failed. ${errorDecoded.toString('utf8')}.`));
                 vscode.window.showInformationMessage(localize('authFailed', `Authorization failed. ${errorDecoded.toString('utf8')}.`));
             } else {

@@ -4,7 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { ApiManagementServiceSkuProperties } from "@azure/arm-apimanagement";
-import { ApiManagementServiceResource } from "@azure/arm-apimanagement/src/models";
+import { ApiManagementServiceResource } from "@azure/arm-apimanagement";
 import { MessageItem, Progress, window } from "vscode";
 import { AzureWizardExecuteStep } from "@microsoft/vscode-azext-utils";
 import { ext } from "../../extensionVariables";

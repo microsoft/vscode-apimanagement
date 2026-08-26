@@ -43,7 +43,7 @@ export class AuthorizationAccessPolicyTreeItem extends AzExtTreeItem {
         return this.authorizationAccessPolicyContract.properties.objectId;
     }
 
-    public get iconPath(): { light: string, dark: string } {
+    public get iconPath(): treeUtils.IThemedIconPath {
         return treeUtils.getThemedIconPath('accesspolicy');
     }
 

@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { HttpOperationResponse, ServiceClient } from "@azure/ms-rest-js";
+import { AzureServiceClient as ServiceClient, IHttpResponse as HttpOperationResponse } from "../azureServiceClient";
 import { AzExtServiceClientCredentials } from "@microsoft/vscode-azext-utils";
 import { clientOptions } from "../clientOptions";
 

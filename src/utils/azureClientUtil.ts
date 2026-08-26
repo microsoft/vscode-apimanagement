@@ -10,13 +10,15 @@ import { AzureSubscriptionHelper } from "../azure/azureLogin/subscriptions";
 
 export namespace azureClientUtil {
     export function getClient(context: IActionContext, node: AzExtTreeItem): WebSiteManagementClient {
-        return createAzureClient([context, node], WebSiteManagementClient);
+        // Pass node.subscription, not node: a dual CJS/ESM azext-utils build makes createAzureClient's `instanceof AzExtTreeItem` check fail, which would drop `environment`.
+        // tslint:disable-next-line: no-any
+        return createAzureClient([context, node.subscription], WebSiteManagementClient as any) as any;
     }
 
     // tslint:disable: no-unsafe-any
     export async function selectSubscription(_context: IActionContext): Promise<string> {
         await AzureAccount.selectSubscriptions();
-        let res = await AzureSubscriptionHelper.getFilteredSubscriptions();
+        const res = await AzureSubscriptionHelper.getFilteredSubscriptions();
         return res[0].subscriptionId;
     }
 }

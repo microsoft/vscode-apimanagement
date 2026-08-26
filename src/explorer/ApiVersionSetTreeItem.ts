@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ApiContract, ApiVersionSetContractDetails } from "@azure/arm-apimanagement/src/models";
+import { ApiContract, ApiVersionSetContractDetails } from "@azure/arm-apimanagement";
 import { AzExtParentTreeItem, AzExtTreeItem } from "@microsoft/vscode-azext-utils";
 import { nonNullProp, nonNullValue } from "../utils/nonNull";
 import { treeUtils } from "../utils/treeUtils";
@@ -43,7 +43,7 @@ export class ApiVersionSetTreeItem extends AzExtParentTreeItem {
         return false;
     }
 
-    public get iconPath(): { light: string, dark: string } {
+    public get iconPath(): treeUtils.IThemedIconPath {
         return treeUtils.getThemedIconPath('list');
     }
 

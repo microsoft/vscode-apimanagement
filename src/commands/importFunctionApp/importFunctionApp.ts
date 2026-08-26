@@ -3,9 +3,9 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ApiContract, BackendCredentialsContract, NamedValueCreateContract, OperationContract } from "@azure/arm-apimanagement/src/models";
-import { Site } from "@azure/arm-appservice/src/models";
-import { WebResource } from "@azure/ms-rest-js";
+import { ApiContract, BackendCredentialsContract, NamedValueCreateContract, OperationContract } from "@azure/arm-apimanagement";
+import { Site } from "@azure/arm-appservice";
+import { IRequestOptions } from "../../azure/azureServiceClient";
 import { ProgressLocation, window } from "vscode";
 import { IActionContext } from "@microsoft/vscode-azext-utils";
 import { IOpenApiImportObject, OpenApiParser } from "../../../extension.bundle";
@@ -122,9 +122,7 @@ export async function importFunctionApp(context: IActionContext & Partial<IApiTr
 
 // tslint:disable-next-line: max-func-body-length
 async function importFromSwagger(funcAppService: FunctionAppService, context: IActionContext & Partial<IApiTreeItemContext>, webAppConfig: IWebAppContract, funcAppName: string, apiName: string, node: ApiTreeItem | ApisTreeItem): Promise<void> {
-    const webResource = new WebResource();
-    webResource.url = webAppConfig.properties.apiDefinition!.url!;
-    webResource.method = "GET";
+    const webResource: IRequestOptions = { url: webAppConfig.properties.apiDefinition!.url!, method: "GET" };
     const docStr : string = await sendRequest(webResource);
     if (docStr !== undefined && docStr.trim() !== "") {
         const documentJson = JSON.parse(docStr);

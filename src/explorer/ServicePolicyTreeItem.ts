@@ -11,7 +11,7 @@ import { IServiceTreeRoot } from "./IServiceTreeRoot";
 export class ServicePolicyTreeItem extends AzExtTreeItem {
     public readonly root: IServiceTreeRoot;
 
-    public get iconPath(): { light: string, dark: string } {
+    public get iconPath(): treeUtils.IThemedIconPath {
         return treeUtils.getThemedIconPath('policy');
     }
     public static contextValue: string = 'azureApiManagementServicePolicy';

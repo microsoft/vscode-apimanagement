@@ -5,14 +5,16 @@
 
 import { PolicyContract } from "@azure/arm-apimanagement";
 import { ITreeItemWithRoot } from "../../ITreeItemWithRoot";
-import { emptyPolicyXml, policyFormat } from "../../../constants";
+import { emptyPolicyXml } from "../../../constants";
 import { IApiTreeRoot } from "../../IApiTreeRoot";
 import { BasePolicyEditor } from "./BasePolicyEditor";
+import { ApimService } from "../../../azure/apim/ApimService";
 
 export class ApiPolicyEditor extends BasePolicyEditor<IApiTreeRoot> {
     public async getPolicy(context: ITreeItemWithRoot<IApiTreeRoot>): Promise<string> {
-        const policy = await context.root.client.apiPolicy.get(context.root.resourceGroupName, context.root.serviceName, context.root.apiName, "policy", { format: policyFormat });
-        return policy.value!;
+        const apimService = new ApimService(context.root.credentials, context.root.environment.resourceManagerEndpointUrl, context.root.subscriptionId, context.root.resourceGroupName, context.root.serviceName);
+        const policyValue = await apimService.getApiPolicy(context.root.apiName);
+        return policyValue ?? this.getDefaultPolicy();
     }
 
     public async updatePolicy(context: ITreeItemWithRoot<IApiTreeRoot>, policy: PolicyContract): Promise<string> {

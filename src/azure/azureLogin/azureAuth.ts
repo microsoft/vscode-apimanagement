@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 import { TokenCredential } from "@azure/core-auth";
 import { PagedAsyncIterableIterator } from "@azure/core-paging";
-import { Environment, EnvironmentParameters } from "@azure/ms-rest-azure-env";
+import { Environment, EnvironmentParameters } from "../cloudEnvironment";
 import * as vscode from "vscode";
 import { UiStrings } from "../../uiStrings";
 import { GeneralUtils } from "../../utils/generalUtils";
@@ -116,7 +116,7 @@ export namespace AzureAuth {
             throw new Error(vscode.l10n.t(UiStrings.CustomCloudChoiseNotConfigured, section, settingName));
         }
 
-        return Environment.get(Environment.AzureCloud.name);
+        return Environment.AzureCloud;
     }
 
     export async function listAll<T>(iterator: PagedAsyncIterableIterator<T>): Promise<GeneralUtils.Errorable<T[]>> {

@@ -3,7 +3,7 @@
 *  Licensed under the MIT License. See License.txt in the project root for license information.
 *--------------------------------------------------------------------------------------------*/
 
-import { ApiContract, ApiCreateOrUpdateParameter, ApiReleaseContract } from "@azure/arm-apimanagement/src/models";
+import { ApiContract, ApiCreateOrUpdateParameter, ApiReleaseContract } from "@azure/arm-apimanagement";
 import { Guid } from "guid-typescript";
 import { MessageItem, ProgressLocation, window } from "vscode";
 import { IActionContext } from "@microsoft/vscode-azext-utils";
@@ -76,11 +76,7 @@ async function askReleaseNotes(context: IActionContext): Promise<string> {
     const defaultName = localize('releaseName', "New release");
     return (await context.ui.showInputBox({
         prompt: releaseNotesPrompt,
-        value: defaultName,
-        validateInput: async (value: string | undefined): Promise<string | undefined> => {
-            value = value ? value.trim() : '';
-            return undefined;
-        }
+        value: defaultName
     })).trim();
 }
 
@@ -142,7 +138,7 @@ async function deleteRevision(context: IActionContext, node: ApiTreeItem): Promi
         },
         async () => {
             const pickedApi = await listRevisions(context, node);
-            await node.root.client.api.delete(node.root.resourceGroupName, node.root.serviceName, nonNullOrEmptyValue(pickedApi.name), "*");
+            await node.root.client.api.beginDeleteAndWait(node.root.resourceGroupName, node.root.serviceName, nonNullOrEmptyValue(pickedApi.name), "*");
         }
     ).then(async () => {
         window.showInformationMessage(localize("deleteRevision", "Delete revision has completed successfully."));
@@ -154,10 +150,6 @@ async function askRevisionDescription(context: IActionContext): Promise<string> 
     const defaultDescription: string = localize('revisionPrompt',  "New API revision");
     return (await context.ui.showInputBox({
         prompt: releaseNotesPrompt,
-        value: defaultDescription,
-        validateInput: async (value: string | undefined): Promise<string | undefined> => {
-            value = value ? value.trim() : '';
-            return undefined;
-        }
+        value: defaultDescription
     })).trim();
 }

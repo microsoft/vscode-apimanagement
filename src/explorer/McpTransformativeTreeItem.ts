@@ -21,7 +21,7 @@ export class McpTransformativeTreeItem extends AzExtParentTreeItem {
         super(parent);
     }
 
-    public get iconPath(): { light: string, dark: string } {
+    public get iconPath(): treeUtils.IThemedIconPath {
         return treeUtils.getThemedIconPath('list');
     }
 

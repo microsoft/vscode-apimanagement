@@ -5,7 +5,7 @@
 
 import * as assert from 'assert';
 import { IOpenApiImportObject, OpenApiParser, ext } from '../extension.bundle';
-import { TestOutputChannel } from '@microsoft/vscode-azext-dev';
+import { TestOutputChannel } from '@microsoft/vscode-azext-utils';
 import {openApi2_0, openApi3_0} from './testData';
 
 // tslint:disable: no-unsafe-any

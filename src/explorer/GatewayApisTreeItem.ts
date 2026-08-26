@@ -17,7 +17,7 @@ export interface IGatewayTreeItemContext extends ICreateChildImplContext {
 }
 
 export class GatewayApisTreeItem extends AzExtParentTreeItem {
-    public get iconPath(): { light: string, dark: string } {
+    public get iconPath(): treeUtils.IThemedIconPath {
         return treeUtils.getThemedIconPath('list');
     }
     public static contextValue: string = 'azureApiManagementGatewayApis';

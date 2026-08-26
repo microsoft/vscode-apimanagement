@@ -22,7 +22,7 @@ export class McpServerToolsTreeItem extends AzExtParentTreeItem implements ITree
         super(parent);
     }
 
-    public get iconPath(): { light: string, dark: string } {
+    public get iconPath(): treeUtils.IThemedIconPath {
         return treeUtils.getThemedIconPath('list');
     }
 

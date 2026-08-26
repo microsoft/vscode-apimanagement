@@ -36,7 +36,7 @@ export class McpServerTreeItem extends AzExtParentTreeItem implements ITreeItemW
         this.policyTreeItem = new ApiPolicyTreeItem(this, this._root);
     }
 
-    public get iconPath(): { light: string, dark: string } {
+    public get iconPath(): treeUtils.IThemedIconPath {
         return treeUtils.getThemedIconPath('mcp', 'png');
     }
     

@@ -4,8 +4,8 @@
 
 import axios from 'axios';
 import * as vscode from 'vscode';
-import { Breakpoint, Handles, InitializedEvent, Logger, logger, LoggingDebugSession, OutputEvent, Scope, StackFrame, StoppedEvent, TerminatedEvent, Thread, ThreadEvent, Variable } from 'vscode-debugadapter';
-import { DebugProtocol } from 'vscode-debugprotocol';
+import { Breakpoint, Handles, InitializedEvent, Logger, logger, LoggingDebugSession, OutputEvent, Scope, StackFrame, StoppedEvent, TerminatedEvent, Thread, ThreadEvent, Variable } from '@vscode/debugadapter';
+import { DebugProtocol } from '@vscode/debugprotocol';
 import { IArmResource, IMasterSubscriptionsSecrets, IPaged } from "../azure/apim/contracts";
 import * as Constants from "../constants";
 import { localize } from "../localize";

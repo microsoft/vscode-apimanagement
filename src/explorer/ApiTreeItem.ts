@@ -61,7 +61,7 @@ export class ApiTreeItem extends AzExtParentTreeItem {
         return this._root;
     }
 
-    public get iconPath(): { light: string, dark: string } {
+    public get iconPath(): treeUtils.IThemedIconPath {
         return treeUtils.getThemedIconPath('api');
     }
 
@@ -79,7 +79,7 @@ export class ApiTreeItem extends AzExtParentTreeItem {
         if (result === DialogResponses.deleteResponse) {
             const deletingMessage: string = localize("deletingApi", `Deleting API "${this.root.apiName}"...`);
             await window.withProgress({ location: ProgressLocation.Notification, title: deletingMessage }, async () => {
-                await this.root.client.api.delete(this.root.resourceGroupName, this.root.serviceName, this.root.apiName, '*');
+                await this.root.client.api.beginDeleteAndWait(this.root.resourceGroupName, this.root.serviceName, this.root.apiName, '*');
             });
             // don't wait
             window.showInformationMessage(localize("deletedApi", `Successfully deleted API "${this.root.apiName}".`));

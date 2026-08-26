@@ -32,7 +32,7 @@ export class ProductApiTreeItem extends AzExtTreeItem {
     }
 
     // @ts-ignore
-    public get iconPath(): { light: string, dark: string } {
+    public get iconPath(): treeUtils.IThemedIconPath {
         return treeUtils.getThemedIconPath('api');
     }
 

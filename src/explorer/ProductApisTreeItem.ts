@@ -26,7 +26,7 @@ export class ProductApisTreeItem extends AzExtParentTreeItem {
         this.root = root;
     }
 
-    public get iconPath(): { light: string, dark: string } {
+    public get iconPath(): treeUtils.IThemedIconPath {
         return treeUtils.getThemedIconPath('list');
     }
     public static contextValue: string = 'azureApiManagementProductApis';

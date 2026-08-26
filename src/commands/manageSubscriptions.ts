@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ApiContract, ProductContract, UserContract } from "@azure/arm-apimanagement/src/models";
+import { ApiContract, ProductContract, UserContract } from "@azure/arm-apimanagement";
 import { ProgressLocation, window } from "vscode";
 import { IActionContext } from "@microsoft/vscode-azext-utils";
 import { ISubscriptionContract } from "../azure/webApp/contracts";

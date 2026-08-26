@@ -15,6 +15,12 @@
                 "kind": "build",
                 "isDefault": true
             }
+        },
+        {
+            "type": "npm",
+            "script": "esbuild",
+            "problemMatcher": [],
+            "group": "build"
         }
     ]
 }

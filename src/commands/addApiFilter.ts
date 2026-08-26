@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ApiContract } from "@azure/arm-apimanagement/src/models";
+import { ApiContract } from "@azure/arm-apimanagement";
 import { IActionContext } from "@microsoft/vscode-azext-utils";
 import { ApisTreeItem } from "../explorer/ApisTreeItem";
 import { ServiceTreeItem } from '../explorer/ServiceTreeItem';

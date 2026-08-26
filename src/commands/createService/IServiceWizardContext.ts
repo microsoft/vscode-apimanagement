@@ -4,7 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { ApiManagementClient } from '@azure/arm-apimanagement';
-import { ApiManagementServiceResource } from '@azure/arm-apimanagement/src/models';
+import { ApiManagementServiceResource } from '@azure/arm-apimanagement';
 import { IResourceGroupWizardContext } from '@microsoft/vscode-azext-azureutils';
 
 export interface IServiceWizardContext extends IResourceGroupWizardContext {

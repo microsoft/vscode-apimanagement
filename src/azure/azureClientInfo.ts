@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { Environment } from "@azure/ms-rest-azure-env";
+import { Environment } from "./cloudEnvironment";
 import { AzExtServiceClientCredentials } from "@microsoft/vscode-azext-utils";
 
 export interface IAzureClientInfo {

@@ -189,7 +189,7 @@ async function createMcpServer(
   );
 
   // Create the MCP server payload
-  let mcpServerPayload: any = {
+  const mcpServerPayload: any = {
     properties: {
       displayName: config.mcpServerName, // Use mcpServerName as displayName by default
       protocols: ["http", "https"],

@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { WebResource } from '@azure/ms-rest-js';
+import { IRequestOptions } from '../azure/azureServiceClient';
 import * as fse from 'fs-extra';
 import { OpenDialogOptions, ProgressLocation, Uri, window, workspace } from "vscode";
 import { IActionContext } from '@microsoft/vscode-azext-utils';
@@ -32,9 +32,7 @@ export async function importOpenApi(context: IActionContext & Partial<IApiTreeIt
         documentString = fileContent.toString();
     } else {
         const openApiLink = await askLink(context);
-        const webResource = new WebResource();
-        webResource.url = openApiLink;
-        webResource.method = "GET";
+        const webResource: IRequestOptions = { url: openApiLink, method: "GET" };
         documentString = await sendRequest(webResource);
 
         /*

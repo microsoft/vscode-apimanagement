@@ -4,7 +4,7 @@
 import { TokenCredential } from "@azure/core-auth";
 import * as path from 'path';
 import axios from 'axios';
-import { Source } from 'vscode-debugadapter';
+import { Source } from '@vscode/debugadapter';
 import * as Constants from "../constants";
 import { getBearerToken } from '../utils/requestUtil';
 import { StackFrameScopeContract } from './debuggerConnection';

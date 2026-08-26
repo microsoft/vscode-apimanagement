@@ -19,7 +19,7 @@ export class McpServerToolTreeItem extends AzExtTreeItem {
         this.label = tool.name;
     }
 
-    public get iconPath(): { light: string, dark: string } {
+    public get iconPath(): treeUtils.IThemedIconPath {
         return treeUtils.getThemedIconPath('op');
     }
 

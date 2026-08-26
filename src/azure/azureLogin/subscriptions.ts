@@ -17,7 +17,7 @@ export namespace AzureSubscriptionHelper {
 
     export function getFilteredSubscriptions(): SubscriptionFilter[] {
         try {
-            let values = vscode.workspace.getConfiguration(extensionPrefix).get<string[]>(AzureLoginConstantString.selectedSubscriptions, []);
+            const values = vscode.workspace.getConfiguration(extensionPrefix).get<string[]>(AzureLoginConstantString.selectedSubscriptions, []);
             return values.map(asSubscriptionFilter).filter((v) => v !== null) as SubscriptionFilter[];
         } catch (e) {
             return [];

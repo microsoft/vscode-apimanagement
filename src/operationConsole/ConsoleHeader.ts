@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ParameterContract } from "@azure/arm-apimanagement/src/models";
+import { ParameterContract } from "@azure/arm-apimanagement";
 
 export class ConsoleHeader {
     public name: string;

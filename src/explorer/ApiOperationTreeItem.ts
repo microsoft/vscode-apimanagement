@@ -26,7 +26,7 @@ export class ApiOperationTreeItem extends AzExtParentTreeItem {
         return this._root;
     }
 
-    public get iconPath(): { light: string, dark: string } {
+    public get iconPath(): treeUtils.IThemedIconPath {
         return treeUtils.getThemedIconPath('op');
     }
 

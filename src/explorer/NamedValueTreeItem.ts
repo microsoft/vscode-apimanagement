@@ -31,7 +31,7 @@ export class NamedValueTreeItem extends AzExtTreeItem {
         return this._label;
     }
 
-    public get iconPath(): { light: string, dark: string } {
+    public get iconPath(): treeUtils.IThemedIconPath {
         return treeUtils.getThemedIconPath('namedvalue');
     }
 

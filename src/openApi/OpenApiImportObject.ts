@@ -45,7 +45,7 @@ export interface ISwaggerOperation {
     operationId: string;
     description: string;
     parameters: ISwaggerParameter[];
-    responses: Object;
+    responses: object;
     security: ISecurityType[];
     summary: string;
     consumes?: string[];
@@ -58,7 +58,7 @@ export interface ISwaggerParameter {
     required: boolean;
     description: string;
     type?: string;
-    schema?: Object;
+    schema?: object;
     default?: string;
     enum: string[];
 }

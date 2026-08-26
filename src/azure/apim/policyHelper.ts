@@ -4,13 +4,13 @@
  *--------------------------------------------------------------------------------------------*/
 
 // tslint:disable-next-line: export-name
-export function getSetMethodPolicy(method: string): Object {
+export function getSetMethodPolicy(method: string): object {
     return {
         "set-method": [method]
     };
 }
 
-export function getRewriteUrlPolicy(triggerUrl: string): Object {
+export function getRewriteUrlPolicy(triggerUrl: string): object {
     return {
         "rewrite-uri": [
             {
@@ -23,8 +23,8 @@ export function getRewriteUrlPolicy(triggerUrl: string): Object {
     };
 }
 
-export function getSetHeaderPolicy(name: string, existsAction: string, headerValues: string[]): Object {
-    const setHeaderChildren: Object[] = [];
+export function getSetHeaderPolicy(name: string, existsAction: string, headerValues: string[]): object {
+    const setHeaderChildren: object[] = [];
     setHeaderChildren.push({
         _attr: {
             id: "apim-generated-policy",
@@ -42,7 +42,7 @@ export function getSetHeaderPolicy(name: string, existsAction: string, headerVal
     };
 }
 
-export function getSetBackendPolicy(backendId: string): Object {
+export function getSetBackendPolicy(backendId: string): object {
     return {
         "set-backend-service": [
             {

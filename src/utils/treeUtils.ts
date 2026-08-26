@@ -4,6 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import * as path from 'path';
+import * as vscode from 'vscode';
 import { AzExtTreeDataProvider, AzExtParentTreeItem, AzExtTreeItem } from '@microsoft/vscode-azext-utils';
 import { SubscriptionTreeItemBase } from '@microsoft/vscode-azext-azureutils';
 import { ext } from '../extensionVariables';
@@ -11,18 +12,18 @@ import { localize } from '../localize';
 
 export namespace treeUtils {
     export interface IThemedIconPath {
-        light: string;
-        dark: string;
+        light: vscode.Uri;
+        dark: vscode.Uri;
     }
 
-    export function getIconPath(iconName: string): string {
-        return path.join(getResourcesPath(), `${iconName}.svg`);
+    export function getIconPath(iconName: string): vscode.Uri {
+        return vscode.Uri.file(path.join(getResourcesPath(), `${iconName}.svg`));
     }
 
     export function getThemedIconPath(iconName: string, fileExtension: string = "svg"): IThemedIconPath {
         return {
-            light: path.join(getResourcesPath(), 'light', `${iconName}.${fileExtension}`),
-            dark: path.join(getResourcesPath(), 'dark', `${iconName}.${fileExtension}`)
+            light: vscode.Uri.file(path.join(getResourcesPath(), 'light', `${iconName}.${fileExtension}`)),
+            dark: vscode.Uri.file(path.join(getResourcesPath(), 'dark', `${iconName}.${fileExtension}`))
         };
     }
 

@@ -5,7 +5,7 @@
 
 import { ApiContract, BackendContract, BackendCredentialsContract, NamedValueCreateContract, OperationContract } from "@azure/arm-apimanagement";
 import { WebSiteManagementClient, Site } from "@azure/arm-appservice";
-import { WebResource } from "@azure/ms-rest-js";
+import { IRequestOptions } from "../../azure/azureServiceClient";
 import { ProgressLocation, window } from "vscode";
 import { IActionContext } from "@microsoft/vscode-azext-utils";
 import xml = require("xml");
@@ -110,8 +110,8 @@ export async function pickWebApp(context: IActionContext, apiApps: Site[]): Prom
 }
 
 // Create policy for importing
-export function createImportXmlPolicy(inboundPoliciesToAdd: Object[]): string {
-    const basePolicy: Object[] = [{ base: null }];
+export function createImportXmlPolicy(inboundPoliciesToAdd: object[]): string {
+    const basePolicy: object[] = [{ base: null }];
     const inboundPolicies = basePolicy.concat(inboundPoliciesToAdd);
     const operationPolicy = [{
         policies: [
@@ -234,9 +234,7 @@ function getWebConfigbaseUrl(endpointUrl: string, subscriptionId: string, webApp
 }
 
 async function importFromSwagger(context: IActionContext & Partial<IApiTreeItemContext>, webAppConfig: IWebAppContract, webAppName: string, apiName: string, node: ApiTreeItem | ApisTreeItem, pickedWebApp: Site): Promise<void> {
-    const webResource = new WebResource();
-    webResource.url = webAppConfig.properties.apiDefinition!.url!;
-    webResource.method = "GET";
+    const webResource: IRequestOptions = { url: webAppConfig.properties.apiDefinition!.url!, method: "GET" };
     const docStr : string = await sendRequest(webResource);
     if (docStr !== undefined && docStr.trim() !== "") {
         const documentJson = JSON.parse(docStr);
@@ -312,7 +310,7 @@ async function importFromSwagger(context: IActionContext & Partial<IApiTreeItemC
 async function assignAppDataToOperation(operation: OperationContract, api: ApiContract, secret: NamedValueCreateContract | undefined, root: IServiceTreeRoot): Promise<void> {
     let triggerUrl;
 
-    const inboundPolicies: Object[] = [];
+    const inboundPolicies: object[] = [];
     inboundPolicies.push(getSetMethodPolicy(operation.method!));
 
     if (secret) {
@@ -424,7 +422,7 @@ function getAllOperationNames(operations: OperationContract[]): {} {
     return operationNamesPair;
 }
 
-function getSecurityKeys(swaggerObject: IOpenApiImportObject, appName: string): Object | undefined {
+function getSecurityKeys(swaggerObject: IOpenApiImportObject, appName: string): object | undefined {
     let securityKeys;
     if (swaggerObject.securityDefinitions && swaggerObject.paths) {
         Object.keys(swaggerObject.paths).forEach(swaggerPath => {

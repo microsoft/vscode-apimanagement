@@ -40,11 +40,7 @@ export async function setCustomHostName(context: IActionContext, node?: ServiceT
     if (pick.label === selfDefined) {
         const namespacePrompt: string = localize('urlPrompt', 'Enter Custom Host Name.');
         const input = await context.ui.showInputBox({
-            prompt: namespacePrompt,
-            validateInput: async (value: string | undefined): Promise<string | undefined> => {
-                value = value ? value.trim() : '';
-                return undefined;
-            }
+            prompt: namespacePrompt
         });
         ext.context.globalState.update(node.root.serviceName + gatewayHostName, input);
     } else {

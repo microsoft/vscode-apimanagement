@@ -11,7 +11,7 @@ import { IServiceTreeRoot } from "./IServiceTreeRoot";
 import { SubscriptionTreeItem } from "./SubscriptionTreeItem";
 
 export class SubscriptionsTreeItem extends AzExtParentTreeItem {
-    public get iconPath(): { light: string, dark: string } {
+    public get iconPath(): treeUtils.IThemedIconPath {
         return treeUtils.getThemedIconPath('list');
     }
     public static contextValue: string = 'azureApiManagementSubscriptions';

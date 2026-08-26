@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ApiContract, ApiRevisionContract } from "@azure/arm-apimanagement/src/models";
+import { ApiContract, ApiRevisionContract } from "@azure/arm-apimanagement";
 import { ApimService } from "../azure/apim/ApimService";
 import { gatewayHostName } from "../constants";
 import { IOperationTreeRoot } from "../explorer/IOperationTreeRoot";
