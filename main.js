@@ -16,6 +16,13 @@ let perfStats = {
 
 Object.defineProperty(exports, "__esModule", { value: true });
 
+// Polyfill util.isNullOrUndefined, removed in newer Node.js but still used by @microsoft/vscode-azext-utils 2.x.
+// Node caches the 'util' module, so patching here fixes all downstream requires.
+const util = require('util');
+if (typeof util.isNullOrUndefined !== 'function') {
+    util.isNullOrUndefined = (value) => value === null || value === undefined;
+}
+
 const ignoreBundle = !/^(false|0)?$/i.test(process.env.AZCODE_APIM_IGNORE_BUNDLE || '');
 const extensionPath = ignoreBundle ? "./out/src/extension" : "./dist/extension.bundle";
 const extension = require(extensionPath);

@@ -2,6 +2,13 @@
 
 All notable changes to the "Azure Api Management VS Code" extension will be documented in this file.
 
+## 1.3.1
+
+### Fixed
+
+- **Extension failed to load API Management explorer tree on newer VS Code versions**: Fixed the runtime error `(0, s.isNullOrUndefined) is not a function` caused by the removed `util.isNullOrUndefined` API in newer Node.js runtimes. Replaced the `util` import with an inline null check in the extension code and added a polyfill for `@microsoft/vscode-azext-utils` 2.x, which still relies on the removed API.
+- Applied non-breaking dependency security updates via `npm audit fix`.
+
 ## 1.3.0
 
 ### New features
